@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Hypercube_Classic.Libraries {
     class Text {
-        const string RegexString = "[^A-Za-z0-9!\\^\\~$%&/()=?{}\t\\[\\]\\\\ ,;.:\\-_#'+*<>|@]|&.$|&.(&.)";
+        const string RegexString = "[^A-Za-z0-9!\\^\\~$%&/()=?{}\t\\[\\]\\\\ ,\\\";.:\\-_#'+*<>|@]|&.$|&.(&.)";
 
         /// <summary>
         /// Replaces invalid chat characters with "*".

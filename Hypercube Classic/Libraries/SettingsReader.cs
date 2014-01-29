@@ -38,11 +38,12 @@ namespace Hypercube_Classic.Libraries {
         /// </summary>
         /// <param name="Settingsfile"></param>
         public void ReadSettings(ISettings Settingsfile) {
-            if (!File.Exists(Settingsfile.Filename)) {
+            if (!File.Exists("Settings/" + Settingsfile.Filename)) {
                 File.WriteAllText("Settings/" + Settingsfile.Filename, ""); // -- Create the file if it doesn't exist.
             }
 
-            StreamReader fileReader = new StreamReader("Settings/" + Settingsfile.Filename);
+            string[] Test = File.ReadAllLines("Settings/" + Settingsfile.Filename);
+            var fileReader = new StreamReader("Settings/" + Settingsfile.Filename);
             Settingsfile.Settings.Clear();
 
             while (!fileReader.EndOfStream) {
@@ -51,7 +52,7 @@ namespace Hypercube_Classic.Libraries {
                 if (!line.Contains("="))
                     continue;
 
-                string key = line.Substring(0, line.IndexOf(" "));
+                string key = line.Substring(0, line.IndexOf("=") - 1);
                 string setting = line.Substring(line.IndexOf("=") + 2, line.Length - (line.IndexOf("=") + 2));
 
                 Settingsfile.Settings.Add(key, setting);
@@ -76,7 +77,7 @@ namespace Hypercube_Classic.Libraries {
         /// </summary>
         /// <param name="Settingsfile"></param>
         public void SaveSettings(ISettings Settingsfile) {
-            StreamWriter fileWriter = new StreamWriter("Settings/" + Settingsfile.Filename);
+            var fileWriter = new StreamWriter("Settings/" + Settingsfile.Filename);
 
             foreach (KeyValuePair<string, string> pair in Settingsfile.Settings) {
                 fileWriter.Write(pair.Key + " = " + pair.Value + "\r\n");

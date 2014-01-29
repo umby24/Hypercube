@@ -11,10 +11,10 @@ namespace Hypercube_Classic.Client {
     /// Class for interaction with a SQLite Database holding critical user information. Some of this information (Such as IP) is used for logging purposes,
     /// and may be used for looking up bans.
     /// </summary>
-    public class PlayerDB {
-        const string DatabaseName = "PlayerDB.s3db";
+    public class Database {
+        const string DatabaseName = "Database.s3db";
 
-        public PlayerDB() {
+        public Database() {
             
             if (!File.Exists("Settings/" + DatabaseName)) {
                 // -- We need to create the PlayerDB.
@@ -24,7 +24,10 @@ namespace Hypercube_Classic.Client {
                 var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
                 Connection.Open();
 
-                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped BOOLEAN, StoppedBy TEXT, Banned BOOLEAN, Vanished BOOLEAN, BannedBy STRING, BannedUntil INTEGER, Global BOOLEAN, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped BOOLEAN, StoppedBy TEXT, Banned BOOLEAN, Vanished BOOLEAN, BannedBy STRING, BannedUntil INTEGER, Global BOOLEAN, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                Command.ExecuteNonQuery();
+
+                Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op BOOLEAN)";
                 Command.ExecuteNonQuery();
 
                 Connection.Close(); // -- All done.
@@ -36,10 +39,13 @@ namespace Hypercube_Classic.Client {
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="IP"></param>
-        public void CreatePlayer(string Name, string IP) {
+        public void CreatePlayer(string Name, string IP, Hypercube Core) {
             var myValues = new Dictionary<string, string>();
             myValues.Add("Name", Name);
             myValues.Add("IP", IP);
+            myValues.Add("Rank", Core.DefaultRank.ID.ToString());
+            myValues.Add("RankStep", "0");
+            myValues.Add("Global", "true");
 
             Insert("PlayerDB", myValues);
         }
@@ -60,13 +66,50 @@ namespace Hypercube_Classic.Client {
         }
 
         /// <summary>
+        /// Creates a new rank in the database.
+        /// </summary>
+        /// <param name="Rankname"></param>
+        /// <param name="RankGroup"></param>
+        /// <param name="RankPrefix"></param>
+        /// <param name="RankSuffix"></param>
+        /// <param name="IsOp"></param>
+        /// <param name="PointsInRank"></param>
+        /// <param name="NextRank"></param>
+        public void CreateRank(string Rankname, string RankGroup, string RankPrefix = "", string RankSuffix = "", bool IsOp = false, int PointsInRank = 10, string NextRank = "") {
+            var myValues = new Dictionary<string, string>();
+            myValues.Add("Name", Rankname);
+            myValues.Add("Prefix", RankPrefix);
+            myValues.Add("Suffix", RankSuffix);
+            myValues.Add("Next", NextRank);
+            myValues.Add("RGroup", RankGroup);
+            myValues.Add("Points", PointsInRank.ToString());
+            myValues.Add("Op", IsOp.ToString());
+
+            Insert("RankDB", myValues);
+        }
+
+        /// <summary>
+        /// Checks to see if a rank by this name already exists.
+        /// </summary>
+        /// <param name="Rankname"></param>
+        /// <returns></returns>
+        public bool ContainsRank(string Rankname) {
+            var dt = GetDataTable("SELECT * FROM RankDB WHERE Name='" + Rankname + "'");
+
+            if (dt.Rows.Count > 0)
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
         /// Retreives a boolean value from the database.
         /// </summary>
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <returns></returns>
-        public bool GetDatabaseBool(string Playername, string Field) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Playername + "' LIMIT 1");
+        public bool GetDatabaseBool(string Name, string Table, string Field) {
+            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
 
             try {
                 return (bool)dt.Rows[0][Field];
@@ -81,11 +124,11 @@ namespace Hypercube_Classic.Client {
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <returns></returns>
-        public int GetDatabaseInt(string Playername, string Field) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Playername + "' LIMIT 1");
+        public int GetDatabaseInt(string Name, string Table, string Field) {
+            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
 
             try {
-                return (int)dt.Rows[0][Field];
+                return Convert.ToInt32(dt.Rows[0][Field]);
             } catch {
                 return -1;
             }
@@ -97,8 +140,8 @@ namespace Hypercube_Classic.Client {
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <returns></returns>
-        public string GetDatabaseString(string Playername, string Field) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Playername + "' LIMIT 1");
+        public string GetDatabaseString(string Name, string Table, string Field) {
+            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
 
             try {
                 return (string)dt.Rows[0][Field];
@@ -113,11 +156,11 @@ namespace Hypercube_Classic.Client {
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <param name="Value"></param>
-        public void SetDatabase(string Playername, string Field, bool Value) {
+        public void SetDatabase(string Name, string Table, string Field, bool Value) {
             var Values = new Dictionary<string, string>();
             Values.Add(Field, Value.ToString());
 
-            Update("PlayerDB", Values, "Name='" + Playername + "'");
+            Update(Table, Values, "Name='" + Name + "'");
         }
 
         /// <summary>
@@ -126,11 +169,11 @@ namespace Hypercube_Classic.Client {
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <param name="Value"></param>
-        public void SetDatabase(string Playername, string Field, int Value) {
+        public void SetDatabase(string Name, string Table, string Field, int Value) {
             var Values = new Dictionary<string, string>();
             Values.Add(Field, Value.ToString());
 
-            Update("PlayerDB", Values, "Name='" + Playername + "'");
+            Update(Table, Values, "Name='" + Name + "'");
         }
 
         /// <summary>
@@ -139,191 +182,13 @@ namespace Hypercube_Classic.Client {
         /// <param name="Playername"></param>
         /// <param name="Field"></param>
         /// <param name="Value"></param>
-        public void SetDatabase(string Playername, string Field, string Value) {
+        public void SetDatabase(string Name, string Table, string Field, string Value) {
             var Values = new Dictionary<string, string>();
             Values.Add(Field, Value);
 
-            Update("PlayerDB", Values, "Name='" + Playername + "'");
+            Update(Table, Values, "Name='" + Name + "'");
         }
 
-        #region Get Functions
-        //public int GetPlayerNumber(string Name) {
-
-        //}
-
-        //public int GetPlayerRank(string Name) {
-
-        //}
-
-        //public string GetPlayerRankChanger(string Name) {
-
-        //}
-
-        //public int GetPlayerBoundBlock(string Name) {
-
-        //}
-
-        //public int GetPlayerLogins(string Name) {
-
-        //}
-
-        //public int GetPlayerKicks(string Name) {
-
-        //}
-
-        //public TimeSpan GetPlayerOntime(string Name) {
-
-        //}
-
-        //public DateTime GetPlayerLastOnline(string Name) {
-
-        //}
-
-        //public string GetPlayerIP(string Name) {
-
-        //}
-
-        //public bool IsPlayerStopped(string Name) {
-
-        //}
-
-        //public string GetPlayerStoppedby(string Name) {
-
-        //}
-
-        //public bool IsPlayerVanished(string Name) {
-
-        //}
-
-        //public bool IsPlayerBanned(string Name) {
-
-        //}
-
-        //public string GetPlayerBannedBy(string Name) {
-
-        //}
-
-        //public DateTime GetPlayerTempban(string Name) {
-
-        //}
-
-        //public bool GetPlayerGlobalChat(string Name) {
-
-        //}
-
-        //public int GetPlayerMuted(string Name) {
-
-        //}
-
-        //public string GetPlayerBanMessage(string Name) {
-
-        //}
-
-        //public string GetPlayerKickMessage(string Name) {
-
-        //}
-
-        //public string GetPlayerMuteMessage(string Name) {
-
-        //}
-
-        //public string GetPlayerRankMessage(string Name) {
-
-        //}
-
-        //public string GetPlayerStopMessage(string Name) {
-
-        //}
-        //#endregion
-        //#region Set Functions
-        //public void SetPlayerNumber(string Name) {
-
-        //}
-
-        //public void SetPlayerRank(string Name) {
-
-        //}
-
-        //public void SetPlayerRankChanger(string Name) {
-
-        //}
-
-        //public void SetPlayerBoundBlock(string Name) {
-
-        //}
-
-        //public void SetPlayerLogins(string Name) {
-
-        //}
-
-        //public void SetPlayerKicks(string Name) {
-
-        //}
-
-        //public void SetPlayerOntime(string Name) {
-
-        //}
-
-        //public void SetPlayerLastOnline(string Name) {
-
-        //}
-
-        //public void SetPlayerIP(string Name) {
-
-        //}
-
-        //public void SetPlayerStopped(string Name) {
-
-        //}
-
-        //public void SetPlayerStoppedby(string Name) {
-
-        //}
-
-        //public void SetPlayerVanished(string Name) {
-
-        //}
-
-        //public void SetPlayerBanned(string Name) {
-
-        //}
-
-        //public void SetPlayerBannedBy(string Name) {
-
-        //}
-
-        //public void SetPlayerTempban(string Name) {
-
-        //}
-
-        //public void SetPlayerGlobalChat(string Name) {
-
-        //}
-
-        //public void SetPlayerMuted(string Name) {
-
-        //}
-
-        //public void SetPlayerBanMessage(string Name) {
-
-        //}
-
-        //public void SetPlayerKickMessage(string Name) {
-
-        //}
-
-        //public void SetPlayerMuteMessage(string Name) {
-
-        //}
-
-        //public void SetPlayerRankMessage(string Name) {
-
-        //}
-
-        //public void SetPlayerStopMessage(string Name) {
-
-        //}
-        #endregion
         #region Basic DB Interaction
         // -- Taken / Inspired from.
         // -- http://www.dreamincode.net/forums/topic/157830-using-sqlite-with-c%23/#/

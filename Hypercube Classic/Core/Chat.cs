@@ -19,6 +19,7 @@ namespace Hypercube_Classic.Core {
             Chat.PlayerID = MessageType;
             
             Message = Text.CleanseString(Message);
+
             if (Log)
                 Core.Logger._Log("Chat", "Global", Message);
 
@@ -37,8 +38,26 @@ namespace Hypercube_Classic.Core {
         /// <summary>
         /// Sends a message to all clients on a certain map.
         /// </summary>
-        public static void SendMapChat(HypercubeMap Map, Hypercube Core, string Message) {
+        public static void SendMapChat(HypercubeMap Map, Hypercube Core, string Message, sbyte MessageType = 0, bool Log = false) {
+            var Chat = new Message();
+            Chat.PlayerID = MessageType;
 
+            Message = Text.CleanseString(Message);
+
+            if (Log)
+                Core.Logger._Log("Chat", "Global", Message);
+
+            //TODO: Emote Replace
+            string[] Sending = SplitLines(Message);
+
+            foreach (NetworkClient c in Core.nh.Clients) {
+                if (c.CS.CurrentMap.ToLower() == Map.Map.MapName.ToLower()) {
+                    foreach (string b in Sending) {
+                        Chat.Text = b;
+                        Chat.Write(c);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -79,6 +98,20 @@ namespace Hypercube_Classic.Core {
             //TODO: Emote_Replace
 
             return Message;
+        }
+
+        public static void HandleIncomingChat(NetworkClient IncomingClient, string Message) {
+            Message = FilterIncomingChat(Message);
+
+            //TODO: If Client.GlobalChat..
+            if (Message.StartsWith("/"))
+                Message = "Potato";
+            else if (Message.StartsWith("@"))
+                Message = "Potato";
+            else {
+                SendGlobalChat(IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
+                IncomingClient.ServerCore.Logger._Log("Chat", "Placeholder", IncomingClient.CS.LoginName + ": " + Message);
+            }
         }
 
         /// <summary>

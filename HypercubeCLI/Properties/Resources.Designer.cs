@@ -59,15 +59,5 @@ namespace HypercubeCLI.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] lua52 {
-            get {
-                object obj = ResourceManager.GetObject("lua52", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

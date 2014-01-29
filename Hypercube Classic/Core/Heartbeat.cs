@@ -54,16 +54,17 @@ namespace Hypercube_Classic.Core {
         public void DoHeartbeatClassicube() {
             var Request = new WebClient();
 
-            try {
-                
-                string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&salt=" + HttpUtility.UrlEncode(Salt));
-                ServerCore.Logger._Log("Info", "Heartbeat", "Heartbeat sent.");
-                File.WriteAllText("ServerURL.txt", Response);
-            } catch {
-                ServerCore.Logger._Log("Error", "Heartbeat", "Failed to send heartbeat.");
-            }
+            while (ServerCore.Running) {
+                try {
+                    string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&salt=" + HttpUtility.UrlEncode(Salt));
+                    ServerCore.Logger._Log("Info", "Heartbeat", "Heartbeat sent.");
+                    File.WriteAllText("ServerURL.txt", Response);
+                } catch {
+                    ServerCore.Logger._Log("Error", "Heartbeat", "Failed to send heartbeat.");
+                }
 
-            Thread.Sleep(45000);
+                Thread.Sleep(45000);
+            }
         }
 
         /// <summary>

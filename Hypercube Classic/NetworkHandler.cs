@@ -8,6 +8,7 @@ using System.Threading;
 using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Packets;
 using Hypercube_Classic.Client;
+using Hypercube_Classic.Core;
 
 namespace Hypercube_Classic {
     public struct NetworkSettings : ISettings {
@@ -93,6 +94,18 @@ namespace Hypercube_Classic {
             }
 
             Clients.Clear(); // -- Annnd kill them. :)
+        }
+
+        /// <summary>
+        /// Triggered when a client disconnects.
+        /// </summary>
+        public void HandleDisconnect(NetworkClient Disconnecting) {
+            Clients.Remove(Disconnecting);
+
+            if (Disconnecting.CS.LoggedIn) {
+                ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected.");
+                Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
+            }
         }
 
         /// <summary>

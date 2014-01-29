@@ -388,7 +388,7 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
-            Chat.SendGlobalChat(Core, Text, 0, true);
+            Chat.HandleIncomingChat(Client, Text);
         }
     }
 

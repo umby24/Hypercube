@@ -63,12 +63,28 @@ namespace Hypercube_Classic.Client {
         /// </summary>
         public void Login() {
             if (!ServerCore.Database.ContainsPlayer(CS.LoginName)) // -- Create the user in the PlayerDB.
-                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP);
+                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
 
-            //TODO: Check if player banned.
+            if (ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Banned")) {
+                var Disconnecter = new Disconnect();
+                Disconnecter.Reason = "Banned: " + ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage").Substring(0, 56);
+                Disconnecter.Write(this);
+
+                ServerCore.Logger._Log("Info", "Client", "Disconnecting player " + CS.LoginName + ": Player is banned.");
+                return;
+            }
+
+            //TODO: Load muted, stopped, ect. From PlayerDB.
+            CS.Stopped = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Stopped");
+            CS.Global = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Global");
+
             CS.LoggedIn = true;
-            //TODO: Get formatted name from PlayerDB
-            //TODO: Set Logins, and IP to PlayerDB.
+            CS.PlayerRank = ServerCore.Rankholder.GetRank(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Rank"));
+            CS.FormattedName = CS.PlayerRank.Prefix + CS.LoginName + CS.PlayerRank.Suffix;
+            
+            ServerCore.Database.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
+            ServerCore.Database.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.IP);
+
             CS.CurrentMap = ServerCore.MainMap;
 
             // -- Finds our main map, and sends it to the client.
@@ -82,7 +98,8 @@ namespace Hypercube_Classic.Client {
 
             ServerCore.Logger._Log("Info", "Client", "Player logged in. (Name = " + CS.LoginName + ")");
 
-            Chat.SendGlobalChat(ServerCore, "&ePlayer " + CS.LoginName + " has joined.");
+            Chat.SendGlobalChat(ServerCore, "&ePlayer &f" + CS.FormattedName + "&e has joined.");
+            Chat.SendClientChat(this, ServerCore.WelcomeMessage);
             //TODO: Send Entity to all.
             ServerCore.OnlinePlayers += 1;
         }
@@ -123,7 +140,14 @@ namespace Hypercube_Classic.Client {
                 }
 
             } catch {
+                // -- User probably disconnected.
+                if (BaseSocket.Connected == true)
+                    BaseSocket.Close();
 
+                BaseStream.Close();
+                BaseStream.Dispose();
+
+                ServerCore.nh.HandleDisconnect(this);
             }
         }
     }

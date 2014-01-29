@@ -31,13 +31,15 @@ namespace Hypercube_Classic
         public NetworkHandler nh;
         public List<HypercubeMap> Maps;
         public SystemSettings SysSettings;
-        public PlayerDB Database;
+        public Database Database;
+        public RankContainer Rankholder;
         public bool Running = false;
         public int OnlinePlayers = 0;
 
         // -- System Settings
         public string ServerName, MOTD, MainMap, WelcomeMessage;
         public bool RotateLogs, LogOutput;
+        public Rank DefaultRank;
 
         // -- Non-Public stuff
         Heartbeat ClassicubeHeartbeat;
@@ -53,6 +55,18 @@ namespace Hypercube_Classic
             // -- Load settings
             if (!Directory.Exists("Settings"))
                 Directory.CreateDirectory("Settings");
+
+            Database = new Database();
+
+            Rankholder = new RankContainer(this);
+
+            if (Rankholder.Ranks.Count == 0) {
+                Database.CreateRank("Guest", "Default", "", "", false, 50);
+                Database.CreateRank("Op", "Staff", "&9", "", true);
+                Rankholder.LoadRanks(this);
+            }
+
+            Logger._Log("Info", "Core", "Database Initilized.");
 
             Settings = new SettingsReader(this);
 
@@ -99,8 +113,6 @@ namespace Hypercube_Classic
             nh = new NetworkHandler(this);
             nh.Clients = new List<Client.NetworkClient>();
 
-            Database = new PlayerDB();
-            Logger._Log("Info", "Core", "PlayerDB Initilized.");
         }
 
         /// <summary>
@@ -111,6 +123,7 @@ namespace Hypercube_Classic
             MOTD = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
             MainMap = Settings.ReadSetting(SysSettings, "MainMap", "world");
             WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
+            DefaultRank = Rankholder.GetRank(Settings.ReadSetting(SysSettings, "Default Rank", "Guest"));
 
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
