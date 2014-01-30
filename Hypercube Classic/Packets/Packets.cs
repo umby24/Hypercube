@@ -241,6 +241,7 @@ namespace Hypercube_Classic.Packets {
             Client.wSock.WriteByte(Pitch);
             Client.wSock.Purge();
         }
+
         public void Handle(NetworkClient Client, Hypercube Core) {
 
         }
@@ -274,8 +275,17 @@ namespace Hypercube_Classic.Packets {
             Client.wSock.WriteByte(pitch);
             Client.wSock.Purge();
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
 
+        public void Handle(NetworkClient Client, Hypercube Core) {
+            Client.CS.MyEntity.X = (short)(X / 32);
+            Client.CS.MyEntity.Y = (short)(Y / 32);
+            Client.CS.MyEntity.Z = (short)((Z - 51) / 32);
+            Client.CS.MyEntity.Rot = yaw;
+            Client.CS.MyEntity.Look = pitch;
+
+            if (Client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
+                //TODO: Heldblock.
+            }
         }
     }
 
@@ -307,6 +317,7 @@ namespace Hypercube_Classic.Packets {
             Client.wSock.WriteByte(pitch);
             Client.wSock.Purge();
         }
+
         public void Handle(NetworkClient Client, Hypercube Core) {
 
         }
@@ -349,6 +360,7 @@ namespace Hypercube_Classic.Packets {
         public void Write(NetworkClient Client) {
 
         }
+
         public void Handle(NetworkClient Client, Hypercube Core) {
 
         }
@@ -363,8 +375,10 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Write(NetworkClient Client) {
-
+            Client.wSock.WriteByte(Id);
+            Client.wSock.WriteSByte(PlayerID);
         }
+
         public void Handle(NetworkClient Client, Hypercube Core) {
 
         }

@@ -15,6 +15,7 @@ namespace Hypercube_Classic.Client {
         public short NameID;
         public Rank PlayerRank;
         public int RankStep;
+        public Entity MyEntity;
 
         public bool CPE;
         public string Appname;

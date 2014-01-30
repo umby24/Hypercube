@@ -19,7 +19,7 @@ namespace Hypercube_Classic.Map {
 
             foreach (string file in files) {
                 try {
-                    var NewMap = new HypercubeMap(file);
+                    var NewMap = new HypercubeMap(ServerCore, file);
                     ServerCore.Maps.Add(NewMap);
                     ServerCore.Logger._Log("Info", "MapWatcher", "Loaded map '" + file + "'. (X=" + NewMap.Map.SizeX + " Y=" + NewMap.Map.SizeZ + " Z=" + NewMap.Map.SizeY + ")");
                 } catch {

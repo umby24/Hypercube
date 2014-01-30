@@ -36,6 +36,9 @@ namespace Hypercube_Classic
         public bool Running = false;
         public int OnlinePlayers = 0;
 
+        // -- NameID, EntityIDs. 
+        public short NextID = 0, FreeID = 0, ENext = 0, EFree = 0;
+
         // -- System Settings
         public string ServerName, MOTD, MainMap, WelcomeMessage;
         public bool RotateLogs, LogOutput;
@@ -103,7 +106,7 @@ namespace Hypercube_Classic
             }
 
             if (!found) {
-                var MainMap = new HypercubeMap("Maps/world.cw", "world", 128, 128, 128);
+                var MainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
                 Maps.Add(MainMap);
                 Logger._Log("Info", "Core", "Main world not found, a new one has been created.");
             }
@@ -142,6 +145,12 @@ namespace Hypercube_Classic
 
             // -- Start stuff!
             ClassicubeHeartbeat = new Heartbeat(this);
+
+            // -- Start the map entity senders..
+            foreach (HypercubeMap m in Maps) {
+                m.EntityThread = new Thread(m.MapEntities);
+                m.EntityThread.Start();
+            }
 
             Logger._Log("Info", "Core", "Server started.");
         }

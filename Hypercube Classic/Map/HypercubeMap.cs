@@ -9,6 +9,7 @@ using ClassicWorld_NET;
 using fNbt;
 
 using Hypercube_Classic.Client;
+using Hypercube_Classic.Core;
 
 namespace Hypercube_Classic.Map {
     /// <summary>
@@ -63,40 +64,54 @@ namespace Hypercube_Classic.Map {
         public HypercubeMetadata HCSettings;
         public bool Loaded = true;
         public string Path;
-        public byte Clients;
+        public List<NetworkClient> Clients;
+        public List<Entity> Entities;
+        public short FreeID = 0, NextID = 0; // -- For Client Entity IDs.
+        public object EntityLocker = new object();
 
         Thread ClientThread;
+        public Thread EntityThread;
         DateTime LastClient;
+        Hypercube ServerCore;
         #endregion
 
         /// <summary>
         /// Creates a new blank map.
         /// </summary>
-        public HypercubeMap(string Filename, string MapName, short SizeX, short SizeY, short SizeZ) {
+        public HypercubeMap(Hypercube Core, string Filename, string MapName, short SizeX, short SizeY, short SizeZ) {
+            ServerCore = Core;
             Map = new ClassicWorld(SizeX, SizeZ, SizeY);
             Map.MapName = MapName;
             Path = Filename;
             Map.Save(Path);
 
+            
             LastClient = DateTime.UtcNow;
-            Clients = 0;
+            Clients = new List<NetworkClient>();
+            Entities = new List<Entity>();
 
             ClientThread = new Thread(MapMain);
             ClientThread.Start();
+
+            EntityThread = new Thread(MapEntities);
+            EntityThread.Start();
         }
 
         /// <summary>
         /// Loads a pre-existing map
         /// </summary>
         /// <param name="Filename">The path to the map.</param>
-        public HypercubeMap(string Filename) {
+        public HypercubeMap(Hypercube Core, string Filename) {
+            ServerCore = Core;
             Path = Filename;
             Map = new ClassicWorld(Filename);
             HCSettings = new HypercubeMetadata(); // -- Create our HC Specific settings
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
+            
             LastClient = DateTime.UtcNow;
-            Clients = 0;
+            Clients = new List<NetworkClient>();
+            Entities = new List<Entity>();
 
             // -- Memory Conservation:
             if (Path.Substring(Path.Length - 1, 1) == "u") { // -- Unloads anything with a ".cwu" file extension. (ClassicWorld unloaded)
@@ -107,14 +122,20 @@ namespace Hypercube_Classic.Map {
 
             ClientThread = new Thread(MapMain);
             ClientThread.Start();
+
+            EntityThread = new Thread(MapEntities);
+            EntityThread.Start();
         }
 
         /// <summary>
-        /// Shuts down the memory conservation thread.
+        /// Shuts down the Threads.
         /// </summary>
         public void Shutdown() {
             if (ClientThread != null)
                 ClientThread.Abort();
+
+            if (EntityThread != null)
+                EntityThread.Abort();
         }
 
         /// <summary>
@@ -171,10 +192,97 @@ namespace Hypercube_Classic.Map {
         /// Checks for clients. If clients have not been active for more than 30 seconds, the map will be unloaded.
         /// </summary>
         public void MapMain() {
-            if ((DateTime.UtcNow - LastClient).TotalSeconds > 300 && Clients == 0)
-                UnloadMap();
-            else if (Clients > 0)
-                LastClient = DateTime.UtcNow;
+            while (ServerCore.Running) {
+                if ((DateTime.UtcNow - LastClient).TotalSeconds > 300 && Clients.Count == 0)
+                    UnloadMap();
+                else if (Clients.Count > 0)
+                    LastClient = DateTime.UtcNow;
+
+                Thread.Sleep(30000);
+            }
+        }
+
+        public void MapEntities() {
+            while (ServerCore.Running) {
+                
+                foreach (Entity E in Entities) {
+                    var TeleportPacket = new Packets.PlayerTeleport();
+                    TeleportPacket.PlayerID = (sbyte)E.ClientID;
+                    TeleportPacket.X = (short)(E.X * 32);
+                    TeleportPacket.Y = (short)(E.Y * 32);
+                    TeleportPacket.Z = (short)((E.Z * 32) + 51);
+                    TeleportPacket.yaw = E.Rot;
+                    TeleportPacket.pitch = E.Look;
+                    //ServerCore.Logger._Log("Debug", "Entity", string.Format("Num: {0} X: {1} Y: {2} Z: {3}", E.ClientID.ToString(), E.X, E.Y, E.Z));
+                    foreach (NetworkClient c in Clients) {
+                        if (E.MyClient != null && E.MyClient != c)
+                            TeleportPacket.Write(c);
+                        else if (E.MyClient == c && E.SendOwn == true) {
+                            TeleportPacket.PlayerID = (sbyte)-1;
+                            TeleportPacket.Write(c);
+                            E.SendOwn = false;
+                        }
+                    }
+                }
+                
+            }
+        }
+
+        public void SpawnEntity(Entity ToSpawn) {
+            var ESpawn = new Packets.SpawnPlayer();
+            ESpawn.PlayerName = ToSpawn.Name;
+            ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
+            ESpawn.X = ToSpawn.X;
+            ESpawn.Y = ToSpawn.Y;
+            ESpawn.Z = ToSpawn.Z;
+            ESpawn.Yaw = ToSpawn.Rot;
+            ESpawn.Pitch = ToSpawn.Look;
+            
+            foreach (NetworkClient c in Clients) {
+                if (c != ToSpawn.MyClient) 
+                    ESpawn.Write(c);
+                 else {
+                    ESpawn.PlayerID = (sbyte)-1;
+                    ESpawn.Write(c);
+                    ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
+                }
+            }
+        }
+
+        public void SendAllEntities(NetworkClient Client) {
+            var ESpawn = new Packets.SpawnPlayer();
+
+            foreach (Entity e in Entities) {
+                ESpawn.PlayerName = e.Name;
+                ESpawn.PlayerID = (sbyte)e.ClientID;
+                ESpawn.X = e.X;
+                ESpawn.Y = e.Y;
+                ESpawn.Z = e.Z;
+                ESpawn.Yaw = e.Rot;
+                ESpawn.Pitch = e.Look;
+
+                if (e.MyClient != Client)
+                    ESpawn.Write(Client);
+                else {
+                    ESpawn.PlayerID = (sbyte)-1;
+                    ESpawn.Write(Client);
+                }
+            }
+        }
+
+        public void DeleteEntity(ref Entity ToSpawn) {
+            if (Entities.Contains(ToSpawn))
+                Entities.Remove(ToSpawn);
+
+            if (ToSpawn.MyClient != null && Clients.Contains(ToSpawn.MyClient))
+                Clients.Remove(ToSpawn.MyClient);
+
+            var Despawn = new Packets.DespawnPlayer();
+            Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
+
+            foreach (NetworkClient c in Clients) {
+                Despawn.Write(c);
+            }
         }
 
         /// <summary>

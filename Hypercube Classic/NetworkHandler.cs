@@ -5,10 +5,12 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
 using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Packets;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Core;
+using Hypercube_Classic.Map;
 
 namespace Hypercube_Classic {
     public struct NetworkSettings : ISettings {
@@ -100,10 +102,18 @@ namespace Hypercube_Classic {
         /// Triggered when a client disconnects.
         /// </summary>
         public void HandleDisconnect(NetworkClient Disconnecting) {
-            Clients.Remove(Disconnecting);
+            foreach(HypercubeMap m in ServerCore.Maps) { // -- Remove the client from the map.
+                if (m.Map.MapName == Disconnecting.CS.CurrentMap) {
+                    m.Clients.Remove(Disconnecting);
+                    m.DeleteEntity(ref Disconnecting.CS.MyEntity);
+                    break;
+                }
+            }
+
+            Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
 
             if (Disconnecting.CS.LoggedIn) {
-                ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected.");
+                ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected."); // -- Notify of their disconnection.
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
         }
@@ -118,7 +128,7 @@ namespace Hypercube_Classic {
                 try {
                     TempClient = CoreListener.AcceptTcpClient(); // -- This will block until someone tries to connect.
                 } catch {
-                    continue;
+                    continue; // -- Catches in the event of a server shutdown.
                 }
 
                 string IP = TempClient.Client.RemoteEndPoint.ToString().Substring(0, TempClient.Client.RemoteEndPoint.ToString().IndexOf(":")); // -- Strips the port the user is connecting from.

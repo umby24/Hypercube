@@ -53,7 +53,12 @@ namespace Hypercube_Classic.Client {
             Handshake.Name = ServerCore.ServerName;
             Handshake.MOTD = ServerCore.MOTD;
             Handshake.ProtocolVersion = 7;
-            Handshake.Usertype = 0; //TODO: Implement this.
+
+            if (CS.PlayerRank.Op)
+                Handshake.Usertype = 64;
+            else
+                Handshake.Usertype = 0;
+
             Handshake.Write(this);
         }
 
@@ -91,7 +96,16 @@ namespace Hypercube_Classic.Client {
             foreach (HypercubeMap m in ServerCore.Maps) {
                 if (CS.CurrentMap == m.Map.MapName) {
                     m.SendMap(this);
-                    m.Clients += 1;
+                    m.Clients.Add(this); // -- Add the client to the map
+
+                    CS.MyEntity = new Entity(ServerCore, m, CS.LoginName, m.Map.SpawnX, m.Map.SpawnZ, m.Map.SpawnY, m.Map.SpawnRotation, m.Map.SpawnLook); // -- Create the entity..
+                    CS.MyEntity.MyClient = this;
+                    
+                    m.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
+                    m.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+
+                    m.SendAllEntities(this);
+                    
                     break;
                 }
             }
@@ -100,7 +114,7 @@ namespace Hypercube_Classic.Client {
 
             Chat.SendGlobalChat(ServerCore, "&ePlayer &f" + CS.FormattedName + "&e has joined.");
             Chat.SendClientChat(this, ServerCore.WelcomeMessage);
-            //TODO: Send Entity to all.
+            //TODO: CPE ExtPlayerList
             ServerCore.OnlinePlayers += 1;
         }
 
