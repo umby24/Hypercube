@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 using Hypercube_Classic.Client;
 
 namespace Hypercube_Classic.Core {
-    class Heartbeat {
+    public class Heartbeat {
         public string Salt;
         Hypercube ServerCore;
         Thread HeartbeatThread;
@@ -48,12 +48,20 @@ namespace Hypercube_Classic.Core {
 
         }
 
+        public string GetIPv4Address() {
+            IPAddress[] Addresses = Dns.GetHostAddresses("classicube.net");
+            IPAddress v4 = Addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+
+            return v4.ToString();
+        }
+
         /// <summary>
         /// Sends a heartbeat to Classicube.net for this server.
         /// </summary>
         public void DoHeartbeatClassicube() {
             var Request = new WebClient();
-
+            Request.Proxy = new WebProxy("http://" + GetIPv4Address() + ":80/"); // -- Makes sure we're using an IPv4 Address and not IPv6.
+            
             while (ServerCore.Running) {
                 try {
                     string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&salt=" + HttpUtility.UrlEncode(Salt));

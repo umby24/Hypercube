@@ -29,6 +29,8 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
+            Client.CS.MPPass = MOTD;
+
             if (ProtocolVersion != 7) {
                 Core.Logger._Log("Info", "Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion.ToString() + ")");
 
@@ -36,7 +38,15 @@ namespace Hypercube_Classic.Packets {
                 DisconnectPack.Reason = "Unsupported protocol version.";
                 DisconnectPack.Write(Client);
             }
-            //TODO: Implement Handshake check here
+
+            if (!Core.ClassicubeHeartbeat.VerifyClientName(Client)) {
+                Core.Logger._Log("Info", "Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.");
+
+                var DisconnectPack = new Disconnect();
+                DisconnectPack.Reason = "Name verification incorrect.";
+                DisconnectPack.Write(Client);
+            }
+
             if (Libraries.Text.StringMatches(Name)) {
                 Core.Logger._Log("Info", "Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.");
 
@@ -277,11 +287,14 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
-            Client.CS.MyEntity.X = (short)(X / 32);
-            Client.CS.MyEntity.Y = (short)(Y / 32);
-            Client.CS.MyEntity.Z = (short)((Z - 51) / 32);
-            Client.CS.MyEntity.Rot = yaw;
-            Client.CS.MyEntity.Look = pitch;
+            if (X != Client.CS.MyEntity.X || Y != Client.CS.MyEntity.Y || Z != Client.CS.MyEntity.Z || yaw != Client.CS.MyEntity.Rot || pitch != Client.CS.MyEntity.Look) {
+                Client.CS.MyEntity.X = X;
+                Client.CS.MyEntity.Y = Y;
+                Client.CS.MyEntity.Z = Z;
+                Client.CS.MyEntity.Rot = yaw;
+                Client.CS.MyEntity.Look = pitch;
+                Client.CS.MyEntity.Changed = true;
+            }
 
             if (Client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
                 //TODO: Heldblock.

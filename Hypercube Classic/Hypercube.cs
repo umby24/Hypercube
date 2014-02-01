@@ -40,12 +40,13 @@ namespace Hypercube_Classic
         public short NextID = 0, FreeID = 0, ENext = 0, EFree = 0;
 
         // -- System Settings
-        public string ServerName, MOTD, MainMap, WelcomeMessage;
+        public string ServerName, MOTD, WelcomeMessage, MapMain;
         public bool RotateLogs, LogOutput;
+        public HypercubeMap MainMap;
         public Rank DefaultRank;
-
+        public Heartbeat ClassicubeHeartbeat;
         // -- Non-Public stuff
-        Heartbeat ClassicubeHeartbeat;
+        
         #endregion
 
         /// <summary>
@@ -98,15 +99,17 @@ namespace Hypercube_Classic
             MapWatcher.Watch(this);
 
             bool found = false;
-
+            
             foreach (HypercubeMap Map in Maps) {
-                if (Map.Map.MapName == MainMap) {
+                if (Map.Map.MapName == MapMain) {
+                    MainMap = Map;
                     found = true;
+                    break;
                 }
             }
 
             if (!found) {
-                var MainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
+                MainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
                 Maps.Add(MainMap);
                 Logger._Log("Info", "Core", "Main world not found, a new one has been created.");
             }
@@ -124,7 +127,7 @@ namespace Hypercube_Classic
         public void ReadSystemSettings() {
             ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
             MOTD = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
-            MainMap = Settings.ReadSetting(SysSettings, "MainMap", "world");
+            MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
             WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
             DefaultRank = Rankholder.GetRank(Settings.ReadSetting(SysSettings, "Default Rank", "Guest"));
 

@@ -9,7 +9,7 @@ using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Packets;
 
 namespace Hypercube_Classic.Core {
-    class Chat {
+    public class Chat {
         /// <summary>
         /// Sends a chat message to all players across all maps.
         /// </summary>
@@ -50,12 +50,10 @@ namespace Hypercube_Classic.Core {
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
 
-            foreach (NetworkClient c in Core.nh.Clients) {
-                if (c.CS.CurrentMap.ToLower() == Map.Map.MapName.ToLower()) {
-                    foreach (string b in Sending) {
-                        Chat.Text = b;
-                        Chat.Write(c);
-                    }
+            foreach (NetworkClient c in Map.Clients) {
+                foreach (string b in Sending) {
+                    Chat.Text = b;
+                    Chat.Write(c);
                 }
             }
         }
@@ -106,11 +104,42 @@ namespace Hypercube_Classic.Core {
             //TODO: If Client.GlobalChat..
             if (Message.StartsWith("/"))
                 Message = "Potato";
-            else if (Message.StartsWith("@"))
-                Message = "Potato";
-            else {
-                SendGlobalChat(IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
-                IncomingClient.ServerCore.Logger._Log("Chat", "Placeholder", IncomingClient.CS.LoginName + ": " + Message);
+            else if (Message.StartsWith("@")) {
+                string Client = Message.Substring(1, Message.IndexOf(" ") - 1);
+                NetworkClient Tosend = null;
+
+                foreach (NetworkClient c in IncomingClient.ServerCore.nh.Clients) {
+                    if (c.CS.LoginName.ToLower() == Client.ToLower()) {
+                        Tosend = c;
+                        break;
+                    }
+                }
+
+                if (Tosend == null) {
+                    SendClientChat(IncomingClient, "&4Error: &fPlayer '" + Client + "' not found.");
+                    return;
+                }
+
+                SendClientChat(IncomingClient, "&c@" + Tosend.CS.FormattedName + "&f: " + Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1)));
+                SendClientChat(Tosend, "&c@" + IncomingClient.CS.FormattedName + "&f: " + Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1)));
+            } else if (Message.StartsWith("#")) {
+                Message = Message.Substring(1, Message.Length - 1);
+
+                if (IncomingClient.CS.Global) {
+                    SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Chat", IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message);
+                } else {
+                    SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Chat", "Global", IncomingClient.CS.LoginName + ": " + Message);
+                }
+            } else {
+                if (IncomingClient.CS.Global) {
+                    SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Chat", "Global", IncomingClient.CS.LoginName + ": " + Message);
+                } else {
+                    SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Chat", IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message);
+                }
             }
         }
 
@@ -133,7 +162,7 @@ namespace Hypercube_Classic.Core {
                 if (Input.Length > 64) {
                     int thisIndex = Input.Substring(0, 64).LastIndexOf(' '); // -- Split by words.
 
-                    if (thisIndex == null || thisIndex > 60) // -- Just incase it's one spaceless string.
+                    if (thisIndex == 0 || thisIndex > 60) // -- Just incase it's one spaceless string.
                         thisIndex = 60;
 
                     temp += Input.Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
@@ -153,9 +182,13 @@ namespace Hypercube_Classic.Core {
 
             while (Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) {
                 int index = Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
-                Builder.Add(Input.Substring(0, index + 1).PadRight(64)); // -- Add to our string builder
-                Input = Input.Substring(index + 3, Input.Length - (index + 3)); // -- Remove from Input the string, and discard the <br>.
+                Builder.Add(Input.Substring(0, index).PadRight(64)); // -- Add to our string builder
+                Input = Input.Substring(index + 4, Input.Length - (index + 4)); // -- Remove from Input the string, and discard the <br>.
             }
+
+            // -- If there's any leftovers that wern't split, we will need to go ahead and add that as well.
+            if (Input != "")
+                Builder.Add(Input.PadRight(64));
 
             // -- If we miracously made it here without having to break the line, we will need to do this.
             if (Builder.Count == 0)

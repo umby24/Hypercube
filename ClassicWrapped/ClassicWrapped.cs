@@ -135,9 +135,13 @@ namespace ClassicWrapped
         }
 
         public void Purge() { // -- Writes the send buffer to the client
-            _Stream.Write(buffer, 0, buffer.Length);
-            buffer = null;
-            GC.Collect();
+            try {
+                _Stream.Write(buffer, 0, buffer.Length);
+                buffer = null;
+                GC.Collect();
+            } catch {
+
+            }
         }
     }
 }

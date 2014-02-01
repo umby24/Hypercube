@@ -102,13 +102,8 @@ namespace Hypercube_Classic {
         /// Triggered when a client disconnects.
         /// </summary>
         public void HandleDisconnect(NetworkClient Disconnecting) {
-            foreach(HypercubeMap m in ServerCore.Maps) { // -- Remove the client from the map.
-                if (m.Map.MapName == Disconnecting.CS.CurrentMap) {
-                    m.Clients.Remove(Disconnecting);
-                    m.DeleteEntity(ref Disconnecting.CS.MyEntity);
-                    break;
-                }
-            }
+            Disconnecting.CS.CurrentMap.Clients.Remove(Disconnecting);
+            Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
 
             Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
 

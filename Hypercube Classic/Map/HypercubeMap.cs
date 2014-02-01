@@ -136,6 +136,8 @@ namespace Hypercube_Classic.Map {
 
             if (EntityThread != null)
                 EntityThread.Abort();
+
+            SaveMap();
         }
 
         /// <summary>
@@ -206,25 +208,28 @@ namespace Hypercube_Classic.Map {
             while (ServerCore.Running) {
                 
                 foreach (Entity E in Entities) {
-                    var TeleportPacket = new Packets.PlayerTeleport();
-                    TeleportPacket.PlayerID = (sbyte)E.ClientID;
-                    TeleportPacket.X = (short)(E.X * 32);
-                    TeleportPacket.Y = (short)(E.Y * 32);
-                    TeleportPacket.Z = (short)((E.Z * 32) + 51);
-                    TeleportPacket.yaw = E.Rot;
-                    TeleportPacket.pitch = E.Look;
-                    //ServerCore.Logger._Log("Debug", "Entity", string.Format("Num: {0} X: {1} Y: {2} Z: {3}", E.ClientID.ToString(), E.X, E.Y, E.Z));
-                    foreach (NetworkClient c in Clients) {
-                        if (E.MyClient != null && E.MyClient != c)
-                            TeleportPacket.Write(c);
-                        else if (E.MyClient == c && E.SendOwn == true) {
-                            TeleportPacket.PlayerID = (sbyte)-1;
-                            TeleportPacket.Write(c);
-                            E.SendOwn = false;
+                    if (E.Changed) {
+                        var TeleportPacket = new Packets.PlayerTeleport();
+                        TeleportPacket.PlayerID = (sbyte)E.ClientID;
+                        TeleportPacket.X = E.X;
+                        TeleportPacket.Y = E.Y;
+                        TeleportPacket.Z = E.Z;
+                        TeleportPacket.yaw = E.Rot;
+                        TeleportPacket.pitch = E.Look;
+                        
+                        foreach (NetworkClient c in Clients) {
+                            if (E.MyClient != null && E.MyClient != c)
+                                TeleportPacket.Write(c);
+                            else if (E.MyClient == c && E.SendOwn == true) {
+                                TeleportPacket.PlayerID = (sbyte)-1;
+                                TeleportPacket.Write(c);
+                                E.SendOwn = false;
+                            }
                         }
+                        E.Changed = false;
                     }
                 }
-                
+                Thread.Sleep(10); // -- This gives the rest of the program time to make modifications to the Entitys and Clients list. 
             }
         }
 

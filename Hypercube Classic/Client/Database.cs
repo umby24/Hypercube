@@ -30,6 +30,9 @@ namespace Hypercube_Classic.Client {
                 Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op BOOLEAN)";
                 Command.ExecuteNonQuery();
 
+                Command.CommandText = "CREATE TABLE BlockDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, OnClient INTEGER, PlaceRank STRING, DeleteRank STRING, Physics INTEGER, PhysicsPlugin TEXT, Kills BOOLEAN, Color INTEGER, CPELevel INTEGER, CPEReplace INTEGER, Special BOOLEAN, ReplaceOnLoad INTEGER)";
+                Command.ExecuteNonQuery();
+
                 Connection.Close(); // -- All done.
             }
         }
@@ -46,6 +49,9 @@ namespace Hypercube_Classic.Client {
             myValues.Add("Rank", Core.DefaultRank.ID.ToString());
             myValues.Add("RankStep", "0");
             myValues.Add("Global", "true");
+            myValues.Add("Banned", "false");
+            myValues.Add("Stopped", "false");
+            myValues.Add("Vanished", "false");
 
             Insert("PlayerDB", myValues);
         }
@@ -102,6 +108,54 @@ namespace Hypercube_Classic.Client {
                 return false;
         }
 
+        /// <summary>
+        /// Creates a new block in the block database.
+        /// </summary>
+        /// <param name="Blockname">The name of the block</param>
+        /// <param name="OnClient">The BlockID that will be sent to clients.</param>
+        /// <param name="RanksPlace">A comma seperated list of the IDs of each rank that can place this block.</param>
+        /// <param name="RanksDelete">A comma seperated list of the IDs of each rank that can delete this block.</param>
+        /// <param name="Physics">The type of physics (if any) this block will use.</param>
+        /// <param name="PhysicsPlugin">The lua plugin that will process this block's physics.</param>
+        /// <param name="Kills">True if this block kills players on contact.</param>
+        /// <param name="Color">The isomap color for this block.</param>
+        /// <param name="CPELevel">The CPE level that implements this block.</param>
+        /// <param name="CPEReplace">The block this block should be replaced with should the client not support the required CustomBlocks level.</param>
+        /// <param name="Special">if true, the block will appear in /materials. </param>
+        /// <param name="ReplaceOnLoad">-1 for none. The block that this block will be replaced with upon a map load.</param>
+        public void CreateBlock(string Blockname, byte OnClient, string RanksPlace, string RanksDelete, int Physics, 
+            string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {
+
+                var myValues = new Dictionary<string, string>();
+                myValues.Add("Name", Blockname);
+                myValues.Add("OnClient", OnClient.ToString());
+                myValues.Add("PlaceRank", RanksPlace);
+                myValues.Add("DeleteRank", RanksDelete);
+                myValues.Add("Physics", Physics.ToString());
+                myValues.Add("PhysicsPlugin", PhysicsPlugin);
+                myValues.Add("Kills", Kills.ToString());
+                myValues.Add("Color", Color.ToString());
+                myValues.Add("CPELevel", CPELevel.ToString());
+                myValues.Add("CPEReplace", CPEReplace.ToString());
+                myValues.Add("Special", Special.ToString());
+                myValues.Add("ReplaceOnLoad", ReplaceOnLoad.ToString());
+
+                Insert("BlockDB", myValues);
+        }
+
+        /// <summary>
+        /// Searches the database to determine if a block already exists with the given name.
+        /// </summary>
+        /// <param name="Blockname"></param>
+        /// <returns></returns>
+        public bool ContainsBlock(string Blockname) {
+            var dt = GetDataTable("SELECT * FROM BlockDB WHERE Name='" + Blockname + "'");
+
+            if (dt.Rows.Count > 0)
+                return true;
+            else
+                return false;
+        }
         /// <summary>
         /// Retreives a boolean value from the database.
         /// </summary>

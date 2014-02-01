@@ -93,26 +93,21 @@ namespace Hypercube_Classic.Client {
             CS.CurrentMap = ServerCore.MainMap;
 
             // -- Finds our main map, and sends it to the client.
-            foreach (HypercubeMap m in ServerCore.Maps) {
-                if (CS.CurrentMap == m.Map.MapName) {
-                    m.SendMap(this);
-                    m.Clients.Add(this); // -- Add the client to the map
 
-                    CS.MyEntity = new Entity(ServerCore, m, CS.LoginName, m.Map.SpawnX, m.Map.SpawnZ, m.Map.SpawnY, m.Map.SpawnRotation, m.Map.SpawnLook); // -- Create the entity..
-                    CS.MyEntity.MyClient = this;
-                    
-                    m.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
-                    m.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+            CS.CurrentMap.SendMap(this);
+            CS.CurrentMap.Clients.Add(this); // -- Add the client to the map
 
-                    m.SendAllEntities(this);
+            CS.MyEntity = new Entity(ServerCore, CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.Map.SpawnX * 32), (short)(CS.CurrentMap.Map.SpawnZ * 32), (short)((CS.CurrentMap.Map.SpawnY * 32) + 51), CS.CurrentMap.Map.SpawnRotation, CS.CurrentMap.Map.SpawnLook); // -- Create the entity..
+            CS.MyEntity.MyClient = this;
                     
-                    break;
-                }
-            }
+            CS.CurrentMap.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
+            CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+
+            CS.CurrentMap.SendAllEntities(this);
 
             ServerCore.Logger._Log("Info", "Client", "Player logged in. (Name = " + CS.LoginName + ")");
 
-            Chat.SendGlobalChat(ServerCore, "&ePlayer &f" + CS.FormattedName + "&e has joined.");
+            Chat.SendGlobalChat(ServerCore, "&ePlayer " + CS.FormattedName + "&e has joined.");
             Chat.SendClientChat(this, ServerCore.WelcomeMessage);
             //TODO: CPE ExtPlayerList
             ServerCore.OnlinePlayers += 1;
