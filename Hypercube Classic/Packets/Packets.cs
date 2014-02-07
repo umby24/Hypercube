@@ -190,7 +190,7 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
-
+            Client.CS.MyEntity.HandleBuildmode(X, Y, Z, Mode, Block);
         }
     }
 

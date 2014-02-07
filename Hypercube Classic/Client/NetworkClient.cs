@@ -80,6 +80,7 @@ namespace Hypercube_Classic.Client {
             }
 
             //TODO: Load muted, stopped, ect. From PlayerDB.
+            CS.ID = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Stopped");
             CS.Global = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Global");
 

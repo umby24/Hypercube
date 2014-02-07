@@ -15,7 +15,7 @@ namespace Hypercube_Classic.Client {
         public bool LoggedIn, Muted, Stopped, Global;
         public short NameID;
         public Rank PlayerRank;
-        public int RankStep;
+        public int RankStep, ID;
         public Entity MyEntity;
         public HypercubeMap CurrentMap;
 

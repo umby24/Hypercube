@@ -37,7 +37,7 @@ namespace Hypercube_Classic.Core {
                 var newBlock = new Block();
                 newBlock.ID = Convert.ToInt32(c["Number"]);
                 newBlock.Name = (string)c["Name"];
-                newBlock.OnClient = (byte)c["OnClient"];
+                newBlock.OnClient = (byte)Convert.ToInt32(c["OnClient"]);
                 newBlock.RanksPlace = SplitRanks((string)c["PlaceRank"]);
                 newBlock.RanksDelete = SplitRanks((string)c["DeleteRank"]);
                 newBlock.Physics = Convert.ToInt32(c["Physics"]);
@@ -51,11 +51,55 @@ namespace Hypercube_Classic.Core {
 
                 Blocks.Add(newBlock);
             }
+
+            Blocks.OrderBy(o => o.ID);
         }
 
         public void UpdateBlock(Block BlockToUpdate) {
             var MyValues = new Dictionary<string, string>();
-            
+
+            MyValues.Add("Name", BlockToUpdate.Name);
+            MyValues.Add("OnClient", BlockToUpdate.OnClient.ToString());
+            MyValues.Add("PlaceRank", string.Join(",", BlockToUpdate.RanksPlace));
+            MyValues.Add("DeleteRank", string.Join(",", BlockToUpdate.RanksDelete));
+            MyValues.Add("Physics", BlockToUpdate.Physics.ToString());
+            MyValues.Add("PhysicsPlugin", BlockToUpdate.PhysicsPlugin);
+            MyValues.Add("Kills", BlockToUpdate.Kills.ToString());
+            MyValues.Add("Color", BlockToUpdate.Color.ToString());
+            MyValues.Add("CPELevel", BlockToUpdate.CPELevel.ToString());
+            MyValues.Add("CPEReplace", BlockToUpdate.CPEReplace.ToString());
+            MyValues.Add("Special", BlockToUpdate.Special.ToString());
+            MyValues.Add("ReplaceOnLoad", BlockToUpdate.ReplaceOnLoad.ToString());
+
+            ServerCore.Database.Update("BlockDB", MyValues, "Name='" + BlockToUpdate.Name + "'");
+        }
+
+        public Block GetBlock(int ID) {
+            Block ThisBlock = null;
+
+            // -- Attempt a fast lookup first.
+            if (Blocks[ID].ID == (ID + 1))
+                return Blocks[ID];
+
+            // -- Fallback otherwise
+            foreach (Block b in Blocks) {
+                if (b.ID == (ID + 1)) {
+                    ThisBlock = b;
+                    break;
+                }
+            }
+
+            if (ThisBlock == null) {
+                ThisBlock = new Block();
+                ThisBlock.ID = ID;
+                ThisBlock.Name = "Unknown";
+                ThisBlock.OnClient = 46;
+                ThisBlock.CPELevel = 0;
+                ThisBlock.CPEReplace = 46;
+                return ThisBlock;
+            } else {
+                return ThisBlock;
+            }
         }
 
         public void AddBlock(string Name, byte OnClient, string PlaceRanks, string DeleteRanks, int Physics, string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {

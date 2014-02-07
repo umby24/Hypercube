@@ -11,8 +11,9 @@ namespace Hypercube_Classic.Core {
         public byte ClientID, Rot, Look, Heldblock, Lastmaterial, Boundblock;
         public bool SendOwn, Changed;
         public short X, Y, Z, BuildMaterial;
-        public int ID;
+        public int ID, BuildState;
         public string Name, Model, BuildMode;
+        public Dictionary<string, string> BuildVariables = new Dictionary<string, string>();
         public NetworkClient MyClient;
         public HypercubeMap Map;
 
@@ -44,6 +45,20 @@ namespace Hypercube_Classic.Core {
                     _Map.FreeID += 1;
                     _Map.NextID = _Map.FreeID;
                 }
+            }
+        }
+
+        public void HandleBuildmode(short _X, short _Y, short _Z, byte Mode, byte Type) {
+            if (Type == Boundblock && BuildMaterial != -1) 
+                Type = (byte)BuildMaterial;
+
+            if (BuildMode != null && BuildMode != "") {
+                //TODO: Add buildmodes all proper like..
+            } else {
+                if (!MyClient.CS.Stopped)
+                    Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, Type);
+                else
+                    Chat.SendClientChat(MyClient, "&4Error:&f You are stopped, you cannot build.");
             }
         }
     }
