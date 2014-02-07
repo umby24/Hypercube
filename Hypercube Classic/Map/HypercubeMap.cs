@@ -123,6 +123,9 @@ namespace Hypercube_Classic.Map {
             HCSettings.History = new int[Map.BlockData.Length];
 
             foreach (Rank r in Core.Rankholder.Ranks) { // -- Allow all ranks to access this map by default.
+                JoinRanks.Add(r);
+                BuildRanks.Add(r);
+                ShowRanks.Add(r);
                 HCSettings.JoinRanks += r.ID.ToString();
                 HCSettings.BuildRanks += r.ID.ToString();
                 HCSettings.ShowRanks += r.ID.ToString();
@@ -183,6 +186,15 @@ namespace Hypercube_Classic.Map {
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();
             Entities = new List<Entity>();
+
+            foreach (Rank r in Core.Rankholder.Ranks) { // -- Allow all ranks to access this map by default.
+                JoinRanks.Add(r);
+                BuildRanks.Add(r);
+                ShowRanks.Add(r);
+                HCSettings.JoinRanks += r.ID.ToString();
+                HCSettings.BuildRanks += r.ID.ToString();
+                HCSettings.ShowRanks += r.ID.ToString();
+            }
 
             // -- Set CPE Information...
             var myRef = (CPEMetadata)Map.MetadataParsers["CPE"];
@@ -371,8 +383,8 @@ namespace Hypercube_Classic.Map {
 
             var Final = new Packets.LevelFinalize();
             Final.SizeX = Map.SizeX;
-            Final.SizeY = Map.SizeZ;
-            Final.SizeZ = Map.SizeY;
+            Final.SizeY = Map.SizeY;
+            Final.SizeZ = Map.SizeZ;
             Final.Write(Client);
 
         }
@@ -476,16 +488,19 @@ namespace Hypercube_Classic.Map {
 
             if (!BuildRanks.Contains(Client.CS.PlayerRank)) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to build here.");
+                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
                 return;
             }
 
             if (MapBlock.RanksDelete.Contains(Client.CS.PlayerRank) && Mode > 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to delete this block type.");
+                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
                 return;
             }
 
             if (MapBlock.RanksPlace.Contains(Client.CS.PlayerRank) && Mode == 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to place this block type.");
+                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
                 return;
             }
 
@@ -557,6 +572,15 @@ namespace Hypercube_Classic.Map {
             if (HCSettings.Building) {
                 
             }
+        }
+
+        public void SendBlockToClient(short X, short Y, short Z, byte Type, NetworkClient c) {
+            var BlockchangePacket = new Packets.SetBlockServer();
+            BlockchangePacket.Block = Type;
+            BlockchangePacket.X = X;
+            BlockchangePacket.Y = Y;
+            BlockchangePacket.Z = Z;
+            BlockchangePacket.Write(c);
         }
 
         public void SendBlockToClients(short X, short Y, short Z, byte Type) {
