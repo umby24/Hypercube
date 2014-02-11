@@ -68,8 +68,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClassicWorld.NET">
-      <HintPath>..\..\..\..\GitHub\ClassicWorld.Net\ClassicWorld.NET\bin\Debug\ClassicWorld.NET.dll</HintPath>
+    <Reference Include="ClassicWorld.NET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ClassicWorld.Net\ClassicWorld.NET\bin\Release\ClassicWorld.NET.dll</HintPath>
     </Reference>
     <Reference Include="ClassicWrapped">
       <HintPath>..\ClassicWrapped\bin\Debug\ClassicWrapped.dll</HintPath>

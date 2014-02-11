@@ -27,6 +27,7 @@ namespace Hypercube_Classic.Core {
             Changed = true;
             SendOwn = true;
             ID = Core.EFree;
+            BuildMaterial = -1;
 
             if (Core.EFree != Core.ENext)
                 Core.EFree = Core.ENext;
@@ -57,8 +58,10 @@ namespace Hypercube_Classic.Core {
             } else {
                 if (!MyClient.CS.Stopped)
                     Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, Type);
-                else
+                else {
                     Chat.SendClientChat(MyClient, "&4Error:&f You are stopped, you cannot build.");
+                    MyClient.CS.CurrentMap.SendBlockToClient(_X, _Y, _Z, MyClient.CS.CurrentMap.GetBlock(_X, _Y, _Z), MyClient);
+                }
             }
         }
     }

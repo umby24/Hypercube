@@ -42,11 +42,11 @@ namespace Hypercube_Classic.Core {
                 newBlock.RanksDelete = SplitRanks((string)c["DeleteRank"]);
                 newBlock.Physics = Convert.ToInt32(c["Physics"]);
                 newBlock.PhysicsPlugin = (string)c["PhysicsPlugin"];
-                newBlock.Kills = (bool)c["Kills"];
+                newBlock.Kills = ((long)c["Kills"] > 0);
                 newBlock.Color = Convert.ToInt32(c["Color"]);
                 newBlock.CPELevel = Convert.ToInt32(c["CPELevel"]);
                 newBlock.CPEReplace = Convert.ToInt32(c["CPEReplace"]);
-                newBlock.Special = (bool)c["Special"];
+                newBlock.Special = ((long)c["Special"] > 0);
                 newBlock.ReplaceOnLoad = Convert.ToInt32(c["ReplaceOnLoad"]);
 
                 Blocks.Add(newBlock);

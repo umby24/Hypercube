@@ -70,7 +70,7 @@ namespace Hypercube_Classic.Client {
             if (!ServerCore.Database.ContainsPlayer(CS.LoginName)) // -- Create the user in the PlayerDB.
                 ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
 
-            if (ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Banned")) {
+            if ((ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) {
                 var Disconnecter = new Disconnect();
                 Disconnecter.Reason = "Banned: " + ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage").Substring(0, 56);
                 Disconnecter.Write(this);
@@ -81,8 +81,8 @@ namespace Hypercube_Classic.Client {
 
             //TODO: Load muted, stopped, ect. From PlayerDB.
             CS.ID = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
-            CS.Stopped = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Stopped");
-            CS.Global = ServerCore.Database.GetDatabaseBool(CS.LoginName, "PlayerDB", "Global");
+            CS.Stopped = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
+            CS.Global = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
 
             CS.LoggedIn = true;
             CS.PlayerRank = ServerCore.Rankholder.GetRank(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Rank"));
@@ -149,7 +149,7 @@ namespace Hypercube_Classic.Client {
                     }
                 }
 
-            } catch {
+            } catch (Exception e) {
                 // -- User probably disconnected.
                 if (BaseSocket.Connected == true)
                     BaseSocket.Close();

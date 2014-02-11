@@ -24,13 +24,13 @@ namespace Hypercube_Classic.Client {
                 var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
                 Connection.Open();
 
-                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped BOOLEAN, StoppedBy TEXT, Banned BOOLEAN, Vanished BOOLEAN, BannedBy STRING, BannedUntil INTEGER, Global BOOLEAN, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
                 Command.ExecuteNonQuery();
 
-                Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op BOOLEAN)";
+                Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op INTEGER)";
                 Command.ExecuteNonQuery();
 
-                Command.CommandText = "CREATE TABLE BlockDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, OnClient INTEGER, PlaceRank STRING, DeleteRank STRING, Physics INTEGER, PhysicsPlugin TEXT, Kills BOOLEAN, Color INTEGER, CPELevel INTEGER, CPEReplace INTEGER, Special BOOLEAN, ReplaceOnLoad INTEGER)";
+                Command.CommandText = "CREATE TABLE BlockDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, OnClient INTEGER, PlaceRank STRING, DeleteRank STRING, Physics INTEGER, PhysicsPlugin TEXT, Kills INTEGER, Color INTEGER, CPELevel INTEGER, CPEReplace INTEGER, Special INTEGER, ReplaceOnLoad INTEGER)";
                 Command.ExecuteNonQuery();
 
                 Connection.Close(); // -- All done.
@@ -155,21 +155,6 @@ namespace Hypercube_Classic.Client {
                 return true;
             else
                 return false;
-        }
-        /// <summary>
-        /// Retreives a boolean value from the database.
-        /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
-        /// <returns></returns>
-        public bool GetDatabaseBool(string Name, string Table, string Field) {
-            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
-
-            try {
-                return (bool)dt.Rows[0][Field];
-            } catch {
-                return false;
-            }
         }
 
         /// <summary>

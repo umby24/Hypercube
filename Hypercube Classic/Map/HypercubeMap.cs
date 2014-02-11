@@ -104,7 +104,7 @@ namespace Hypercube_Classic.Map {
         public short FreeID = 0, NextID = 0; // -- For Client Entity IDs.
         public object EntityLocker = new object();
 
-        Thread ClientThread, BlockChangeThread, PhysicsThread;
+        public Thread ClientThread, BlockChangeThread, PhysicsThread;
         public Thread EntityThread;
         DateTime LastClient;
         Hypercube ServerCore;
@@ -126,9 +126,6 @@ namespace Hypercube_Classic.Map {
                 JoinRanks.Add(r);
                 BuildRanks.Add(r);
                 ShowRanks.Add(r);
-                HCSettings.JoinRanks += r.ID.ToString();
-                HCSettings.BuildRanks += r.ID.ToString();
-                HCSettings.ShowRanks += r.ID.ToString();
             }
 
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Add the parser so it will save with the map :)
@@ -181,20 +178,32 @@ namespace Hypercube_Classic.Map {
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
             
-            //TODO: Add checking of HC Metadata here.
+            // -- Creates HC Metadata if it does not exist.
+            if (HCSettings.BuildRanks == null) {
+                foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    BuildRanks.Add(r);
+            }
+
+            if (HCSettings.ShowRanks == null) {
+                foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    ShowRanks.Add(r);
+            }
+
+            if (HCSettings.JoinRanks == null) {
+                foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    JoinRanks.Add(r);
+
+                HCSettings.Building = true;
+                HCSettings.Physics = true;
+            }
+            HCSettings.Building = true;
+            HCSettings.Physics = true;
+            if (HCSettings.History == null)
+                HCSettings.History = new int[Map.BlockData.Length];
 
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();
             Entities = new List<Entity>();
-
-            foreach (Rank r in Core.Rankholder.Ranks) { // -- Allow all ranks to access this map by default.
-                JoinRanks.Add(r);
-                BuildRanks.Add(r);
-                ShowRanks.Add(r);
-                HCSettings.JoinRanks += r.ID.ToString();
-                HCSettings.BuildRanks += r.ID.ToString();
-                HCSettings.ShowRanks += r.ID.ToString();
-            }
 
             // -- Set CPE Information...
             var myRef = (CPEMetadata)Map.MetadataParsers["CPE"];
@@ -277,6 +286,21 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         /// <param name="Filename"></param>
         public void SaveMap(string Filename = "") {
+            HCSettings.BuildRanks = "";
+
+            foreach (Rank r in BuildRanks) 
+                HCSettings.BuildRanks += r.ID + ",";
+            foreach (Rank r in JoinRanks)
+                HCSettings.JoinRanks += r.ID + ",";
+            foreach (Rank r in ShowRanks)
+                HCSettings.ShowRanks += r.ID + ",";
+
+            HCSettings.BuildRanks = HCSettings.BuildRanks.TrimEnd(',');
+            HCSettings.ShowRanks = HCSettings.ShowRanks.TrimEnd(',');
+            HCSettings.JoinRanks = HCSettings.JoinRanks.TrimEnd(',');
+
+            Map.MetadataParsers["Hypercube"] = HCSettings;
+
             if (Filename != "")
                 Map.Save(Filename);
             else
@@ -291,17 +315,17 @@ namespace Hypercube_Classic.Map {
         /// <param name="z"></param>
         /// <returns></returns>
         public byte GetBlockID(short x, short y, short z) { // (Y * Size_Z + Z) * Size_X + X
-            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
+            int index = (z * Map.SizeY + y) * Map.SizeX + x;
             return Map.BlockData[index];
         }
 
         public Block GetBlock(short x, short y, short z) {
-            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
+            int index = (z * Map.SizeY + y) * Map.SizeX + x;
             return ServerCore.Blockholder.GetBlock(Map.BlockData[index]);
         }
 
         public void SetBlockID(short x, short y, short z, byte Type, int ClientID) {
-            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
+            int index = (z * Map.SizeY + y) * Map.SizeX + x;
             Map.BlockData[index] = Type;
             HCSettings.History[index] = ClientID;
         }
@@ -479,32 +503,33 @@ namespace Hypercube_Classic.Map {
         #region Blockchanging
         public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, byte Type) {
             var MapBlock = GetBlock(X, Y, Z);
+            var ChangeBlock = ServerCore.Blockholder.GetBlock(Type);
 
             if (Mode == 0)
                 Type = 0;
 
-            if (Type == MapBlock.ID)
+            if (Type == (MapBlock.ID - 1))
                 return;
 
             if (!BuildRanks.Contains(Client.CS.PlayerRank)) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to build here.");
-                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
+                SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            if (MapBlock.RanksDelete.Contains(Client.CS.PlayerRank) && Mode > 0) {
+            if (!MapBlock.RanksDelete.Contains(Client.CS.PlayerRank) && Mode == 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to delete this block type.");
-                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
+                SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            if (MapBlock.RanksPlace.Contains(Client.CS.PlayerRank) && Mode == 0) {
+            if (!ChangeBlock.RanksPlace.Contains(Client.CS.PlayerRank) && Mode > 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to place this block type.");
-                SendBlockToClient(X, Y, Z, GetBlockID(X, Y, Z), Client);
+                SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            if (X > Map.SizeX || Y > Map.SizeZ || Z > Map.SizeY) {
+            if (!(X >= 0 && X < Map.SizeX) || !(Y >= 0 && Y < Map.SizeY) || !(Z >= 0 && Z < Map.SizeZ)) {
                 Chat.SendClientChat(Client, "&4Error: &fThat block is outside the bounds of the map.");
                 return;
             }
@@ -548,9 +573,9 @@ namespace Hypercube_Classic.Map {
                     int Changes = 0;
 
                     while (BlockchangeQueue.Count > 0 && (Changes <= ServerCore.MaxBlockChanges)) {
-                        for (int i = 0; i < BlockchangeQueue.Count - 1; i++) {
+                        for (int i = 0; i < BlockchangeQueue.Count; i++) {
                             if (BlockchangeQueue[i].Priority == 0) {
-                                SendBlockToClients(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlockID(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z));
+                                SendBlockToClients(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlock(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z));
                                 Changes += 1;
 
                                 if (Changes == ServerCore.MaxBlockChanges) {
@@ -574,23 +599,32 @@ namespace Hypercube_Classic.Map {
             }
         }
 
-        public void SendBlockToClient(short X, short Y, short Z, byte Type, NetworkClient c) {
+        public void SendBlockToClient(short X, short Y, short Z, Block Type, NetworkClient c) {
             var BlockchangePacket = new Packets.SetBlockServer();
-            BlockchangePacket.Block = Type;
+
+            if (Type.CPELevel > c.CS.CustomBlocksLevel)
+                BlockchangePacket.Block = (byte)Type.CPEReplace;
+            else
+                BlockchangePacket.Block = Type.OnClient;
+
             BlockchangePacket.X = X;
             BlockchangePacket.Y = Y;
             BlockchangePacket.Z = Z;
             BlockchangePacket.Write(c);
         }
 
-        public void SendBlockToClients(short X, short Y, short Z, byte Type) {
+        public void SendBlockToClients(short X, short Y, short Z, Block Type) {
             var BlockchangePacket = new Packets.SetBlockServer();
-            BlockchangePacket.Block = Type;
             BlockchangePacket.X = X;
             BlockchangePacket.Y = Y;
             BlockchangePacket.Z = Z;
 
             foreach (NetworkClient c in Clients) {
+                if (Type.CPELevel > c.CS.CustomBlocksLevel)
+                    BlockchangePacket.Block = (byte)Type.CPEReplace;
+                else
+                    BlockchangePacket.Block = Type.OnClient;
+
                 BlockchangePacket.Write(c);
             }
         }

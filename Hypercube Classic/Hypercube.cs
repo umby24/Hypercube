@@ -228,6 +228,9 @@ namespace Hypercube_Classic
             foreach (HypercubeMap m in Maps) {
                 m.EntityThread = new Thread(m.MapEntities);
                 m.EntityThread.Start();
+
+                m.BlockChangeThread = new Thread(m.Blockchanger);
+                m.BlockChangeThread.Start();
             }
 
             Logger._Log("Info", "Core", "Server started.");

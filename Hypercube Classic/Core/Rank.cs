@@ -68,7 +68,7 @@ namespace Hypercube_Classic.Core {
                 NewRank.Group = (string)c["RGroup"];
                 NewRank.Prefix = (string)c["Prefix"];
                 NewRank.Suffix = (string)c["Suffix"];
-                NewRank.Op = (bool)c["Op"];
+                NewRank.Op = ((long)c["Op"] > 0);
                 NewRank.PointsInRank = Convert.ToInt32(c["Points"]);
                 NewRank.NextRank = (string)c["Next"];
 
