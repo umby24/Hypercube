@@ -12,7 +12,7 @@ namespace Hypercube_Classic.Client {
     public class ClientSettings {
         public string LoginName, FormattedName, IP, MPPass;
         public DateTime LastActive;
-        public bool LoggedIn, Muted, Stopped, Global;
+        public bool LoggedIn, Muted, Stopped, Global, Classicube;
         public short NameID;
         public Rank PlayerRank;
         public int RankStep, ID;

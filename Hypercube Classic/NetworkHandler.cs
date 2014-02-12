@@ -32,7 +32,7 @@ namespace Hypercube_Classic {
 
         // -- Network Settings
         public int Port, MaxPlayers;
-        public bool VerifyNames, Public;
+        public bool VerifyNames, Public, DualHeartbeat;
 
         Hypercube ServerCore;
         Thread ListenThread;
@@ -56,6 +56,7 @@ namespace Hypercube_Classic {
             MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(NS, "MaxPlayers", "128"));
             VerifyNames = bool.Parse(ServerCore.Settings.ReadSetting(NS, "VerifyNames", "true"));
             Public = bool.Parse(ServerCore.Settings.ReadSetting(NS, "Public", "true"));
+            DualHeartbeat = bool.Parse(ServerCore.Settings.ReadSetting(NS, "DualHeartbeat", "true"));
 
             ServerCore.Logger._Log("Info", "Network", "Network settings loaded.");
         }
@@ -102,15 +103,14 @@ namespace Hypercube_Classic {
         /// Triggered when a client disconnects.
         /// </summary>
         public void HandleDisconnect(NetworkClient Disconnecting) {
-            Disconnecting.CS.CurrentMap.Clients.Remove(Disconnecting);
-            Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
-
-            Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
-
             if (Disconnecting.CS.LoggedIn) {
+                Disconnecting.CS.CurrentMap.Clients.Remove(Disconnecting);
+                Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
+
                 ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected."); // -- Notify of their disconnection.
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
+            Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
         }
 
         /// <summary>

@@ -29,6 +29,7 @@ namespace Hypercube_Classic.Packets {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
+            Client.CS.LoginName = Name;
             Client.CS.MPPass = MOTD;
 
             if (ProtocolVersion != 7) {
