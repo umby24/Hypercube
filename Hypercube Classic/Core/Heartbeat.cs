@@ -89,20 +89,20 @@ namespace Hypercube_Classic.Core {
 
         public void DoHeartbeatMinecraft() {
             var Request = new WebClient();
-            //Request.Proxy = new WebProxy("https://" + GetIPv4Address("minecraft.net") + ":80/"); // -- Makes sure we're using an IPv4 Address and not IPv6.
 
             while (ServerCore.Running) {
                 try {
                     string Response = Request.DownloadString("https://www.minecraft.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&salt=" + HttpUtility.UrlEncode(Salt));
                     ServerCore.Logger._Log("Info", "Heartbeat_Minecraft", "Heartbeat sent.");
                     File.WriteAllText("ServerURL_MC.txt", Response);
-                } catch (Exception e) {
+                } catch {
                     ServerCore.Logger._Log("Error", "Heartbeat_Minecraft", "Failed to send heartbeat.");
                 }
 
                 Thread.Sleep(45000);
             }
         }
+
         /// <summary>
         /// Verifys the authenticity of this user.
         /// </summary>
@@ -117,10 +117,10 @@ namespace Hypercube_Classic.Core {
             string CorrectMC = BitConverter.ToString(MD5Creator.ComputeHash(Encoding.ASCII.GetBytes(MCSalt + Client.CS.LoginName))).Replace("-", "");
 
             if (Correct.Trim().ToLower() == Client.CS.MPPass.Trim().ToLower()) {
-                Client.CS.Classicube = true;
+                Client.CS.Service = "Classicube";
                 return true;
             } else if (CorrectMC.Trim().ToLower() == Client.CS.MPPass.Trim().ToLower()) {
-                Client.CS.Classicube = false;
+                Client.CS.Service = "Minecraft";
                 return true;
             } else {
                 ServerCore.Logger._Log("Info", "Heartbeat", Correct.Trim() + " != " + Client.CS.MPPass.Trim());

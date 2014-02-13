@@ -67,8 +67,8 @@ namespace Hypercube_Classic.Client {
         /// Performs basic login functions for this client. 
         /// </summary>
         public void Login() {
-            if (!ServerCore.Database.ContainsPlayer(CS.LoginName)) // -- Create the user in the PlayerDB.
-                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
+            if (!ServerCore.Database.ContainsPlayer(CS.LoginName, CS.Service)) // -- Create the user in the PlayerDB.
+                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, CS.Service, ServerCore);
 
             if ((ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) {
                 var Disconnecter = new Disconnect();
@@ -149,7 +149,7 @@ namespace Hypercube_Classic.Client {
                     }
                 }
 
-            } catch (Exception e) {
+            } catch {
                 // -- User probably disconnected.
                 if (BaseSocket.Connected == true)
                     BaseSocket.Close();

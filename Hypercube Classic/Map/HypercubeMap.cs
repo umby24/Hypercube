@@ -248,6 +248,9 @@ namespace Hypercube_Classic.Map {
             if (EntityThread != null)
                 EntityThread.Abort();
 
+            if (PhysicsThread != null)
+                PhysicsThread.Abort();
+
             if (BlockChangeThread != null)
                 BlockChangeThread.Abort();
 
@@ -549,13 +552,12 @@ namespace Hypercube_Classic.Map {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
-                            //TODO: AddPhysicsQueue(X, Y, Z);
                             var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
 
                             if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!BlockchangeQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) {
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1));
-                                }
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) 
+                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250));
+                                
                             }
                         }
                     }
@@ -565,6 +567,48 @@ namespace Hypercube_Classic.Map {
             if (Send) 
                 BlockchangeQueue.Add(new QueueItem(X, Y, Z, Priority));
             
+        }
+
+        public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
+            if (!(X >= 0 && X < Map.SizeX) || !(Y >= 0 && Y < Map.SizeY) || !(Z >= 0 && Z < Map.SizeZ) || !(X2 >= 0 && X2 < Map.SizeX) || !(Y2 >= 0 && Y2 < Map.SizeY) || !(Z2 >= 0 && Z2 < Map.SizeZ)) 
+                return;
+
+            var Block1 = GetBlock(X, Y, Z);
+            var Block2 = GetBlock(X2, Y2, Z2);
+
+            SetBlockID(X, Y, Z, 0, -1);
+            SetBlockID(X2, Y2, Z2, (byte)(Block1.ID - 1), -1); //TODO: Get client.
+
+            if (undo) {
+                //TODO: Undo
+            }
+
+            if (Block1.ID - 1 != 0)
+                BlockchangeQueue.Add(new QueueItem(X, Y, Z, priority));
+
+            if (Block2.ID != Block1.ID)
+                BlockchangeQueue.Add(new QueueItem(X2, Y2, Z2, priority));
+
+            if (physics) {
+                for (short ix = -1; ix < 2; ix++) {
+                    for (short iy = -1; iy < 2; iy++) {
+                        for (short iz = -1; iz < 2; iz++) {
+                            var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
+                            var BlockQueue2 = GetBlock((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz));
+
+                            if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250), new QueueComparator())) 
+                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1));
+                            }
+                            if (BlockQueue2.Physics > 0 || (BlockQueue2.PhysicsPlugin != "" && BlockQueue2.PhysicsPlugin != null)) {
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator()))
+                                    PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250));
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         public void Blockchanger() {
@@ -589,16 +633,64 @@ namespace Hypercube_Classic.Map {
                         }
                     }
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(400);
             }
         }
 
         public void PhysicCompleter() {
-            if (HCSettings.Building) {
-                
+            while (ServerCore.Running) {
+                if (HCSettings.Building) {
+                    while (PhysicsQueue.Count > 0) {
+                        for (int i = 0; i < PhysicsQueue.Count; i++) {
+                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
+                            short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
+                            PhysicsQueue.RemoveAt(i);
+
+                            switch (physicBlock.Physics) {
+                                case 10:
+                                    PhysicsOriginalSand(physicBlock, X, Y, Z);
+                                    break;
+                                case 11:
+                                    PhysicsD3Sand(physicBlock, X, Y, Z);
+                                    break;
+                                case 20:
+                                    break;
+                                case 21:
+                                    break;
+                            }
+                            
+                        }
+                    }
+                }
+                Thread.Sleep(100);
             }
         }
 
+        #region Physic Computations
+        void PhysicsOriginalSand(Block physicBlock, short X, short Y, short Z) {
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
+        }
+
+        void PhysicsD3Sand(Block physicBlock, short X, short Y, short Z) {
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
+            else if (GetBlockID((short)(X + 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X + 1), Y, Z) == 0)
+                MoveBlock(X, Y, Z, (short)(X + 1), Y, (short)(Z - 1), true, true, 900);
+            else if (GetBlockID((short)(X - 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X - 1), Y, Z) == 0)
+                MoveBlock(X, Y, Z, (short)(X - 1), Y, (short)(Z - 1), true, true, 900);
+            else if (GetBlockID(X, (short)(Y + 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y + 1), Z) == 0)
+                MoveBlock(X, Y, Z, X, (short)(Y + 1), (short)(Z - 1), true, true, 900);
+            else if (GetBlockID(X, (short)(Y - 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y - 1), Z) == 0)
+                MoveBlock(X, Y, Z, X, (short)(Y - 1), (short)(Z - 1), true, true, 900);
+        }
+        void PhysicsInfiniteWater() {
+
+        }
+        void PhysicsFiniteWater() {
+
+        }
+        #endregion
         public void SendBlockToClient(short X, short Y, short Z, Block Type, NetworkClient c) {
             var BlockchangePacket = new Packets.SetBlockServer();
 

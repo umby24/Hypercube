@@ -231,6 +231,9 @@ namespace Hypercube_Classic
 
                 m.BlockChangeThread = new Thread(m.Blockchanger);
                 m.BlockChangeThread.Start();
+
+                m.PhysicsThread = new Thread(m.PhysicCompleter);
+                m.PhysicsThread.Start();
             }
 
             Logger._Log("Info", "Core", "Server started.");
