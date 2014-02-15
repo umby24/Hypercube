@@ -62,13 +62,31 @@ namespace Hypercube_Classic.Client {
             Handshake.Write(this);
         }
 
-        
+        public void KickPlayer(string Reason) {
+            var Disconnect = new Disconnect();
+            Disconnect.Reason = Reason;
+            Disconnect.Write(this);
+
+            if (BaseSocket.Connected == true)
+                BaseSocket.Close();
+
+            BaseStream.Close();
+            BaseStream.Dispose();
+
+            var Values = new Dictionary<string, string>(); // -- Update the PlayerDB.
+            Values.Add("KickCounter", (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString());
+            Values.Add("KickMessage", Reason);
+            ServerCore.Database.Update("PlayerDB", Values, "Name='" + CS.LoginName + "'");
+
+            //ServerCore.nh.HandleDisconnect(this);
+        }
+
         /// <summary>
         /// Performs basic login functions for this client. 
         /// </summary>
         public void Login() {
-            if (!ServerCore.Database.ContainsPlayer(CS.LoginName, CS.Service)) // -- Create the user in the PlayerDB.
-                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, CS.Service, ServerCore);
+            if (!ServerCore.Database.ContainsPlayer(CS.LoginName)) // -- Create the user in the PlayerDB.
+                ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
 
             if ((ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) {
                 var Disconnecter = new Disconnect();

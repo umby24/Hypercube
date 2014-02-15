@@ -24,7 +24,7 @@ namespace Hypercube_Classic.Client {
                 var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
                 Connection.Open();
 
-                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Service TEXT, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
                 Command.ExecuteNonQuery();
 
                 Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op INTEGER)";
@@ -42,12 +42,11 @@ namespace Hypercube_Classic.Client {
         /// </summary>
         /// <param name="Name"></param>
         /// <param name="IP"></param>
-        public void CreatePlayer(string Name, string IP, string Service, Hypercube Core) {
+        public void CreatePlayer(string Name, string IP, Hypercube Core) {
             var myValues = new Dictionary<string, string>();
             myValues.Add("Name", Name);
             myValues.Add("IP", IP);
             myValues.Add("Rank", Core.DefaultRank.ID.ToString());
-            myValues.Add("Service", Service);
             myValues.Add("RankStep", "0");
             myValues.Add("Global", "true");
             myValues.Add("Banned", "false");
@@ -62,16 +61,41 @@ namespace Hypercube_Classic.Client {
         /// </summary>
         /// <param name="Name"></param>
         /// <returns></returns>
-        public bool ContainsPlayer(string Name, string Service) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Name + "' AND Service='" + Service + "'");
+        public bool ContainsPlayer(string Name) {
+            var dt = GetDataTable("SELECT * FROM PlayerDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
 
-            if (dt.Rows.Count > 0) 
-                return true;
-             else 
-                return false;
+            foreach (DataRow c in dt.Rows) {
+                if (((string)c["Name"]).ToLower() == Name.ToLower())
+                    return true;
+            }
+
+            return false;
             
         }
 
+        public void BanPlayer(string Name, string Reason) {
+
+        }
+
+        public void UnbanPlayer(string Name) {
+
+        }
+
+        public void StopPlayer(string Name, string Reason) {
+
+        }
+
+        public void UnstopPlayer(string Name) {
+
+        }
+
+        public void MutePlayer(string Name, int Minutes, string Reason) {
+
+        }
+
+        public void UnmutePlayer(string Name) {
+
+        }
         /// <summary>
         /// Creates a new rank in the database.
         /// </summary>

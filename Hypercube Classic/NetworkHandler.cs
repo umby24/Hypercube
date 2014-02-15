@@ -106,10 +106,12 @@ namespace Hypercube_Classic {
             if (Disconnecting.CS.LoggedIn) {
                 Disconnecting.CS.CurrentMap.Clients.Remove(Disconnecting);
                 Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
+                ServerCore.OnlinePlayers -= 1;
 
                 ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected."); // -- Notify of their disconnection.
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
+
             Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
         }
 
@@ -128,7 +130,7 @@ namespace Hypercube_Classic {
 
                 string IP = TempClient.Client.RemoteEndPoint.ToString().Substring(0, TempClient.Client.RemoteEndPoint.ToString().IndexOf(":")); // -- Strips the port the user is connecting from.
 
-                if (IP == "0.0.0.0") { // -- TODO: PlayerDB IP Ban Lookup.
+                if (IP == "0.0.0.0") { //TODO: PlayerDB IP Ban Lookup.
 
                 }
 
@@ -136,7 +138,7 @@ namespace Hypercube_Classic {
                 NewClient.CS.IP = IP;
                 Clients.Add(NewClient);
 
-                ServerCore.Logger._Log("Info", "", "Client created (IP = " + NewClient.CS.IP + ")");
+                ServerCore.Logger._Log("Info", "Network", "Client created (IP = " + NewClient.CS.IP + ")");
             }
         }
     }

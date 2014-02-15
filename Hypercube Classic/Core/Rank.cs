@@ -55,6 +55,22 @@ namespace Hypercube_Classic.Core {
         }
 
         /// <summary>
+        /// Splits a comma delimited string of rank IDs into a list of ranks.
+        /// </summary>
+        /// <param name="RankString"></param>
+        /// <returns></returns>
+        public static List<Rank> SplitRanks(Hypercube ServerCore, string RankString) {
+            var result = new List<Rank>();
+            var splitRanks = RankString.Split(',');
+
+            foreach (string s in splitRanks) {
+                result.Add(ServerCore.Rankholder.GetRank(int.Parse(s)));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Triggers when the ranks file is reloaded. This will reload all ranks into the database.
         /// </summary>
         public void LoadRanks(Hypercube Core) {
@@ -67,11 +83,13 @@ namespace Hypercube_Classic.Core {
                 NewRank.Name = (string)c["Name"];
                 NewRank.Group = (string)c["RGroup"];
                 NewRank.Prefix = (string)c["Prefix"];
-                NewRank.Suffix = (string)c["Suffix"];
+                if (c["Op"].GetType() == typeof(string))
+                    NewRank.Suffix = (string)c["Suffix"];
                 NewRank.Op = ((long)c["Op"] > 0);
                 NewRank.PointsInRank = Convert.ToInt32(c["Points"]);
-                NewRank.NextRank = (string)c["Next"];
-
+                if (c["Next"].GetType() == typeof(string))
+                    NewRank.NextRank = (string)c["Next"];
+                
                 Ranks.Add(NewRank);
             }
         }

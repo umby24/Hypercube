@@ -420,26 +420,26 @@ namespace Hypercube_Classic.Map {
         public void MapEntities() {
             while (ServerCore.Running) {
 
-                foreach (Entity E in Entities) {
-                    if (E.Changed) {
+                for (int i = 0; i < Entities.Count; i++ ) {
+                    if (Entities[i].Changed) {
                         var TeleportPacket = new Packets.PlayerTeleport();
-                        TeleportPacket.PlayerID = (sbyte)E.ClientID;
-                        TeleportPacket.X = E.X;
-                        TeleportPacket.Y = E.Y;
-                        TeleportPacket.Z = E.Z;
-                        TeleportPacket.yaw = E.Rot;
-                        TeleportPacket.pitch = E.Look;
+                        TeleportPacket.PlayerID = (sbyte)Entities[i].ClientID;
+                        TeleportPacket.X = Entities[i].X;
+                        TeleportPacket.Y = Entities[i].Y;
+                        TeleportPacket.Z = Entities[i].Z;
+                        TeleportPacket.yaw = Entities[i].Rot;
+                        TeleportPacket.pitch = Entities[i].Look;
 
                         foreach (NetworkClient c in Clients) {
-                            if (E.MyClient != null && E.MyClient != c)
+                            if (Entities[i].MyClient != null && Entities[i].MyClient != c)
                                 TeleportPacket.Write(c);
-                            else if (E.MyClient == c && E.SendOwn == true) {
+                            else if (Entities[i].MyClient == c && Entities[i].SendOwn == true) {
                                 TeleportPacket.PlayerID = (sbyte)-1;
                                 TeleportPacket.Write(c);
-                                E.SendOwn = false;
+                                Entities[i].SendOwn = false;
                             }
                         }
-                        E.Changed = false;
+                        Entities[i].Changed = false;
                     }
                 }
                 Thread.Sleep(10); // -- This gives the rest of the program time to make modifications to the Entitys and Clients list. 
@@ -583,10 +583,10 @@ namespace Hypercube_Classic.Map {
                 //TODO: Undo
             }
 
-            if (Block1.ID - 1 != 0)
+            //if (Block1.ID - 1 != 0)
                 BlockchangeQueue.Add(new QueueItem(X, Y, Z, priority));
 
-            if (Block2.ID != Block1.ID)
+            //if (Block2.ID != Block1.ID)
                 BlockchangeQueue.Add(new QueueItem(X2, Y2, Z2, priority));
 
             if (physics) {
@@ -633,7 +633,7 @@ namespace Hypercube_Classic.Map {
                         }
                     }
                 }
-                Thread.Sleep(400);
+                Thread.Sleep(100);
             }
         }
 

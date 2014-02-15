@@ -11,35 +11,19 @@ namespace Hypercube_Classic.Core {
 
         public BlockContainer(Hypercube Core) {
             ServerCore = Core;
-        }
-
-        /// <summary>
-        /// Splits a comma delimited string of rank IDs into a list of ranks.
-        /// </summary>
-        /// <param name="RankString"></param>
-        /// <returns></returns>
-        public List<Rank> SplitRanks(string RankString) {
-            var result = new List<Rank>();
-            var splitRanks = RankString.Split(',');
-
-            foreach (string s in splitRanks) {
-                result.Add(ServerCore.Rankholder.GetRank(int.Parse(s)));
-            }
-
-            return result;
-        }
+        }     
 
         public void LoadBlocks() {
             Blocks.Clear();
             var dt = ServerCore.Database.GetDataTable("SELECT * FROM BlockDB");
-
+            
             foreach (DataRow c in dt.Rows) {
                 var newBlock = new Block();
                 newBlock.ID = Convert.ToInt32(c["Number"]);
                 newBlock.Name = (string)c["Name"];
                 newBlock.OnClient = (byte)Convert.ToInt32(c["OnClient"]);
-                newBlock.RanksPlace = SplitRanks((string)c["PlaceRank"]);
-                newBlock.RanksDelete = SplitRanks((string)c["DeleteRank"]);
+                newBlock.RanksPlace = RankContainer.SplitRanks(ServerCore, (string)c["PlaceRank"]);
+                newBlock.RanksDelete = RankContainer.SplitRanks(ServerCore, (string)c["DeleteRank"]);
                 newBlock.Physics = Convert.ToInt32(c["Physics"]);
                 newBlock.PhysicsPlugin = (string)c["PhysicsPlugin"];
                 newBlock.Kills = ((long)c["Kills"] > 0);
@@ -109,8 +93,8 @@ namespace Hypercube_Classic.Core {
             var newBlock = new Block();
             newBlock.Name = Name;
             newBlock.OnClient = OnClient;
-            newBlock.RanksPlace = SplitRanks(PlaceRanks);
-            newBlock.RanksDelete = SplitRanks(DeleteRanks);
+            newBlock.RanksPlace = RankContainer.SplitRanks(ServerCore, PlaceRanks);
+            newBlock.RanksDelete = RankContainer.SplitRanks(ServerCore, DeleteRanks);
             newBlock.Physics = Physics;
             newBlock.PhysicsPlugin = PhysicsPlugin;
             newBlock.Kills = Kills;

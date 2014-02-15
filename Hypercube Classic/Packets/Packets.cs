@@ -70,7 +70,6 @@ namespace Hypercube_Classic.Packets {
                 DisconnectPack.Write(Client);
             }
 
-            Client.CS.LoginName = Name;
             Client.CS.MPPass = MOTD;
             Client.CS.LastActive = System.DateTime.UtcNow;
 

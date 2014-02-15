@@ -102,9 +102,9 @@ namespace Hypercube_Classic.Core {
             Message = FilterIncomingChat(Message);
 
             //TODO: If Client.GlobalChat..
-            if (Message.StartsWith("/"))
-                Message = "Potato";
-            else if (Message.StartsWith("@")) {
+            if (Message.StartsWith("/")) 
+                IncomingClient.ServerCore.Commandholder.HandleCommand(IncomingClient.ServerCore, IncomingClient, Message);
+             else if (Message.StartsWith("@")) {
                 string Client = Message.Substring(1, Message.IndexOf(" ") - 1);
                 NetworkClient Tosend = null;
 
@@ -151,7 +151,7 @@ namespace Hypercube_Classic.Core {
         public static string[] SplitLines(string Input) {
             List<string> Builder = new List<string>();
 
-            if (Input.Length <= 64 && Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) 
+            if (Input.Length <= 64 && Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) <= 0) 
                 return new string[] { Input.PadRight(64) };
             
             // -- The string is longer than 64 characters, or contains '<br>'.

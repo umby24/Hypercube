@@ -10,6 +10,21 @@ using Hypercube_Classic.Core;
 using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Map;
 using Hypercube_Classic.Client;
+using Hypercube_Classic.Command;
+
+// -- Hypercube Classic Minecraft Software by Umby24
+// -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
+//TODO: Fix localhost clients having a blank service. (This will also apply to non-name verified servers..)
+//TODO: Give users the ability to have multiple ranks assigned to them.
+//TODO: Fix physics (It's too fast!)
+//TODO: Add physics time limitations.
+//TODO: Add physics on map load.
+//TODO: Add user undo (And save it with map data)
+//TODO: Add user block tracking (Framework already in place, easy to do).
+//TODO: Add more commands
+//TODO: Intigrate Lua
+//TODO: Add CPE
+//TODO: Save and load command permissions, names, and aliases from file.
 
 namespace Hypercube_Classic
 {
@@ -34,6 +49,7 @@ namespace Hypercube_Classic
         public Database Database;
         public RankContainer Rankholder;
         public BlockContainer Blockholder;
+        public Commands Commandholder;
         public bool Running = false;
         public int OnlinePlayers = 0;
 
@@ -86,6 +102,9 @@ namespace Hypercube_Classic
 
             if (RotateLogs)
                 Logger.RotateLogs();
+
+            // -- Initiate Commands
+            Commandholder = new Commands();
 
             // -- Initiate Lua
             try {
