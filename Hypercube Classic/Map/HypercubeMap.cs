@@ -229,18 +229,12 @@ namespace Hypercube_Classic.Map {
             // -- Memory Conservation:
             if (Path.Substring(Path.Length - 1, 1) == "u") { // -- Unloads anything with a ".cwu" file extension. (ClassicWorld unloaded)
                 Map.BlockData = null;
+                HCSettings.History = null;
                 GC.Collect();
                 Loaded = false;
+                var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
+                testing.History = null;
             }
-
-            ClientThread = new Thread(MapMain);
-            ClientThread.Start();
-
-            EntityThread = new Thread(MapEntities);
-            EntityThread.Start();
-
-            BlockChangeThread = new Thread(Blockchanger);
-            BlockChangeThread.Start();
         }
 
         #region Map Functions
@@ -272,6 +266,9 @@ namespace Hypercube_Classic.Map {
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
 
+            if (HCSettings.History == null)
+                HCSettings.History = new int[Map.BlockData.Length];
+
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
@@ -282,15 +279,15 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void UnloadMap() {
             // -- Unloads the map data to conserve memory.
-            System.IO.File.Delete(Path);
-
-            if (Path.Substring(Path.Length - 1, 1) != "u") 
-                Path += "u";
-            
+            if (Path.Substring(Path.Length - 1, 1) != "u")
+                System.IO.File.Move(Path, Path + "u");
 
             SaveMap();
 
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
+            HCSettings.History = null;
+            var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
+            testing.History = null;
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
         }
