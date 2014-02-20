@@ -88,10 +88,19 @@ namespace Hypercube_Classic.Client {
             if (!ServerCore.Database.ContainsPlayer(CS.LoginName)) // -- Create the user in the PlayerDB.
                 ServerCore.Database.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
 
+            CS.LoginName = ServerCore.Database.GetPlayerName(CS.LoginName);
+
             if ((ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) {
                 var Disconnecter = new Disconnect();
-                Disconnecter.Reason = "Banned: " + ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage").Substring(0, 56);
+
+                Disconnecter.Reason = "Banned: " + ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage");
                 Disconnecter.Write(this);
+
+                if (BaseSocket.Connected == true)
+                    BaseSocket.Close();
+
+                BaseStream.Close();
+                BaseStream.Dispose();
 
                 ServerCore.Logger._Log("Info", "Client", "Disconnecting player " + CS.LoginName + ": Player is banned.");
                 return;
@@ -101,6 +110,7 @@ namespace Hypercube_Classic.Client {
             CS.ID = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
             CS.Global = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
+            CS.MuteTime = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
 
             CS.LoggedIn = true;
             CS.PlayerRank = ServerCore.Rankholder.GetRank(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Rank"));

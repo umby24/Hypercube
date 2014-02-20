@@ -28,15 +28,19 @@ namespace Hypercube_Classic.Map {
             var HCData = Metadata.Get<NbtCompound>("Hypercube");
 
             if (HCData != null) {
-                BuildRanks = HCData["BuildRanks"].StringValue;
-                ShowRanks = HCData["ShowRanks"].StringValue;
-                JoinRanks = HCData["JoinRanks"].StringValue;
-                Physics = Convert.ToBoolean(HCData["Physics"].ByteValue);
-                Building = Convert.ToBoolean(HCData["Building"].ByteValue);
-                History = HCData["History"].IntArrayValue;
+                try {
+                    BuildRanks = HCData["BuildRanks"].StringValue;
+                    ShowRanks = HCData["ShowRanks"].StringValue;
+                    JoinRanks = HCData["JoinRanks"].StringValue;
+                    Physics = Convert.ToBoolean(HCData["Physics"].ByteValue);
+                    Building = Convert.ToBoolean(HCData["Building"].ByteValue);
+                    History = HCData["History"].IntArrayValue;
 
-                if (HCData["MOTD"] != null)
-                    MOTD = HCData["MOTD"].StringValue;
+                    if (HCData["MOTD"] != null)
+                        MOTD = HCData["MOTD"].StringValue;
+                } catch {
+
+                }
 
                 Metadata.Remove(HCData);
             }
@@ -196,8 +200,10 @@ namespace Hypercube_Classic.Map {
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
             }
+
             HCSettings.Building = true;
             HCSettings.Physics = true;
+
             if (HCSettings.History == null)
                 HCSettings.History = new int[Map.BlockData.Length];
 
@@ -268,6 +274,7 @@ namespace Hypercube_Classic.Map {
 
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
+            System.IO.File.Move(Path + "u", Path);
         }
 
         /// <summary>
@@ -275,9 +282,13 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void UnloadMap() {
             // -- Unloads the map data to conserve memory.
-            if (Path.Substring(Path.Length - 1, 1) != "u") {
+            System.IO.File.Delete(Path);
+
+            if (Path.Substring(Path.Length - 1, 1) != "u") 
                 Path += "u";
-            }
+            
+
+            SaveMap();
 
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
             GC.Collect(); // -- Let the GC collect it and free our memory
@@ -289,6 +300,9 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         /// <param name="Filename"></param>
         public void SaveMap(string Filename = "") {
+            if (!Loaded)
+                return;
+
             HCSettings.BuildRanks = "";
 
             foreach (Rank r in BuildRanks) 
@@ -338,7 +352,8 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void MapMain() {
             while (ServerCore.Running) {
-                if ((DateTime.UtcNow - LastClient).TotalSeconds > 300 && Clients.Count == 0)
+               
+                if ((DateTime.UtcNow - LastClient).TotalSeconds > 1 && Clients.Count == 0 && Loaded == true)
                     UnloadMap();
                 else if (Clients.Count > 0)
                     LastClient = DateTime.UtcNow;

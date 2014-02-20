@@ -108,7 +108,7 @@ namespace Hypercube_Classic.Core {
 
             ServerCore.Database.CreateBlock(Name, OnClient, PlaceRanks, DeleteRanks, Physics, PhysicsPlugin, Kills, Color, CPELevel, CPEReplace, Special, ReplaceOnLoad);
 
-            newBlock.ID = ServerCore.Database.GetDatabaseInt(Name, "BlockDB", "ID");
+            newBlock.ID = ServerCore.Database.GetDatabaseInt(Name, "BlockDB", "Number");
         }
 
         public void DeleteBlock(int ID) {

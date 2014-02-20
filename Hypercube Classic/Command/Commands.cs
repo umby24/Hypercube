@@ -24,10 +24,21 @@ namespace Hypercube_Classic.Command {
         public Commands() {
             CommandDict = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
+            CommandDict.Add("/ban", new BanCommand());
             CommandDict.Add("/commands", new CommandsList());
             CommandDict.Add("/cmdhelp", new CommandHelp());
-            CommandDict.Add("/ranks", new RanksCommand());
             CommandDict.Add("/kick", new KickCommand());
+            CommandDict.Add("/map", new MapCommand());
+            CommandDict.Add("/maps", new MapsCommand());
+            CommandDict.Add("/mute", new MuteCommand());
+            CommandDict.Add("/pinfo", new PinfoCommand());
+            CommandDict.Add("/players", new PlayersCommand());
+            CommandDict.Add("/ranks", new RanksCommand());
+            CommandDict.Add("/setrank", new SetrankCommand());
+            CommandDict.Add("/stop", new StopCommand());
+            CommandDict.Add("/unban", new UnbanCommand());
+            CommandDict.Add("/unmute", new UnmuteCommand());
+            CommandDict.Add("/unstop", new UnstopCommand());
 
             RegisterGroups();
         }

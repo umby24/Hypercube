@@ -14,7 +14,6 @@ using Hypercube_Classic.Command;
 
 // -- Hypercube Classic Minecraft Software by Umby24
 // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
-//TODO: Fix localhost clients having a blank service. (This will also apply to non-name verified servers..)
 //TODO: Give users the ability to have multiple ranks assigned to them.
 //TODO: Fix physics (It's too fast!)
 //TODO: Add physics time limitations.
@@ -25,6 +24,7 @@ using Hypercube_Classic.Command;
 //TODO: Intigrate Lua
 //TODO: Add CPE
 //TODO: Save and load command permissions, names, and aliases from file.
+//TODO: Add fine-grain permission control for each rank. (Rank.CanKickHigher, Rank.CanMuteSame, ect.)
 
 namespace Hypercube_Classic
 {
@@ -83,8 +83,8 @@ namespace Hypercube_Classic
             Rankholder = new RankContainer(this);
 
             if (Rankholder.Ranks.Count == 0) {
-                Database.CreateRank("Guest", "Default", "&f", "", false, 50);
-                Database.CreateRank("Op", "Staff", "&9", "", true);
+                Database.CreateRank("Guest", "Default", "&f", "", 0, 50);
+                Database.CreateRank("Op", "Staff", "&9", "", 1);
                 Rankholder.LoadRanks(this);
             }
 
@@ -195,7 +195,7 @@ namespace Hypercube_Classic
             bool found = false;
             
             foreach (HypercubeMap Map in Maps) {
-                if (Map.Map.MapName == MapMain) {
+                if (Map.Path.Contains(MapMain)) {
                     MainMap = Map;
                     found = true;
                     break;
@@ -245,6 +245,9 @@ namespace Hypercube_Classic
 
             // -- Start the map entity senders..
             foreach (HypercubeMap m in Maps) {
+                m.ClientThread = new Thread(m.MapMain);
+                m.ClientThread.Start();
+
                 m.EntityThread = new Thread(m.MapEntities);
                 m.EntityThread.Start();
 
@@ -272,6 +275,13 @@ namespace Hypercube_Classic
 
             foreach (ISettings i in Settings.SettingsFiles)
                 Settings.SaveSettings(i);
+        }
+
+        public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static long GetCurrentUnixTime() {
+            TimeSpan timeSinceEpoch = (DateTime.UtcNow - UnixEpoch);
+            return (long)timeSinceEpoch.TotalSeconds;
         }
     }
 }

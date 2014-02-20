@@ -103,6 +103,8 @@ namespace Hypercube_Classic {
         /// Triggered when a client disconnects.
         /// </summary>
         public void HandleDisconnect(NetworkClient Disconnecting) {
+            Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
+
             if (Disconnecting.CS.LoggedIn) {
                 Disconnecting.CS.CurrentMap.Clients.Remove(Disconnecting);
                 Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
@@ -112,7 +114,7 @@ namespace Hypercube_Classic {
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
 
-            Clients.Remove(Disconnecting); // -- Remove them from the network's list of clients
+            
         }
 
         /// <summary>

@@ -48,10 +48,10 @@ namespace Hypercube_Classic.Client {
             myValues.Add("IP", IP);
             myValues.Add("Rank", Core.DefaultRank.ID.ToString());
             myValues.Add("RankStep", "0");
-            myValues.Add("Global", "true");
-            myValues.Add("Banned", "false");
-            myValues.Add("Stopped", "false");
-            myValues.Add("Vanished", "false");
+            myValues.Add("Global", "1");
+            myValues.Add("Banned", "0");
+            myValues.Add("Stopped", "0");
+            myValues.Add("Vanished", "0");
 
             Insert("PlayerDB", myValues);
         }
@@ -73,28 +73,50 @@ namespace Hypercube_Classic.Client {
             
         }
 
-        public void BanPlayer(string Name, string Reason) {
+        public string GetPlayerName(string Name) {
+            var dt = GetDataTable("SELECT * FROM PlayerDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
 
+            foreach (DataRow c in dt.Rows) {
+                if (((string)c["Name"]).ToLower() == Name.ToLower())
+                    return (string)c["Name"];
+            }
+
+            return "";
+        }
+
+        public void BanPlayer(string Name, string Reason, string BannedBy) {
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "Banned", 1);
+            SetDatabase(Name, "PlayerDB", "BanMessage", Reason);
+            SetDatabase(Name, "PlayerDB", "BannedBy", BannedBy);
         }
 
         public void UnbanPlayer(string Name) {
-
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "Banned", 0);
         }
 
-        public void StopPlayer(string Name, string Reason) {
-
+        public void StopPlayer(string Name, string Reason, string StoppedBy) {
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "Stopped", 1);
+            SetDatabase(Name, "PlayerDB", "StopMessage", Reason);
+            SetDatabase(Name, "PlayerDB", "StoppedBy", StoppedBy);
         }
 
         public void UnstopPlayer(string Name) {
-
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "Stopped", 0);
         }
 
         public void MutePlayer(string Name, int Minutes, string Reason) {
-
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "MuteMessage", Reason);
+            SetDatabase(Name, "PlayerDB", "Time_Muted", Minutes);
         }
 
         public void UnmutePlayer(string Name) {
-
+            Name = GetPlayerName(Name);
+            SetDatabase(Name, "PlayerDB", "Time_Muted", 0);
         }
         /// <summary>
         /// Creates a new rank in the database.
@@ -106,7 +128,7 @@ namespace Hypercube_Classic.Client {
         /// <param name="IsOp"></param>
         /// <param name="PointsInRank"></param>
         /// <param name="NextRank"></param>
-        public void CreateRank(string Rankname, string RankGroup, string RankPrefix = "", string RankSuffix = "", bool IsOp = false, int PointsInRank = 10, string NextRank = "") {
+        public void CreateRank(string Rankname, string RankGroup, string RankPrefix = "", string RankSuffix = "", byte IsOp = 0, int PointsInRank = 10, string NextRank = "") {
             var myValues = new Dictionary<string, string>();
             myValues.Add("Name", Rankname);
             myValues.Add("Prefix", RankPrefix);
