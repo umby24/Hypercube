@@ -1,0 +1,15 @@
+[0]
+Name = Guest
+Prefix = &f
+Suffix = 
+Op = 0
+[100]
+Name = Op
+Prefix = &9
+Suffix = 
+Op = 1
+[255]
+Name = Dev
+Prefix = &e[&aDev&e]&0
+Suffix = 
+Op = 1

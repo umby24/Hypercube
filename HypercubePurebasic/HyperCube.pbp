@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://www.purebasic.com/namespace" version="1.0" creator="PureBasic 5.00 (Windows - x64)">
+  <section name="config">
+    <options closefiles="1" openmode="0" name="Hypercube"/>
+    <comment>
+      Hypercube Classic Minecraft Software
+    </comment>
+  </section>
+  <section name="data">
+    <explorer view="C:\Users\Tommy\Documents\" pattern="0"/>
+    <log show="1"/>
+    <lastopen date="2014-02-20 23:11" user="Tommy" host="UNKNOWN"/>
+  </section>
+  <section name="files">
+    <file name="Hypercube.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="+"/>
+      <fingerprint md5="82b1b55021e10109333b750fcaac5c09"/>
+    </file>
+    <file name="Includes\Map.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="8bc0505cc4f66ee5119c8cd583cdb38b"/>
+    </file>
+    <file name="Core\Logging.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="d683c47c37c955e28261f0aef70b7701"/>
+    </file>
+    <file name="Core\Settings.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="af0f25330e485ee17268da42271fa166"/>
+    </file>
+    <file name="Includes\Structures.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="8bf1452a9cc66e5498666bf1ef7bfe84"/>
+    </file>
+    <file name="Core\Events.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="cf4c64f337c36f8f377f5353936d7cda"/>
+    </file>
+    <file name="Core\Chat.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="5a10258aad16941ba4570b08e4f662ab"/>
+    </file>
+    <file name="Core\Rank.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="90d35e26b2f550f4f6dc794e203a8aba"/>
+    </file>
+    <file name="Includes\Error.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="a2f29caf99f30d0fa3b4a6c70ca8cd1a"/>
+    </file>
+    <file name="Core\Block.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="e294fcd7aec9ae44c16c8800e716e00b"/>
+    </file>
+    <file name="Core\Client.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="ef42091cc453894cf3a52959cf3e677e"/>
+    </file>
+    <file name="Core\Heartbeat.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="05b1bd1e947f038a2eca0ef7231bb5d7"/>
+    </file>
+    <file name="Core\CPE.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="61a12dca6a6ea713db1eb1ddc90d052a"/>
+    </file>
+    <file name="Includes\PlayerDB.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="a73b2732c56a51b03408e77c16629e9c"/>
+    </file>
+    <file name="Includes\GZip.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="461e6362b8e65e704132048216ddd101"/>
+    </file>
+    <file name="Includes\String.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="bc36f105389a95fdeaf2a2d5475dfdf2"/>
+    </file>
+    <file name="Includes\ZLib.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="a6e23a658b315097625d4ca8ac2385d8"/>
+    </file>
+    <file name="Includes\NBT.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="641df502fa29f6e7e38c6b4ce583c306"/>
+    </file>
+    <file name="Networking\Packets.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="bb2aa6132e3d482960c4063cf488e925"/>
+    </file>
+    <file name="Networking\Network_Main.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="6263b9a0d7eb56235a5fbba56ffa317e"/>
+    </file>
+    <file name="Core\Entity.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="0" panelstate="++"/>
+      <fingerprint md5="aab09a824ea5bb2bd91e1f10b43e55d8"/>
+    </file>
+    <file name="Includes\UmbyNBT.pbi">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="82f2ca9cab8fb597509ec0738ac138d6"/>
+    </file>
+    <file name="Includes\PureClassicWorld.pb">
+      <config load="0" scan="1" panel="1" warn="1" lastopen="1" panelstate="++"/>
+      <fingerprint md5="eedf92d27948a20b9435c21385515f86"/>
+    </file>
+  </section>
+  <section name="targets">
+    <target name="Default Target" enabled="1" default="1">
+      <inputfile value="Hypercube.pb"/>
+      <outputfile value="Hypercube.x86.exe"/>
+      <compiler version="PureBasic 5.00 (Linux - x64)"/>
+      <executable value="Hypercube.x64_Linux"/>
+      <options thread="1" xpskin="1" onerror="1" debug="1"/>
+      <temporaryexe value="source"/>
+      <format exe="console" cpu="0"/>
+      <warnings custom="1" type="display"/>
+    </target>
+  </section>
+</project>

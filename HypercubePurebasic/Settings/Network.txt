@@ -1,0 +1,6 @@
+Max_Players = 128
+Port = 25565
+Whitelist = 0
+Name = Hypercube Dev Server
+MOTD = &cWelcome to Hypercube!&f[&9Dev&f]
+Public = 1

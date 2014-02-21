@@ -1,0 +1,4 @@
+Log_File = Log
+Logging = 1
+Main_World = world
+Welcome_Message = Welcome to Hypercube!
