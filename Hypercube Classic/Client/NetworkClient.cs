@@ -177,7 +177,11 @@ namespace Hypercube_Classic.Client {
                     }
                 }
 
-            } catch {
+            } catch (Exception e) {
+                if (e.GetType() != typeof(System.IO.IOException)) {
+                    ServerCore.Logger._Log("Error", "Dunno", e.Message);
+                    ServerCore.Logger._Log("Error", "Dunno", e.StackTrace);
+                }
                 // -- User probably disconnected.
                 if (BaseSocket.Connected == true)
                     BaseSocket.Close();

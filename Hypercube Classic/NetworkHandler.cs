@@ -29,6 +29,7 @@ namespace Hypercube_Classic {
         public List<Client.NetworkClient> Clients;
         public TcpListener CoreListener;
         public NetworkSettings NS;
+        public object WriteLock = new object();
 
         // -- Network Settings
         public int Port, MaxPlayers;

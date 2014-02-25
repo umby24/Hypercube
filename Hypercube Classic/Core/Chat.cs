@@ -196,7 +196,7 @@ namespace Hypercube_Classic.Core {
                         int thisIndex = Builder[i].Substring(0, 64).LastIndexOf(' '); // -- Split by words.
 
                         if (thisIndex == -1 || thisIndex > 60) // -- Just incase it's one spaceless string.
-                            thisIndex = 60;
+                            thisIndex = 61;
 
                         temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 

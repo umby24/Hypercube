@@ -42,7 +42,6 @@ namespace Hypercube_Classic.Libraries {
                 File.WriteAllText("Settings/" + Settingsfile.Filename, ""); // -- Create the file if it doesn't exist.
             }
 
-            string[] Test = File.ReadAllLines("Settings/" + Settingsfile.Filename);
             var fileReader = new StreamReader("Settings/" + Settingsfile.Filename);
             Settingsfile.Settings.Clear();
 

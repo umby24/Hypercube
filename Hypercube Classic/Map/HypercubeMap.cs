@@ -22,7 +22,6 @@ namespace Hypercube_Classic.Map {
         public bool Physics;
         public bool Building;
         public string MOTD;
-        public int[] History;
 
         public NbtCompound Read(NbtCompound Metadata) {
             var HCData = Metadata.Get<NbtCompound>("Hypercube");
@@ -34,7 +33,6 @@ namespace Hypercube_Classic.Map {
                     JoinRanks = HCData["JoinRanks"].StringValue;
                     Physics = Convert.ToBoolean(HCData["Physics"].ByteValue);
                     Building = Convert.ToBoolean(HCData["Building"].ByteValue);
-                    History = HCData["History"].IntArrayValue;
 
                     if (HCData["MOTD"] != null)
                         MOTD = HCData["MOTD"].StringValue;
@@ -56,7 +54,6 @@ namespace Hypercube_Classic.Map {
             HCBase.Add(new NbtString("JoinRanks", JoinRanks));
             HCBase.Add(new NbtByte("Physics", Convert.ToByte(Physics)));
             HCBase.Add(new NbtByte("Building", Convert.ToByte(Building)));
-            HCBase.Add(new NbtIntArray("History", History));
 
             if (MOTD != null)
                 HCBase.Add(new NbtString("MOTD", MOTD));
@@ -124,7 +121,6 @@ namespace Hypercube_Classic.Map {
             HCSettings = new HypercubeMetadata(); // -- Hypercube specific settings, woo.
             HCSettings.Building = true; // -- Enable building and physics by default.
             HCSettings.Physics = true;
-            HCSettings.History = new int[Map.BlockData.Length];
 
             foreach (Rank r in Core.Rankholder.Ranks) { // -- Allow all ranks to access this map by default.
                 JoinRanks.Add(r);
@@ -204,9 +200,6 @@ namespace Hypercube_Classic.Map {
             HCSettings.Building = true;
             HCSettings.Physics = true;
 
-            if (HCSettings.History == null)
-                HCSettings.History = new int[Map.BlockData.Length];
-
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();
             Entities = new List<Entity>();
@@ -229,11 +222,9 @@ namespace Hypercube_Classic.Map {
             // -- Memory Conservation:
             if (Path.Substring(Path.Length - 1, 1) == "u") { // -- Unloads anything with a ".cwu" file extension. (ClassicWorld unloaded)
                 Map.BlockData = null;
-                HCSettings.History = null;
                 GC.Collect();
                 Loaded = false;
                 var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
-                testing.History = null;
             }
         }
 
@@ -266,9 +257,6 @@ namespace Hypercube_Classic.Map {
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
 
-            if (HCSettings.History == null)
-                HCSettings.History = new int[Map.BlockData.Length];
-
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
@@ -279,15 +267,14 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void UnloadMap() {
             // -- Unloads the map data to conserve memory.
-            if (Path.Substring(Path.Length - 1, 1) != "u")
+            if (Path.Substring(Path.Length - 1, 1) != "u") {
                 System.IO.File.Move(Path, Path + "u");
+                Path += "u";
+            }
 
             SaveMap();
 
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
-            HCSettings.History = null;
-            var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
-            testing.History = null;
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
         }
@@ -328,20 +315,21 @@ namespace Hypercube_Classic.Map {
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <returns></returns>
-        public byte GetBlockID(short x, short y, short z) { // (Y * Size_Z + Z) * Size_X + X
-            int index = (z * Map.SizeY + y) * Map.SizeX + x;
+        public byte GetBlockID(short x, short z, short y) { // (Y * Size_Z + Z) * Size_X + X
+            ServerCore.Logger._Log("DEBUG", "GetBlockID", y.ToString() + " " + z.ToString());
+            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return Map.BlockData[index];
         }
 
-        public Block GetBlock(short x, short y, short z) {
-            int index = (z * Map.SizeY + y) * Map.SizeX + x;
+        public Block GetBlock(short x, short z, short y) {
+            ServerCore.Logger._Log("DEBUG", "GetBlock", y.ToString() + " " + z.ToString());
+            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return ServerCore.Blockholder.GetBlock(Map.BlockData[index]);
         }
 
-        public void SetBlockID(short x, short y, short z, byte Type, int ClientID) {
-            int index = (z * Map.SizeY + y) * Map.SizeX + x;
+        public void SetBlockID(short x, short z, short y, byte Type, int ClientID) {
+            int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             Map.BlockData[index] = Type;
-            HCSettings.History[index] = ClientID;
         }
 
         /// <summary>
@@ -422,8 +410,8 @@ namespace Hypercube_Classic.Map {
 
             var Final = new Packets.LevelFinalize();
             Final.SizeX = Map.SizeX;
-            Final.SizeY = Map.SizeY;
-            Final.SizeZ = Map.SizeZ;
+            Final.SizeY = Map.SizeZ;
+            Final.SizeZ = Map.SizeY;
             Final.Write(Client);
 
         }
@@ -442,19 +430,20 @@ namespace Hypercube_Classic.Map {
                         TeleportPacket.yaw = Entities[i].Rot;
                         TeleportPacket.pitch = Entities[i].Look;
 
-                        foreach (NetworkClient c in Clients) {
-                            if (Entities[i].MyClient != null && Entities[i].MyClient != c)
-                                TeleportPacket.Write(c);
-                            else if (Entities[i].MyClient == c && Entities[i].SendOwn == true) {
+                        for (int z = 0; z < Clients.Count; z++) {
+                            if (Entities[i].MyClient != null && Entities[i].MyClient != Clients[z])
+                                TeleportPacket.Write(Clients[z]);
+                            else if (Entities[i].MyClient == Clients[z] && Entities[i].SendOwn == true) {
                                 TeleportPacket.PlayerID = (sbyte)-1;
-                                TeleportPacket.Write(c);
+                                TeleportPacket.Write(Clients[z]);
                                 Entities[i].SendOwn = false;
                             }
                         }
+
                         Entities[i].Changed = false;
                     }
                 }
-                Thread.Sleep(10); // -- This gives the rest of the program time to make modifications to the Entitys and Clients list. 
+                Thread.Sleep(10);
             }
         }
 
@@ -517,6 +506,13 @@ namespace Hypercube_Classic.Map {
         #endregion
         #region Blockchanging
         public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, byte Type) {
+            ServerCore.Logger._Log("DEBUG", "ClientChangeBlock", Y.ToString() + " " + Z.ToString());
+
+            if ((0 > X || Map.SizeX <= X) || (0 > Z || Map.SizeY <= Z) || (0 > Y || Map.SizeZ <= Y)) {
+                Chat.SendClientChat(Client, "&4Error: &fThat block is outside the bounds of the map.");
+                return;
+            }
+
             var MapBlock = GetBlock(X, Y, Z);
             var ChangeBlock = ServerCore.Blockholder.GetBlock(Type);
 
@@ -544,11 +540,6 @@ namespace Hypercube_Classic.Map {
                 return;
             }
 
-            if (!(X >= 0 && X < Map.SizeX) || !(Y >= 0 && Y < Map.SizeY) || !(Z >= 0 && Z < Map.SizeZ)) {
-                Chat.SendClientChat(Client, "&4Error: &fThat block is outside the bounds of the map.");
-                return;
-            }
-
             BlockChange(Client.CS.ID, X, Y, Z, Type, true, true, true, 250);
 
         }
@@ -564,12 +555,13 @@ namespace Hypercube_Classic.Map {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
-                            var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
+                            if ((0 > X + ix || Map.SizeX <= X + ix) || (0 > Z + iz || Map.SizeY <= Z + iz) || (0 > Y + iy || Map.SizeZ <= Y + iy)) {
+                                var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
 
-                            if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) 
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250));
-                                
+                                if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
+                                    if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator()))
+                                        PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250));
+                                }
                             }
                         }
                     }
@@ -582,7 +574,7 @@ namespace Hypercube_Classic.Map {
         }
 
         public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
-            if (!(X >= 0 && X < Map.SizeX) || !(Y >= 0 && Y < Map.SizeY) || !(Z >= 0 && Z < Map.SizeZ) || !(X2 >= 0 && X2 < Map.SizeX) || !(Y2 >= 0 && Y2 < Map.SizeY) || !(Z2 >= 0 && Z2 < Map.SizeZ)) 
+            if ((0 > X || Map.SizeX <= X) || (0 > Z || Map.SizeY <= Z) || (0 > Y || Map.SizeZ <= Y) || (0 > X2 || Map.SizeX <= X2) || (0 > Z2 || Map.SizeY <= Z2) || (0 > Y2 || Map.SizeZ <= Y2))
                 return;
 
             var Block1 = GetBlock(X, Y, Z);
