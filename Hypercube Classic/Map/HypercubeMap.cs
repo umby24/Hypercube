@@ -482,12 +482,9 @@ namespace Hypercube_Classic.Map {
 
                 if (e.MyClient != Client)
                     ESpawn.Write(Client);
-                else {
-                    ESpawn.PlayerID = (sbyte)-1;
-                    ESpawn.Write(Client);
-                }
             }
         }
+        
 
         public void DeleteEntity(ref Entity ToSpawn) {
             if (Entities.Contains(ToSpawn))

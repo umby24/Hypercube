@@ -120,9 +120,6 @@ namespace Hypercube_Classic.Command {
                         m.SpawnEntity(Client.CS.MyEntity);
                         m.Entities.Add(Client.CS.MyEntity);
                         m.SendAllEntities(Client);
-
-                        Client.CS.MyEntity.Changed = true;
-                        Client.CS.MyEntity.SendOwn = true;
                         break;
                     } else {
                         Chat.SendClientChat(Client, "&4Error: &fYou are not allowed to join this map.");
@@ -151,19 +148,6 @@ namespace Hypercube_Classic.Command {
             }
 
             Chat.SendClientChat(Client, MapString);
-        }
-    }
-    public struct TempCommand : Command {
-        public string Command { get { return "/temp"; } }
-        public string Plugin { get { return ""; } }
-        public string Group { get { return "General"; } }
-        public string Help { get { return ""; } }
-
-        public string ShowRanks { get { return "1,2"; } }
-        public string UseRanks { get { return "1,2"; } }
-
-        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
-            Client.CS.CurrentMap.SpawnEntity(Client.CS.MyEntity);
         }
     }
     public struct MuteCommand : Command {

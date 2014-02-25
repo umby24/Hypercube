@@ -40,7 +40,6 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/unmute", new UnmuteCommand());
             CommandDict.Add("/unstop", new UnstopCommand());
 
-            CommandDict.Add("/temp", new TempCommand());
             RegisterGroups();
         }
 
