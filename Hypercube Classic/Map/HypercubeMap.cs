@@ -502,6 +502,8 @@ namespace Hypercube_Classic.Map {
             foreach (NetworkClient c in Clients) {
                 Despawn.Write(c);
             }
+
+            FreeID = ToSpawn.ClientID;
         }
         #endregion
         #region Blockchanging

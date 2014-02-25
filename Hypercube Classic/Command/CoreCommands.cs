@@ -110,18 +110,20 @@ namespace Hypercube_Classic.Command {
                         m.SendMap(Client);
                         m.Clients.Add(Client);
 
-                        Client.CS.MyEntity.Changed = true;
-                        Client.CS.MyEntity.X = m.Map.SpawnX;
-                        Client.CS.MyEntity.Y = m.Map.SpawnY;
-                        Client.CS.MyEntity.Z = m.Map.SpawnZ;
+                        Client.CS.MyEntity.X = (short)(m.Map.SpawnX * 32);
+                        Client.CS.MyEntity.Y = (short)(m.Map.SpawnZ * 32);
+                        Client.CS.MyEntity.Z = (short)((m.Map.SpawnY * 32) + 51);
                         Client.CS.MyEntity.Rot = m.Map.SpawnRotation;
                         Client.CS.MyEntity.Look = m.Map.SpawnLook;
-                        Client.CS.MyEntity.SendOwn = true;
-                        
+                        Client.CS.MyEntity.Map = m;
+
                         m.SpawnEntity(Client.CS.MyEntity);
                         m.Entities.Add(Client.CS.MyEntity);
                         m.SendAllEntities(Client);
 
+                        Client.CS.MyEntity.Changed = true;
+                        Client.CS.MyEntity.SendOwn = true;
+                        break;
                     } else {
                         Chat.SendClientChat(Client, "&4Error: &fYou are not allowed to join this map.");
                         return;
@@ -149,6 +151,19 @@ namespace Hypercube_Classic.Command {
             }
 
             Chat.SendClientChat(Client, MapString);
+        }
+    }
+    public struct TempCommand : Command {
+        public string Command { get { return "/temp"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "General"; } }
+        public string Help { get { return ""; } }
+
+        public string ShowRanks { get { return "1,2"; } }
+        public string UseRanks { get { return "1,2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            Client.CS.CurrentMap.SpawnEntity(Client.CS.MyEntity);
         }
     }
     public struct MuteCommand : Command {
