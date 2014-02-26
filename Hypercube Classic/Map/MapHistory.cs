@@ -32,7 +32,7 @@ namespace Hypercube_Classic.Map {
             Player = BitConverter.ToUInt16(Array, 4);
             LastPlayer = BitConverter.ToUInt16(Array, 6);
             NewBlock = Array[8];
-            LastPlayer = Array[9];
+            LastBlock = Array[9];
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Hypercube_Classic.Map {
             ThisMap = Map;
             BaseName = Map.Path.Substring(0, Map.Path.LastIndexOf('.'));
 
-            if (!File.Exists(BaseName + ".hch") && !File.Exists(BaseName + ".hchd")) {
+            if (!File.Exists(BaseName + ".hch")) {
                 // -- Create a history file.
                 using (FileStream stream = new FileStream(BaseName + ".hch", FileMode.Create)) {
                     var History = new byte[(ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4];
@@ -99,12 +99,25 @@ namespace Hypercube_Classic.Map {
 
             if (Map.Loaded && Map.ServerCore.CompressHistory)
                 GZip.DecompressFile(BaseName + ".hch");
+            else if (!Map.ServerCore.CompressHistory) { // -- If the user recently disabled compression, we should decompress it first anyway.
+                bool Decompress = false;
+
+                using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
+                    int b1 = FS.ReadByte();
+                    int b2 = FS.ReadByte();
+
+                    if (b1 == 0x1f && b2 == 0x8B)
+                        Decompress = true;
+                }
+
+                if (Decompress)
+                    GZip.DecompressFile(BaseName + ".hch");
+            }
 
             Entries = new List<HistoryEntry>();
         }
 
         public void ReloadHistory() {
-
             if (ThisMap.ServerCore.CompressHistory)
                 GZip.DecompressFile(BaseName + ".hch");
         }
@@ -243,12 +256,42 @@ namespace Hypercube_Classic.Map {
             }
 
             //TODO: Below
+            var MyList = new List<HistoryEntry>();
+            bool Lebroke = false;
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
-            //foreach (HistoryEntry h in Entries) {
-            //    if (Result.Contains(h, new HistoryComparator())) {
+            foreach (HistoryEntry h in Entries) {
+                if (Result.Contains(h, new HistoryComparator())) { // -- If the coords for this entry match the results
+                    for (int q = 0; q < Result.Length; q++) {
+                        if (Result[q].Player == h.Player) {
+                            Result[q].NewBlock = h.NewBlock;
+                            Result[q].Timestamp = h.Timestamp;
+                            Lebroke = true;
+                            break;
+                        }
+                    }
+                    if (Lebroke) {
+                        Lebroke = false;
+                        continue;
+                    }
 
-            //    }
-            //}
+                    MyList.Add(h); // -- Add it to the temporary list
+                }
+            }
+
+            var TempList = Result.ToList();
+            TempList.AddRange(MyList);
+            MyList.Clear();
+
+            // -- Sort the list by time..
+            if (TempList.Count > ThisMap.ServerCore.MaxHistoryEntries) {
+                TempList = TempList.OrderByDescending(o => o.Timestamp).ToList();
+                TempList.RemoveRange(ThisMap.ServerCore.MaxHistoryEntries, TempList.Count - ThisMap.ServerCore.MaxHistoryEntries);
+                TempList = TempList.OrderBy(o => o.Timestamp).ToList();
+                Result = TempList.ToArray();
+            } else {
+                TempList = TempList.OrderBy(o => o.Timestamp).ToList();
+                Result = TempList.ToArray();
+            }
 
             return Result;
         }

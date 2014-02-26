@@ -29,28 +29,54 @@ namespace Hypercube_Classic.Libraries {
             if (!File.Exists(Filepath))
                 return;
 
-            //using (var stream = new FileStream(Filepath, FileMode.Open)) {
-            //    using (var zip = new GZipStream(stream, CompressionMode.Compress)) {
-            //        zip.Write(Temp, 0, Temp.Length);
-            //        Temp = null;
-            //    }
-            //}
+            const int ChunkSize = 65536;
 
+            try {
+                using (var FS = new FileStream(Filepath, FileMode.Open)) {
+                    using (var GS = new GZipStream(new FileStream("Temp.gz", FileMode.Create), CompressionMode.Compress)) {
+                        var Buffer = new byte[ChunkSize];
+
+                        while (true) {
+                            int BytesRead = FS.Read(Buffer, 0, ChunkSize);
+
+                            if (BytesRead == 0) break;
+
+                            GS.Write(Buffer, 0, BytesRead);
+                        }
+                    }
+                }
+                File.Delete(Filepath);
+                File.Move("Temp.gz", Filepath);
+            } catch {
+                return;
+            }
         }
 
         public static void DecompressFile(string Filepath) {
             if (!File.Exists(Filepath))
                 return;
 
-            //using (var stream = new FileStream(Filepath, FileMode.Open)) {
-            //    using (var zip = new GZipStream(stream, CompressionMode.Decompress)) {
-            //        var Temp = new byte[stream.Length];
-            //        stream.Read(Temp, 0, Temp.Length);
+            const int ChunkSize = 65536;
 
-            //        zip.Write(Temp, 0, Temp.Length);
-            //        Temp = null;
-            //    }
-            //}
+            try {
+                using (var FS = new FileStream("Temp.hch", FileMode.Create)) {
+                    using (var GS = new GZipStream(new FileStream(Filepath, FileMode.Open), CompressionMode.Decompress)) {
+                        var Buffer = new byte[ChunkSize];
+
+                        while (true) {
+                            int BytesRead = GS.Read(Buffer, 0, ChunkSize);
+
+                            if (BytesRead == 0) break;
+
+                            FS.Write(Buffer, 0, BytesRead);
+                        }
+                    }
+                }
+                File.Delete(Filepath);
+                File.Move("Temp.hch", Filepath);
+            } catch {
+                return;
+            }
         }
     }
 }
