@@ -58,8 +58,8 @@ namespace Hypercube_Classic
 
         // -- System Settings
         public string ServerName, MOTD, WelcomeMessage, MapMain;
-        public bool RotateLogs, LogOutput;
-        public int MaxBlockChanges = 33000;
+        public bool RotateLogs, LogOutput, CompressHistory;
+        public int MaxBlockChanges = 33000, MaxHistoryEntries = 10;
         public HypercubeMap MainMap;
         public Rank DefaultRank;
         public Heartbeat ClassicubeHeartbeat;
@@ -227,6 +227,10 @@ namespace Hypercube_Classic
 
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
+            CompressHistory = bool.Parse(Settings.ReadSetting(SysSettings, "CompressHistory", "true"));
+
+            MaxBlockChanges = int.Parse(Settings.ReadSetting(SysSettings, "MaxBlocksSecond", "33000"));
+            MaxHistoryEntries = int.Parse(Settings.ReadSetting(SysSettings, "MaxHistoryEntries", "10"));
 
             Logger.FileLogging = LogOutput;
 
@@ -242,6 +246,8 @@ namespace Hypercube_Classic
 
             // -- Start stuff!
             ClassicubeHeartbeat = new Heartbeat(this);
+            Settings.ReadingThead = new Thread(Settings.SettingsMain);
+            Settings.ReadingThead.Start();
 
             // -- Start the map entity senders..
             foreach (HypercubeMap m in Maps) {
@@ -269,6 +275,9 @@ namespace Hypercube_Classic
 
             // -- Shutdown things we started.
             ClassicubeHeartbeat.Shutdown();
+
+            if (Settings.ReadingThead != null)
+                Settings.ReadingThead.Abort();
 
             foreach (HypercubeMap m in Maps)
                 m.Shutdown();

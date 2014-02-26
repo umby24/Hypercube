@@ -23,6 +23,8 @@ namespace Hypercube_Classic.Libraries {
     /// </summary>
     public class SettingsReader {
         public List<ISettings> SettingsFiles;
+        public Thread ReadingThead;
+
         Hypercube ServerCore;
 
         public SettingsReader(Hypercube systemCore) {
@@ -62,7 +64,7 @@ namespace Hypercube_Classic.Libraries {
             fileReader.Close();
             fileReader.Dispose();
 
-            Settingsfile.LastModified = File.GetLastWriteTime(Settingsfile.Filename);
+            Settingsfile.LastModified = File.GetLastWriteTime("Settings/" + Settingsfile.Filename);
 
             var myDele = (LoadSettings)Settingsfile.LoadSettings;
 
@@ -123,10 +125,8 @@ namespace Hypercube_Classic.Libraries {
             while (ServerCore.Running) {
 
                 foreach (ISettings c in SettingsFiles) {
-                    if (File.GetLastWriteTime("Settings/" + c.Filename) != c.LastModified) {
-                        c.LastModified = File.GetLastWriteTime(c.Filename);
+                    if (File.GetLastWriteTime("Settings/" + c.Filename) != c.LastModified) 
                         ReadSettings(c);
-                    }
                 }
                 Thread.Sleep(1000);
             }

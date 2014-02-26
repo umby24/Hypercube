@@ -121,6 +121,7 @@
     <Compile Include="Libraries\Text.cs" />
     <Compile Include="Map\D3 Map.cs" />
     <Compile Include="Map\HypercubeMap.cs" />
+    <Compile Include="Map\MapHistory.cs" />
     <Compile Include="Map\MapWatcher.cs" />
     <Compile Include="NetworkHandler.cs" />
     <Compile Include="Core\CPE.cs" />

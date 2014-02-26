@@ -15,14 +15,42 @@ namespace Hypercube_Classic.Libraries {
         public static byte[] Compress(byte[] Data) {
             byte[] CompressedData;
 
-            using (MemoryStream mem = new MemoryStream()) {
-                using (GZipStream zip = new GZipStream(mem, CompressionMode.Compress)) {
+            using (var mem = new MemoryStream()) {
+                using (var zip = new GZipStream(mem, CompressionMode.Compress)) {
                     zip.Write(Data, 0, Data.Length);
                 }
                 CompressedData = mem.ToArray();
             }
 
             return CompressedData;
+        }
+
+        public static void CompressFile(string Filepath) {
+            if (!File.Exists(Filepath))
+                return;
+
+            //using (var stream = new FileStream(Filepath, FileMode.Open)) {
+            //    using (var zip = new GZipStream(stream, CompressionMode.Compress)) {
+            //        zip.Write(Temp, 0, Temp.Length);
+            //        Temp = null;
+            //    }
+            //}
+
+        }
+
+        public static void DecompressFile(string Filepath) {
+            if (!File.Exists(Filepath))
+                return;
+
+            //using (var stream = new FileStream(Filepath, FileMode.Open)) {
+            //    using (var zip = new GZipStream(stream, CompressionMode.Decompress)) {
+            //        var Temp = new byte[stream.Length];
+            //        stream.Read(Temp, 0, Temp.Length);
+
+            //        zip.Write(Temp, 0, Temp.Length);
+            //        Temp = null;
+            //    }
+            //}
         }
     }
 }

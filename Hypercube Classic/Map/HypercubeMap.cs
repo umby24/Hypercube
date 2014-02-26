@@ -93,6 +93,7 @@ namespace Hypercube_Classic.Map {
         public HypercubeMetadata HCSettings;
         public bool Loaded = true;
         public string Path;
+        public MapHistory ThisHistory;
         public List<NetworkClient> Clients;
         public List<Entity> Entities;
         public List<Rank> ShowRanks = new List<Rank>();
@@ -108,7 +109,7 @@ namespace Hypercube_Classic.Map {
         public Thread ClientThread, BlockChangeThread, PhysicsThread;
         public Thread EntityThread;
         DateTime LastClient;
-        Hypercube ServerCore;
+        public Hypercube ServerCore;
         #endregion
 
         /// <summary>
@@ -158,11 +159,7 @@ namespace Hypercube_Classic.Map {
             Clients = new List<NetworkClient>();
             Entities = new List<Entity>();
 
-            ClientThread = new Thread(MapMain);
-            ClientThread.Start();
-
-            EntityThread = new Thread(MapEntities);
-            EntityThread.Start();
+            ThisHistory = new MapHistory(this);
         }
 
         /// <summary>
@@ -226,6 +223,8 @@ namespace Hypercube_Classic.Map {
                 Loaded = false;
                 var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
             }
+
+            ThisHistory = new MapHistory(this);
         }
 
         #region Map Functions
@@ -246,6 +245,7 @@ namespace Hypercube_Classic.Map {
                 BlockChangeThread.Abort();
 
             SaveMap();
+            ThisHistory.UnloadHistory();
         }
 
         /// <summary>
@@ -260,6 +260,7 @@ namespace Hypercube_Classic.Map {
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
+            ThisHistory.ReloadHistory();
         }
 
         /// <summary>
@@ -277,6 +278,7 @@ namespace Hypercube_Classic.Map {
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
+            ThisHistory.UnloadHistory();
         }
 
         /// <summary>
@@ -539,15 +541,16 @@ namespace Hypercube_Classic.Map {
                 return;
             }
 
-            BlockChange(Client.CS.ID, X, Y, Z, Type, true, true, true, 250);
+            BlockChange(Client.CS.ID, X, Y, Z, Type, MapBlock.OnClient, true, true, true, 250);
 
         }
 
-        public void BlockChange(int ClientID, short X, short Y, short Z, byte Type, bool Undo, bool Physics, bool Send, short Priority) {
+        public void BlockChange(int ClientID, short X, short Y, short Z, byte Type, byte LastType, bool Undo, bool Physics, bool Send, short Priority) {
             SetBlockID(X, Y, Z, Type, ClientID);
 
             if (Undo) {
                 //TODO: Undo.
+                ThisHistory.AddEntry(X, Y, Z, (ushort)ClientID, 0, Type, LastType);
             }
 
             if (Physics) {
