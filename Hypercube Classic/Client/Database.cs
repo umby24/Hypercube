@@ -52,6 +52,7 @@ namespace Hypercube_Classic.Client {
             myValues.Add("Banned", "0");
             myValues.Add("Stopped", "0");
             myValues.Add("Vanished", "0");
+            myValues.Add("BoundBlock", "1");
 
             Insert("PlayerDB", myValues);
         }

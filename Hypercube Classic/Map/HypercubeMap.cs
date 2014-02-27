@@ -21,6 +21,7 @@ namespace Hypercube_Classic.Map {
         public string JoinRanks;
         public bool Physics;
         public bool Building;
+        public bool History;
         public string MOTD;
 
         public NbtCompound Read(NbtCompound Metadata) {
@@ -228,6 +229,58 @@ namespace Hypercube_Classic.Map {
         }
 
         #region Map Functions
+        public void LoadNewFile(string Filename) {
+            if (!System.IO.File.Exists(Filename))
+                return;
+
+            Path = Filename;
+
+            Map = new ClassicWorld(Filename);
+            HCSettings = new HypercubeMetadata(); // -- Create our HC Specific settings
+            Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
+            Map.Load(); // -- Load the map
+
+            // -- Creates HC Metadata if it does not exist.
+            if (HCSettings.BuildRanks == null) {
+                foreach (Rank r in ServerCore.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    BuildRanks.Add(r);
+            }
+
+            if (HCSettings.ShowRanks == null) {
+                foreach (Rank r in ServerCore.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    ShowRanks.Add(r);
+            }
+
+            if (HCSettings.JoinRanks == null) {
+                foreach (Rank r in ServerCore.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
+                    JoinRanks.Add(r);
+
+                HCSettings.Building = true;
+                HCSettings.Physics = true;
+            }
+
+            HCSettings.Building = true;
+            HCSettings.Physics = true;
+
+            LastClient = DateTime.UtcNow;
+            Clients = new List<NetworkClient>();
+            Entities = new List<Entity>();
+
+            // -- Set CPE Information...
+            var myRef = (CPEMetadata)Map.MetadataParsers["CPE"];
+
+            if (myRef.CustomBlocksFallback == null) {
+                myRef.CustomBlocksLevel = 1;
+                myRef.CustomBlocksVersion = 1;
+                myRef.CustomBlocksFallback = new byte[256];
+
+                for (int i = 50; i < 66; i++) {
+                    myRef.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
+                }
+
+                Map.MetadataParsers["CPE"] = myRef;
+            }
+        }
         /// <summary>
         /// Shuts down the Threads.
         /// </summary>
@@ -257,10 +310,11 @@ namespace Hypercube_Classic.Map {
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
 
+            ThisHistory.ReloadHistory();
+
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
-            ThisHistory.ReloadHistory();
         }
 
         /// <summary>
@@ -274,11 +328,12 @@ namespace Hypercube_Classic.Map {
             }
 
             SaveMap();
+            ThisHistory.UnloadHistory();
 
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
-            ThisHistory.UnloadHistory();
+            
         }
 
         /// <summary>
@@ -348,7 +403,15 @@ namespace Hypercube_Classic.Map {
                 Thread.Sleep(30000);
             }
         }
-        
+
+        /// <summary>
+        /// Resends the map to all clients.
+        /// </summary>
+        public void ResendMap() {
+            foreach (NetworkClient c in Clients) 
+                SendMap(c);
+        }
+
         /// <summary>
         /// Sends the map to the given client.
         /// </summary>

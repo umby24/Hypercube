@@ -8,14 +8,15 @@ using Hypercube_Classic.Map;
 
 namespace Hypercube_Classic.Core {
     public class Entity {
-        public byte ClientID, Rot, Look, Heldblock, Lastmaterial, Boundblock;
+        public byte ClientID, Rot, Look, Heldblock;
         public bool SendOwn, Changed;
-        public short X, Y, Z, BuildMaterial;
+        public short X, Y, Z;
         public int ID, BuildState;
         public string Name, Model, BuildMode;
         public Dictionary<string, string> BuildVariables = new Dictionary<string, string>();
         public NetworkClient MyClient;
         public HypercubeMap Map;
+        public Block Lastmaterial, Boundblock, BuildMaterial;
 
         public Entity(Hypercube Core, HypercubeMap _Map, string _Name, short _X, short _Y, short _Z, byte _Rot, byte _Look) {
             Name = _Name;
@@ -27,7 +28,8 @@ namespace Hypercube_Classic.Core {
             Changed = true;
             SendOwn = true;
             ID = Core.EFree;
-            BuildMaterial = -1;
+            BuildMaterial = Core.Blockholder.GetBlock("");
+            Lastmaterial = Core.Blockholder.GetBlock(1);
 
             if (Core.EFree != Core.ENext)
                 Core.EFree = Core.ENext;
@@ -52,8 +54,10 @@ namespace Hypercube_Classic.Core {
         public void HandleBuildmode(short _X, short _Y, short _Z, byte Mode, byte Type) {
             MyClient.ServerCore.Logger._Log("DEBUG", "HandleBuildMode", _Y.ToString() + " " + _Z.ToString());
 
-            if (Type == Boundblock && BuildMaterial != -1) 
-                Type = (byte)BuildMaterial;
+            if (Type == Boundblock.OnClient && BuildMaterial.Name != "Unknown")
+                Type = BuildMaterial.OnClient;
+
+            Lastmaterial = MyClient.ServerCore.Blockholder.GetBlock(Type);
 
             if (BuildMode != null && BuildMode != "") {
                 //TODO: Add buildmodes all proper like..

@@ -14,17 +14,10 @@ using Hypercube_Classic.Command;
 
 // -- Hypercube Classic Minecraft Software by Umby24
 // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
-//TODO: Give users the ability to have multiple ranks assigned to them.
 //TODO: Fix physics (It's too fast!)
 //TODO: Add physics time limitations.
 //TODO: Add physics on map load.
-//TODO: Add user undo (And save it with map data)
-//TODO: Add user block tracking (Framework already in place, easy to do).
 //TODO: Add more commands
-//TODO: Intigrate Lua
-//TODO: Add CPE
-//TODO: Save and load command permissions, names, and aliases from file.
-//TODO: Add fine-grain permission control for each rank. (Rank.CanKickHigher, Rank.CanMuteSame, ect.)
 
 namespace Hypercube_Classic
 {

@@ -118,14 +118,14 @@ namespace Hypercube_Classic.Map {
         }
 
         public void ReloadHistory() {
-            if (ThisMap.ServerCore.CompressHistory)
+            if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == false)
                 GZip.DecompressFile(BaseName + ".hch");
         }
 
         public void UnloadHistory() {
             SaveEntries();
 
-            if (ThisMap.ServerCore.CompressHistory)
+            if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == true)
                 GZip.CompressFile(BaseName + ".hch");
         }
 

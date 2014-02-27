@@ -111,7 +111,7 @@ namespace Hypercube_Classic.Client {
             CS.Stopped = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
             CS.Global = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
             CS.MuteTime = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
-
+            
             CS.LoggedIn = true;
             CS.PlayerRank = ServerCore.Rankholder.GetRank(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Rank"));
             CS.FormattedName = CS.PlayerRank.Prefix + CS.LoginName + CS.PlayerRank.Suffix;
@@ -128,7 +128,7 @@ namespace Hypercube_Classic.Client {
 
             CS.MyEntity = new Entity(ServerCore, CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.Map.SpawnX * 32), (short)(CS.CurrentMap.Map.SpawnZ * 32), (short)((CS.CurrentMap.Map.SpawnY * 32) + 51), CS.CurrentMap.Map.SpawnRotation, CS.CurrentMap.Map.SpawnLook); // -- Create the entity..
             CS.MyEntity.MyClient = this;
-                    
+            CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock"));
             CS.CurrentMap.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
             CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
 
