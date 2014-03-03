@@ -382,15 +382,36 @@ namespace Hypercube_Classic.Map {
             return Map.BlockData[index];
         }
 
+        /// <summary>
+        /// Gets the block object for the block at (x,y,z) from the map.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="z"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public Block GetBlock(short x, short z, short y) {
             ServerCore.Logger._Log("DEBUG", "GetBlock", y.ToString() + " " + z.ToString());
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return ServerCore.Blockholder.GetBlock(Map.BlockData[index]);
         }
 
+        /// <summary>
+        /// Sets the block at (x, y, z) to the new type, with the given clientID in history. If ClientID is -1, no history will be saved.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="z"></param>
+        /// <param name="y"></param>
+        /// <param name="Type"></param>
+        /// <param name="ClientID"></param>
         public void SetBlockID(short x, short z, short y, byte Type, int ClientID) {
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
+
+            if (ClientID != -1)
+                ThisHistory.AddEntry(x, y, z, (ushort)ClientID, 0, Type, Map.BlockData[index]);
+
             Map.BlockData[index] = Type;
+
+            
         }
 
         /// <summary>
@@ -553,7 +574,6 @@ namespace Hypercube_Classic.Map {
                     ESpawn.Write(Client);
             }
         }
-        
 
         public void DeleteEntity(ref Entity ToSpawn) {
             if (Entities.Contains(ToSpawn))
@@ -571,6 +591,7 @@ namespace Hypercube_Classic.Map {
 
             FreeID = ToSpawn.ClientID;
         }
+
         #endregion
         #region Blockchanging
         public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, byte Type) {
@@ -590,19 +611,19 @@ namespace Hypercube_Classic.Map {
             if (Type == (MapBlock.ID - 1))
                 return;
 
-            if (!BuildRanks.Contains(Client.CS.PlayerRank)) {
+            if (!RankContainer.RankListContains(BuildRanks, Client.CS.PlayerRanks)) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to build here.");
                 SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            if (!MapBlock.RanksDelete.Contains(Client.CS.PlayerRank) && Mode == 0) {
+            if (!RankContainer.RankListContains(MapBlock.RanksDelete, Client.CS.PlayerRanks) && Mode == 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to delete this block type.");
                 SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            if (!ChangeBlock.RanksPlace.Contains(Client.CS.PlayerRank) && Mode > 0) {
+            if (!RankContainer.RankListContains(ChangeBlock.RanksPlace, Client.CS.PlayerRanks) && Mode > 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to place this block type.");
                 SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
@@ -617,7 +638,7 @@ namespace Hypercube_Classic.Map {
 
             if (Undo) {
                 //TODO: Undo.
-                ThisHistory.AddEntry(X, Y, Z, (ushort)ClientID, 0, Type, LastType);
+                
             }
 
             if (Physics) {
@@ -710,60 +731,8 @@ namespace Hypercube_Classic.Map {
             }
         }
 
-        public void PhysicCompleter() {
-            while (ServerCore.Running) {
-                if (HCSettings.Building) {
-                    while (PhysicsQueue.Count > 0) {
-                        for (int i = 0; i < PhysicsQueue.Count; i++) {
-                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
-                            short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
-                            PhysicsQueue.RemoveAt(i);
 
-                            switch (physicBlock.Physics) {
-                                case 10:
-                                    PhysicsOriginalSand(physicBlock, X, Y, Z);
-                                    break;
-                                case 11:
-                                    PhysicsD3Sand(physicBlock, X, Y, Z);
-                                    break;
-                                case 20:
-                                    break;
-                                case 21:
-                                    break;
-                            }
-                            
-                        }
-                    }
-                }
-                Thread.Sleep(100);
-            }
-        }
 
-        #region Physic Computations
-        void PhysicsOriginalSand(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
-        }
-
-        void PhysicsD3Sand(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
-            else if (GetBlockID((short)(X + 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X + 1), Y, Z) == 0)
-                MoveBlock(X, Y, Z, (short)(X + 1), Y, (short)(Z - 1), true, true, 900);
-            else if (GetBlockID((short)(X - 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X - 1), Y, Z) == 0)
-                MoveBlock(X, Y, Z, (short)(X - 1), Y, (short)(Z - 1), true, true, 900);
-            else if (GetBlockID(X, (short)(Y + 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y + 1), Z) == 0)
-                MoveBlock(X, Y, Z, X, (short)(Y + 1), (short)(Z - 1), true, true, 900);
-            else if (GetBlockID(X, (short)(Y - 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y - 1), Z) == 0)
-                MoveBlock(X, Y, Z, X, (short)(Y - 1), (short)(Z - 1), true, true, 900);
-        }
-        void PhysicsInfiniteWater() {
-
-        }
-        void PhysicsFiniteWater() {
-
-        }
-        #endregion
         public void SendBlockToClient(short X, short Y, short Z, Block Type, NetworkClient c) {
             var BlockchangePacket = new Packets.SetBlockServer();
 
@@ -796,19 +765,56 @@ namespace Hypercube_Classic.Map {
 
         #endregion
         #region Physics
-        public void CalculateSandPhysics() {
+        public void PhysicCompleter() {
+            while (ServerCore.Running) {
+                if (HCSettings.Building) {
+                    while (PhysicsQueue.Count > 0) {
+                        for (int i = 0; i < PhysicsQueue.Count; i++) {
+                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
+                            short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
+                            PhysicsQueue.RemoveAt(i);
 
+                            switch (physicBlock.Physics) {
+                                case 10:
+                                    PhysicsOriginalSand(physicBlock, X, Y, Z);
+                                    break;
+                                case 11:
+                                    PhysicsD3Sand(physicBlock, X, Y, Z);
+                                    break;
+                                case 20:
+                                    break;
+                                case 21:
+                                    break;
+                            }
+
+                        }
+                    }
+                }
+                Thread.Sleep(100);
+            }
         }
 
-        public void CalculateNewSandPhysics() {
-
+        void PhysicsOriginalSand(Block physicBlock, short X, short Y, short Z) {
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
         }
 
-        public void CalculateInfiniteLiquid() { 
+        void PhysicsD3Sand(Block physicBlock, short X, short Y, short Z) {
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
+            else if (GetBlockID((short)(X + 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X + 1), Y, Z) == 0)
+                MoveBlock(X, Y, Z, (short)(X + 1), Y, (short)(Z - 1), true, true, 900);
+            else if (GetBlockID((short)(X - 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X - 1), Y, Z) == 0)
+                MoveBlock(X, Y, Z, (short)(X - 1), Y, (short)(Z - 1), true, true, 900);
+            else if (GetBlockID(X, (short)(Y + 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y + 1), Z) == 0)
+                MoveBlock(X, Y, Z, X, (short)(Y + 1), (short)(Z - 1), true, true, 900);
+            else if (GetBlockID(X, (short)(Y - 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y - 1), Z) == 0)
+                MoveBlock(X, Y, Z, X, (short)(Y - 1), (short)(Z - 1), true, true, 900);
+        }
+        void PhysicsInfiniteWater() {
 
         }
-
-        public void CalculateFiniteLiquid() {
+        void PhysicsFiniteWater() {
 
         }
         #endregion

@@ -24,10 +24,12 @@ namespace Hypercube_Classic.Command {
         public Commands() {
             CommandDict = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
+            CommandDict.Add("/addrank", new AddRankCommand());
             CommandDict.Add("/ban", new BanCommand());
             CommandDict.Add("/bind", new BindCommand());
             CommandDict.Add("/commands", new CommandsList());
             CommandDict.Add("/cmdhelp", new CommandHelp());
+            CommandDict.Add("/delrank", new DelRankCommand());
             CommandDict.Add("/getrank", new GetRankCommand());
             CommandDict.Add("/kick", new KickCommand());
             CommandDict.Add("/map", new MapCommand());
@@ -39,6 +41,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/mute", new MuteCommand());
             CommandDict.Add("/pinfo", new PinfoCommand());
             CommandDict.Add("/players", new PlayersCommand());
+            CommandDict.Add("/pushrank", new PushRankCommand());
             CommandDict.Add("/ranks", new RanksCommand());
             CommandDict.Add("/setrank", new SetrankCommand());
             CommandDict.Add("/stop", new StopCommand());
@@ -66,7 +69,7 @@ namespace Hypercube_Classic.Command {
                 var thisCommand = CommandDict[command.ToLower()];
                 var Ranks = RankContainer.SplitRanks(Core, thisCommand.UseRanks);
 
-                if (Ranks.Contains(Client.CS.PlayerRank))
+                if (RankContainer.RankListContains(Ranks, Client.CS.PlayerRanks))
                     thisCommand.Run(command, splits, text, text2, Core, Client);
                 else
                     Chat.SendClientChat(Client, "&4Error:&f You do not have permission to use this command.");

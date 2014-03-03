@@ -169,7 +169,17 @@ namespace Hypercube_Classic.Core {
                 }
             }
 
-            return ThisBlock;
+            if (ThisBlock == null) {
+                ThisBlock = new Block();
+                ThisBlock.ID = 99;
+                ThisBlock.Name = "Unknown";
+                ThisBlock.OnClient = 46;
+                ThisBlock.CPELevel = 0;
+                ThisBlock.CPEReplace = 46;
+                return ThisBlock;
+            } else {
+                return ThisBlock;
+            }
         }
 
         public void AddBlock(string Name, byte OnClient, string PlaceRanks, string DeleteRanks, int Physics, string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {

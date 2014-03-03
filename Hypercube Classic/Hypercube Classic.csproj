@@ -112,6 +112,7 @@
     <Compile Include="Core\Chat.cs" />
     <Compile Include="Core\Entity.cs" />
     <Compile Include="Core\Heartbeat.cs" />
+    <Compile Include="Core\Permissions.cs" />
     <Compile Include="Core\Rank.cs" />
     <Compile Include="Hypercube.cs" />
     <Compile Include="Libraries\GZip.cs" />

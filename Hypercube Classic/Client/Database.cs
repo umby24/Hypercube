@@ -24,7 +24,7 @@ namespace Hypercube_Classic.Client {
                 var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
                 Connection.Open();
 
-                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank INTEGER, RankStep INTEGER, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
                 Command.ExecuteNonQuery();
 
                 Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op INTEGER)";
@@ -119,6 +119,7 @@ namespace Hypercube_Classic.Client {
             Name = GetPlayerName(Name);
             SetDatabase(Name, "PlayerDB", "Time_Muted", 0);
         }
+
         /// <summary>
         /// Creates a new rank in the database.
         /// </summary>

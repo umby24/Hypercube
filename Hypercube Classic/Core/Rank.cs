@@ -63,11 +63,40 @@ namespace Hypercube_Classic.Core {
             var result = new List<Rank>();
             var splitRanks = RankString.Split(',');
 
-            foreach (string s in splitRanks) {
+            foreach (string s in splitRanks) 
                 result.Add(ServerCore.Rankholder.GetRank(int.Parse(s)));
-            }
 
             return result;
+        }
+
+        /// <summary>
+        /// Splits a comma delimited string of rank steps into a list of int (steps).
+        /// </summary>
+        /// <param name="StepString">The comma delimited string containing the steps to split.</param>
+        /// <returns></returns>
+        public static List<int> SplitSteps(string StepString) {
+            var result = new List<int>();
+            var splitSteps = StepString.Split(',');
+
+            foreach (string s in splitSteps)
+                result.Add(int.Parse(s));
+
+            return result;
+        }
+
+        /// <summary>
+        /// Searches a list of ranks to see if it contains one of the ranks in another list.
+        /// </summary>
+        /// <param name="Search">The list to search. if a rank from Compare is found here, the function returns true.</param>
+        /// <param name="Compare">The list to iterate through and compare against Search.</param>
+        /// <returns></returns>
+        public static bool RankListContains(List<Rank> Search, List<Rank> Compare) {
+            foreach (Rank r in Compare) {
+                if (Search.Contains(r))
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>

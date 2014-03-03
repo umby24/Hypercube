@@ -52,8 +52,6 @@ namespace Hypercube_Classic.Core {
         }
 
         public void HandleBuildmode(short _X, short _Y, short _Z, byte Mode, byte Type) {
-            MyClient.ServerCore.Logger._Log("DEBUG", "HandleBuildMode", _Y.ToString() + " " + _Z.ToString());
-
             if (Type == Boundblock.OnClient && BuildMaterial.Name != "Unknown")
                 Type = BuildMaterial.OnClient;
 

@@ -54,7 +54,7 @@ namespace Hypercube_Classic.Client {
             Handshake.MOTD = ServerCore.MOTD;
             Handshake.ProtocolVersion = 7;
 
-            if (CS.PlayerRank.Op)
+            if (CS.Op)
                 Handshake.Usertype = 64;
             else
                 Handshake.Usertype = 0;
@@ -106,16 +106,25 @@ namespace Hypercube_Classic.Client {
                 return;
             }
 
-            //TODO: Load muted, stopped, ect. From PlayerDB.
+            //TODO: Load From PlayerDB.
             CS.ID = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
             CS.Global = (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
             CS.MuteTime = ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
             
             CS.LoggedIn = true;
-            CS.PlayerRank = ServerCore.Rankholder.GetRank(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "Rank"));
-            CS.FormattedName = CS.PlayerRank.Prefix + CS.LoginName + CS.PlayerRank.Suffix;
             
+            CS.PlayerRanks = RankContainer.SplitRanks(ServerCore, ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "Rank"));
+            CS.RankSteps = RankContainer.SplitSteps(ServerCore.Database.GetDatabaseString(CS.LoginName, "PlayerDB", "RankStep"));
+            CS.FormattedName = CS.PlayerRanks[CS.PlayerRanks.Count - 1].Prefix + CS.LoginName + CS.PlayerRanks[CS.PlayerRanks.Count - 1].Suffix;
+
+            foreach (Rank r in CS.PlayerRanks) {
+                if (r.Op) {
+                    CS.Op = true;
+                    break;
+                }
+            }
+
             ServerCore.Database.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
             ServerCore.Database.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.IP);
 
@@ -166,10 +175,8 @@ namespace Hypercube_Classic.Client {
 
                 while ((PacketType = wSock.ReadByte()) != 255) {
                     if (BaseSocket.Connected == true) {
-                        if (Packets.ContainsKey(PacketType) == false) {
-                            // -- Kick player, unknown packet received.
-
-                        }
+                        if (Packets.ContainsKey(PacketType) == false) // -- Kick player, unknown packet received.
+                            KickPlayer("Invalid packet received: " + PacketType.ToString());
 
                         var IncomingPacket = Packets[PacketType]();
                         IncomingPacket.Read(this);
@@ -182,6 +189,7 @@ namespace Hypercube_Classic.Client {
                     ServerCore.Logger._Log("Error", "Dunno", e.Message);
                     ServerCore.Logger._Log("Error", "Dunno", e.StackTrace);
                 }
+
                 // -- User probably disconnected.
                 if (BaseSocket.Connected == true)
                     BaseSocket.Close();

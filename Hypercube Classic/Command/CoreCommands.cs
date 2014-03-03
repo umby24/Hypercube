@@ -9,6 +9,64 @@ using Hypercube_Classic.Map;
 
 namespace Hypercube_Classic.Command {
 
+    public struct AddRankCommand : Command {
+        public string Command { get { return "/addrank"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Op"; } }
+        public string Help { get { return "&eAdds a rank to a player.<br>&eUsage: /addrank [Name] [RankName]"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length < 2) {
+                Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp addrank.");
+                return;
+            }
+
+            args[0] = Core.Database.GetPlayerName(args[0]);
+
+            if (args[0] == "") {
+                Chat.SendClientChat(Client, "&4Error:&f Could not find player.");
+                return;
+            }
+
+            var newRank = Core.Rankholder.GetRank(args[1]);
+
+            if (newRank == null) {
+                Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
+                return;
+            }
+
+            //TODO: Add permissions
+
+            var Ranks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var Steps = RankContainer.SplitSteps(Core.Database.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            Ranks.Add(newRank);
+            Steps.Add(0);
+
+            string RankString = "";
+
+            foreach (Rank r in Ranks) 
+                RankString += r.ID.ToString() + ",";
+
+            RankString = RankString.Substring(0, RankString.Length - 1);
+
+            Core.Database.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
+            Core.Database.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
+
+            foreach (NetworkClient c in Core.nh.Clients) {
+                if (c.CS.LoginName.ToLower() == args[0]) {
+                    c.CS.PlayerRanks = Ranks;
+                    c.CS.RankSteps = Steps;
+                    Chat.SendClientChat(c, "&eYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
+                    c.CS.FormattedName = newRank.Prefix + c.CS.LoginName + newRank.Suffix;
+                }
+            }
+
+            Chat.SendClientChat(Client, "&e" + args[0] + "'s Rank was updated.");
+        }
+    }
     public struct BanCommand : Command {
         public string Command { get { return "/ban"; } }
         public string Plugin { get { return ""; } }
@@ -101,11 +159,69 @@ namespace Hypercube_Classic.Command {
             }
         }
     }
+    public struct DelRankCommand : Command {
+        public string Command { get { return "/delrank"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Op"; } }
+        public string Help { get { return "&eRemoves a rank to a player.<br>&eUsage: /delrank [Name] [RankName]"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length < 2) {
+                Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp delrank.");
+                return;
+            }
+
+            args[0] = Core.Database.GetPlayerName(args[0]);
+
+            if (args[0] == "") {
+                Chat.SendClientChat(Client, "&4Error:&f Could not find player.");
+                return;
+            }
+
+            var newRank = Core.Rankholder.GetRank(args[1]);
+
+            if (newRank == null) {
+                Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
+                return;
+            }
+
+            //TODO: Add permissions
+
+            var Ranks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var Steps = RankContainer.SplitSteps(Core.Database.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            Steps.RemoveAt(Ranks.IndexOf(newRank));
+            Ranks.Remove(newRank);
+
+            string RankString = "";
+
+            foreach (Rank r in Ranks)
+                RankString += r.ID.ToString() + ",";
+
+            RankString = RankString.Substring(0, RankString.Length - 1);
+
+            Core.Database.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
+            Core.Database.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
+
+            foreach (NetworkClient c in Core.nh.Clients) {
+                if (c.CS.LoginName.ToLower() == args[0]) {
+                    c.CS.PlayerRanks = Ranks;
+                    c.CS.RankSteps = Steps;
+                    Chat.SendClientChat(c, "&eYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + " has been removed.");
+                    c.CS.FormattedName = newRank.Prefix + c.CS.LoginName + newRank.Suffix;
+                }
+            }
+
+            Chat.SendClientChat(Client, "&e" + args[0] + "'s Ranks were updated.");
+        }
+    }
     public struct GetRankCommand : Command {
         public string Command { get { return "/getrank"; } }
         public string Plugin { get { return ""; } }
         public string Group { get { return "Op"; } }
-        public string Help { get { return "&eGives the rank of a player.<br>&eUsage: /getrank [Name]"; } }
+        public string Help { get { return "&eGives the rank(s) of a player.<br>&eUsage: /getrank [Name]"; } }
 
         public string ShowRanks { get { return "1,2"; } }
         public string UseRanks { get { return "1,2"; } }
@@ -121,9 +237,18 @@ namespace Hypercube_Classic.Command {
                 return;
             }
 
-            var newRank = Core.Rankholder.GetRank(Core.Database.GetDatabaseInt(args[0], "PlayerDB", "Rank"));
+            
+            var PlayerRanks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var PlayerSteps = RankContainer.SplitSteps(Core.Database.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            string PlayerInfo = "&eRank(s) for " + args[0] + ": ";
 
-            Chat.SendClientChat(Client, "&ePlayer " + newRank.Prefix + args[0] + newRank.Suffix + " is rank " + newRank.Prefix + newRank.Name + newRank.Suffix + "&e.");
+            foreach (Rank r in PlayerRanks)
+                PlayerInfo += r.Prefix + r.Name + r.Suffix + "(" + PlayerSteps[PlayerRanks.IndexOf(r)] + "), ";
+
+            PlayerInfo = PlayerInfo.Substring(0, PlayerInfo.Length - 1); // -- Remove the final comma.
+            PlayerInfo += "<br>";
+
+            Chat.SendClientChat(Client, PlayerInfo);
         }
     }
     public struct KickCommand : Command {
@@ -175,7 +300,7 @@ namespace Hypercube_Classic.Command {
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             foreach (HypercubeMap m in Core.Maps) {
                 if (m.Map.MapName.ToLower() == args[0].ToLower()) {
-                    if (m.JoinRanks.Contains(Client.CS.PlayerRank)) {
+                    if (RankContainer.RankListContains(m.JoinRanks, Client.CS.PlayerRanks)) {
                         //TODO: Add vanish
                         Chat.SendMapChat(m, Core, "&ePlayer " + Client.CS.FormattedName + " &echanged to map &f" + m.Map.MapName + ".");
                         Chat.SendMapChat(Client.CS.CurrentMap, Core, "&ePlayer " + Client.CS.FormattedName + " &echanged to map &f" + m.Map.MapName + ".");
@@ -219,7 +344,7 @@ namespace Hypercube_Classic.Command {
             string MapString = "&eMaps:<br>";
 
             foreach (HypercubeMap m in Core.Maps) {
-                if (m.ShowRanks.Contains(Client.CS.PlayerRank)) {
+                if (RankContainer.RankListContains(m.ShowRanks, Client.CS.PlayerRanks)) {
                     MapString += "&e" + m.Map.MapName + " &f| ";
                 }
             }
@@ -387,10 +512,18 @@ namespace Hypercube_Classic.Command {
             var dt = Core.Database.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + args[0] + "' LIMIT 1");
             PlayerInfo += "&eNumber: " + Core.Database.GetDatabaseInt(args[0],"PlayerDB", "Number").ToString() + "<br>";
             PlayerInfo += "&eName: " + args[0] + "<br>";
-            PlayerInfo += "&eRank: " + Core.Rankholder.GetRank(Core.Database.GetDatabaseInt(args[0], "PlayerDB", "Rank")).Name + "<br>";
+
+            var PlayerRanks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            PlayerInfo += "&eRank(s): ";
+
+            foreach(Rank r in PlayerRanks) 
+                PlayerInfo += r.Prefix + r.Name + r.Suffix + ",";
+
+            PlayerInfo = PlayerInfo.Substring(0, PlayerInfo.Length - 1); // -- Remove the final comma.
+            PlayerInfo += "<br>";
             PlayerInfo += "&eIP: " + Core.Database.GetDatabaseString(args[0], "PlayerDB", "IP") + "<br>";
             PlayerInfo += "&eLogins: " + Core.Database.GetDatabaseInt(args[0], "PlayerDB", "LoginCounter").ToString() + "<br>";
-            PlayerInfo += "&eKicks: " + Core.Database.GetDatabaseInt(args[0], "PlayerDB", "KickCounter").ToString() + ": " + Core.Database.GetDatabaseString(args[0], "PlayerDB", "KickMessage") + "<br>";
+            PlayerInfo += "&eKicks: " + Core.Database.GetDatabaseInt(args[0], "PlayerDB", "KickCounter").ToString() + "( " + Core.Database.GetDatabaseString(args[0], "PlayerDB", "KickMessage") + ")<br>";
 
             if (Core.Database.GetDatabaseInt(args[0], "PlayerDB","Banned") > 0) 
                 PlayerInfo += "&eBanned: " + Core.Database.GetDatabaseString(args[0], "PlayerDB","BanMessage") + " (" + Core.Database.GetDatabaseString(args[0], "PlayerDB","BannedBy") + ")<br>";
@@ -460,6 +593,72 @@ namespace Hypercube_Classic.Command {
             Chat.SendClientChat(Client, OnlineString);
         }
     }
+    public struct PushRankCommand : Command {
+        public string Command { get { return "/pushrank"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Op"; } }
+        public string Help { get { return "&eSets a rank as the player's active rank. (Sets their name color)<br>&eUsage: /pushrank [Name] [RankName]"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length < 2) {
+                Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp pushrank.");
+                return;
+            }
+
+            args[0] = Core.Database.GetPlayerName(args[0]);
+
+            if (args[0] == "") {
+                Chat.SendClientChat(Client, "&4Error:&f Could not find player.");
+                return;
+            }
+
+            var newRank = Core.Rankholder.GetRank(args[1]);
+
+            if (newRank == null) {
+                Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
+                return;
+            }
+
+            //TODO: Add permissions
+
+            var Ranks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+
+            if (!Ranks.Contains(newRank)) {
+                Chat.SendClientChat(Client, "&4Error: &fPlayer '" + args[0] + "' does not have rank '" + args[1] + "'.");
+                return;
+            }
+
+            var Steps = RankContainer.SplitSteps(Core.Database.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            int TempInt = Steps[Ranks.IndexOf(newRank)];
+            Steps.RemoveAt(Ranks.IndexOf(newRank));
+            Ranks.Remove(newRank);
+            Ranks.Add(newRank);
+            Steps.Add(TempInt);
+
+            string RankString = "";
+
+            foreach (Rank r in Ranks)
+                RankString += r.ID.ToString() + ",";
+
+            RankString = RankString.Substring(0, RankString.Length - 1);
+
+            Core.Database.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
+            Core.Database.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
+
+            foreach (NetworkClient c in Core.nh.Clients) {
+                if (c.CS.LoginName.ToLower() == args[0]) {
+                    c.CS.PlayerRanks = Ranks;
+                    c.CS.RankSteps = Steps;
+                    c.CS.FormattedName = newRank.Prefix + c.CS.LoginName + newRank.Suffix;
+                }
+            }
+
+            Chat.SendClientChat(Client, "&e" + args[0] + "'s Rank was updated.");
+        }
+    }
     public struct RanksCommand : Command {
         public string Command { get { return "/ranks"; } }
         public string Plugin { get { return ""; } }
@@ -489,13 +688,13 @@ namespace Hypercube_Classic.Command {
         public string Command { get { return "/setrank"; } }
         public string Plugin { get { return ""; } }
         public string Group { get { return "Op"; } }
-        public string Help { get { return "&eChanges the rank of a player.<br>&eUsage: /setrank [Name] [RankName]"; } }
+        public string Help { get { return "&eChanges the step of a player's rank.<br>&eUsage: /setrank [Name] [RankName] [Step]"; } }
 
         public string ShowRanks { get { return "2"; } }
         public string UseRanks { get { return "2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
-            if (args.Length < 2) {
+            if (args.Length < 3) {
                 Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp setrank.");
                 return;
             }
@@ -513,17 +712,28 @@ namespace Hypercube_Classic.Command {
                 Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
                 return;
             }
+            //TODO: Add permissions
+            var Ranks = RankContainer.SplitRanks(Core, Core.Database.GetDatabaseString(args[0], "PlayerDB", "Rank"));
 
-            Core.Database.SetDatabase(args[0], "PlayerDB", "Rank", newRank.ID);
+            if (!Ranks.Contains(newRank)) {
+                Chat.SendClientChat(Client, "&4Error: &fPlayer '" + args[0] + "' does not have rank '" + args[1] + "'.");
+                return;
+            }
+
+            var Steps = RankContainer.SplitSteps(Core.Database.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            Steps[Ranks.IndexOf(newRank)] = int.Parse(args[2]);
+
+            Core.Database.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
 
             foreach (NetworkClient c in Core.nh.Clients) {
                 if (c.CS.LoginName.ToLower() == args[0]) {
-                    Chat.SendClientChat(c, "&eYour rank has been changed to " + newRank.Prefix + newRank.Name + newRank.Suffix + ".");
+                    c.CS.RankSteps = Steps;
+                    Chat.SendClientChat(c, "&eYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + " has been updated.");
                     c.CS.FormattedName = newRank.Prefix + c.CS.LoginName + newRank.Suffix;
                 }
             }
 
-            Chat.SendClientChat(Client, "&e" + args[0] + " is now ranked " + newRank.Name + ".");
+            Chat.SendClientChat(Client, "&e" + args[0] + "'s Rank was updated.");
         }
     }
     public struct StopCommand : Command {

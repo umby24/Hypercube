@@ -9,13 +9,14 @@ namespace Hypercube_Classic.Client {
     /// <summary>
     /// A container for all settings used by clients.
     /// </summary>
-    public class ClientSettings {
+    public struct ClientSettings {
         public string LoginName, FormattedName, IP, MPPass;
         public DateTime LastActive;
-        public bool LoggedIn, Stopped, Global;
+        public bool LoggedIn, Stopped, Global, Op;
         public short NameID;
-        public Rank PlayerRank;
-        public int RankStep, ID, MuteTime;
+        public List<Rank> PlayerRanks;
+        public List<int> RankSteps;
+        public int ID, MuteTime;
         public Entity MyEntity;
         public HypercubeMap CurrentMap;
 
