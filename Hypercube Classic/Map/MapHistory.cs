@@ -73,6 +73,7 @@ namespace Hypercube_Classic.Map {
 
         HypercubeMap ThisMap;
         string BaseName;
+        bool Fragmented = false;
         #endregion
 
         /// <summary>
@@ -117,11 +118,17 @@ namespace Hypercube_Classic.Map {
             Entries = new List<HistoryEntry>();
         }
 
+        /// <summary>
+        /// Uncompresses the history file, if it was previously compressed.
+        /// </summary>
         public void ReloadHistory() {
             if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == false)
                 GZip.DecompressFile(BaseName + ".hch");
         }
 
+        /// <summary>
+        /// Saves all cached entries, and compresses the history file (If setting enabled)
+        /// </summary>
         public void UnloadHistory() {
             SaveEntries();
 
@@ -129,6 +136,9 @@ namespace Hypercube_Classic.Map {
                 GZip.CompressFile(BaseName + ".hch");
         }
 
+        /// <summary>
+        /// Saves all history entries in the Entries list to file.
+        /// </summary>
         public void SaveEntries() {
             int IndexTableSize = (ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4;
 
@@ -217,6 +227,7 @@ namespace Hypercube_Classic.Map {
                     FS.Seek(index * 4, SeekOrigin.Begin); // -- Seek back to the Int for this block.
                     FS.Write(BitConverter.GetBytes(EndPosition), 0, 4); // -- Write in the location for that block's entries.
 
+                    Fragmented = true;
                     // -- Annnd that's all folks!
                 }
             }
@@ -224,6 +235,13 @@ namespace Hypercube_Classic.Map {
             Entries.Clear();
         }
 
+        /// <summary>
+        /// Looks up all the entries for a given map coordinate in the history system.
+        /// </summary>
+        /// <param name="x">X location of block</param>
+        /// <param name="y">Y Location of block</param>
+        /// <param name="z">Z Location of block</param>
+        /// <returns>Array of History Entries.</returns>
         public HistoryEntry[] Lookup(short x, short y, short z) {
             int IndexTableSize = (ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4;
             var Result = new HistoryEntry[ThisMap.ServerCore.MaxHistoryEntries];
@@ -255,7 +273,6 @@ namespace Hypercube_Classic.Map {
                 }
             }
 
-            //TODO: Below
             var MyList = new List<HistoryEntry>();
             bool Lebroke = false;
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
@@ -296,6 +313,16 @@ namespace Hypercube_Classic.Map {
             return Result;
         }
 
+        /// <summary>
+        /// Creates an entry into the History System. Will not be saved until SaveEntries() is called.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="Player"></param>
+        /// <param name="LastPlayer"></param>
+        /// <param name="NewBlock"></param>
+        /// <param name="LastBlock"></param>
         public void AddEntry(short x, short y, short z, ushort Player, ushort LastPlayer, byte NewBlock, byte LastBlock) {
             var HE = new HistoryEntry();
             HE.LastBlock = LastBlock;
@@ -311,6 +338,64 @@ namespace Hypercube_Classic.Map {
 
             if (Entries.Count > 500)
                 SaveEntries();
+        }
+        
+        /// <summary>
+        /// Defragments the history file, if fragmented.
+        /// </summary>
+        public void DeFragment() {
+            if (!Fragmented)
+                return;
+
+            if (ThisMap.Loaded == false)
+                ReloadHistory();
+            else
+                SaveEntries();
+
+            using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
+                using (var NFS = new FileStream(BaseName + ".temp", FileMode.Create)) {
+                    var History = new byte[(ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4]; // -- Create the index table in the new file.
+                    NFS.Write(History, 0, History.Length);
+                    History = null;
+
+                    for (int ix = 0; ix < ThisMap.Map.SizeX; ix++) {
+                        for (int iy = 0; iy < ThisMap.Map.SizeZ; iy++) {
+                            for (int iz = 0; iz < ThisMap.Map.SizeY; iz++) {
+                                var temp = new byte[4];
+                                int index = (iz * ThisMap.Map.SizeZ + iy) * ThisMap.Map.SizeX + ix;
+
+                                FS.Seek(index * 4, SeekOrigin.Begin);
+                                FS.Read(temp, 0, 4);
+
+                                int EntryIndex = BitConverter.ToInt32(temp, 0);
+
+                                if (EntryIndex == 0)
+                                    continue;
+
+                                var Entries = Lookup((short)ix, (short)iy, (short)iz); // -- Gets the entries for this block..
+
+                                NFS.Seek(0, SeekOrigin.End);
+                                temp = BitConverter.GetBytes(NFS.Position);
+
+                                NFS.WriteByte((byte)Entries.Length); // -- Write the number of entries..
+
+                                foreach (HistoryEntry f in Entries) 
+                                    NFS.Write(f.ToByteArray(), 0, 10); // -- Write the entries in.
+                                
+                                NFS.Seek(index * 4, SeekOrigin.Begin); // -- Seek back to the index table.
+                                NFS.Write(temp, 0, 4); // -- And write in where our entries reside.
+
+                                // -- Now on to the next coordinate!
+                            }
+                        }
+                    }
+                }
+            }
+
+            Fragmented = false;
+
+            if (ThisMap.Loaded == false)
+                UnloadHistory();
         }
     }
 }

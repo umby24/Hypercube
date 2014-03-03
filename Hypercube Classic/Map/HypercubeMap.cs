@@ -299,6 +299,10 @@ namespace Hypercube_Classic.Map {
 
             SaveMap();
             ThisHistory.UnloadHistory();
+
+            ServerCore.Logger._Log("Info", "Map", "Defragmenting history of " + Path);
+            ThisHistory.DeFragment();
+            ServerCore.Logger._Log("Info", "Map", "Done.");
         }
 
         /// <summary>
