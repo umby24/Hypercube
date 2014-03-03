@@ -352,7 +352,7 @@ namespace Hypercube_Classic.Map {
             else
                 SaveEntries();
 
-            using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
+            using (var FS = new FileStream(BaseName + ".hch",FileMode.Open, FileAccess.Read)) {
                 using (var NFS = new FileStream(BaseName + ".temp", FileMode.Create)) {
                     var History = new byte[(ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4]; // -- Create the index table in the new file.
                     NFS.Write(History, 0, History.Length);
@@ -393,6 +393,8 @@ namespace Hypercube_Classic.Map {
             }
 
             Fragmented = false;
+            File.Delete(BaseName + ".hch");
+            File.Move(BaseName + ".temp", BaseName + ".hch");
 
             if (ThisMap.Loaded == false)
                 UnloadHistory();
