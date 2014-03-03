@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Hypercube_Classic.Packets;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Core;
 using Hypercube_Classic.Map;
@@ -322,6 +323,25 @@ namespace Hypercube_Classic.Command {
                         m.SpawnEntity(Client.CS.MyEntity);
                         m.Entities.Add(Client.CS.MyEntity);
                         m.SendAllEntities(Client);
+
+                        // -- ExtPlayerList
+                        var ToRemove = new ExtRemovePlayerName(); // -- This is needed due to a client bug that doesn't update entries properly. I submitted a PR that fixes this issue, but it hasn't been pushed yet.
+                        ToRemove.NameID = Client.CS.NameID;
+
+                        var ToUpdate = new ExtAddPlayerName();
+                        ToUpdate.NameID = Client.CS.NameID;
+                        ToUpdate.ListName = Client.CS.FormattedName;
+                        ToUpdate.PlayerName = Client.CS.LoginName;
+                        ToUpdate.GroupName = "&c" + Client.CS.CurrentMap.Map.MapName;
+                        ToUpdate.GroupRank = 0;
+
+                        foreach (NetworkClient c in Core.nh.Clients) {
+                            if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                                ToRemove.Write(c);
+                                ToUpdate.Write(c);
+                            }
+                        }
+
                         break;
                     } else {
                         Chat.SendClientChat(Client, "&4Error: &fYou are not allowed to join this map.");

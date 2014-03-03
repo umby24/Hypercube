@@ -147,7 +147,47 @@ namespace Hypercube_Classic.Client {
 
             Chat.SendGlobalChat(ServerCore, "&ePlayer " + CS.FormattedName + "&e has joined.");
             Chat.SendClientChat(this, ServerCore.WelcomeMessage);
+
+            CS.NameID = ServerCore.FreeID;
+
+            if (ServerCore.FreeID != ServerCore.NextID)
+                ServerCore.FreeID = ServerCore.NextID;
+            else {
+                ServerCore.FreeID += 1;
+                ServerCore.NextID = ServerCore.FreeID;
+            }
+
             //TODO: CPE ExtPlayerList
+            var ExtPlayerListPacket = new ExtAddPlayerName();
+            ExtPlayerListPacket.GroupRank = 0;
+
+            foreach (NetworkClient c in ServerCore.nh.Clients) {
+                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                    if (c != this) {
+                        ExtPlayerListPacket.NameID = CS.NameID;
+                        ExtPlayerListPacket.ListName = CS.FormattedName;
+                        ExtPlayerListPacket.PlayerName = CS.LoginName;
+                        ExtPlayerListPacket.GroupName = "&c" + CS.CurrentMap.Map.MapName;
+                        
+                        ExtPlayerListPacket.Write(c);
+
+                        if (CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                            ExtPlayerListPacket.NameID = c.CS.NameID;
+                            ExtPlayerListPacket.ListName = c.CS.FormattedName;
+                            ExtPlayerListPacket.PlayerName = c.CS.LoginName;
+                            ExtPlayerListPacket.GroupName = "&c" + c.CS.CurrentMap.Map.MapName;
+                            ExtPlayerListPacket.Write(this);
+                        }
+                    } else {
+                        ExtPlayerListPacket.NameID = CS.NameID;
+                        ExtPlayerListPacket.ListName = CS.FormattedName;
+                        ExtPlayerListPacket.PlayerName = CS.LoginName;
+                        ExtPlayerListPacket.GroupName = "&c" + CS.CurrentMap.Map.MapName;
+                        ExtPlayerListPacket.Write(c);
+                    }
+                }
+            }
+
             ServerCore.OnlinePlayers += 1;
         }
 

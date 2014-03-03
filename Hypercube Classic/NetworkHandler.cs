@@ -111,6 +111,16 @@ namespace Hypercube_Classic {
                 Disconnecting.CS.CurrentMap.DeleteEntity(ref Disconnecting.CS.MyEntity);
                 ServerCore.OnlinePlayers -= 1;
 
+                ServerCore.FreeID = Disconnecting.CS.NameID;
+
+                var RemoveItem = new ExtRemovePlayerName();
+                RemoveItem.NameID = Disconnecting.CS.NameID;
+
+                foreach (NetworkClient c in Clients) {
+                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                        RemoveItem.Write(c);
+                }
+                
                 ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected."); // -- Notify of their disconnection.
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
