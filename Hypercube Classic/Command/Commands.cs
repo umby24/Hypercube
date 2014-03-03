@@ -36,10 +36,12 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/maps", new MapsCommand());
             CommandDict.Add("/mapinfo", new MapInfoCommand());
             CommandDict.Add("/mapload", new MapLoadCommand());
+            CommandDict.Add("/mapresend", new MapResendCommand());
             CommandDict.Add("/mapsave", new MapSaveCommand());
             CommandDict.Add("/material", new MaterialCommand());
             CommandDict.Add("/mute", new MuteCommand());
             CommandDict.Add("/pinfo", new PinfoCommand());
+            CommandDict.Add("/place", new PlaceCommand());
             CommandDict.Add("/players", new PlayersCommand());
             CommandDict.Add("/pushrank", new PushRankCommand());
             CommandDict.Add("/ranks", new RanksCommand());

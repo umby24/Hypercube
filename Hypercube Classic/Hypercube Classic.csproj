@@ -106,6 +106,7 @@
     <Compile Include="Client\ClientSettings.cs" />
     <Compile Include="Client\NetworkClient.cs" />
     <Compile Include="Client\Database.cs" />
+    <Compile Include="Client\Undo.cs" />
     <Compile Include="Command\Commands.cs" />
     <Compile Include="Command\CoreCommands.cs" />
     <Compile Include="Core\Block.cs" />

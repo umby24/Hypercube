@@ -415,6 +415,35 @@ namespace Hypercube_Classic.Command {
             Client.CS.CurrentMap.ResendMap();
         }
     }
+    public struct MapResendCommand : Command {
+        public string Command { get { return "/mapresend"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eResends the map you are in."; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            foreach (NetworkClient c in Client.CS.CurrentMap.Clients) {
+                Client.CS.CurrentMap.SendMap(c);
+                Client.CS.CurrentMap.SendAllEntities(c);
+            }
+        }
+    }
+    public struct MapResizeCommand : Command {
+        public string Command { get { return "/mapresend"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eResends the map you are in."; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            
+        }
+    }
     public struct MapSaveCommand : Command {
         public string Command { get { return "/mapsave"; } }
         public string Plugin { get { return ""; } }
@@ -568,7 +597,7 @@ namespace Hypercube_Classic.Command {
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             if (args.Length == 0) {
-                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 1), 1, Client.CS.MyEntity.Lastmaterial.OnClient);
+                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 2), 1, Client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(Client, "&eBlock placed.");
             } else if (args.Length == 1) {
                 var newBlock = Core.Blockholder.GetBlock(args[0]);
@@ -579,7 +608,7 @@ namespace Hypercube_Classic.Command {
                 }
 
                 Client.CS.MyEntity.Lastmaterial = newBlock;
-                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 1), 1, Client.CS.MyEntity.Lastmaterial.OnClient);
+                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 2), 1, Client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(Client, "&eBlock placed.");
             }
         }

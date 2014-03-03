@@ -390,7 +390,6 @@ namespace Hypercube_Classic.Map {
         /// <param name="y"></param>
         /// <returns></returns>
         public Block GetBlock(short x, short z, short y) {
-            ServerCore.Logger._Log("DEBUG", "GetBlock", y.ToString() + " " + z.ToString());
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return ServerCore.Blockholder.GetBlock(Map.BlockData[index]);
         }
