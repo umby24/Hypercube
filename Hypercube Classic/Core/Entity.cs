@@ -52,16 +52,18 @@ namespace Hypercube_Classic.Core {
         }
 
         public void HandleBuildmode(short _X, short _Y, short _Z, byte Mode, byte Type) {
-            if (Type == Boundblock.OnClient && BuildMaterial.Name != "Unknown")
-                Type = BuildMaterial.OnClient;
+            var MyBlock = MyClient.ServerCore.Blockholder.GetBlock((int)Type);
 
-            Lastmaterial = MyClient.ServerCore.Blockholder.GetBlock(Type);
+            if (MyBlock == Boundblock && BuildMaterial.Name != "Unknown")
+                MyBlock = BuildMaterial;
+
+            Lastmaterial = MyBlock;
 
             if (BuildMode != null && BuildMode != "") {
                 //TODO: Add buildmodes all proper like..
             } else {
                 if (!MyClient.CS.Stopped)
-                    Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, Type);
+                    Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, MyBlock);
                 else {
                     Chat.SendClientChat(MyClient, "&4Error:&f You are stopped, you cannot build.");
                     MyClient.CS.CurrentMap.SendBlockToClient(_X, _Y, _Z, MyClient.CS.CurrentMap.GetBlock(_X, _Y, _Z), MyClient);

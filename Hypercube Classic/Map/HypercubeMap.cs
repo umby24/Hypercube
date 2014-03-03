@@ -594,21 +594,18 @@ namespace Hypercube_Classic.Map {
 
         #endregion
         #region Blockchanging
-        public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, byte Type) {
-            ServerCore.Logger._Log("DEBUG", "ClientChangeBlock", Y.ToString() + " " + Z.ToString());
-
+        public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, Block NewBlock) {
             if ((0 > X || Map.SizeX <= X) || (0 > Z || Map.SizeY <= Z) || (0 > Y || Map.SizeZ <= Y)) {
                 Chat.SendClientChat(Client, "&4Error: &fThat block is outside the bounds of the map.");
                 return;
             }
 
             var MapBlock = GetBlock(X, Y, Z);
-            var ChangeBlock = ServerCore.Blockholder.GetBlock(Type);
 
             if (Mode == 0)
-                Type = 0;
+                NewBlock = ServerCore.Blockholder.GetBlock(0);
 
-            if (Type == (MapBlock.ID - 1))
+            if (NewBlock == MapBlock)
                 return;
 
             if (!RankContainer.RankListContains(BuildRanks, Client.CS.PlayerRanks)) {
@@ -623,18 +620,18 @@ namespace Hypercube_Classic.Map {
                 return;
             }
 
-            if (!RankContainer.RankListContains(ChangeBlock.RanksPlace, Client.CS.PlayerRanks) && Mode > 0) {
+            if (!RankContainer.RankListContains(NewBlock.RanksPlace, Client.CS.PlayerRanks) && Mode > 0) {
                 Chat.SendClientChat(Client, "&4Error:&f You are not allowed to place this block type.");
                 SendBlockToClient(X, Y, Z, MapBlock, Client);
                 return;
             }
 
-            BlockChange(Client.CS.ID, X, Y, Z, Type, MapBlock.OnClient, true, true, true, 250);
+            BlockChange(Client.CS.ID, X, Y, Z, NewBlock, MapBlock, true, true, true, 250);
 
         }
 
-        public void BlockChange(int ClientID, short X, short Y, short Z, byte Type, byte LastType, bool Undo, bool Physics, bool Send, short Priority) {
-            SetBlockID(X, Y, Z, Type, ClientID);
+        public void BlockChange(int ClientID, short X, short Y, short Z, Block Type, Block LastType, bool Undo, bool Physics, bool Send, short Priority) {
+            SetBlockID(X, Y, Z, (byte)(Type.ID - 1), ClientID);
 
             if (Undo) {
                 //TODO: Undo.
@@ -660,7 +657,6 @@ namespace Hypercube_Classic.Map {
 
             if (Send) 
                 BlockchangeQueue.Add(new QueueItem(X, Y, Z, Priority));
-            
         }
 
         public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
