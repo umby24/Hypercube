@@ -106,7 +106,7 @@ namespace Hypercube_Classic
                 Logger.RotateLogs();
 
             // -- Initiate Commands
-            Commandholder = new Commands();
+            Commandholder = new Commands(this);
 
             // -- Initiate Lua
             try {

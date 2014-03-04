@@ -56,8 +56,11 @@ namespace Hypercube_Classic.Libraries {
                 string key = line.Substring(0, line.IndexOf("=") - 1);
                 string setting = line.Substring(line.IndexOf("=") + 2, line.Length - (line.IndexOf("=") + 2));
 
-                Settingsfile.Settings.Add(key, setting);
+                try {
+                    Settingsfile.Settings.Add(key, setting);
+                } catch {
 
+                }
             } 
 
             // -- Settings parsed.

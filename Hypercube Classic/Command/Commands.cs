@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+
 using Hypercube_Classic.Core;
 using Hypercube_Classic.Client;
 
@@ -17,11 +19,15 @@ namespace Hypercube_Classic.Command {
         void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client);        
     }
 
+   
    public class Commands {
         public Dictionary<string, Command> CommandDict;
         public Dictionary<string, List<string>> Groups;
+        public Dictionary<string, List<string>> Aliases;
+        public SystemSettings AliasLoader;
+        public Hypercube ServerCore;
 
-        public Commands() {
+        public Commands(Hypercube Core) {
             CommandDict = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
             CommandDict.Add("/addrank", new AddRankCommand());
@@ -54,7 +60,17 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/unmute", new UnmuteCommand());
             CommandDict.Add("/unstop", new UnstopCommand());
 
+            ServerCore = Core;
+
+            AliasLoader = new SystemSettings();
+            AliasLoader.Filename = "Aliases.txt";
+            AliasLoader.Settings = new Dictionary<string, string>();
+            AliasLoader.LoadSettings = new Hypercube_Classic.Libraries.SettingsReader.LoadSettings(LoadAliases);
+
+            ServerCore.Settings.SettingsFiles.Add(AliasLoader);
+
             RegisterGroups();
+            LoadAliases();
         }
 
         public void HandleCommand(Hypercube Core, NetworkClient Client, string Message) {
@@ -71,10 +87,18 @@ namespace Hypercube_Classic.Command {
             else
                 Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"",splits) + "\" }");
 
-            if (!CommandDict.ContainsKey(command.ToLower())) 
+            string alias = GetAlias(command);
+
+            if (!CommandDict.ContainsKey(command.ToLower()) && alias == "false") 
                 Chat.SendClientChat(Client, "&4Error:&f Command '" + command + "' not found.");
             else {
-                var thisCommand = CommandDict[command.ToLower()];
+                Command thisCommand = null;
+
+                if (alias == "false")
+                    thisCommand = CommandDict[command.ToLower()];
+                else
+                    thisCommand = CommandDict[alias.ToLower()];
+
                 var Ranks = RankContainer.SplitRanks(Core, thisCommand.UseRanks);
 
                 if (RankContainer.RankListContains(Ranks, Client.CS.PlayerRanks))
@@ -84,10 +108,20 @@ namespace Hypercube_Classic.Command {
             }
         }
 
+        public string GetAlias(string Command) {
+            foreach (string s in Aliases.Keys) {
+                if (Aliases[s].Contains(Command.ToLower()))
+                    return s;
+            }
+
+            return "false";
+        }
+
         public void AddCommand(string Command, string Plugin, string Group, string Help, string ShowRanks, string UseRanks) {
             var NewCommand = new ScriptedCommand(Command, Plugin, Group, Help, ShowRanks, UseRanks);
             CommandDict.Add(Command.ToLower(), NewCommand);
             RegisterGroups();
+            LoadAliases();
         }
 
         void RegisterGroups() {
@@ -103,6 +137,51 @@ namespace Hypercube_Classic.Command {
                     Groups.Add(CommandDict[command].Group, new List<string>() { command.Replace("/", "") });
                 }
             }
+        }
+
+        void LoadAliases() {
+            if (Aliases == null)
+                Aliases = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
+            else
+                Aliases.Clear();
+
+            foreach (string c in CommandDict.Keys) // -- Create an entry for every command, and a list for its aliases.
+                Aliases.Add(c, new List<string>());
+
+            if (!File.Exists("Settings/Aliases.txt"))
+                File.WriteAllText("Settings/Aliases.txt", "");
+
+            using (var SR = new StreamReader("Settings/Aliases.txt")) {
+                while (!SR.EndOfStream) {
+                    var Myline = SR.ReadLine();
+
+                    if (Myline.StartsWith(";")) // -- Comment
+                        continue;
+
+                    if (!Myline.Contains("=")) // -- Incorrect formatting
+                        continue;
+
+                    // -- Command = Alias
+                    string command = Myline.Substring(0, Myline.IndexOf("=")).Replace(" ", "").ToLower();
+                    string alias = Myline.Substring(Myline.IndexOf("=") + 1, Myline.Length - (Myline.IndexOf("=") + 1)).Replace(" ","").ToLower();
+
+                    if (!command.StartsWith("/"))
+                        command = "/" + command;
+
+                    if (!alias.StartsWith("/"))
+                        alias = "/" + alias;
+
+                    if (!Aliases.ContainsKey(command))
+                        continue;
+
+                    if (Aliases[command].Contains(alias))
+                        continue;
+
+                    Aliases[command].Add(alias);
+                }
+            }
+
+            ServerCore.Logger._Log("Info", "Commands", "Command aliases loaded.");
         }
     }
 

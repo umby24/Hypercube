@@ -121,8 +121,9 @@ namespace Hypercube_Classic.Map {
             Map = new ClassicWorld(SizeX, SizeZ, SizeY);
 
             HCSettings = new HypercubeMetadata(); // -- Hypercube specific settings, woo.
-            HCSettings.Building = true; // -- Enable building and physics by default.
+            HCSettings.Building = true; // -- Enable building, history and physics by default.
             HCSettings.Physics = true;
+            HCSettings.History = true;
 
             foreach (Rank r in Core.Rankholder.Ranks) { // -- Allow all ranks to access this map by default.
                 JoinRanks.Add(r);
@@ -193,10 +194,8 @@ namespace Hypercube_Classic.Map {
 
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
+                HCSettings.History = true;
             }
-
-            HCSettings.Building = true;
-            HCSettings.Physics = true;
 
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();
@@ -257,10 +256,8 @@ namespace Hypercube_Classic.Map {
 
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
+                HCSettings.History = true;
             }
-
-            HCSettings.Building = true;
-            HCSettings.Physics = true;
 
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();

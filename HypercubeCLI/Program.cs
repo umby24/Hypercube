@@ -24,9 +24,8 @@ namespace HypercubeCLI {
             while (Input != "END") {
                 Input = Console.ReadLine();
 
-                if (Input.StartsWith("CHAT")) {
+                if (Input.StartsWith("CHAT", StringComparison.CurrentCultureIgnoreCase)) 
                     Chat.SendGlobalChat(Server, "&d[Server]:&f " + Input.Replace("CHAT", ""));
-                }
             }
 
             Server.Stop();
