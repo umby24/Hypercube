@@ -37,6 +37,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/mapinfo", new MapInfoCommand());
             CommandDict.Add("/mapload", new MapLoadCommand());
             CommandDict.Add("/mapresend", new MapResendCommand());
+            CommandDict.Add("/mapresize", new MapResizeCommand());
             CommandDict.Add("/mapsave", new MapSaveCommand());
             CommandDict.Add("/material", new MaterialCommand());
             CommandDict.Add("/mute", new MuteCommand());
@@ -111,26 +112,46 @@ namespace Hypercube_Classic.Command {
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             if (args.Length == 0) { // -- List command groups
+                Chat.SendClientChat(Client, "&eCommand groups:");
+                Chat.SendClientChat(Client, "&a    All");
 
                 foreach (string a in Core.Commandholder.Groups.Keys) 
-                    Chat.SendClientChat(Client, "&e/commands " + a);
-                
+                    Chat.SendClientChat(Client, "&a    " + a);
+
             } else if (args.Length == 1) { // -- list a group.
-                if (!Core.Commandholder.Groups.ContainsKey(args[0])) {
+                if (!Core.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
                     Chat.SendClientChat(Client, "&4Error: &fGroup '" + args[0] + "' not found.");
                     return;
                 }
 
                 string commandString = "&3| &f";
 
+                if (args[0].ToLower() == "all") {
+                    foreach (string b in Core.Commandholder.CommandDict.Keys) {
+                        if (!RankContainer.RankListContains(RankContainer.SplitRanks(Core, Core.Commandholder.CommandDict[b].ShowRanks), Client.CS.PlayerRanks))
+                            continue;
+
+                        if (b != Core.Commandholder.CommandDict.Keys.Last()) 
+                            commandString += b.Substring(1, b.Length - 1) + " | ";
+                        else
+                            commandString += b.Substring(1, b.Length - 1) + " &3|";
+                    }
+
+                    Chat.SendClientChat(Client, "&aAll Commands:<br>" + commandString);
+                    return;
+                }                
+
                 foreach (string b in Core.Commandholder.Groups[args[0]]) {
+                    if (!RankContainer.RankListContains(RankContainer.SplitRanks(Core, Core.Commandholder.CommandDict["/" + b].ShowRanks), Client.CS.PlayerRanks))
+                        continue;
+
                     if (b != Core.Commandholder.Groups[args[0]].Last())
                         commandString += b + " | ";
                     else
                         commandString += b + " &3|";
                 }
 
-                Chat.SendClientChat(Client, "Group " + args[0]);
+                Chat.SendClientChat(Client, "&aGroup " + args[0]);
                 Chat.SendClientChat(Client, commandString);
             } else {
                 Chat.SendClientChat(Client, "&4Error: &fWrong number of arguments supplied.");
@@ -149,6 +170,10 @@ namespace Hypercube_Classic.Command {
         public string UseRanks { get { return "1,2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0) {
+                Chat.SendClientChat(Client, "&4Error: &fUsage of this command: /cmdhelp [command].");
+                return;
+            }
             if (Core.Commandholder.CommandDict.ContainsKey("/" + args[0].ToLower()) == false) {
                 Chat.SendClientChat(Client, "&4Error: &fCommand not found.");
                 return;

@@ -66,7 +66,7 @@ namespace Hypercube_Classic.Core {
                     Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, MyBlock);
                 else {
                     Chat.SendClientChat(MyClient, "&4Error:&f You are stopped, you cannot build.");
-                    MyClient.CS.CurrentMap.SendBlockToClient(_X, _Y, _Z, MyClient.CS.CurrentMap.GetBlock(_X, _Y, _Z), MyClient);
+                    MyClient.CS.CurrentMap.SendBlockToClient(_X, _Y, _Z, MyClient.CS.CurrentMap.GetBlock(_X, _Y, _Z, "Entity"), MyClient);
                 }
             }
         }

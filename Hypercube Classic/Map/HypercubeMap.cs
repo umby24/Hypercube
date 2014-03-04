@@ -341,6 +341,35 @@ namespace Hypercube_Classic.Map {
         }
 
         /// <summary>
+        /// Resizes the map.
+        /// </summary>
+        /// <param name="x">New X size of the map.</param>
+        /// <param name="y">New Y Size of the map.</param>
+        /// <param name="z">New Z Size of the map.</param>
+        public void ResizeMap(short x, short y, short z) {
+            if (Loaded == false)
+                LoadMap();
+
+            Map.SizeX = x;
+            Map.SizeZ = y;
+            Map.SizeY = z;
+
+            var Temp = new Byte[x * y * z];
+            Buffer.BlockCopy(Map.BlockData, 0, Temp, 0, Temp.Length);
+
+            Map.BlockData = Temp;
+            Temp = null;
+
+            if (Loaded == false)
+                UnloadMap();
+
+            foreach (NetworkClient c in Clients) {
+                SendMap(c);
+                SendAllEntities(c);
+            }
+        }
+
+        /// <summary>
         /// Saves this map.
         /// </summary>
         /// <param name="Filename"></param>
@@ -389,7 +418,9 @@ namespace Hypercube_Classic.Map {
         /// <param name="z"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public Block GetBlock(short x, short z, short y) {
+        public Block GetBlock(short x, short z, short y, string Sender) {
+            ServerCore.Logger._Log("DEBUG", "GetBlock", x.ToString() + y.ToString() + z.ToString());
+            ServerCore.Logger._Log("DEBUG", "GetBlock", Sender);
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return ServerCore.Blockholder.GetBlock(Map.BlockData[index]);
         }
@@ -599,7 +630,7 @@ namespace Hypercube_Classic.Map {
                 return;
             }
 
-            var MapBlock = GetBlock(X, Y, Z);
+            var MapBlock = GetBlock(X, Y, Z, "ClientChangeBlock");
 
             if (Mode == 0)
                 NewBlock = ServerCore.Blockholder.GetBlock(0);
@@ -640,9 +671,9 @@ namespace Hypercube_Classic.Map {
             if (Physics) {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
-                        for (short iz = -1; iz < 2; iz++) {
-                            if ((0 > X + ix || Map.SizeX <= X + ix) || (0 > Z + iz || Map.SizeY <= Z + iz) || (0 > Y + iy || Map.SizeZ <= Y + iy)) {
-                                var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
+                        for (short iz = -1; iz < 2; iz++) { // -- Out of bounds check here isn't working.
+                            if ((0 > (X + ix) || Map.SizeX - 1 <= (X + ix)) || (0 > (Z + iz) || Map.SizeY - 1 <= (Z + iz)) || (0 > (Y + iy) || Map.SizeZ - 1 <= (Y + iy))) {
+                                var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz), "BlockChangePhysics");
 
                                 if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
                                     if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator()))
@@ -659,11 +690,11 @@ namespace Hypercube_Classic.Map {
         }
 
         public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
-            if ((0 > X || Map.SizeX <= X) || (0 > Z || Map.SizeY <= Z) || (0 > Y || Map.SizeZ <= Y) || (0 > X2 || Map.SizeX <= X2) || (0 > Z2 || Map.SizeY <= Z2) || (0 > Y2 || Map.SizeZ <= Y2))
+            if ((0 > X || Map.SizeX - 1 <= X) || (0 > Z || Map.SizeY - 1 <= Z) || (0 > Y || Map.SizeZ - 1 <= Y) || (0 > X2 || Map.SizeX - 1 <= X2) || (0 > Z2 || Map.SizeY - 1 <= Z2) || (0 > Y2 || Map.SizeZ - 1 <= Y2))
                 return;
 
-            var Block1 = GetBlock(X, Y, Z);
-            var Block2 = GetBlock(X2, Y2, Z2);
+            var Block1 = GetBlock(X, Y, Z, "MoveBlock1");
+            var Block2 = GetBlock(X2, Y2, Z2, "MoveBlock2");
 
             SetBlockID(X, Y, Z, 0, -1);
             SetBlockID(X2, Y2, Z2, (byte)(Block1.ID - 1), -1); //TODO: Get client.
@@ -682,16 +713,20 @@ namespace Hypercube_Classic.Map {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
-                            var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
-                            var BlockQueue2 = GetBlock((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz));
+                            if ((0 > (X + ix) || Map.SizeX - 1 <= (X + ix)) || (0 > (Z + iz) || Map.SizeY - 1 <= (Z + iz)) || (0 > (Y + iy) || Map.SizeZ - 1 <= (Y + iy))) {
+                                if ((0 > (X2 + ix) || Map.SizeX - 1 <= (X2 + ix)) || (0 > (Z2 + iz) || Map.SizeY - 1 <= (Z2 + iz)) || (0 > (Y2 + iy) || Map.SizeZ - 1 <= (Y2 + iy))) {
+                                var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz), "MoveBlockPhysics1");
+                                var BlockQueue2 = GetBlock((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), "MoveBlockPhysics2");
 
-                            if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250), new QueueComparator())) 
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1));
-                            }
-                            if (BlockQueue2.Physics > 0 || (BlockQueue2.PhysicsPlugin != "" && BlockQueue2.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator()))
-                                    PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250));
+                                if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
+                                    if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250), new QueueComparator()))
+                                        PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1));
+                                }
+                                if (BlockQueue2.Physics > 0 || (BlockQueue2.PhysicsPlugin != "" && BlockQueue2.PhysicsPlugin != null)) {
+                                    if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator()))
+                                        PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250));
+                                }
+                                }
                             }
                         }
                     }
@@ -708,7 +743,7 @@ namespace Hypercube_Classic.Map {
                     while (BlockchangeQueue.Count > 0 && (Changes <= ServerCore.MaxBlockChanges)) {
                         for (int i = 0; i < BlockchangeQueue.Count; i++) {
                             if (BlockchangeQueue[i].Priority == 0) {
-                                SendBlockToClients(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlock(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z));
+                                SendBlockToClients(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlock(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, "BlockChanger"));
                                 Changes += 1;
 
                                 if (Changes == ServerCore.MaxBlockChanges) {
@@ -725,8 +760,6 @@ namespace Hypercube_Classic.Map {
                 Thread.Sleep(100);
             }
         }
-
-
 
         public void SendBlockToClient(short X, short Y, short Z, Block Type, NetworkClient c) {
             var BlockchangePacket = new Packets.SetBlockServer();
@@ -765,7 +798,7 @@ namespace Hypercube_Classic.Map {
                 if (HCSettings.Building) {
                     while (PhysicsQueue.Count > 0) {
                         for (int i = 0; i < PhysicsQueue.Count; i++) {
-                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
+                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z, "PhysicsQueue");
                             short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
                             PhysicsQueue.RemoveAt(i);
 

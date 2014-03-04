@@ -299,6 +299,11 @@ namespace Hypercube_Classic.Command {
         public string UseRanks { get { return "1,2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0) {
+                Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp map.");
+                return;
+            }
+
             foreach (HypercubeMap m in Core.Maps) {
                 if (m.Map.MapName.ToLower() == args[0].ToLower()) {
                     if (RankContainer.RankListContains(m.JoinRanks, Client.CS.PlayerRanks)) {
@@ -425,25 +430,35 @@ namespace Hypercube_Classic.Command {
         public string UseRanks { get { return "2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            Client.CS.CurrentMap.BlockchangeQueue.Clear();
+
             foreach (NetworkClient c in Client.CS.CurrentMap.Clients) {
                 Client.CS.CurrentMap.SendMap(c);
                 Client.CS.CurrentMap.SendAllEntities(c);
             }
         }
     }
+
     public struct MapResizeCommand : Command {
-        public string Command { get { return "/mapresend"; } }
+        public string Command { get { return "/mapresize"; } }
         public string Plugin { get { return ""; } }
         public string Group { get { return "Map"; } }
-        public string Help { get { return "&eResends the map you are in."; } }
+        public string Help { get { return "&eResizes the map you are in.<br>&eUsage: /mapresize [X] [Y] [Z]<br>&cDont make smaller maps than 16x16x16, the client can crash!"; } }
 
         public string ShowRanks { get { return "2"; } }
         public string UseRanks { get { return "2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
-            
+            if (args.Length < 3) {
+                Chat.SendClientChat(Client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp mapresize.");
+                return;
+            }
+
+            Client.CS.CurrentMap.ResizeMap(short.Parse(args[0]), short.Parse(args[1]), short.Parse(args[2]));
+            Chat.SendClientChat(Client, "&eMap Resized.");
         }
     }
+
     public struct MapSaveCommand : Command {
         public string Command { get { return "/mapsave"; } }
         public string Plugin { get { return ""; } }
