@@ -20,6 +20,7 @@ namespace Hypercube_Classic.Client {
         public TcpClient BaseSocket;
         public NetworkStream BaseStream;
         public Thread DataRunner;
+        public Thread ClientTimeout;
         public ClientSettings CS;
         public Hypercube ServerCore;
         Dictionary<byte, Func<Packets.IPacket>> Packets;
@@ -40,9 +41,13 @@ namespace Hypercube_Classic.Client {
             CS.CPEExtensions = new Dictionary<string, int>();
             CS.SelectionCuboids = new List<byte>();
             CS.LoggedIn = false;
+            CS.LastActive = DateTime.UtcNow;
 
             DataRunner = new Thread(DataHandler);
             DataRunner.Start();
+
+            ClientTimeout = new Thread(Timeout);
+            ClientTimeout.Start();
         }
 
         /// <summary>
@@ -55,14 +60,14 @@ namespace Hypercube_Classic.Client {
             Handshake.ProtocolVersion = 7;
 
             if (CS.Op)
-                Handshake.Usertype = 64;
+                Handshake.Usertype = 100;
             else
                 Handshake.Usertype = 0;
 
             Handshake.Write(this);
         }
 
-        public void KickPlayer(string Reason) {
+        public void KickPlayer(string Reason, bool IncreaseCounter = false) {
             var Disconnect = new Disconnect();
             Disconnect.Reason = Reason;
             Disconnect.Write(this);
@@ -73,10 +78,12 @@ namespace Hypercube_Classic.Client {
             BaseStream.Close();
             BaseStream.Dispose();
 
-            var Values = new Dictionary<string, string>(); // -- Update the PlayerDB.
-            Values.Add("KickCounter", (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString());
-            Values.Add("KickMessage", Reason);
-            ServerCore.Database.Update("PlayerDB", Values, "Name='" + CS.LoginName + "'");
+            if (CS.LoggedIn && IncreaseCounter) {
+                var Values = new Dictionary<string, string>(); // -- Update the PlayerDB.
+                Values.Add("KickCounter", (ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString());
+                Values.Add("KickMessage", Reason);
+                ServerCore.Database.Update("PlayerDB", Values, "Name='" + CS.LoginName + "'");
+            }
 
             //ServerCore.nh.HandleDisconnect(this);
         }
@@ -218,6 +225,7 @@ namespace Hypercube_Classic.Client {
                         if (Packets.ContainsKey(PacketType) == false) // -- Kick player, unknown packet received.
                             KickPlayer("Invalid packet received: " + PacketType.ToString());
 
+                        CS.LastActive = DateTime.UtcNow;
                         var IncomingPacket = Packets[PacketType]();
                         IncomingPacket.Read(this);
                         IncomingPacket.Handle(this, ServerCore);
@@ -238,6 +246,18 @@ namespace Hypercube_Classic.Client {
                 BaseStream.Dispose();
 
                 ServerCore.nh.HandleDisconnect(this);
+            }
+        }
+
+        void Timeout() {
+            while (BaseSocket.Connected) {
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
+                    ServerCore.Logger._Log("Info", "Timeout", "Player " + CS.IP + " timed out.");
+                    KickPlayer("Timed out");
+                    return;
+                }
+
+                Thread.Sleep(1000);
             }
         }
     }

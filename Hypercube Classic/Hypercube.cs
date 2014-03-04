@@ -39,6 +39,7 @@ namespace Hypercube_Classic
         public NetworkHandler nh;
         public List<HypercubeMap> Maps;
         public SystemSettings SysSettings;
+        public SystemSettings RulesSettings;
         public Database Database;
         public RankContainer Rankholder;
         public BlockContainer Blockholder;
@@ -51,11 +52,12 @@ namespace Hypercube_Classic
 
         // -- System Settings
         public string ServerName, MOTD, WelcomeMessage, MapMain;
-        public bool RotateLogs, LogOutput, CompressHistory;
+        public bool RotateLogs, LogOutput, CompressHistory, LogArguments;
         public int MaxBlockChanges = 33000, MaxHistoryEntries = 10;
         public HypercubeMap MainMap;
         public Rank DefaultRank;
         public Heartbeat ClassicubeHeartbeat;
+        public List<string> Rules;
         // -- Non-Public stuff
         
         #endregion
@@ -90,8 +92,15 @@ namespace Hypercube_Classic
             SysSettings.Settings = new Dictionary<string, string>();
             SysSettings.LoadSettings = new SettingsReader.LoadSettings(ReadSystemSettings);
 
+            RulesSettings = new SystemSettings();
+            RulesSettings.Filename = "Rules.txt";
+            RulesSettings.Settings = new Dictionary<string, string>();
+            RulesSettings.LoadSettings = new SettingsReader.LoadSettings(ReadRules);
+
+            Settings.ReadSettings(RulesSettings);
             Settings.ReadSettings(SysSettings);
             Settings.SettingsFiles.Add(SysSettings);
+            Settings.SettingsFiles.Add(RulesSettings);
 
             if (RotateLogs)
                 Logger.RotateLogs();
@@ -205,7 +214,7 @@ namespace Hypercube_Classic
 
             nh = new NetworkHandler(this);
             nh.Clients = new List<Client.NetworkClient>();
-
+            
         }
 
         /// <summary>
@@ -221,6 +230,7 @@ namespace Hypercube_Classic
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
             CompressHistory = bool.Parse(Settings.ReadSetting(SysSettings, "CompressHistory", "true"));
+            LogArguments = bool.Parse(Settings.ReadSetting(SysSettings, "LogArguments", "false"));
 
             MaxBlockChanges = int.Parse(Settings.ReadSetting(SysSettings, "MaxBlocksSecond", "33000"));
             MaxHistoryEntries = int.Parse(Settings.ReadSetting(SysSettings, "MaxHistoryEntries", "10"));
@@ -229,6 +239,30 @@ namespace Hypercube_Classic
 
             if (Running)
                 Logger._Log("Info", "Core", "System settings loaded.");
+        }
+
+        /// <summary>
+        /// Loads server rules from rules.txt
+        /// </summary>
+        public void ReadRules() {
+            if (Rules == null)
+                Rules = new List<string>();
+
+            if (!File.Exists("Settings/Rules.txt")) {
+                Rules.Add("&cYou do not have any rules defined. Please edit Rules.txt");
+                Rules.Add("&cto add your own rules here.");
+                File.WriteAllText("Settings/Rules.txt", "&cYou do not have any rules defined. Please edit Rules.txt\n&cto add your own rules here.");
+                return;
+            }
+
+            Rules.Clear();
+
+            using (var SR = new StreamReader("Settings/Rules.txt")) {
+                while (!SR.EndOfStream)
+                    Rules.Add(SR.ReadLine());
+            }
+
+            Logger._Log("Info", "Rules", "Rules loaded.");
         }
 
         /// <summary>

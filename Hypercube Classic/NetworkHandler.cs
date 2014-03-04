@@ -125,6 +125,12 @@ namespace Hypercube_Classic {
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
 
+            try {
+                Disconnecting.BaseSocket.Close();
+                Disconnecting.DataRunner.Abort();
+            } catch {
+
+            }
             
         }
 

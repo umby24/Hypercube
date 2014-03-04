@@ -31,6 +31,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/cmdhelp", new CommandHelp());
             CommandDict.Add("/delrank", new DelRankCommand());
             CommandDict.Add("/getrank", new GetRankCommand());
+            CommandDict.Add("/global", new GlobalCommand());
             CommandDict.Add("/kick", new KickCommand());
             CommandDict.Add("/map", new MapCommand());
             CommandDict.Add("/maps", new MapsCommand());
@@ -46,6 +47,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/players", new PlayersCommand());
             CommandDict.Add("/pushrank", new PushRankCommand());
             CommandDict.Add("/ranks", new RanksCommand());
+            CommandDict.Add("/rules", new RulesCommand());
             CommandDict.Add("/setrank", new SetrankCommand());
             CommandDict.Add("/stop", new StopCommand());
             CommandDict.Add("/unban", new UnbanCommand());
@@ -64,7 +66,10 @@ namespace Hypercube_Classic.Command {
             var text = Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1));
             var text2 = text.Substring(text.IndexOf(" ") + 1, text.Length - (text.IndexOf(" ") + 1));
 
-            Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command);
+            if (!Core.LogArguments)
+                Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command);
+            else
+                Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"",splits) + "\" }");
 
             if (!CommandDict.ContainsKey(command.ToLower())) 
                 Chat.SendClientChat(Client, "&4Error:&f Command '" + command + "' not found.");

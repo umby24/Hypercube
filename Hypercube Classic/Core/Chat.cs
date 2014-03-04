@@ -97,6 +97,7 @@ namespace Hypercube_Classic.Core {
 
             Message = Message.Replace("§", "%");
             Message = Message.Replace("<br>", ""); // -- Don't allow clients to create newlines :).
+            Message = Message.Replace("^detail.user=", ""); // -- Filter out WoM Messages from clients.
 
             Message = Text.CleanseString(Message);
             //TODO: Emote_Replace
@@ -196,12 +197,12 @@ namespace Hypercube_Classic.Core {
                         int thisIndex = Builder[i].Substring(0, 64).LastIndexOf(' '); // -- Split by words.
 
                         if (thisIndex == -1 || thisIndex > 59) // -- Just incase it's one spaceless string.
-                            thisIndex = 60;
+                            thisIndex = 59;
 
                         temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 
                         // -- Finally, Remove this part of the string from the original Builder[i], and add our newline seperators.
-                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex + 1, Builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
+                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex, Builder[i].Length - (thisIndex)); // -- It will now loop again for any subsequent breaks.
                     } else {
                         // -- Since Builder[i] is not (or is no longer) greater than 64 characters long, we can simply remove the whole thing :)
                         temp += Builder[i];
