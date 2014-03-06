@@ -161,7 +161,8 @@ namespace Hypercube_Classic.Map {
             Clients = new List<NetworkClient>();
             Entities = new List<Entity>();
 
-            ThisHistory = new MapHistory(this);
+            if (HCSettings.History)
+                ThisHistory = new MapHistory(this);
         }
 
         /// <summary>
@@ -431,8 +432,8 @@ namespace Hypercube_Classic.Map {
         /// <param name="ClientID"></param>
         public void SetBlockID(short x, short z, short y, byte Type, int ClientID) {
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
-
-            if (ClientID != -1)
+            
+            if (ClientID != -1 && HCSettings.History)
                 ThisHistory.AddEntry(x, y, z, (ushort)ClientID, 0, Type, Map.BlockData[index]);
 
             Map.BlockData[index] = Type;

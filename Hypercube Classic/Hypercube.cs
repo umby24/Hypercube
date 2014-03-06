@@ -53,13 +53,14 @@ namespace Hypercube_Classic
         // -- System Settings
         public string ServerName, MOTD, WelcomeMessage, MapMain;
         public bool RotateLogs, LogOutput, CompressHistory, LogArguments;
-        public int MaxBlockChanges = 33000, MaxHistoryEntries = 10;
+        public int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
         public HypercubeMap MainMap;
         public Rank DefaultRank;
         public Heartbeat ClassicubeHeartbeat;
         public List<string> Rules;
+
         // -- Non-Public stuff
-        
+        Thread LuaThread;
         #endregion
 
         /// <summary>
@@ -116,9 +117,13 @@ namespace Hypercube_Classic
                 Logger._Log("debug", "Lua", e.Message);
             }
 
+            LuaHandler.LoadLuaScripts(); // -- Load all lua scripts
+            LuaThread = new Thread(LuaHandler.LuaMain); // -- Start a thread that watches for changes in each lua script.
+            LuaHandler.RegisterFunctions();
+
             Blockholder = new BlockContainer(this);
             Blockholder.LoadBlocks();
-
+            #region Blocks
             if (Blockholder.Blocks.Count < 65) {
                 Blockholder.AddBlock("Air", 0, "1,2", "1,2", 0, "", false, -1, 0, 0, false, -1);
                 Blockholder.AddBlock("Stone", 1, "1,2", "1,2", 0, "", false, 6645093, 0, 1, false, -1);
@@ -189,7 +194,7 @@ namespace Hypercube_Classic
                 Blockholder.AddBlock("Crate", 64, "1,2", "1,2", 0, "", false, 4220797, 1, 5, false, -1);
                 Blockholder.AddBlock("Stone Brick", 65, "1,2", "1,2", 0, "", false, 12632256, 1, 1, false, -1);
             }
-
+            #endregion
             // -- Load the maps.
             Maps = new List<HypercubeMap>();
             MapWatcher.Watch(this);
@@ -270,6 +275,7 @@ namespace Hypercube_Classic
         /// </summary>
         public void Start() {
             nh.Start();
+            LuaThread.Start();
 
             // -- Start stuff!
             ClassicubeHeartbeat = new Heartbeat(this);
@@ -299,6 +305,7 @@ namespace Hypercube_Classic
         /// </summary>
         public void Stop() {
             nh.Stop();
+            LuaThread.Abort();
 
             // -- Shutdown things we started.
             ClassicubeHeartbeat.Shutdown();

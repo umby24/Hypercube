@@ -5,8 +5,19 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using NLua;
+using NLua.Exceptions;
+
+using Hypercube_Classic.Core;
 
 namespace Hypercube_Classic.Libraries {
+    public struct LuaEvent {
+        string ID;
+        string Function;
+        string Type;
+        string Map;
+        int Time;
+    }
+
     /// <summary>
     /// The NLua Wrapper used for error checking and loading lua scripts.
     /// </summary>
@@ -18,6 +29,38 @@ namespace Hypercube_Classic.Libraries {
         public LuaWrapper(Hypercube systemCore) {
             LuaHandler = new Lua();
             ServerCore = systemCore;
+        }
+
+        /// <summary>
+        /// Exposes server functions to Lua.
+        /// </summary>
+        public void RegisterFunctions() {
+            var luaChat = new Chat();
+
+            // -- Functions
+            LuaHandler.RegisterFunction("Log", ServerCore.Logger, ServerCore.Logger.GetType().GetMethod("_Log"));
+            // -- Command creation functions
+            LuaHandler.RegisterFunction("RegCmd", ServerCore.Commandholder, ServerCore.Commandholder.GetType().GetMethod("AddCommand"));
+            LuaHandler.RegisterFunction("GetCmdAlias", ServerCore.Commandholder, ServerCore.Commandholder.GetType().GetMethod("GetAlias"));
+            // -- Database functions
+            LuaHandler.RegisterFunction("DBPlayerExists", ServerCore.Database, ServerCore.Database.GetType().GetMethod("ContainsPlayer"));
+            LuaHandler.RegisterFunction("DBGetPlayerName", ServerCore.Database, ServerCore.Database.GetType().GetMethod("GetPlayerName"));
+            LuaHandler.RegisterFunction("DBBanPlayer", ServerCore.Database, ServerCore.Database.GetType().GetMethod("BanPlayer"));
+            LuaHandler.RegisterFunction("DBUnbanPlayer", ServerCore.Database, ServerCore.Database.GetType().GetMethod("UnbanPlayer"));
+            LuaHandler.RegisterFunction("DBStopPlayer", ServerCore.Database, ServerCore.Database.GetType().GetMethod("StopPlayer"));
+            LuaHandler.RegisterFunction("DBUnstopPlayer", ServerCore.Database, ServerCore.Database.GetType().GetMethod("UnstopPlayer"));
+            LuaHandler.RegisterFunction("GetDBInt", ServerCore.Database, ServerCore.Database.GetType().GetMethod("GetDatabaseInt"));
+            LuaHandler.RegisterFunction("GetDBString", ServerCore.Database, ServerCore.Database.GetType().GetMethod("GetDatabaseString"));
+            //LuaHandler.RegisterFunction("SetDatabase", ServerCore.Database, ServerCore.Database.GetType().GetMethod("SetDatabase"));
+            LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
+            LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
+
+            // -- Variables
+            LuaHandler["G_ServerName"] = ServerCore.ServerName;
+            LuaHandler["G_MOTD"] = ServerCore.MOTD;
+            LuaHandler["G_Welcome"] = ServerCore.WelcomeMessage;
+            LuaHandler["G_MainMap"] = ServerCore.MapMain;
+            LuaHandler["G_Core"] = ServerCore;
         }
 
         /// <summary>
@@ -33,7 +76,12 @@ namespace Hypercube_Classic.Libraries {
 
             foreach (string file in files) {
                 Scripts.Add(file, File.GetLastWriteTime(file));
-                LuaHandler.DoFile(file);
+                
+                try {
+                    LuaHandler.DoFile(file);
+                } catch (LuaScriptException e) {
+                    ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                }
             }
 
             ServerCore.Logger._Log("INFO", "Lua", "Lua scripts loaded.");
@@ -62,11 +110,29 @@ namespace Hypercube_Classic.Libraries {
                 string[] files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
                 foreach (string file in files) {
-                    if (File.GetLastWriteTime(file) != Scripts[file]) {
-                        LuaHandler.DoFile(file);
+                    if (!Scripts.ContainsKey(file)) { // -- New file, add it and load it.
+                        Scripts.Add(file, File.GetLastWriteTime(file));
+
+                        try {
+                            LuaHandler.DoFile(file);
+                        } catch (LuaScriptException e) {
+                            ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                        }
+
+                        continue;
+                    }
+
+                    if (File.GetLastWriteTime(file) != Scripts[file]) { 
+                        try {
+                            LuaHandler.DoFile(file);
+                        } catch (LuaScriptException e) {
+                            ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                        }
+
                         Scripts[file] = File.GetLastWriteTime(file);
                     }
                 }
+
                 Thread.Sleep(1000);
             }
         }

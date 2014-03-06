@@ -243,6 +243,9 @@ namespace Hypercube_Classic.Map {
         /// <param name="z">Z Location of block</param>
         /// <returns>Array of History Entries.</returns>
         public HistoryEntry[] Lookup(short x, short y, short z) {
+            if (!ThisMap.HCSettings.History)
+                return null;
+
             int IndexTableSize = (ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4;
             var Result = new HistoryEntry[ThisMap.ServerCore.MaxHistoryEntries];
 

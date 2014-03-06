@@ -51,7 +51,7 @@ namespace Hypercube_Classic.Core {
             Message = Text.CleanseString(Message);
 
             if (Log)
-                Core.Logger._Log("Chat", "Global", Message);
+                Core.Logger._Log("Chat", Map.Map.MapName, Message);
 
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
@@ -196,8 +196,8 @@ namespace Hypercube_Classic.Core {
                     if (Builder[i].Length > 64) {
                         int thisIndex = Builder[i].Substring(0, 64).LastIndexOf(' '); // -- Split by words.
 
-                        if (thisIndex == -1 || thisIndex > 59) // -- Just incase it's one spaceless string.
-                            thisIndex = 59;
+                        if (thisIndex == -1 || thisIndex > 60) // -- Just incase it's one spaceless string.
+                            thisIndex = 60;
 
                         temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 

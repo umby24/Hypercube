@@ -74,6 +74,11 @@ namespace Hypercube_Classic.Client {
             
         }
 
+        /// <summary>
+        /// Returns the Case-correct version of a player's name.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
         public string GetPlayerName(string Name) {
             var dt = GetDataTable("SELECT * FROM PlayerDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
 

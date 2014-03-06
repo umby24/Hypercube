@@ -16,6 +16,7 @@ namespace Hypercube_Classic.Client {
         public short NameID;
         public List<Rank> PlayerRanks;
         public List<int> RankSteps;
+        public List<Undo> UndoSteps;
         public int ID, MuteTime;
         public Entity MyEntity;
         public HypercubeMap CurrentMap;
