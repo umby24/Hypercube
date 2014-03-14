@@ -121,6 +121,7 @@
     <Compile Include="Libraries\Logging.cs" />
     <Compile Include="Libraries\LuaFunctions.cs" />
     <Compile Include="Libraries\LuaWrapper.cs" />
+    <Compile Include="Libraries\PBSettingsLoader.cs" />
     <Compile Include="Libraries\SettingsReader.cs" />
     <Compile Include="Libraries\Text.cs" />
     <Compile Include="Map\D3 Map.cs" />

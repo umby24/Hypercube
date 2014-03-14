@@ -5,5 +5,6 @@ using System.Text;
 
 namespace Hypercube_Classic.Core {
     class BuildMode {
+
     }
 }
