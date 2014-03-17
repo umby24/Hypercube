@@ -251,7 +251,11 @@ namespace Hypercube_Classic.Client {
 
         void Timeout() {
             while (BaseSocket.Connected) {
+#if DEBUG_MODE
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
+#else
                 if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
+#endif
                     ServerCore.Logger._Log("Info", "Timeout", "Player " + CS.IP + " timed out.");
                     KickPlayer("Timed out");
                     return;

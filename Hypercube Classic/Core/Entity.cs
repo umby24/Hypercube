@@ -12,7 +12,9 @@ namespace Hypercube_Classic.Core {
         public bool SendOwn, Changed;
         public short X, Y, Z;
         public int ID, BuildState;
-        public string Name, Model, BuildMode;
+        public string Name, Model;
+        public BMStruct BuildMode;
+        public BuildState ClientState;
         public Dictionary<string, string> BuildVariables = new Dictionary<string, string>();
         public NetworkClient MyClient;
         public HypercubeMap Map;
@@ -30,6 +32,10 @@ namespace Hypercube_Classic.Core {
             ID = Core.EFree;
             BuildMaterial = Core.Blockholder.GetBlock("");
             Lastmaterial = Core.Blockholder.GetBlock(1);
+            ClientState = new Hypercube_Classic.Core.BuildState();
+
+            BuildMode = new BMStruct(); // -- Set a default build mode.
+            BuildMode.Name = "";
 
             if (Core.EFree != Core.ENext)
                 Core.EFree = Core.ENext;
@@ -51,6 +57,27 @@ namespace Hypercube_Classic.Core {
             }
         }
 
+        /// <summary>
+        /// Sets the Entity's build mode.
+        /// </summary>
+        /// <param name="Mode"></param>
+        public void SetBuildMode(string Mode) {
+            var TestBM = new BMStruct();
+            TestBM.Name = Mode;
+
+            if (MyClient.ServerCore.BMContainer.Modes.Contains(TestBM, new BMCompareator())) {
+                foreach (BMStruct s in MyClient.ServerCore.BMContainer.Modes) {
+                    if (s.Name.ToLower() == Mode.ToLower()) 
+                        BuildMode = s;
+                }
+            } else {
+                BuildMode = new BMStruct();
+                BuildMode.Name = "";
+            }
+
+            ClientState.ResendBlocks(MyClient);
+        }
+
         public void HandleBuildmode(short _X, short _Y, short _Z, byte Mode, byte Type) {
             var MyBlock = MyClient.ServerCore.Blockholder.GetBlock((int)Type);
 
@@ -59,8 +86,18 @@ namespace Hypercube_Classic.Core {
 
             Lastmaterial = MyBlock;
 
-            if (BuildMode != null && BuildMode != "") {
+            if (BuildMode.Name != "") {
                 //TODO: Add buildmodes all proper like..
+                ClientState.AddBlock(_X, _Y, _Z);
+
+                if (MyClient.ServerCore.BMContainer.Modes.Contains(BuildMode)) {
+                    if (BuildMode.Plugin.StartsWith("Lua:"))
+                        MyClient.ServerCore.LuaHandler.RunLuaFunction(BuildMode.Plugin.Replace("Lua:", ""), MyClient, MyClient.CS.CurrentMap, _X, _Y, _Z, Mode, Type);
+                } else {
+                    Chat.SendClientChat(MyClient, "&4Error:&f Build mode '" + BuildMode.Name + "' not found.");
+                    BuildMode = new BMStruct();
+                    BuildMode.Name = "";
+                }
             } else {
                 if (!MyClient.CS.Stopped)
                     Map.ClientChangeBlock(MyClient, _X, _Y, _Z, Mode, MyBlock);

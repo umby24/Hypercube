@@ -44,6 +44,7 @@ namespace Hypercube_Classic
         public RankContainer Rankholder;
         public BlockContainer Blockholder;
         public Commands Commandholder;
+        public BuildMode BMContainer;
         public bool Running = false;
         public int OnlinePlayers = 0;
 
@@ -67,10 +68,13 @@ namespace Hypercube_Classic
         /// Initiates a new Hypercube server.
         /// </summary>
         public Hypercube() {
+
             // -- Initiate logging
+
             Logger = new Logging("Log", false, false); // -- Initially, we will not log anything. This will be left up to user option.
 
             // -- Load settings
+
             if (!Directory.Exists("Settings"))
                 Directory.CreateDirectory("Settings");
 
@@ -85,6 +89,8 @@ namespace Hypercube_Classic
             }
 
             Logger._Log("Info", "Core", "Database Initilized.");
+
+            // -- Load and initiate basic server settings and rules.
 
             Settings = new SettingsReader(this);
 
@@ -107,9 +113,11 @@ namespace Hypercube_Classic
                 Logger.RotateLogs();
 
             // -- Initiate Commands
+
             Commandholder = new Commands(this);
 
             // -- Initiate Lua
+
             try {
                 LuaHandler = new LuaWrapper(this);
             } catch (Exception e) {
@@ -119,10 +127,11 @@ namespace Hypercube_Classic
 
             LuaHandler.LoadLuaScripts(); // -- Load all lua scripts
             LuaThread = new Thread(LuaHandler.LuaMain); // -- Start a thread that watches for changes in each lua script.
-            LuaHandler.RegisterFunctions();
+            LuaHandler.RegisterFunctions(); // -- Exposes server functions to lua scripts.
 
             Blockholder = new BlockContainer(this);
             Blockholder.LoadBlocks();
+
             #region Blocks
             if (Blockholder.Blocks.Count < 65) {
                 Blockholder.AddBlock("Air", 0, "1,2", "1,2", 0, "", false, -1, 0, 0, false, -1);
@@ -195,6 +204,7 @@ namespace Hypercube_Classic
                 Blockholder.AddBlock("Stone Brick", 65, "1,2", "1,2", 0, "", false, 12632256, 1, 1, false, -1);
             }
             #endregion
+
             // -- Load the maps.
             Maps = new List<HypercubeMap>();
             MapWatcher.Watch(this);
@@ -220,6 +230,9 @@ namespace Hypercube_Classic
             nh = new NetworkHandler(this);
             nh.Clients = new List<Client.NetworkClient>();
             
+            // -- Initiate BuildModes
+
+            BMContainer = new BuildMode(this);
         }
 
         /// <summary>
@@ -284,16 +297,16 @@ namespace Hypercube_Classic
 
             // -- Start the map entity senders..
             foreach (HypercubeMap m in Maps) {
-                m.ClientThread = new Thread(m.MapMain);
+                m.ClientThread = new Thread(m.MapMain); // -- Memory conservation thread
                 m.ClientThread.Start();
 
-                m.EntityThread = new Thread(m.MapEntities);
+                m.EntityThread = new Thread(m.MapEntities); // -- Entity movement thread
                 m.EntityThread.Start();
 
-                m.BlockChangeThread = new Thread(m.Blockchanger);
+                m.BlockChangeThread = new Thread(m.Blockchanger); // -- Block change thread
                 m.BlockChangeThread.Start();
 
-                m.PhysicsThread = new Thread(m.PhysicCompleter);
+                m.PhysicsThread = new Thread(m.PhysicCompleter); // -- Block physics thread
                 m.PhysicsThread.Start();
             }
 

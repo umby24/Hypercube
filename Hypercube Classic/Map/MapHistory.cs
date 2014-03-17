@@ -316,6 +316,22 @@ namespace Hypercube_Classic.Map {
             return Result;
         }
 
+        public string LookupString(short x, short y, short z) {
+            var Entries = Lookup(x, y, z);
+
+            if (Entries == null || Entries.Length == 0)
+                return "No Entries";
+            else {
+                string result = "";
+
+                foreach (HistoryEntry e in Entries) {
+                    //TODO: Make format customizable.
+                    result += "&e" + e.Player + " changed " + e.LastBlock + " to " + e.NewBlock + ".<br>";
+                }
+
+                return result;
+            }
+        }
         /// <summary>
         /// Creates an entry into the History System. Will not be saved until SaveEntries() is called.
         /// </summary>

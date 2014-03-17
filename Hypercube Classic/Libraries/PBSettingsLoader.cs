@@ -16,6 +16,7 @@ namespace Hypercube_Classic.Libraries {
 
             Filename = SettingsFile;
             DasSettings = new Dictionary<string, Dictionary<string, string>>();
+            PreLoad();
         }
 
         void PreLoad() {
@@ -56,7 +57,17 @@ namespace Hypercube_Classic.Libraries {
         /// <param name="Key">The key of the setting</param>
         /// <param name="def">The default value to return if this setting cannot be found.</param>
         public string ReadSetting(string Key, string def) {
-            return def;
+            if (!DasSettings[CurrentGroup].ContainsKey(Key))
+                return def;
+            else
+                return DasSettings[CurrentGroup][Key];
+        }
+
+        public int ReadSetting(string Key, int def) {
+            if (!DasSettings[CurrentGroup].ContainsKey(Key))
+                return def;
+            else
+                return int.Parse(DasSettings[CurrentGroup][Key]);
         }
 
         public void SaveSetting() {

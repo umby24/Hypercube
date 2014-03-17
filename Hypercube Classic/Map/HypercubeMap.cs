@@ -77,6 +77,12 @@ namespace Hypercube_Classic.Map {
         }
     }
 
+    public struct Vector3S {
+        public short X;
+        public short Y;
+        public short Z;
+    }
+
     public class QueueItem {
         public short X, Y, Z, Priority;
 
@@ -849,6 +855,39 @@ namespace Hypercube_Classic.Map {
 
         }
         void PhysicsFiniteWater() {
+
+        }
+        #endregion
+        #region Build Functions
+        public void BuildBox(NetworkClient Client, short X, short Y, short Z, short X2, short Y2, short Z2, Block Material, Block ReplaceMaterial, bool Hollow, short Priority, bool undo, bool physics) {
+            if (X > X2) {
+                var temp = X;
+                X = X2;
+                X2 = temp;
+            }
+            if (Y > Y2) {
+                var temp = Y;
+                Y = Y2;
+                Y2 = temp;
+            }
+            if (Z > Z2) {
+                var temp = Z;
+                Z = Z2;
+                Z2 = temp;
+            }
+
+            for (short ix = X; ix < X2; ix++) {
+                for (short iy = Y; iy < Y2; iy++) {
+                    for (short iz = Z; iz < Z2; iz++) {
+                        if (ReplaceMaterial.ID == 0 || ReplaceMaterial == GetBlock(ix, iy, iz)) {
+                            if (ix == X || ix == X2 || iy == Y || iy == Y2 || iz == Z || iz == Z2)
+                                BlockChange(Client.CS.ID, ix, iy, iz, Material, GetBlock(ix, iy, iz), undo, physics, true, Priority);
+                             else if (Hollow == false)
+                                BlockChange(Client.CS.ID, ix, iy, iz, Material, GetBlock(ix, iy, iz), undo, physics, true, Priority);
+                        }
+                    }
+                }
+            }
 
         }
         #endregion

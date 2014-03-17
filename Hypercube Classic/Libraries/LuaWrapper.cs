@@ -54,6 +54,7 @@ namespace Hypercube_Classic.Libraries {
             //LuaHandler.RegisterFunction("SetDatabase", ServerCore.Database, ServerCore.Database.GetType().GetMethod("SetDatabase"));
             LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
+            LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
 
             // -- Variables
             LuaHandler["G_ServerName"] = ServerCore.ServerName;
@@ -95,11 +96,14 @@ namespace Hypercube_Classic.Libraries {
         public void RunLuaFunction(string function, params object[] args) {
             LuaFunction LuaF = LuaHandler.GetFunction(function);
 
-            if (LuaF != null && args != null)
-                LuaF.Call(args);
-            else if (function != null)
-                LuaF.Call();
-
+            try {
+                if (LuaF != null && args != null)
+                    LuaF.Call(args);
+                else if (function != null)
+                    LuaF.Call();
+            } catch (LuaScriptException e) {
+                ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+            }
         }
 
         /// <summary>
