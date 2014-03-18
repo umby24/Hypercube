@@ -876,10 +876,10 @@ namespace Hypercube_Classic.Map {
                 Z2 = temp;
             }
 
-            for (short ix = X; ix < X2; ix++) {
-                for (short iy = Y; iy < Y2; iy++) {
-                    for (short iz = Z; iz < Z2; iz++) {
-                        if (ReplaceMaterial.ID == 0 || ReplaceMaterial == GetBlock(ix, iy, iz)) {
+            for (short ix = X; ix < X2 + 1; ix++) {
+                for (short iy = Y; iy < Y2 + 1; iy++) {
+                    for (short iz = Z; iz < Z2 + 1; iz++) {
+                        if (ReplaceMaterial.ID == 1 || ReplaceMaterial == GetBlock(ix, iy, iz)) {
                             if (ix == X || ix == X2 || iy == Y || iy == Y2 || iz == Z || iz == Z2)
                                 BlockChange(Client.CS.ID, ix, iy, iz, Material, GetBlock(ix, iy, iz), undo, physics, true, Priority);
                              else if (Hollow == false)

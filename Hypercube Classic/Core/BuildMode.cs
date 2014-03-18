@@ -67,6 +67,7 @@ namespace Hypercube_Classic.Core {
             ServerCore.Logger._Log("Info", "Buildmode", "Buildmodes loaded.");
         }
     }
+
     public class BuildState {
         public const int MaxResendSize = 1000;
         public List<string> SItems;
