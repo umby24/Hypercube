@@ -890,6 +890,76 @@ namespace Hypercube_Classic.Map {
             }
 
         }
+
+        public void BuildLine(NetworkClient Client, short X, short Y, short Z, short X2, short Y2, short Z2, Block Material, short Priority, bool undo, bool physics) {
+            var Dx = X2 - X;
+            var Dy = Y2 - Y;
+            var Dz = Z2 - Z;
+
+            int Blocks = 1;
+
+            if (Blocks < Math.Abs(Dx))
+                Blocks = Math.Abs(Dx);
+
+            if (Blocks < Math.Abs(Dy))
+                Blocks = Math.Abs(Dy);
+
+            if (Blocks < Math.Abs(Dz))
+                Blocks = Math.Abs(Dz);
+
+            float Mx = Dx / Blocks;
+            float My = Dy / Blocks;
+            float Mz = Dz / Blocks;
+
+            for (int i = 0; i < Blocks; i++)
+                BlockChange(Client.CS.ID, (short)(X + Mx * i), (short)(Y + My * i), (short)(Z + Mz * i), Material, GetBlock((short)(X + Mx * i), (short)(Y + My * i), (short)(Z + Mz * i)), undo, physics, true, Priority);
+        }
+
+        public void BuildSphere(NetworkClient Client, short X, short Y, short Z, float Radius, Block Material, Block ReplaceMaterial, bool Hollow, short Priority, bool Undo, bool Physics) {
+            int Rounded = (int)Math.Round(Radius, 1);
+            float Power = (float)Math.Pow((double)Radius, 2);
+
+            for (int ix = -Rounded; ix < Rounded; ix++) {
+                for (int iy = -Rounded; iy < Rounded; iy++) {
+                    for (int iz = -Rounded; iz < Rounded; iz++) {
+                        int SquareDistance = (int)(Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2));
+                        bool allowed = false;
+
+                        if (SquareDistance <= Power) {
+                            if (Hollow) {
+                                allowed = false;
+
+                                if (Math.Pow(ix + 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > Power)
+                                    allowed = true;
+
+                                if (Math.Pow(ix - 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > Power)
+                                    allowed = true;
+
+                                if (Math.Pow(ix, 2) + Math.Pow(iy + 1, 2) + Math.Pow(iz, 2) > Power)
+                                    allowed = true;
+
+                                if (Math.Pow(ix, 2) + Math.Pow(iy - 1, 2) + Math.Pow(iz, 2) > Power)
+                                    allowed = true;
+
+                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz + 1, 2) > Power)
+                                    allowed = true;
+
+                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz - 1, 2) > Power)
+                                    allowed = true;
+                            } else {
+                                allowed = true;
+                            }
+
+                            if (allowed) {
+                                if (ReplaceMaterial.ID == 1 || ReplaceMaterial == GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz)))
+                                    BlockChange(Client.CS.ID, (short)(X + ix), (short)(Y + iy), (short)(Z + iz), Material, GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz)), Undo, Physics, true, Priority);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
     }
 }
