@@ -43,11 +43,14 @@ namespace Hypercube_Classic.Libraries {
 
                             GS.Write(Buffer, 0, BytesRead);
                         }
+                        Buffer = null;
                     }
                 }
+
                 File.Delete(Filepath);
                 File.Move("Temp.gz", Filepath);
             } catch {
+                GC.Collect();
                 return;
             }
         }
@@ -70,11 +73,13 @@ namespace Hypercube_Classic.Libraries {
 
                             FS.Write(Buffer, 0, BytesRead);
                         }
+                        Buffer = null;
                     }
                 }
                 File.Delete(Filepath);
                 File.Move("Temp.hch", Filepath);
             } catch {
+                GC.Collect();
                 return;
             }
         }

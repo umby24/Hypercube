@@ -18,6 +18,7 @@ using Hypercube_Classic.Command;
 //TODO: Add physics time limitations.
 //TODO: Add physics on map load.
 //TODO: Add more commands
+//BUG: Changing rank doesn't change active color in chat or in player list.
 
 namespace Hypercube_Classic
 {

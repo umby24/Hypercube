@@ -32,12 +32,6 @@ namespace Hypercube_Classic.Core {
                     Chat.Write(Core.nh.Clients[i]);
                 }
             }
-                //foreach (NetworkClient c in Core.nh.Clients) {
-                //    foreach (string b in Sending) {
-                //        Chat.Text = b;
-                //        Chat.Write(c);
-                //    }
-                //}
 
         }
 
@@ -56,10 +50,10 @@ namespace Hypercube_Classic.Core {
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
 
-            foreach (NetworkClient c in Map.Clients) {
+            for (int i = 0; i < Map.Clients.Count; i++) {
                 foreach (string b in Sending) {
                     Chat.Text = b;
-                    Chat.Write(c);
+                    Chat.Write(Map.Clients[i]);
                 }
             }
         }
@@ -173,6 +167,7 @@ namespace Hypercube_Classic.Core {
 
             return Builder;
         }
+        
         /// <summary>
         /// Splits a long message into multiple lines as needed. Appends ">>" as needed. This will also pad messages if they are of incorrect length.
         /// </summary>
@@ -194,15 +189,15 @@ namespace Hypercube_Classic.Core {
 
                 while (Builder[i].Length > 0) { // -- Going to use temp here so we don't mess up our original string
                     if (Builder[i].Length > 64) {
-                        int thisIndex = Builder[i].Substring(0, 64).LastIndexOf(' '); // -- Split by words.
+                        int thisIndex = Builder[i].Substring(0, 60).LastIndexOf(' '); // -- Split by words.
 
-                        if (thisIndex == -1 || thisIndex > 60) // -- Just incase it's one spaceless string.
+                        if (thisIndex == -1) // -- Just incase it's one spaceless string.
                             thisIndex = 60;
 
                         temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 
                         // -- Finally, Remove this part of the string from the original Builder[i], and add our newline seperators.
-                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex, Builder[i].Length - (thisIndex)); // -- It will now loop again for any subsequent breaks.
+                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex + 1, Builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
                     } else {
                         // -- Since Builder[i] is not (or is no longer) greater than 64 characters long, we can simply remove the whole thing :)
                         temp += Builder[i];
@@ -221,8 +216,6 @@ namespace Hypercube_Classic.Core {
                     int index = Builder[z].IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
                     Builder[z] = temp.Substring(0, index).PadRight(64);
                     Builder.Insert(z + 1, temp.Substring(index + 4, temp.Length - (index + 4)));
-                    //Builder.Add(Builder[z].Substring(0, index).PadRight(64)); // -- Add to our string builder
-                    //Builder[z] = Builder[z].Substring(index + 4, Builder[z].Length - (index + 4)); // -- Remove from Builder[z] the string, and discard the <br>.
                 }
 
                 // -- If there's any leftovers that wern't split, we will need to go ahead and add that as well.

@@ -183,7 +183,9 @@ namespace Hypercube_Classic.Map {
             HCSettings = new HypercubeMetadata(); // -- Create our HC Specific settings
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
-            
+
+            HCSettings = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
+
             // -- Creates HC Metadata if it does not exist.
             if (HCSettings.BuildRanks == null) {
                 foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
@@ -202,6 +204,7 @@ namespace Hypercube_Classic.Map {
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
                 HCSettings.History = true;
+                ServerCore.Logger._Log("Debug", "Map", "Set map metadata");
             }
 
             LastClient = DateTime.UtcNow;
@@ -216,9 +219,8 @@ namespace Hypercube_Classic.Map {
                 myRef.CustomBlocksVersion = 1;
                 myRef.CustomBlocksFallback = new byte[256];
 
-                for (int i = 50; i < 66; i++) {
+                for (int i = 50; i < 66; i++) 
                     myRef.CustomBlocksFallback[i] = (byte)Core.Blockholder.GetBlock(i).CPEReplace;
-                }
 
                 Map.MetadataParsers["CPE"] = myRef;
             }
@@ -228,7 +230,7 @@ namespace Hypercube_Classic.Map {
                 Map.BlockData = null;
                 GC.Collect();
                 Loaded = false;
-                var testing = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
+                ServerCore.Logger._Log("Debug", "Map", "Unloaded map has been loaded.");
             }
 
             ThisHistory = new MapHistory(this);
@@ -317,12 +319,14 @@ namespace Hypercube_Classic.Map {
             HCSettings = new HypercubeMetadata(); // -- Create our HC Specific settings
             Map.MetadataParsers.Add("Hypercube", HCSettings); // -- Register it with the map loader
             Map.Load(); // -- Load the map
+            HCSettings = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
 
             ThisHistory.ReloadHistory();
 
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
+            ServerCore.Logger._Log("Debug", "Map", "Map " + Map.MapName + " loaded.");
         }
 
         /// <summary>
@@ -335,13 +339,15 @@ namespace Hypercube_Classic.Map {
                 Path += "u";
             }
 
+            HCSettings.Building = true;
+
             SaveMap();
             ThisHistory.UnloadHistory();
 
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
-            
+            ServerCore.Logger._Log("Debug", "Map", "Map " + Map.MapName + " unloaded.");
         }
 
         /// <summary>
@@ -386,15 +392,19 @@ namespace Hypercube_Classic.Map {
 
             foreach (Rank r in BuildRanks) 
                 HCSettings.BuildRanks += r.ID + ",";
+
             foreach (Rank r in JoinRanks)
                 HCSettings.JoinRanks += r.ID + ",";
+
             foreach (Rank r in ShowRanks)
                 HCSettings.ShowRanks += r.ID + ",";
 
             HCSettings.BuildRanks = HCSettings.BuildRanks.TrimEnd(',');
             HCSettings.ShowRanks = HCSettings.ShowRanks.TrimEnd(',');
             HCSettings.JoinRanks = HCSettings.JoinRanks.TrimEnd(',');
-
+            HCSettings.Building = true;
+            HCSettings.History = true;
+            HCSettings.Physics = true;
             Map.MetadataParsers["Hypercube"] = HCSettings;
 
             if (Filename != "")
@@ -452,8 +462,7 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void MapMain() {
             while (ServerCore.Running) {
-               
-                if ((DateTime.UtcNow - LastClient).TotalSeconds > 1 && Clients.Count == 0 && Loaded == true)
+                if ((DateTime.UtcNow - LastClient).TotalSeconds > 5 && Clients.Count == 0 && Loaded == true)
                     UnloadMap();
                 else if (Clients.Count > 0)
                     LastClient = DateTime.UtcNow;
@@ -758,9 +767,8 @@ namespace Hypercube_Classic.Map {
                                 SendBlockToClients(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlock(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z));
                                 Changes += 1;
 
-                                if (Changes == ServerCore.MaxBlockChanges) {
+                                if (Changes == ServerCore.MaxBlockChanges) 
                                     break;
-                                }
 
                                 BlockchangeQueue.RemoveAt(i);
                             } else {

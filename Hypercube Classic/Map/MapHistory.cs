@@ -92,6 +92,7 @@ namespace Hypercube_Classic.Map {
                     stream.Write(History, 0, History.Length);
 
                     History = null;
+                    GC.Collect();
                 }
 
                 if (Map.Loaded == false && Map.ServerCore.CompressHistory)
@@ -122,6 +123,7 @@ namespace Hypercube_Classic.Map {
         /// Uncompresses the history file, if it was previously compressed.
         /// </summary>
         public void ReloadHistory() {
+            ThisMap.ServerCore.Logger._Log("Debug", "MapHistory", "Reloaded history");
             if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == false)
                 GZip.DecompressFile(BaseName + ".hch");
         }
@@ -131,7 +133,7 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void UnloadHistory() {
             SaveEntries();
-
+            ThisMap.ServerCore.Logger._Log("Debug", "MapHistory", "Unloaded history");
             if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == true)
                 GZip.CompressFile(BaseName + ".hch");
         }
@@ -140,6 +142,7 @@ namespace Hypercube_Classic.Map {
         /// Saves all history entries in the Entries list to file.
         /// </summary>
         public void SaveEntries() {
+            ThisMap.ServerCore.Logger._Log("Debug", "MapHistory", "Saving Entries");
             int IndexTableSize = (ThisMap.Map.SizeX * ThisMap.Map.SizeY * ThisMap.Map.SizeZ) * 4;
 
             using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {

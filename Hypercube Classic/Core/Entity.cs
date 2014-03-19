@@ -92,7 +92,7 @@ namespace Hypercube_Classic.Core {
 
                 if (MyClient.ServerCore.BMContainer.Modes.Contains(BuildMode)) {
                     if (BuildMode.Plugin.StartsWith("Lua:"))
-                        MyClient.ServerCore.LuaHandler.RunLuaFunction(BuildMode.Plugin.Replace("Lua:", ""), MyClient, MyClient.CS.CurrentMap, _X, _Y, _Z, Mode, Type);
+                        MyClient.ServerCore.LuaHandler.RunLuaFunction(BuildMode.Plugin.Replace("Lua:", ""), MyClient, MyClient.CS.CurrentMap, _X, _Y, _Z, Mode, MyBlock);
                 } else {
                     Chat.SendClientChat(MyClient, "&4Error:&f Build mode '" + BuildMode.Name + "' not found.");
                     BuildMode = new BMStruct();
