@@ -30,7 +30,7 @@ namespace Hypercube_Classic.Client {
                 Command.CommandText = "CREATE TABLE RankDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Prefix TEXT, Suffix TEXT, Next TEXT, RGroup TEXT, Points INTEGER, Op INTEGER)";
                 Command.ExecuteNonQuery();
 
-                Command.CommandText = "CREATE TABLE BlockDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, OnClient INTEGER, PlaceRank STRING, DeleteRank STRING, Physics INTEGER, PhysicsPlugin TEXT, Kills INTEGER, Color INTEGER, CPELevel INTEGER, CPEReplace INTEGER, Special INTEGER, ReplaceOnLoad INTEGER)";
+                Command.CommandText = "CREATE TABLE BlockDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, OnClient INTEGER, PlaceRank STRING, DeleteRank STRING, Physics INTEGER, PhysicsDelay INTEGER, PhysicsRandom INTEGER, PhysicsPlugin TEXT, Kills INTEGER, Color INTEGER, CPELevel INTEGER, CPEReplace INTEGER, Special INTEGER, ReplaceOnLoad INTEGER)";
                 Command.ExecuteNonQuery();
 
                 Connection.Close(); // -- All done.
@@ -177,7 +177,7 @@ namespace Hypercube_Classic.Client {
         /// <param name="CPEReplace">The block this block should be replaced with should the client not support the required CustomBlocks level.</param>
         /// <param name="Special">if true, the block will appear in /materials. </param>
         /// <param name="ReplaceOnLoad">-1 for none. The block that this block will be replaced with upon a map load.</param>
-        public void CreateBlock(string Blockname, byte OnClient, string RanksPlace, string RanksDelete, int Physics, 
+        public void CreateBlock(string Blockname, byte OnClient, string RanksPlace, string RanksDelete, int Physics, int PhysicsDelay, int PhysicsRandom,
             string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {
 
                 var myValues = new Dictionary<string, string>();
@@ -186,6 +186,8 @@ namespace Hypercube_Classic.Client {
                 myValues.Add("PlaceRank", RanksPlace);
                 myValues.Add("DeleteRank", RanksDelete);
                 myValues.Add("Physics", Physics.ToString());
+                myValues.Add("PhysicsDelay", PhysicsDelay.ToString());
+                myValues.Add("PhysicsRandom", PhysicsRandom.ToString());
                 myValues.Add("PhysicsPlugin", PhysicsPlugin);
                 myValues.Add("Kills", Kills.ToString());
                 myValues.Add("Color", Color.ToString());

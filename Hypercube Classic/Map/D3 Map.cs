@@ -170,34 +170,6 @@ namespace Hypercube_Classic.Map {
         }
 
         /// <summary>
-        /// Un-GZips the given file.
-        /// </summary>
-        /// <param name="filename"></param>
-        public void unzip(string filename) {
-            // -- UnGZips our file, and loads it to memory.
-            Stream mystream;
-            FileStream infile = new FileStream(filename, FileMode.Open);
-
-            mystream = new GZipStream(infile, CompressionMode.Decompress);
-
-            MemoryStream output = new MemoryStream();
-
-            byte[] buffer = new byte[1024];
-            while (true) {
-                int readbytes = mystream.Read(buffer, 0, 1024);
-
-                if (readbytes == 0)
-                    break;
-
-                output.Write(buffer, 0, readbytes);
-            }
-            mystream.Close();
-            mapData = output.ToArray();
-            output.Close();
-
-        }
-
-        /// <summary>
         /// Gets a block from the D3 Data array.
         /// </summary>
         /// <param name="x"></param>
@@ -212,5 +184,6 @@ namespace Hypercube_Classic.Map {
                 return 1;
             }
         }
+
     }
 }

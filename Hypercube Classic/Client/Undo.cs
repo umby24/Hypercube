@@ -6,9 +6,9 @@ using Hypercube_Classic.Core;
 
 namespace Hypercube_Classic.Client {
     public struct Undo {
-        short x;
-        short y;
-        short z;
-        Block OldBlock;
+        public short x;
+        public short y;
+        public short z;
+        public Block OldBlock;
     }
 }

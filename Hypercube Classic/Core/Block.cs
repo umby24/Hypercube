@@ -98,6 +98,8 @@ namespace Hypercube_Classic.Core {
                 newBlock.RanksPlace = RankContainer.SplitRanks(ServerCore, (string)c["PlaceRank"]);
                 newBlock.RanksDelete = RankContainer.SplitRanks(ServerCore, (string)c["DeleteRank"]);
                 newBlock.Physics = Convert.ToInt32(c["Physics"]);
+                newBlock.PhysicsDelay = Convert.ToInt32(c["PhysicsDelay"]);
+                newBlock.PhysicsRandom = Convert.ToInt32(c["PhysicsRandom"]);
                 newBlock.PhysicsPlugin = (string)c["PhysicsPlugin"];
                 newBlock.Kills = ((long)c["Kills"] > 0);
                 newBlock.Color = Convert.ToInt32(c["Color"]);
@@ -120,6 +122,8 @@ namespace Hypercube_Classic.Core {
             MyValues.Add("PlaceRank", string.Join(",", BlockToUpdate.RanksPlace));
             MyValues.Add("DeleteRank", string.Join(",", BlockToUpdate.RanksDelete));
             MyValues.Add("Physics", BlockToUpdate.Physics.ToString());
+            MyValues.Add("PhysicsDelay", BlockToUpdate.PhysicsDelay.ToString());
+            MyValues.Add("PhysicsRandom", BlockToUpdate.PhysicsRandom.ToString());
             MyValues.Add("PhysicsPlugin", BlockToUpdate.PhysicsPlugin);
             MyValues.Add("Kills", BlockToUpdate.Kills.ToString());
             MyValues.Add("Color", BlockToUpdate.Color.ToString());
@@ -182,7 +186,7 @@ namespace Hypercube_Classic.Core {
             }
         }
 
-        public void AddBlock(string Name, byte OnClient, string PlaceRanks, string DeleteRanks, int Physics, string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {
+        public void AddBlock(string Name, byte OnClient, string PlaceRanks, string DeleteRanks, int Physics, int PhysicsDelay, int PhysicsRandom, string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {
             if (ServerCore.Database.ContainsBlock(Name))
                 return;
 
@@ -192,6 +196,8 @@ namespace Hypercube_Classic.Core {
             newBlock.RanksPlace = RankContainer.SplitRanks(ServerCore, PlaceRanks);
             newBlock.RanksDelete = RankContainer.SplitRanks(ServerCore, DeleteRanks);
             newBlock.Physics = Physics;
+            newBlock.PhysicsDelay = PhysicsDelay;
+            newBlock.PhysicsRandom = PhysicsRandom;
             newBlock.PhysicsPlugin = PhysicsPlugin;
             newBlock.Kills = Kills;
             newBlock.Color = Color;
@@ -202,7 +208,7 @@ namespace Hypercube_Classic.Core {
 
             Blocks.Add(newBlock);
 
-            ServerCore.Database.CreateBlock(Name, OnClient, PlaceRanks, DeleteRanks, Physics, PhysicsPlugin, Kills, Color, CPELevel, CPEReplace, Special, ReplaceOnLoad);
+            ServerCore.Database.CreateBlock(Name, OnClient, PlaceRanks, DeleteRanks, Physics, PhysicsDelay, PhysicsRandom, PhysicsPlugin, Kills, Color, CPELevel, CPEReplace, Special, ReplaceOnLoad);
 
             newBlock.ID = ServerCore.Database.GetDatabaseInt(Name, "BlockDB", "Number");
         }
@@ -241,7 +247,7 @@ namespace Hypercube_Classic.Core {
     }
 
     public class Block {
-        public int ID, Physics, Color, CPELevel, CPEReplace, ReplaceOnLoad;
+        public int ID, Physics, Color, CPELevel, CPEReplace, ReplaceOnLoad, PhysicsDelay, PhysicsRandom;
         public byte OnClient;
         public string Name, PhysicsPlugin;
         public bool Kills, Special;

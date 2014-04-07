@@ -85,12 +85,19 @@ namespace Hypercube_Classic.Map {
 
     public class QueueItem {
         public short X, Y, Z, Priority;
+        public DateTime DoneTime;
 
         public QueueItem(short _X, short _Y, short _Z, short _Priority) {
             X = _X;
             Y = _Y;
             Z = _Z;
             Priority = _Priority;
+        }
+        public QueueItem(short _X, short _Y, short _Z, DateTime _DoneTime) {
+            X = _X;
+            Y = _Y;
+            Z = _Z;
+            DoneTime = _DoneTime;
         }
     }
 
@@ -161,7 +168,7 @@ namespace Hypercube_Classic.Map {
                 Map.MetadataParsers["CPE"] = myRef;
             }
 
-            Map.Save(Path);
+            SaveMap(Path);
             
             LastClient = DateTime.UtcNow;
             Clients = new List<NetworkClient>();
@@ -185,16 +192,23 @@ namespace Hypercube_Classic.Map {
             Map.Load(); // -- Load the map
 
             HCSettings = (HypercubeMetadata)Map.MetadataParsers["Hypercube"];
+            HCSettings.JoinRanks = null;
+            HCSettings.ShowRanks = null;
+            HCSettings.BuildRanks = null;
 
             // -- Creates HC Metadata if it does not exist.
             if (HCSettings.BuildRanks == null) {
                 foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
                     BuildRanks.Add(r);
+            } else {
+                BuildRanks = RankContainer.SplitRanks(Core, HCSettings.BuildRanks);
             }
 
             if (HCSettings.ShowRanks == null) {
                 foreach (Rank r in Core.Rankholder.Ranks)  // -- Allow all ranks to access this map by default.
                     ShowRanks.Add(r);
+            } else {
+                ShowRanks = RankContainer.SplitRanks(Core, HCSettings.ShowRanks);
             }
 
             if (HCSettings.JoinRanks == null) {
@@ -204,7 +218,8 @@ namespace Hypercube_Classic.Map {
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
                 HCSettings.History = true;
-                ServerCore.Logger._Log("Debug", "Map", "Set map metadata");
+            } else {
+                JoinRanks = RankContainer.SplitRanks(Core, HCSettings.JoinRanks);
             }
 
             LastClient = DateTime.UtcNow;
@@ -230,7 +245,6 @@ namespace Hypercube_Classic.Map {
                 Map.BlockData = null;
                 GC.Collect();
                 Loaded = false;
-                ServerCore.Logger._Log("Debug", "Map", "Unloaded map has been loaded.");
             }
 
             ThisHistory = new MapHistory(this);
@@ -326,7 +340,6 @@ namespace Hypercube_Classic.Map {
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             System.IO.File.Move(Path + "u", Path);
-            ServerCore.Logger._Log("Debug", "Map", "Map " + Map.MapName + " loaded.");
         }
 
         /// <summary>
@@ -347,7 +360,6 @@ namespace Hypercube_Classic.Map {
             Map.BlockData = null; // -- Remove the block data (a lot of memory)
             GC.Collect(); // -- Let the GC collect it and free our memory
             Loaded = false; // -- Make sure the server knows the map is no longer loaded.
-            ServerCore.Logger._Log("Debug", "Map", "Map " + Map.MapName + " unloaded.");
         }
 
         /// <summary>
@@ -389,6 +401,8 @@ namespace Hypercube_Classic.Map {
                 return;
 
             HCSettings.BuildRanks = "";
+            HCSettings.ShowRanks = "";
+            HCSettings.JoinRanks = "";
 
             foreach (Rank r in BuildRanks) 
                 HCSettings.BuildRanks += r.ID + ",";
@@ -421,7 +435,9 @@ namespace Hypercube_Classic.Map {
         /// <param name="z"></param>
         /// <returns></returns>
         public byte GetBlockID(short x, short z, short y) { // (Y * Size_Z + Z) * Size_X + X
-            ServerCore.Logger._Log("DEBUG", "GetBlockID", y.ToString() + " " + z.ToString());
+            if ((0 > x || Map.SizeX <= x) || (0 > z || Map.SizeY <= z) || (0 > y || Map.SizeZ <= y))
+                return 255;
+
             int index = (y * Map.SizeZ + z) * Map.SizeX + x;
             return Map.BlockData[index];
         }
@@ -453,7 +469,6 @@ namespace Hypercube_Classic.Map {
                 ThisHistory.AddEntry(x, y, z, (ushort)ClientID, 0, Type, Map.BlockData[index]);
 
             Map.BlockData[index] = Type;
-
             
         }
 
@@ -618,18 +633,24 @@ namespace Hypercube_Classic.Map {
         }
 
         public void DeleteEntity(ref Entity ToSpawn) {
+            var Despawn = new Packets.DespawnPlayer();
+
             if (Entities.Contains(ToSpawn))
                 Entities.Remove(ToSpawn);
 
-            if (ToSpawn.MyClient != null && Clients.Contains(ToSpawn.MyClient))
+            if (ToSpawn.MyClient != null && Clients.Contains(ToSpawn.MyClient)) {
                 Clients.Remove(ToSpawn.MyClient);
 
-            var Despawn = new Packets.DespawnPlayer();
+                foreach (Entity e in Entities) {
+                    Despawn.PlayerID = (sbyte)e.ClientID;
+                    Despawn.Write(ToSpawn.MyClient);
+                }
+            }
+
             Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
 
-            foreach (NetworkClient c in Clients) {
+            foreach (NetworkClient c in Clients) 
                 Despawn.Write(c);
-            }
 
             FreeID = ToSpawn.ClientID;
         }
@@ -677,22 +698,51 @@ namespace Hypercube_Classic.Map {
 
             if (Undo) {
                 //TODO: Undo.
-                
+                NetworkClient Client = null;
+
+                foreach (NetworkClient c in Clients) {
+                    if (c.CS.ID == ClientID) {
+                        Client = c;
+                        break;
+                    }
+                }
+
+                if (Client != null) {
+
+                    if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
+                        for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
+                            Client.CS.UndoObjects.RemoveAt(i);
+                    }
+
+                    if (Client.CS.UndoObjects.Count >= 50000)
+                        Client.CS.UndoObjects.RemoveAt(0);
+
+                    var newUndo = new Undo();
+                    newUndo.x = X;
+                    newUndo.y = Y;
+                    newUndo.z = Z;
+                    newUndo.OldBlock = LastType;
+
+                    Client.CS.UndoObjects.Add(newUndo);
+                    Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
+                }
             }
 
             if (Physics) {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
-                        for (short iz = -1; iz < 2; iz++) { // -- Out of bounds check here isn't working.
+                        for (short iz = -1; iz < 2; iz++) {
                             
                             if ((0 > (X + ix) || Map.SizeX <= (X + ix)) || (0 > (Z + iz) || Map.SizeY <= (Z + iz)) || (0 > (Y + iy) || Map.SizeZ <= (Y + iy))) 
                                 continue;
-                            
+
                             var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
 
                             if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator()))
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250));
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) {
+                                    var randomGen = new Random();
+                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), DateTime.UtcNow.AddMilliseconds(Type.PhysicsDelay + randomGen.Next(Type.PhysicsRandom))));
+                                }
                             }
                             
                         }
@@ -739,13 +789,17 @@ namespace Hypercube_Classic.Map {
                             var BlockQueue2 = GetBlock((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz));
 
                             if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 250), new QueueComparator()))
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1));
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) {
+                                    var randomGen = new Random();
+                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), DateTime.UtcNow.AddMilliseconds(Block1.PhysicsDelay + randomGen.Next(Block1.PhysicsRandom))));
+                                }
                             }
 
                             if (BlockQueue2.Physics > 0 || (BlockQueue2.PhysicsPlugin != "" && BlockQueue2.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator()))
-                                    PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250));
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator())) {
+                                    var randomGen = new Random();
+                                    PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), DateTime.UtcNow.AddMilliseconds(Block2.PhysicsDelay + randomGen.Next(Block2.PhysicsRandom))));
+                                }
                             }
                                 
                             
@@ -777,7 +831,7 @@ namespace Hypercube_Classic.Map {
                         }
                     }
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
         }
 
@@ -818,9 +872,15 @@ namespace Hypercube_Classic.Map {
                 if (HCSettings.Building) {
                     while (PhysicsQueue.Count > 0) {
                         for (int i = 0; i < PhysicsQueue.Count; i++) {
+                            if ((PhysicsQueue[i].DoneTime - DateTime.UtcNow).Milliseconds > 0)
+                                continue;
+                            
                             var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
+                            var randomGen = new Random();
                             short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
                             PhysicsQueue.RemoveAt(i);
+                            
+                            //Thread.Sleep(physicBlock.PhysicsDelay + randomGen.Next(physicBlock.PhysicsRandom));
 
                             switch (physicBlock.Physics) {
                                 case 10:
@@ -830,6 +890,7 @@ namespace Hypercube_Classic.Map {
                                     PhysicsD3Sand(physicBlock, X, Y, Z);
                                     break;
                                 case 20:
+                                    PhysicsInfiniteWater(physicBlock, X, Y, Z);
                                     break;
                                 case 21:
                                     break;
@@ -838,7 +899,7 @@ namespace Hypercube_Classic.Map {
                         }
                     }
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(5);
             }
         }
 
@@ -859,11 +920,27 @@ namespace Hypercube_Classic.Map {
             else if (GetBlockID(X, (short)(Y - 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y - 1), Z) == 0)
                 MoveBlock(X, Y, Z, X, (short)(Y - 1), (short)(Z - 1), true, true, 900);
         }
-        void PhysicsInfiniteWater() {
 
+        void PhysicsInfiniteWater(Block physicBlock, short X, short Y, short Z) {
+            int PlayerID = -1;
+
+            if (HCSettings.History)
+                PlayerID = ThisHistory.Lookup(X, Y, Z)[0].Player;
+
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
+                BlockChange(PlayerID, X, Y, (short)(Z - 1), physicBlock, GetBlock(X, Y, (short)(Z - 1)), true, true, true, 1);
+            else if (GetBlockID((short)(X + 1), Y, Z) == 0)
+                BlockChange(PlayerID, (short)(X + 1), Y, Z, physicBlock, GetBlock((short)(X + 1), Y, Z), true, true, true, 1);
+            else if (GetBlockID((short)(X - 1), Y, Z) == 0)
+                BlockChange(PlayerID, (short)(X - 1), Y, Z, physicBlock, GetBlock((short)(X - 1), Y, Z), true, true, true, 1);
+            else if (GetBlockID(X, (short)(Y + 1), Z) == 0)
+                BlockChange(PlayerID, X, (short)(Y + 1), Z, physicBlock, GetBlock(X, (short)(Y + 1), Z), true, true, true, 1);
+            else if (GetBlockID(X, (short)(Y - 1), Z) == 0)
+                BlockChange(PlayerID, X, (short)(Y - 1), Z, physicBlock, GetBlock(X, (short)(Y - 1), Z), true, true, true, 1);
         }
-        void PhysicsFiniteWater() {
 
+        void PhysicsFiniteWater(Block physicBlock, short X, short Y, short Z) {
+            
         }
         #endregion
         #region Build Functions

@@ -42,6 +42,8 @@ namespace Hypercube_Classic.Client {
             CS.SelectionCuboids = new List<byte>();
             CS.LoggedIn = false;
             CS.LastActive = DateTime.UtcNow;
+            CS.UndoObjects = new List<Undo>();
+            CS.CurrentIndex = 0;
 
             DataRunner = new Thread(DataHandler);
             DataRunner.Start();
@@ -88,6 +90,26 @@ namespace Hypercube_Classic.Client {
             //ServerCore.nh.HandleDisconnect(this);
         }
 
+        public void Undo(int Steps) {
+            if (Steps > CS.UndoObjects.Count)
+                Steps = CS.UndoObjects.Count;
+
+            for (int i = CS.CurrentIndex; i > Steps; i--) 
+                CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
+
+            CS.CurrentIndex -= Steps;
+        }
+
+        public void Redo(int Steps) {
+            if (Steps > (CS.UndoObjects.Count - CS.CurrentIndex))
+                Steps = (CS.UndoObjects.Count - CS.CurrentIndex);
+
+            for (int i = CS.CurrentIndex; i < Steps; i++) 
+                CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
+            
+
+            CS.CurrentIndex += Steps;
+        }
         /// <summary>
         /// Performs basic login functions for this client. 
         /// </summary>
@@ -144,7 +166,7 @@ namespace Hypercube_Classic.Client {
 
             CS.MyEntity = new Entity(ServerCore, CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.Map.SpawnX * 32), (short)(CS.CurrentMap.Map.SpawnZ * 32), (short)((CS.CurrentMap.Map.SpawnY * 32) + 51), CS.CurrentMap.Map.SpawnRotation, CS.CurrentMap.Map.SpawnLook); // -- Create the entity..
             CS.MyEntity.MyClient = this;
-            CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock"));
+            CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.Database.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock") - 1);
             CS.CurrentMap.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
             CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
 

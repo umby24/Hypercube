@@ -57,6 +57,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/setrank", new SetrankCommand());
             CommandDict.Add("/stop", new StopCommand());
             CommandDict.Add("/unban", new UnbanCommand());
+            CommandDict.Add("/undo", new UndoCommand());
             CommandDict.Add("/unmute", new UnmuteCommand());
             CommandDict.Add("/unstop", new UnstopCommand());
 

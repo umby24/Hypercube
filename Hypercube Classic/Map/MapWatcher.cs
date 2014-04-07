@@ -22,8 +22,9 @@ namespace Hypercube_Classic.Map {
                     var NewMap = new HypercubeMap(ServerCore, file);
                     ServerCore.Maps.Add(NewMap);
                     ServerCore.Logger._Log("Info", "MapWatcher", "Loaded map '" + file + "'. (X=" + NewMap.Map.SizeX + " Y=" + NewMap.Map.SizeZ + " Z=" + NewMap.Map.SizeY + ")");
-                } catch {
+                } catch (Exception e) {
                     ServerCore.Logger._Log("Error", "MapWatcher", "Failed to load map '" + file + "'.");
+                    ServerCore.Logger._Log("Error", "MapWatcher", e.Message);
                 }
             }
         }

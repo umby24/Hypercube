@@ -901,6 +901,25 @@ namespace Hypercube_Classic.Command {
             Core.Database.UnbanPlayer(args[0]);
         }
     }
+    public struct UndoCommand : Command {
+        public string Command { get { return "/undo"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Build"; } }
+        public string Help { get { return "Undoes shit"; } }
+
+        public string ShowRanks { get { return "1,2"; } }
+        public string UseRanks { get { return "1,2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0)
+                return;
+
+            int myInt = -999;
+            if (int.TryParse(args[0], out myInt)) {
+                Client.Undo(myInt);
+            }
+        }
+    }
     public struct UnmuteCommand : Command {
         public string Command { get { return "/unmute"; } }
         public string Plugin { get { return ""; } }
