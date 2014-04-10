@@ -16,6 +16,7 @@ namespace Hypercube_Classic.Libraries {
         DateTime LastModified { get; set; }
         Dictionary<string, string> Settings { get; set; }
         object LoadSettings { get; set; }
+        bool Save { get; set; }
     }
 
     /// <summary>
@@ -81,6 +82,9 @@ namespace Hypercube_Classic.Libraries {
         /// </summary>
         /// <param name="Settingsfile"></param>
         public void SaveSettings(ISettings Settingsfile) {
+            if (!Settingsfile.Save)
+                return;
+
             var fileWriter = new StreamWriter("Settings/" + Settingsfile.Filename);
 
             foreach (KeyValuePair<string, string> pair in Settingsfile.Settings) {

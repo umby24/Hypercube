@@ -48,6 +48,7 @@ namespace Hypercube_Classic.Core {
             BuildModeLoader.Settings = new Dictionary<string, string>();
             BuildModeLoader.LoadSettings = new SettingsReader.LoadSettings(Load);
             BuildModeLoader.LastModified = File.GetLastWriteTime("Settings/" + FileName);
+            BuildModeLoader.Save = false;
 
             ServerCore.Settings.SettingsFiles.Add(BuildModeLoader);
         }

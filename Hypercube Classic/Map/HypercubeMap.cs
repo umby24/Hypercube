@@ -708,6 +708,8 @@ namespace Hypercube_Classic.Map {
                 }
 
                 if (Client != null) {
+                    if (Client.CS.CurrentIndex == -1)
+                        Client.CS.CurrentIndex = 0;
 
                     if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
                         for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)

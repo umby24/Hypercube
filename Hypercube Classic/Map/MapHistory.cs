@@ -358,7 +358,7 @@ namespace Hypercube_Classic.Map {
 
             Entries.Add(HE);
 
-            if (Entries.Count > 500)
+            if (Entries.Count > 55000)
                 SaveEntries();
         }
         

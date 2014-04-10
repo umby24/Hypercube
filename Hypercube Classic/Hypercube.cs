@@ -27,6 +27,7 @@ namespace Hypercube_Classic
         public DateTime LastModified { get; set; }
         public Dictionary<string, string> Settings { get; set; }
         public object LoadSettings { get; set; }
+        public bool Save { get; set; }
     }
 
     /// <summary>
@@ -101,11 +102,13 @@ namespace Hypercube_Classic
             SysSettings.Filename = "System.txt";
             SysSettings.Settings = new Dictionary<string, string>();
             SysSettings.LoadSettings = new SettingsReader.LoadSettings(ReadSystemSettings);
+            SysSettings.Save = true;
 
             RulesSettings = new SystemSettings();
             RulesSettings.Filename = "Rules.txt";
             RulesSettings.Settings = new Dictionary<string, string>();
             RulesSettings.LoadSettings = new SettingsReader.LoadSettings(ReadRules);
+            RulesSettings.Save = false;
 
             Settings.ReadSettings(RulesSettings);
             Settings.ReadSettings(SysSettings);
@@ -128,9 +131,10 @@ namespace Hypercube_Classic
                 Logger._Log("debug", "Lua", e.Message);
             }
 
+            LuaHandler.RegisterFunctions(); // -- Exposes server functions to lua scripts.
             LuaHandler.LoadLuaScripts(); // -- Load all lua scripts
             LuaThread = new Thread(LuaHandler.LuaMain); // -- Start a thread that watches for changes in each lua script.
-            LuaHandler.RegisterFunctions(); // -- Exposes server functions to lua scripts.
+            
 
             Blockholder = new BlockContainer(this);
             Blockholder.LoadBlocks();

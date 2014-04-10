@@ -53,6 +53,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/players", new PlayersCommand());
             CommandDict.Add("/pushrank", new PushRankCommand());
             CommandDict.Add("/ranks", new RanksCommand());
+            CommandDict.Add("/redo", new RedoCommand());
             CommandDict.Add("/rules", new RulesCommand());
             CommandDict.Add("/setrank", new SetrankCommand());
             CommandDict.Add("/stop", new StopCommand());

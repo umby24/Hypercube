@@ -18,6 +18,7 @@ namespace Hypercube_Classic {
         public DateTime LastModified { get; set; }
         public Dictionary<string, string> Settings { get; set; }
         public object LoadSettings { get; set; }
+        public bool Save { get; set; }
     }
 
     /// <summary>
@@ -45,6 +46,7 @@ namespace Hypercube_Classic {
             NS.Filename = "Network.txt";
             NS.Settings = new Dictionary<string, string>();
             NS.LoadSettings = new SettingsReader.LoadSettings(LoadNetworkSettings);
+            NS.Save = true;
             ServerCore.Settings.SettingsFiles.Add(NS);
             ServerCore.Settings.ReadSettings(NS);
         }

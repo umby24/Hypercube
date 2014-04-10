@@ -770,6 +770,25 @@ namespace Hypercube_Classic.Command {
 
         }
     }
+    public struct RedoCommand : Command {
+        public string Command { get { return "/redo"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Build"; } }
+        public string Help { get { return "Redoes shit"; } }
+
+        public string ShowRanks { get { return "1,2"; } }
+        public string UseRanks { get { return "1,2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0)
+                return;
+
+            int myInt = -999;
+            if (int.TryParse(args[0], out myInt)) {
+                Client.Redo(myInt);
+            }
+        }
+    }
     public struct RulesCommand : Command {
         public string Command { get { return "/rules"; } }
         public string Plugin { get { return ""; } }
@@ -783,7 +802,7 @@ namespace Hypercube_Classic.Command {
             Chat.SendClientChat(Client, "&6Server Rules:");
 
             for (int i = 0; i < Core.Rules.Count; i++) 
-                Chat.SendClientChat(Client, "&6" + i.ToString() + ": " + Core.Rules[i]);
+                Chat.SendClientChat(Client, "&6" + (i + 1).ToString() + ": " + Core.Rules[i]);
             
         }
     }

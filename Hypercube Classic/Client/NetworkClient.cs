@@ -91,23 +91,31 @@ namespace Hypercube_Classic.Client {
         }
 
         public void Undo(int Steps) {
-            if (Steps > CS.UndoObjects.Count)
-                Steps = CS.UndoObjects.Count;
+            if (Steps - 1 > (CS.UndoObjects.Count - CS.CurrentIndex))
+                Steps = (CS.UndoObjects.Count - CS.CurrentIndex);
 
-            for (int i = CS.CurrentIndex; i > Steps; i--) 
+            if (CS.CurrentIndex == -1)
+                return;
+
+            for (int i = CS.CurrentIndex; i > (CS.CurrentIndex - Steps); i--)
                 CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
 
             CS.CurrentIndex -= Steps;
         }
 
         public void Redo(int Steps) {
-            if (Steps > (CS.UndoObjects.Count - CS.CurrentIndex))
-                Steps = (CS.UndoObjects.Count - CS.CurrentIndex);
+            if (Steps - 1 > (CS.UndoObjects.Count - CS.CurrentIndex))
+                Steps = (CS.UndoObjects.Count - CS.CurrentIndex) - 1;
 
-            for (int i = CS.CurrentIndex; i < Steps; i++) 
+            if (CS.CurrentIndex == CS.UndoObjects.Count - 1)
+                return;
+
+            if (CS.CurrentIndex == -1)
+                CS.CurrentIndex = 0;
+
+            for (int i = CS.CurrentIndex; i < (CS.CurrentIndex + Steps); i++)
                 CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
             
-
             CS.CurrentIndex += Steps;
         }
         /// <summary>
@@ -273,11 +281,9 @@ namespace Hypercube_Classic.Client {
 
         void Timeout() {
             while (BaseSocket.Connected) {
-#if DEBUG_MODE
+
                 if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
-#else
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
-#endif
+
                     ServerCore.Logger._Log("Info", "Timeout", "Player " + CS.IP + " timed out.");
                     KickPlayer("Timed out");
                     return;
