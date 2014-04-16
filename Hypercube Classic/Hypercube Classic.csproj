@@ -124,7 +124,9 @@
     <Compile Include="Libraries\PBSettingsLoader.cs" />
     <Compile Include="Libraries\SettingsReader.cs" />
     <Compile Include="Libraries\Text.cs" />
+    <Compile Include="MapGenerators\Flatgrass.cs" />
     <Compile Include="Map\D3 Map.cs" />
+    <Compile Include="Map\FillContainer.cs" />
     <Compile Include="Map\HypercubeMap.cs" />
     <Compile Include="Map\MapHistory.cs" />
     <Compile Include="Map\MapWatcher.cs" />

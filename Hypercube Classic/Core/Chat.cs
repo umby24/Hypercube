@@ -27,12 +27,14 @@ namespace Hypercube_Classic.Core {
             string[] Sending = SplitLines(Message);
 
             for (int i = 0; i < Core.nh.Clients.Count; i++) {
+                if (!Core.nh.Clients[i].CS.LoggedIn)
+                    continue;
+
                 foreach (string b in Sending) {
                     Chat.Text = b;
                     Chat.Write(Core.nh.Clients[i]);
                 }
             }
-
         }
 
         /// <summary>

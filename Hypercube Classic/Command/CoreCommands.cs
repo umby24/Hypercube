@@ -405,6 +405,19 @@ namespace Hypercube_Classic.Command {
             Chat.SendClientChat(Client, MapString);
         }
     }
+    public struct MapFillCommand : Command {
+        public string Command { get { return "/mapfill"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eFills the map you are in.<br>&eUsage: /mapfill [Script] <Arguments>"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            
+        }
+    }
     public struct MapInfoCommand : Command {
         public string Command { get { return "/mapinfo"; } }
         public string Plugin { get { return ""; } }
