@@ -11,11 +11,10 @@ using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Map;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Command;
+using Hypercube_Classic.Network;
 
 // -- Hypercube Classic Minecraft Software by Umby24
 // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
-//TODO: Fix physics (It's too fast!)
-//TODO: Add physics time limitations.
 //TODO: Add physics on map load.
 //TODO: Add more commands
 //BUG: Changing rank doesn't change active color in chat or in player list.
@@ -24,8 +23,9 @@ namespace Hypercube_Classic
 {
     public struct SystemSettings : ISettings {
         public string Filename { get; set; }
+        public string CurrentGroup { get; set; }
         public DateTime LastModified { get; set; }
-        public Dictionary<string, string> Settings { get; set; }
+        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
         public object LoadSettings { get; set; }
         public bool Save { get; set; }
     }
@@ -35,7 +35,7 @@ namespace Hypercube_Classic
     /// </summary>
     public class Hypercube {
         #region Variables
-        public SettingsReader Settings;
+        public PBSettingsLoader Settings;
         public Logging Logger;
         public LuaWrapper LuaHandler;
         public NetworkHandler nh;
@@ -47,6 +47,8 @@ namespace Hypercube_Classic
         public BlockContainer Blockholder;
         public Commands Commandholder;
         public BuildMode BMContainer;
+        public FillContainer MapFills;
+
         public bool Running = false;
         public int OnlinePlayers = 0;
 
@@ -55,7 +57,7 @@ namespace Hypercube_Classic
 
         // -- System Settings
         public string ServerName, MOTD, WelcomeMessage, MapMain;
-        public bool RotateLogs, LogOutput, CompressHistory, LogArguments;
+        public bool RotateLogs, LogOutput, CompressHistory, LogArguments, ColoredConsole;
         public int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
         public HypercubeMap MainMap;
         public Rank DefaultRank;
@@ -70,7 +72,6 @@ namespace Hypercube_Classic
         /// Initiates a new Hypercube server.
         /// </summary>
         public Hypercube() {
-
             // -- Initiate logging
 
             Logger = new Logging("Log", false, false); // -- Initially, we will not log anything. This will be left up to user option.
@@ -88,26 +89,28 @@ namespace Hypercube_Classic
                 Database.CreateRank("Guest", "Default", "&f", "", 0, 50);
                 Database.CreateRank("Op", "Staff", "&9", "", 1);
                 Rankholder.LoadRanks(this);
-            } else {
+            } else 
                 Rankholder.LoadRanks(this);
-            }
+            
 
-            Logger._Log("Info", "Core", "Database Initilized.");
+            Logger._Log("Core", "Database Initilized.", LogType.Info);
 
             // -- Load and initiate basic server settings and rules.
 
-            Settings = new SettingsReader(this);
+            Settings = new PBSettingsLoader(this);
 
             SysSettings = new SystemSettings();
             SysSettings.Filename = "System.txt";
-            SysSettings.Settings = new Dictionary<string, string>();
-            SysSettings.LoadSettings = new SettingsReader.LoadSettings(ReadSystemSettings);
+            SysSettings.CurrentGroup = "";
+            SysSettings.Settings = new Dictionary<string, Dictionary<string, string>>();
+            SysSettings.LoadSettings = new PBSettingsLoader.LoadSettings(ReadSystemSettings);
             SysSettings.Save = true;
 
             RulesSettings = new SystemSettings();
             RulesSettings.Filename = "Rules.txt";
-            RulesSettings.Settings = new Dictionary<string, string>();
-            RulesSettings.LoadSettings = new SettingsReader.LoadSettings(ReadRules);
+            RulesSettings.CurrentGroup = "";
+            RulesSettings.Settings = new Dictionary<string, Dictionary<string, string>>();
+            RulesSettings.LoadSettings = new PBSettingsLoader.LoadSettings(ReadRules);
             RulesSettings.Save = false;
 
             Settings.ReadSettings(RulesSettings);
@@ -127,14 +130,17 @@ namespace Hypercube_Classic
             try {
                 LuaHandler = new LuaWrapper(this);
             } catch (Exception e) {
-                Logger._Log("Error", "Lua", "Failed to create Lua handler.");
-                Logger._Log("debug", "Lua", e.Message);
+                Logger._Log("Lua", "Failed to create Lua handler.", LogType.Error);
+                Logger._Log("Lua", e.Message, LogType.Debug);
             }
 
-            LuaHandler.RegisterFunctions(); // -- Exposes server functions to lua scripts.
-            LuaHandler.LoadLuaScripts(); // -- Load all lua scripts
-            LuaThread = new Thread(LuaHandler.LuaMain); // -- Start a thread that watches for changes in each lua script.
-            
+            try {
+                LuaHandler.RegisterFunctions(); // -- Exposes server functions to lua scripts.
+                LuaHandler.LoadLuaScripts(); // -- Load all lua scripts
+                LuaThread = new Thread(LuaHandler.LuaMain); // -- Start a thread that watches for changes in each lua script.
+            } catch {
+                Logger._Log("Lua", "Lua failed to initilize, will continue with base server functionality.", LogType.Error);
+            }
 
             Blockholder = new BlockContainer(this);
             Blockholder.LoadBlocks();
@@ -213,6 +219,7 @@ namespace Hypercube_Classic
             #endregion
 
             // -- Load the maps.
+
             Maps = new List<HypercubeMap>();
             MapWatcher.Watch(this);
 
@@ -229,7 +236,7 @@ namespace Hypercube_Classic
             if (!found) {
                 MainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
                 Maps.Add(MainMap);
-                Logger._Log("Info", "Core", "Main world not found, a new one has been created.");
+                Logger._Log("Core", "Main world not found, a new one has been created.", LogType.Warning);
             }
 
             // -- Initiate Networking
@@ -240,6 +247,21 @@ namespace Hypercube_Classic
             // -- Initiate BuildModes
 
             BMContainer = new BuildMode(this);
+
+            // -- Initiate Mapfills
+
+            MapFills = new FillContainer(this);
+
+            #region Default Mapfills
+            // -- This registers all of the mapfills built into the server.
+            var FlatGen = new MapGenerators.FlatgrassFill();
+            FlatGen.Name = "Flatgrass";
+            FlatGen.Script = "";
+            FlatGen.GenerateNew = new FillContainer.FillNew(MapGenerators.Flatgrass.GenerateFlatGrassNew);
+            FlatGen.GenerateExisting = new FillContainer.Fill(MapGenerators.Flatgrass.GenerateFlatGrass);
+            MapFills.RegisgerFill("Flatgrass", FlatGen);
+
+            #endregion
         }
 
         /// <summary>
@@ -256,14 +278,16 @@ namespace Hypercube_Classic
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
             CompressHistory = bool.Parse(Settings.ReadSetting(SysSettings, "CompressHistory", "true"));
             LogArguments = bool.Parse(Settings.ReadSetting(SysSettings, "LogArguments", "false"));
+            ColoredConsole = bool.Parse(Settings.ReadSetting(SysSettings, "ColoredConsole", "true"));
 
             MaxBlockChanges = int.Parse(Settings.ReadSetting(SysSettings, "MaxBlocksSecond", "33000"));
             MaxHistoryEntries = int.Parse(Settings.ReadSetting(SysSettings, "MaxHistoryEntries", "10"));
 
             Logger.FileLogging = LogOutput;
+            Logger.ColoredOutput = ColoredConsole;
 
             if (Running)
-                Logger._Log("Info", "Core", "System settings loaded.");
+                Logger._Log("Core", "System settings loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -287,7 +311,7 @@ namespace Hypercube_Classic
                     Rules.Add(SR.ReadLine());
             }
 
-            Logger._Log("Info", "Rules", "Rules loaded.");
+            Logger._Log("Rules", "Rules loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -317,7 +341,7 @@ namespace Hypercube_Classic
                 m.PhysicsThread.Start();
             }
 
-            Logger._Log("Info", "Core", "Server started.");
+            Logger._Log("Core", "Server started.", LogType.Info);
         }
 
         /// <summary>

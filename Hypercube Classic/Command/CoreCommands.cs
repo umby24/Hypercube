@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Hypercube_Classic.Packets;
+using Hypercube_Classic.Network;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Core;
 using Hypercube_Classic.Map;
@@ -93,7 +93,7 @@ namespace Hypercube_Classic.Command {
             else
                 BanReason = Text2;
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was banned by " + Client.CS.LoginName + ". (" + BanReason + ")");
+            Core.Logger._Log("Command", "Player " + args[0] + " was banned by " + Client.CS.LoginName + ". (" + BanReason + ")", Libraries.LogType.Info);
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was banned by " + Client.CS.FormattedName + "&e. (&f" + BanReason + "&e)");
 
             Core.Database.BanPlayer(args[0], BanReason, Client.CS.LoginName);
@@ -303,7 +303,7 @@ namespace Hypercube_Classic.Command {
 
             foreach (NetworkClient c in Core.nh.Clients) {
                 if (c.CS.LoginName.ToLower() == args[0].ToLower() && c.CS.LoggedIn) {
-                    Core.Logger._Log("Info", "Command", "Player " + c.CS.LoginName + " was kicked by " + Client.CS.LoginName + ". (" + KickReason + ")");
+                    Core.Logger._Log("Command", "Player " + c.CS.LoginName + " was kicked by " + Client.CS.LoginName + ". (" + KickReason + ")", Libraries.LogType.Info);
                     Chat.SendGlobalChat(Core, "&ePlayer " + c.CS.FormattedName + "&e was kicked by " + Client.CS.FormattedName + "&e. (&f" + KickReason + "&e)");
 
                     c.KickPlayer("&e" + KickReason, true);
@@ -410,6 +410,24 @@ namespace Hypercube_Classic.Command {
         public string Plugin { get { return ""; } }
         public string Group { get { return "Map"; } }
         public string Help { get { return "&eFills the map you are in.<br>&eUsage: /mapfill [Script] <Arguments>"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0) {
+                Chat.SendClientChat(Client, "&4Error:&f This command requires 1 or more arguments.<br>See /cmdhelp mapfill.");
+                return;
+            }
+
+            Core.MapFills.FillMap(Client.CS.CurrentMap, args[0], Text1.Split(' '));
+        }
+    }
+    public struct MapFillsCommand : Command {
+        public string Command { get { return "/mapfills"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eShow available mapfills. Use them with /Mapfill."; } }
 
         public string ShowRanks { get { return "2"; } }
         public string UseRanks { get { return "2"; } }
@@ -569,7 +587,7 @@ namespace Hypercube_Classic.Command {
                 muteReason = Text2.Substring(Text2.IndexOf(" ") + 1, Text2.Length - (Text2.IndexOf(" ") + 1));
             }
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was muted for " + MuteDuration.ToString() + " Minutes. (" + muteReason + ")");
+            Core.Logger._Log("Command", "Player " + args[0] + " was muted for " + MuteDuration.ToString() + " Minutes. (" + muteReason + ")");
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was muted for " + MuteDuration.ToString() + " minutes. (&f" + muteReason + "&e)");
 
             var MutedUntil = DateTime.UtcNow.AddMinutes((double)MuteDuration) - Hypercube.UnixEpoch;
@@ -895,7 +913,7 @@ namespace Hypercube_Classic.Command {
                 StopReason = Text2;
             }
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was stopped by " + Client.CS.LoginName + ". (" + StopReason + ")");
+            Core.Logger._Log("Command", "Player " + args[0] + " was stopped by " + Client.CS.LoginName + ". (" + StopReason + ")", Libraries.LogType.Info);
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was stopped by " + Client.CS.FormattedName + "&e. (&f" + StopReason + "&e)");
 
             Core.Database.StopPlayer(args[0], StopReason, Client.CS.LoginName);
@@ -927,7 +945,7 @@ namespace Hypercube_Classic.Command {
                 return;
             }
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was unbanned by " + Client.CS.LoginName + ".");
+            Core.Logger._Log("Command", "Player " + args[0] + " was unbanned by " + Client.CS.LoginName + ".", Libraries.LogType.Info);
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was unbanned by " + Client.CS.FormattedName + "&e.");
 
             Core.Database.UnbanPlayer(args[0]);
@@ -970,7 +988,7 @@ namespace Hypercube_Classic.Command {
                 return;
             }
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was unmuted.");
+            Core.Logger._Log("Command", "Player " + args[0] + " was unmuted.", Libraries.LogType.Info);
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was unmuted.");
 
             Core.Database.UnmutePlayer(args[0]);
@@ -983,6 +1001,7 @@ namespace Hypercube_Classic.Command {
             }
         }
     }
+
     public struct UnstopCommand : Command {
         public string Command { get { return "/unstop"; } }
         public string Plugin { get { return ""; } }
@@ -1001,7 +1020,7 @@ namespace Hypercube_Classic.Command {
                 return;
             }
 
-            Core.Logger._Log("Info", "Command", "Player " + args[0] + " was unstopped by " + Client.CS.LoginName + ".");
+            Core.Logger._Log("Command", "Player " + args[0] + " was unstopped by " + Client.CS.LoginName + ".", Libraries.LogType.Info);
             Chat.SendGlobalChat(Core, "&ePlayer " + args[0] + "&e was unstopped by " + Client.CS.FormattedName + "&e.");
 
             Core.Database.UnstopPlayer(args[0]);

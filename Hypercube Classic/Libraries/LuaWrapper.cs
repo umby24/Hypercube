@@ -81,11 +81,11 @@ namespace Hypercube_Classic.Libraries {
                 try {
                     LuaHandler.DoFile(file);
                 } catch (LuaScriptException e) {
-                    ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                    ServerCore.Logger._Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                 }
             }
 
-            ServerCore.Logger._Log("INFO", "Lua", "Lua scripts loaded.");
+            ServerCore.Logger._Log("Lua", "Lua scripts loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Hypercube_Classic.Libraries {
                 else if (function != null)
                     LuaF.Call();
             } catch (LuaScriptException e) {
-                ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                ServerCore.Logger._Log("Lua", "Lua Error: " + e.Message, LogType.Error);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Hypercube_Classic.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                            ServerCore.Logger._Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         continue;
@@ -130,7 +130,7 @@ namespace Hypercube_Classic.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            ServerCore.Logger._Log("Error", "Lua", "Lua Error: " + e.Message);
+                            ServerCore.Logger._Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         Scripts[file] = File.GetLastWriteTime(file);

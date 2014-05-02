@@ -16,8 +16,8 @@ namespace Hypercube_Classic.Map {
         public Hypercube Servercore;
 
         // -- Delegates used for holding the creation functions. 
-        public delegate void FillNew(Hypercube Core, string Name, short SizeX, short SizeY, short SizeZ);
-        public delegate void Fill(HypercubeMap Map);
+        public delegate HypercubeMap FillNew(Hypercube Core, string Name, short SizeX, short SizeY, short SizeZ);
+        public delegate HypercubeMap Fill(HypercubeMap Map);
 
         public FillContainer(Hypercube Core) {
             MapFills = new Dictionary<string, IMapFill>();
@@ -29,15 +29,17 @@ namespace Hypercube_Classic.Map {
                 MapFills.Remove(Fillname);
 
             MapFills.Add(Fillname, Fill);
-            Servercore.Logger._Log("INFO", "MapFill", "Fill registered: " + Fillname);
+            Servercore.Logger._Log("MapFill", "Fill registered: " + Fillname, Libraries.LogType.Info);
         }
 
-        public void FillMap(HypercubeMap Map, string FillName, params object Args) {
+        public void FillMap(HypercubeMap Map, string FillName, params object[] Args) {
             if (MapFills.ContainsKey(FillName)) {
                 var myDele = (Fill)MapFills[FillName].GenerateExisting;
 
-                if (myDele != null)
+                if (myDele != null) {
                     myDele(Map);
+                    Map.ResendMap();
+                }
             }
         }
 

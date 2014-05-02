@@ -42,6 +42,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/map", new MapCommand());
             CommandDict.Add("/maps", new MapsCommand());
             CommandDict.Add("/mapinfo", new MapInfoCommand());
+            CommandDict.Add("/mapfill", new MapFillCommand());
             CommandDict.Add("/mapload", new MapLoadCommand());
             CommandDict.Add("/mapresend", new MapResendCommand());
             CommandDict.Add("/mapresize", new MapResizeCommand());
@@ -66,8 +67,8 @@ namespace Hypercube_Classic.Command {
 
             AliasLoader = new SystemSettings();
             AliasLoader.Filename = "Aliases.txt";
-            AliasLoader.Settings = new Dictionary<string, string>();
-            AliasLoader.LoadSettings = new Hypercube_Classic.Libraries.SettingsReader.LoadSettings(LoadAliases);
+            AliasLoader.Settings = new Dictionary<string, Dictionary<string, string>>();
+            AliasLoader.LoadSettings = new Hypercube_Classic.Libraries.PBSettingsLoader.LoadSettings(LoadAliases);
 
             ServerCore.Settings.SettingsFiles.Add(AliasLoader);
 
@@ -85,9 +86,9 @@ namespace Hypercube_Classic.Command {
             var text2 = text.Substring(text.IndexOf(" ") + 1, text.Length - (text.IndexOf(" ") + 1));
 
             if (!Core.LogArguments)
-                Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command);
+                Core.Logger._Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command, Libraries.LogType.Command);
             else
-                Core.Logger._Log("Info", "Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"",splits) + "\" }");
+                Core.Logger._Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"",splits) + "\" }", Libraries.LogType.Command);
 
             string alias = GetAlias(command);
 
@@ -183,7 +184,7 @@ namespace Hypercube_Classic.Command {
                 }
             }
 
-            ServerCore.Logger._Log("Info", "Commands", "Command aliases loaded.");
+            ServerCore.Logger._Log("Commands", "Command aliases loaded.", Libraries.LogType.Info);
         }
     }
 

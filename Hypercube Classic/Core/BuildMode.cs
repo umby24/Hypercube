@@ -38,34 +38,34 @@ namespace Hypercube_Classic.Core {
         public BuildMode(Hypercube Core) {
             ServerCore = Core;
 
+            BuildModeLoader = new SystemSettings();
+            BuildModeLoader.Filename = FileName;
+            BuildModeLoader.CurrentGroup = "";
+            BuildModeLoader.Settings = new Dictionary<string, Dictionary<string, string>>();
+            BuildModeLoader.LoadSettings = new PBSettingsLoader.LoadSettings(Load);
+            BuildModeLoader.LastModified = File.GetLastWriteTime("Settings/" + FileName);
+
+            ServerCore.Settings.ReadSettings(BuildModeLoader);
+            ServerCore.Settings.SettingsFiles.Add(BuildModeLoader);
+
             if (File.Exists("Settings/" + FileName))
                 Load();
             else
                 File.WriteAllText("Settings/" + FileName, "");
-
-            BuildModeLoader = new SystemSettings();
-            BuildModeLoader.Filename = FileName;
-            BuildModeLoader.Settings = new Dictionary<string, string>();
-            BuildModeLoader.LoadSettings = new SettingsReader.LoadSettings(Load);
-            BuildModeLoader.LastModified = File.GetLastWriteTime("Settings/" + FileName);
-            BuildModeLoader.Save = false;
-
-            ServerCore.Settings.SettingsFiles.Add(BuildModeLoader);
         }
 
         public void Load() {
             Modes = new List<BMStruct>();
-            var Loader = new PBSettingsLoader("Settings/" + FileName);
 
-            foreach (string bm in Loader.DasSettings.Keys) {
+            foreach (string bm in BuildModeLoader.Settings.Keys) {
                 var myStruct = new BMStruct();
-                Loader.SelectGroup(bm);
-                myStruct.Name = Loader.ReadSetting("Name", "");
-                myStruct.Plugin = Loader.ReadSetting("Plugin", "");
+                BuildModeLoader = (SystemSettings)ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
+                myStruct.Name = ServerCore.Settings.ReadSetting(BuildModeLoader, "Name", "");
+                myStruct.Plugin = ServerCore.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
                 Modes.Add(myStruct);
             }
 
-            ServerCore.Logger._Log("Info", "Buildmode", "Buildmodes loaded.");
+            ServerCore.Logger._Log("Buildmode", "Buildmodes loaded.", LogType.Info);
         }
     }
 

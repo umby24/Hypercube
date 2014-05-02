@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-using Hypercube_Classic.Packets;
+using Hypercube_Classic.Network;
 using Hypercube_Classic.Map;
 using Hypercube_Classic.Core;
 
@@ -23,7 +23,7 @@ namespace Hypercube_Classic.Client {
         public Thread ClientTimeout;
         public ClientSettings CS;
         public Hypercube ServerCore;
-        Dictionary<byte, Func<Packets.IPacket>> Packets;
+        Dictionary<byte, Func<IPacket>> Packets;
         #endregion
 
         public NetworkClient(TcpClient baseSock, Hypercube Core) {
@@ -139,7 +139,7 @@ namespace Hypercube_Classic.Client {
                 BaseStream.Close();
                 BaseStream.Dispose();
 
-                ServerCore.Logger._Log("Info", "Client", "Disconnecting player " + CS.LoginName + ": Player is banned.");
+                ServerCore.Logger._Log("Client", "Disconnecting player " + CS.LoginName + ": Player is banned.", Libraries.LogType.Info);
                 return;
             }
 
@@ -180,7 +180,7 @@ namespace Hypercube_Classic.Client {
 
             CS.CurrentMap.SendAllEntities(this);
 
-            ServerCore.Logger._Log("Info", "Client", "Player logged in. (Name = " + CS.LoginName + ")");
+            ServerCore.Logger._Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", Libraries.LogType.Info);
 
             Chat.SendGlobalChat(ServerCore, "&ePlayer " + CS.FormattedName + "&e has joined.");
             Chat.SendClientChat(this, ServerCore.WelcomeMessage);
@@ -232,7 +232,7 @@ namespace Hypercube_Classic.Client {
         /// Populates the list of accetpable packets from the client. Anything other than these will be rejected.
         /// </summary>
         void Populate() {
-            Packets = new Dictionary<byte, Func<Packets.IPacket>> {
+            Packets = new Dictionary<byte, Func<IPacket>> {
                 {0, () => new Handshake()},
                 {5, () => new SetBlock()},
                 {8, () => new PlayerTeleport()},
@@ -264,8 +264,8 @@ namespace Hypercube_Classic.Client {
 
             } catch (Exception e) {
                 if (e.GetType() != typeof(System.IO.IOException)) {
-                    ServerCore.Logger._Log("Error", "Dunno", e.Message);
-                    ServerCore.Logger._Log("Error", "Dunno", e.StackTrace);
+                    ServerCore.Logger._Log("Dunno", e.Message, Libraries.LogType.Error);
+                    ServerCore.Logger._Log("Dunno", e.StackTrace, Libraries.LogType.Error);
                 }
 
                 // -- User probably disconnected.
@@ -284,7 +284,7 @@ namespace Hypercube_Classic.Client {
 
                 if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
 
-                    ServerCore.Logger._Log("Info", "Timeout", "Player " + CS.IP + " timed out.");
+                    ServerCore.Logger._Log("Timeout", "Player " + CS.IP + " timed out.", Libraries.LogType.Info);
                     KickPlayer("Timed out");
                     return;
                 }

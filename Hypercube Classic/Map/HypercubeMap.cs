@@ -10,6 +10,7 @@ using fNbt;
 
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Core;
+using Hypercube_Classic.Network;
 
 namespace Hypercube_Classic.Map {
     /// <summary>
@@ -320,9 +321,9 @@ namespace Hypercube_Classic.Map {
             SaveMap();
             ThisHistory.UnloadHistory();
 
-            ServerCore.Logger._Log("Info", "Map", "Defragmenting history of " + Path);
+            ServerCore.Logger._Log("Map", "Defragmenting history of " + Path, Libraries.LogType.Info);
             ThisHistory.DeFragment();
-            ServerCore.Logger._Log("Info", "Map", "Done.");
+            ServerCore.Logger._Log("Map", "Done.", Libraries.LogType.Info);
         }
 
         /// <summary>
@@ -524,7 +525,7 @@ namespace Hypercube_Classic.Map {
 
             Temp = Libraries.GZip.Compress(Temp);
 
-            var Init = new Packets.LevelInit();
+            var Init = new LevelInit();
             Init.Write(Client);
 
             Offset = 0;
@@ -534,7 +535,7 @@ namespace Hypercube_Classic.Map {
                     byte[] Send = new byte[1024];
                     Buffer.BlockCopy(Temp, Offset, Send, 0, 1024);
 
-                    var Chunk = new Packets.LevelChunk();
+                    var Chunk = new LevelChunk();
                     Chunk.Length = 1024;
                     Chunk.Data = Send;
                     Chunk.Percent = (byte)((Offset / Temp.Length) * 100);
@@ -545,7 +546,7 @@ namespace Hypercube_Classic.Map {
                     byte[] Send = new byte[1024];
                     Buffer.BlockCopy(Temp, Offset, Send, 0, Temp.Length - Offset);
 
-                    var Chunk = new Packets.LevelChunk();
+                    var Chunk = new LevelChunk();
                     Chunk.Length = (short)((Temp.Length - Offset));
                     Chunk.Data = Send;
                     Chunk.Percent = (byte)((Offset / Temp.Length) * 100);
@@ -555,7 +556,7 @@ namespace Hypercube_Classic.Map {
                 }
             }
 
-            var Final = new Packets.LevelFinalize();
+            var Final = new LevelFinalize();
             Final.SizeX = Map.SizeX;
             Final.SizeY = Map.SizeZ;
             Final.SizeZ = Map.SizeY;
@@ -569,7 +570,7 @@ namespace Hypercube_Classic.Map {
 
                 for (int i = 0; i < Entities.Count; i++ ) {
                     if (Entities[i].Changed) {
-                        var TeleportPacket = new Packets.PlayerTeleport();
+                        var TeleportPacket = new PlayerTeleport();
                         TeleportPacket.PlayerID = (sbyte)Entities[i].ClientID;
                         TeleportPacket.X = Entities[i].X;
                         TeleportPacket.Y = Entities[i].Y;
@@ -595,7 +596,7 @@ namespace Hypercube_Classic.Map {
         }
 
         public void SpawnEntity(Entity ToSpawn) {
-            var ESpawn = new Packets.SpawnPlayer();
+            var ESpawn = new SpawnPlayer();
             ESpawn.PlayerName = ToSpawn.Name;
             ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
             ESpawn.X = ToSpawn.X;
@@ -616,7 +617,7 @@ namespace Hypercube_Classic.Map {
         }
 
         public void SendAllEntities(NetworkClient Client) {
-            var ESpawn = new Packets.SpawnPlayer();
+            var ESpawn = new SpawnPlayer();
 
             foreach (Entity e in Entities) {
                 ESpawn.PlayerName = e.Name;
@@ -633,7 +634,7 @@ namespace Hypercube_Classic.Map {
         }
 
         public void DeleteEntity(ref Entity ToSpawn) {
-            var Despawn = new Packets.DespawnPlayer();
+            var Despawn = new DespawnPlayer();
 
             if (Entities.Contains(ToSpawn))
                 Entities.Remove(ToSpawn);
@@ -833,12 +834,12 @@ namespace Hypercube_Classic.Map {
                         }
                     }
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(5);
             }
         }
 
         public void SendBlockToClient(short X, short Y, short Z, Block Type, NetworkClient c) {
-            var BlockchangePacket = new Packets.SetBlockServer();
+            var BlockchangePacket = new SetBlockServer();
 
             if (Type.CPELevel > c.CS.CustomBlocksLevel)
                 BlockchangePacket.Block = (byte)Type.CPEReplace;
@@ -852,7 +853,7 @@ namespace Hypercube_Classic.Map {
         }
 
         public void SendBlockToClients(short X, short Y, short Z, Block Type) {
-            var BlockchangePacket = new Packets.SetBlockServer();
+            var BlockchangePacket = new SetBlockServer();
             BlockchangePacket.X = X;
             BlockchangePacket.Y = Y;
             BlockchangePacket.Z = Z;

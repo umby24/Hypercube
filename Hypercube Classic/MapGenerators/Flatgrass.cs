@@ -7,7 +7,15 @@ using Hypercube_Classic.Map;
 using Hypercube_Classic.Core;
 
 namespace Hypercube_Classic.MapGenerators {
+    public struct FlatgrassFill : IMapFill {
+        public string Name { get; set; }
+        public string Script { get; set; }
+        public object GenerateNew { get; set; }
+        public object GenerateExisting { get; set; }
+    }
+
     public class Flatgrass {
+        
         /// <summary>
         /// Create a new map that is flatgrass.
         /// </summary>
@@ -15,7 +23,7 @@ namespace Hypercube_Classic.MapGenerators {
         /// <param name="SizeY"></param>
         /// <param name="SizeZ"></param>
         /// <returns></returns>
-        public static HypercubeMap GenerateFlatGrass(Hypercube Core, string Name, short SizeX, short SizeY, short SizeZ) {
+        public static HypercubeMap GenerateFlatGrassNew(Hypercube Core, string Name, short SizeX, short SizeY, short SizeZ) {
             var SW = new Stopwatch();
             SW.Start();
 
@@ -23,12 +31,11 @@ namespace Hypercube_Classic.MapGenerators {
             
             for (int X = 0; X < SizeX; X++) {
                 for (int Y = 0; Y < SizeY; Y++) {
-                    for (int Z = 0; Z < SizeZ; Z++) {
-                        if (Z == (SizeZ / 2) - 1) {
+                    for (int Z = 0; Z < (SizeZ / 2); Z++) {
+                        if (Z == (SizeZ / 2) - 1) 
                             MyMap.BlockChange(-1, (short)X, (short)Y, (short)Z, Core.Blockholder.GetBlock(2), Core.Blockholder.GetBlock(0), false, false, false, 1);
-                        } else {
+                         else 
                             MyMap.BlockChange(-1, (short)X, (short)Y, (short)Z, Core.Blockholder.GetBlock(3), Core.Blockholder.GetBlock(0), false, false, false, 1);
-                        }
                     }
                 }
             }
@@ -47,21 +54,21 @@ namespace Hypercube_Classic.MapGenerators {
             var SW = new Stopwatch();
             SW.Start();
 
+            Map.Map.BlockData = new byte[Map.Map.BlockData.Length];
+
             for (int X = 0; X < Map.Map.SizeX; X++) {
                 for (int Y = 0; Y < Map.Map.SizeY; Y++) {
-                    for (int Z = 0; Z < Map.Map.SizeZ; Z++) {
-                        if (Z == (Map.Map.SizeZ / 2) - 1) {
+                    for (int Z = 0; Z < (Map.Map.SizeZ / 2); Z++) {
+                        if (Z == (Map.Map.SizeZ / 2) - 1) 
                             Map.BlockChange(-1, (short)X, (short)Y, (short)Z, Map.ServerCore.Blockholder.GetBlock(2), Map.ServerCore.Blockholder.GetBlock(0), false, false, false, 1);
-                        } else {
+                         else 
                             Map.BlockChange(-1, (short)X, (short)Y, (short)Z, Map.ServerCore.Blockholder.GetBlock(3), Map.ServerCore.Blockholder.GetBlock(0), false, false, false, 1);
-                        }
                     }
                 }
             }
 
             SW.Stop();
-            Chat.SendMapChat(Map, Map.ServerCore, "&cMap created in " + (SW.ElapsedMilliseconds / 1000).ToString() + "s.");
-
+            Chat.SendMapChat(Map, Map.ServerCore, "&cMap created in " + ((float)(SW.ElapsedMilliseconds / 1000)).ToString() + "s.");
             return Map;
         }
     }

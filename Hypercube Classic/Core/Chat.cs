@@ -6,7 +6,7 @@ using System.Text;
 using Hypercube_Classic.Map;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Libraries;
-using Hypercube_Classic.Packets;
+using Hypercube_Classic.Network;
 
 namespace Hypercube_Classic.Core {
     public class Chat {
@@ -21,7 +21,7 @@ namespace Hypercube_Classic.Core {
             Message = Text.CleanseString(Message);
 
             if (Log)
-                Core.Logger._Log("Chat", "Global", Message);
+                Core.Logger._Log("Global", Message, LogType.Chat);
 
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
@@ -47,7 +47,7 @@ namespace Hypercube_Classic.Core {
             Message = Text.CleanseString(Message);
 
             if (Log)
-                Core.Logger._Log("Chat", Map.Map.MapName, Message);
+                Core.Logger._Log(Map.Map.MapName, Message, LogType.Chat);
 
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
@@ -134,18 +134,18 @@ namespace Hypercube_Classic.Core {
 
                 if (IncomingClient.CS.Global) {
                     SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger._Log("Chat", IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message);
+                    IncomingClient.ServerCore.Logger._Log(IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
                 } else {
                     SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger._Log("Chat", "Global", IncomingClient.CS.LoginName + ": " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Global", IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
                 }
             } else {
                 if (IncomingClient.CS.Global) {
                     SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger._Log("Chat", "Global", IncomingClient.CS.LoginName + ": " + Message);
+                    IncomingClient.ServerCore.Logger._Log("Global", IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
                 } else {
                     SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger._Log("Chat", IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message);
+                    IncomingClient.ServerCore.Logger._Log(IncomingClient.CS.CurrentMap.Map.MapName, IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
                 }
             }
         }

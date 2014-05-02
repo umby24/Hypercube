@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 
 using Hypercube_Classic.Libraries;
-using Hypercube_Classic.Packets;
+using Hypercube_Classic.Network;
 using Hypercube_Classic.Client;
 using Hypercube_Classic.Core;
 using Hypercube_Classic.Map;
@@ -15,8 +15,9 @@ using Hypercube_Classic.Map;
 namespace Hypercube_Classic {
     public struct NetworkSettings : ISettings {
         public string Filename { get; set; }
+        public string CurrentGroup { get; set; }
         public DateTime LastModified { get; set; }
-        public Dictionary<string, string> Settings { get; set; }
+        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
         public object LoadSettings { get; set; }
         public bool Save { get; set; }
     }
@@ -44,8 +45,9 @@ namespace Hypercube_Classic {
             ServerCore = Core;
             NS = new NetworkSettings();
             NS.Filename = "Network.txt";
-            NS.Settings = new Dictionary<string, string>();
-            NS.LoadSettings = new SettingsReader.LoadSettings(LoadNetworkSettings);
+            NS.CurrentGroup = "";
+            NS.Settings = new Dictionary<string, Dictionary<string, string>>();
+            NS.LoadSettings = new PBSettingsLoader.LoadSettings(LoadNetworkSettings);
             NS.Save = true;
             ServerCore.Settings.SettingsFiles.Add(NS);
             ServerCore.Settings.ReadSettings(NS);
@@ -59,9 +61,8 @@ namespace Hypercube_Classic {
             MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(NS, "MaxPlayers", "128"));
             VerifyNames = bool.Parse(ServerCore.Settings.ReadSetting(NS, "VerifyNames", "true"));
             Public = bool.Parse(ServerCore.Settings.ReadSetting(NS, "Public", "true"));
-            DualHeartbeat = bool.Parse(ServerCore.Settings.ReadSetting(NS, "DualHeartbeat", "true"));
 
-            ServerCore.Logger._Log("Info", "Network", "Network settings loaded.");
+            ServerCore.Logger._Log("Network", "Network settings loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace Hypercube_Classic {
             ListenThread = new Thread(HandleIncoming); // -- Creates a thread to handle incoming connections.
             ListenThread.Start();
 
-            ServerCore.Logger._Log("INFO", "NetworkHandler", "Server started on port " + Port.ToString());
+            ServerCore.Logger._Log("NetworkHandler", "Server started on port " + Port.ToString(), LogType.Info);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace Hypercube_Classic {
             if (ListenThread != null) // -- Abort the connection thread, if it is still active.
                 ListenThread.Abort();
 
-            var DisconnectPacket = new Packets.Disconnect(); // -- Send a disconnect packet to all clients that are still connected.
+            var DisconnectPacket = new Disconnect(); // -- Send a disconnect packet to all clients that are still connected.
             DisconnectPacket.Reason = "Server closing";
 
             foreach (NetworkClient c in Clients) {
@@ -123,7 +124,7 @@ namespace Hypercube_Classic {
                         RemoveItem.Write(c);
                 }
                 
-                ServerCore.Logger._Log("Info", "Network", "Player " + Disconnecting.CS.LoginName + " has disconnected."); // -- Notify of their disconnection.
+                ServerCore.Logger._Log("Network", "Player " + Disconnecting.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
                 Chat.SendGlobalChat(ServerCore, "&ePlayer " + Disconnecting.CS.FormattedName + "&e left.");
             }
 
@@ -159,7 +160,7 @@ namespace Hypercube_Classic {
                 NewClient.CS.IP = IP;
                 Clients.Add(NewClient);
 
-                ServerCore.Logger._Log("Info", "Network", "Client created (IP = " + NewClient.CS.IP + ")");
+                ServerCore.Logger._Log("Network", "Client created (IP = " + NewClient.CS.IP + ")", LogType.Info);
             }
         }
     }
