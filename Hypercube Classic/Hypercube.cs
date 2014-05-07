@@ -261,6 +261,13 @@ namespace Hypercube_Classic
             FlatGen.GenerateExisting = new FillContainer.Fill(MapGenerators.Flatgrass.GenerateFlatGrass);
             MapFills.RegisgerFill("Flatgrass", FlatGen);
 
+            var WhiteGen = new MapGenerators.WhiteMapFill();
+            WhiteGen.Name = "White";
+            WhiteGen.Script = "";
+            WhiteGen.GenerateNew = new FillContainer.FillNew(MapGenerators.White.GenerateWhiteNew);
+            WhiteGen.GenerateExisting = new FillContainer.Fill(MapGenerators.White.GenerateWhite);
+            MapFills.RegisgerFill("White", WhiteGen);
+
             #endregion
         }
 

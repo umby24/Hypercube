@@ -68,7 +68,7 @@ namespace Hypercube_Classic.MapGenerators {
             }
 
             SW.Stop();
-            Chat.SendMapChat(Map, Map.ServerCore, "&cMap created in " + ((float)(SW.ElapsedMilliseconds / 1000)).ToString() + "s.");
+            Chat.SendMapChat(Map, Map.ServerCore, "&cMap created in " + ((float)(SW.ElapsedMilliseconds / 1000F)).ToString() + "s.");
             return Map;
         }
     }

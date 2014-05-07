@@ -43,6 +43,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/maps", new MapsCommand());
             CommandDict.Add("/mapinfo", new MapInfoCommand());
             CommandDict.Add("/mapfill", new MapFillCommand());
+            CommandDict.Add("/mapfills", new MapFillsCommand());
             CommandDict.Add("/mapload", new MapLoadCommand());
             CommandDict.Add("/mapresend", new MapResendCommand());
             CommandDict.Add("/mapresize", new MapResizeCommand());

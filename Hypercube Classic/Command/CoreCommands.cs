@@ -433,7 +433,13 @@ namespace Hypercube_Classic.Command {
         public string UseRanks { get { return "2"; } }
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
-            
+            string MapFillString = "&c|";
+
+            foreach (KeyValuePair<string, IMapFill> value in Core.MapFills.MapFills) 
+                MapFillString += " &e" + value.Key + " &c|";
+
+            Chat.SendClientChat(Client, "&eMapFills:");
+            Chat.SendClientChat(Client, MapFillString);
         }
     }
     public struct MapInfoCommand : Command {

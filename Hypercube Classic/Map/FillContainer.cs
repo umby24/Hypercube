@@ -32,6 +32,10 @@ namespace Hypercube_Classic.Map {
             Servercore.Logger._Log("MapFill", "Fill registered: " + Fillname, Libraries.LogType.Info);
         }
 
+        public void RegisterFill(string Fillname, string Script, object GenerateNew, object GenerateExisting) {
+
+        }
+
         public void FillMap(HypercubeMap Map, string FillName, params object[] Args) {
             if (MapFills.ContainsKey(FillName)) {
                 var myDele = (Fill)MapFills[FillName].GenerateExisting;
