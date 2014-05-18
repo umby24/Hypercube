@@ -204,7 +204,7 @@ namespace Hypercube_Classic.Command {
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             if (args.Length == 0) { // -- List command groups
-                Chat.SendClientChat(Client, "&eCommand groups:");
+                Chat.SendClientChat(Client, "§SCommand groups:");
                 Chat.SendClientChat(Client, "&a    All");
 
                 foreach (string a in Core.Commandholder.Groups.Keys) 
@@ -212,21 +212,29 @@ namespace Hypercube_Classic.Command {
 
             } else if (args.Length == 1) { // -- list a group.
                 if (!Core.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
-                    Chat.SendClientChat(Client, "§E&fGroup '" + args[0] + "' not found.");
+                    Chat.SendClientChat(Client, "§EGroup '" + args[0] + "' not found.");
                     return;
                 }
 
-                string commandString = "§D";
+                string commandString = "§D&f ";
+                int CurrentLen = 5;
 
                 if (args[0].ToLower() == "all") {
                     foreach (string b in Core.Commandholder.CommandDict.Keys) {
                         if (!RankContainer.RankListContains(RankContainer.SplitRanks(Core, Core.Commandholder.CommandDict[b].ShowRanks), Client.CS.PlayerRanks))
                             continue;
 
-                        if (b != Core.Commandholder.CommandDict.Keys.Last())
-                            commandString += b.Substring(1, b.Length - 1) + " §D";
-                        else
-                            commandString += b.Substring(1, b.Length - 1) + " §D";
+                        if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + CurrentLen >= 59) {
+                            commandString += "<br>§D&f " + b.Substring(1, b.Length - 1) + " §D&f ";
+                            CurrentLen = ("§D&f " + b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                        } else {
+                            commandString += b.Substring(1, b.Length - 1) + " §D&f ";
+                            CurrentLen += (b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                        }
+                        //if (b != Core.Commandholder.CommandDict.Keys.Last())
+                        //    commandString += b.Substring(1, b.Length - 1) + " §D&f ";
+                        //else
+                        //    commandString += b.Substring(1, b.Length - 1) + " §D";
                     }
 
                     Chat.SendClientChat(Client, "&aAll Commands:<br>" + commandString);
@@ -237,10 +245,17 @@ namespace Hypercube_Classic.Command {
                     if (!RankContainer.RankListContains(RankContainer.SplitRanks(Core, Core.Commandholder.CommandDict["/" + b].ShowRanks), Client.CS.PlayerRanks))
                         continue;
 
-                    if (b != Core.Commandholder.Groups[args[0]].Last())
-                        commandString += b + " §D";
-                    else
-                        commandString += b + " §D";
+                    if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + CurrentLen >= 59) {
+                        commandString += "<br>§D&f " + b.Substring(1, b.Length - 1) + " §D&f ";
+                        CurrentLen = ("§D&f " + b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                    } else {
+                        commandString += b.Substring(1, b.Length - 1) + " §D&f ";
+                        CurrentLen += (b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                    }
+                    //if (b != Core.Commandholder.Groups[args[0]].Last())
+                    //    commandString += b + " §D&f ";
+                    //else
+                    //    commandString += b + " §D";
                 }
 
                 Chat.SendClientChat(Client, "&aGroup " + args[0]);

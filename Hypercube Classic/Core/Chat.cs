@@ -199,7 +199,7 @@ namespace Hypercube_Classic.Core {
                         temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 
                         // -- Finally, Remove this part of the string from the original Builder[i], and add our newline seperators.
-                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex + 1, Builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
+                        Builder[i] = "&3>>" + Builder[i].Substring(thisIndex + 1, Builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
                     } else {
                         // -- Since Builder[i] is not (or is no longer) greater than 64 characters long, we can simply remove the whole thing :)
                         temp += Builder[i];

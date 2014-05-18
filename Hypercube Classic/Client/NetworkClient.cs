@@ -204,7 +204,7 @@ namespace Hypercube_Classic.Client {
                         ExtPlayerListPacket.NameID = CS.NameID;
                         ExtPlayerListPacket.ListName = CS.FormattedName;
                         ExtPlayerListPacket.PlayerName = CS.LoginName;
-                        ExtPlayerListPacket.GroupName = "&c" + CS.CurrentMap.Map.MapName;
+                        ExtPlayerListPacket.GroupName = ServerCore.TextFormats.ExtPlayerList + CS.CurrentMap.Map.MapName;
                         
                         ExtPlayerListPacket.Write(c);
 
@@ -212,14 +212,14 @@ namespace Hypercube_Classic.Client {
                             ExtPlayerListPacket.NameID = c.CS.NameID;
                             ExtPlayerListPacket.ListName = c.CS.FormattedName;
                             ExtPlayerListPacket.PlayerName = c.CS.LoginName;
-                            ExtPlayerListPacket.GroupName = "&c" + c.CS.CurrentMap.Map.MapName;
+                            ExtPlayerListPacket.GroupName = ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.Map.MapName;
                             ExtPlayerListPacket.Write(this);
                         }
                     } else {
                         ExtPlayerListPacket.NameID = CS.NameID;
                         ExtPlayerListPacket.ListName = CS.FormattedName;
                         ExtPlayerListPacket.PlayerName = CS.LoginName;
-                        ExtPlayerListPacket.GroupName = "&c" + CS.CurrentMap.Map.MapName;
+                        ExtPlayerListPacket.GroupName = ServerCore.TextFormats.ExtPlayerList + CS.CurrentMap.Map.MapName;
                         ExtPlayerListPacket.Write(c);
                     }
                 }
