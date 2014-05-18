@@ -437,7 +437,12 @@ namespace Hypercube_Classic.Command {
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "&4Error:&f This command requires 1 or more arguments.<br>See /cmdhelp mapfill.");
+                Chat.SendClientChat(Client, "§EThis command requires 1 or more arguments.<br>See /cmdhelp mapfill.");
+                return;
+            }
+
+            if (!Core.MapFills.MapFills.ContainsKey(args[0])) {
+                Chat.SendClientChat(Client, "§EMapfill '" + args[0] + "' not found. See /mapfills.");
                 return;
             }
 

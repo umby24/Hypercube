@@ -20,7 +20,7 @@ namespace Hypercube_Classic.Map {
         public delegate HypercubeMap Fill(HypercubeMap Map);
 
         public FillContainer(Hypercube Core) {
-            MapFills = new Dictionary<string, IMapFill>();
+            MapFills = new Dictionary<string, IMapFill>(StringComparer.InvariantCultureIgnoreCase);
             Servercore = Core;
         }
 
