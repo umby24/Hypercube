@@ -21,15 +21,6 @@ using Hypercube_Classic.Network;
 
 namespace Hypercube_Classic
 {
-    public struct SystemSettings : ISettings {
-        public string Filename { get; set; }
-        public string CurrentGroup { get; set; }
-        public DateTime LastModified { get; set; }
-        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
-        public object LoadSettings { get; set; }
-        public bool Save { get; set; }
-    }
-
     /// <summary>
     /// The main class for the Hypercube server
     /// </summary>
@@ -40,14 +31,15 @@ namespace Hypercube_Classic
         public LuaWrapper LuaHandler;
         public NetworkHandler nh;
         public List<HypercubeMap> Maps;
-        public SystemSettings SysSettings;
-        public SystemSettings RulesSettings;
+        public ISettings SysSettings;
+        public ISettings RulesSettings;
         public Database Database;
         public RankContainer Rankholder;
         public BlockContainer Blockholder;
         public Commands Commandholder;
         public BuildMode BMContainer;
         public FillContainer MapFills;
+        public Text TextFormats;
 
         public bool Running = false;
         public int OnlinePlayers = 0;
@@ -72,9 +64,12 @@ namespace Hypercube_Classic
         /// Initiates a new Hypercube server.
         /// </summary>
         public Hypercube() {
+            Settings = new PBSettingsLoader(this);
+            TextFormats = new Text(this);
+
             // -- Initiate logging
 
-            Logger = new Logging("Log", false, false); // -- Initially, we will not log anything. This will be left up to user option.
+            Logger = new Logging(this, "Log", false, false); // -- Initially, we will not log anything. This will be left up to user option.
 
             // -- Load settings
 
@@ -95,18 +90,16 @@ namespace Hypercube_Classic
 
             Logger._Log("Core", "Database Initilized.", LogType.Info);
 
-            // -- Load and initiate basic server settings and rules.
+            // -- Load and initiate basic server settings and rules.            
 
-            Settings = new PBSettingsLoader(this);
-
-            SysSettings = new SystemSettings();
+            SysSettings = new ISettings();
             SysSettings.Filename = "System.txt";
             SysSettings.CurrentGroup = "";
             SysSettings.Settings = new Dictionary<string, Dictionary<string, string>>();
             SysSettings.LoadSettings = new PBSettingsLoader.LoadSettings(ReadSystemSettings);
             SysSettings.Save = true;
 
-            RulesSettings = new SystemSettings();
+            RulesSettings = new ISettings();
             RulesSettings.Filename = "Rules.txt";
             RulesSettings.CurrentGroup = "";
             RulesSettings.Settings = new Dictionary<string, Dictionary<string, string>>();
@@ -267,6 +260,13 @@ namespace Hypercube_Classic
             WhiteGen.GenerateNew = new FillContainer.FillNew(MapGenerators.White.GenerateWhiteNew);
             WhiteGen.GenerateExisting = new FillContainer.Fill(MapGenerators.White.GenerateWhite);
             MapFills.RegisgerFill("White", WhiteGen);
+
+            var WireGen = new MapGenerators.FlatgrassFill();
+            WireGen.Name = "Wireworld";
+            WireGen.Script = "";
+            WireGen.GenerateNew = new FillContainer.FillNew(MapGenerators.Wireworld.GenerateWhiteNew);
+            WireGen.GenerateExisting = new FillContainer.Fill(MapGenerators.Wireworld.GenerateWhite);
+            MapFills.RegisgerFill("Wireworld", WireGen);
 
             #endregion
         }

@@ -508,6 +508,9 @@ namespace Hypercube_Classic.Network {
             Core.Logger._Log("CPE", "Client " + Client.CS.IP + " is running on " + AppName + ", which supports " + ExtensionCount.ToString() + " extensions.", Libraries.LogType.Info);
             Client.CS.Appname = AppName;
             Client.CS.Extensions = ExtensionCount;
+
+            if (Client.CS.Extensions == 0)
+                CPE.CPEPackets(Client);
         }
     }
 

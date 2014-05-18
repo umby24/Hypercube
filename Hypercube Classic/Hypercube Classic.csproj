@@ -115,6 +115,7 @@
     <Compile Include="Core\Chat.cs" />
     <Compile Include="Core\Entity.cs" />
     <Compile Include="MapGenerators\White.cs" />
+    <Compile Include="MapGenerators\Wireworld.cs" />
     <Compile Include="Network\Heartbeat.cs" />
     <Compile Include="Core\Permissions.cs" />
     <Compile Include="Core\Rank.cs" />

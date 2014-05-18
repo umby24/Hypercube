@@ -19,9 +19,10 @@ namespace Hypercube_Classic.Libraries {
     public class Logging {
         public bool FileLogging = true, ColoredOutput = false;
         public string LogFile;
+        public Hypercube Servercore;
         private short Rotation = 0;
 
-        public Logging(string _logFile, bool rotate, bool logging = true) {
+        public Logging(Hypercube Core, string _logFile, bool rotate, bool logging = true) {
             LogFile = _logFile;
             FileLogging = logging;
 
@@ -30,6 +31,8 @@ namespace Hypercube_Classic.Libraries {
 
             if (rotate && File.Exists("Logs\\" + LogFile + ".txt") && logging) 
                 RotateLogs();
+
+            Servercore = Core;
         }
 
         /// <summary>
@@ -40,38 +43,61 @@ namespace Hypercube_Classic.Libraries {
         /// <param name="message">The acutal message this log is producing.</param>
         public void _Log(string module, string message, LogType type = LogType.NotSet) {
             if (!ColoredOutput) 
-                Console.WriteLine(DateTime.Now.ToShortTimeString() + " [" + type.ToString() + "] [" + module + "] " + message);
+                Console.WriteLine(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + message);
              else {
                 switch (type) {
                     case LogType.Debug:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &7[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " + 
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.DebugConsole) + " " + 
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " + 
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Info:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &e[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.InfoConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Warning:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &6[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.WarningConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Error:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &c[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ErrorConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Critical:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &4[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.CriticalConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Chat:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &7[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ChatConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.Command:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &a[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.CommandConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                     case LogType.NotSet:
-                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + " &b[" + type.ToString() + "] &9[" + module + "]&f " + message);
+                        ColoredConsole.ColorConvertingConsole.WriteLine(DateTime.Now.ToShortTimeString() + "> " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.NotSetConsole) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleModule) + " " +
+                            Text.FormatString(module, type.ToString(), message, Servercore.TextFormats.ConsoleMessage));
                         break;
                 }
             }
 
             if (FileLogging)
-                LogWrite(DateTime.Now.ToShortTimeString() + " [" + type.ToString() + "] [" + module + "] " + message);
+                LogWrite(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + message);
         }
 
         /// <summary>

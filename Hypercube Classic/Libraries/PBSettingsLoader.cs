@@ -9,13 +9,13 @@ namespace Hypercube_Classic.Libraries {
     /// <summary>
     /// Public interface for easy settings management. This allows settings to be reloaded as they are changed.
     /// </summary>
-    public interface ISettings {
-        string Filename { get; set; }
-        string CurrentGroup { get; set; }
-        DateTime LastModified { get; set; }
-        Dictionary<string, Dictionary<string, string>> Settings { get; set; }
-        object LoadSettings { get; set; }
-        bool Save { get; set; }
+    public class ISettings {
+        public string Filename { get; set; }
+        public string CurrentGroup { get; set; }
+        public DateTime LastModified { get; set; }
+        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
+        public object LoadSettings { get; set; }
+        public bool Save { get; set; }
     }
 
     public class PBSettingsLoader {
@@ -66,7 +66,7 @@ namespace Hypercube_Classic.Libraries {
                 }
             }
 
-            SettingsFile.LastModified = File.GetLastWriteTime(SettingsFile.Filename);
+            SettingsFile.LastModified = File.GetLastWriteTime("Settings/" + SettingsFile.Filename);
         }
 
         /// <summary>
@@ -93,11 +93,11 @@ namespace Hypercube_Classic.Libraries {
                         if (SettingsFile.CurrentGroup == "" && !SettingsFile.Settings.ContainsKey(""))
                             SettingsFile.Settings.Add("", new Dictionary<string, string>());
 
-                        try {
+                        if (SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')))
+                            SettingsFile.Settings[SettingsFile.CurrentGroup][thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')] = thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' ');
+                         else 
                             SettingsFile.Settings[SettingsFile.CurrentGroup].Add(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' '), thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' '));
-                        } catch {
-
-                        }
+                        
                     }
                 }
             }
@@ -127,6 +127,13 @@ namespace Hypercube_Classic.Libraries {
         /// <param name="def"></param>
         /// <returns>string</returns>
         public string ReadSetting(ISettings SettingsFile, string Key, string def) {
+            if (!SettingsFile.Settings.ContainsKey(SettingsFile.CurrentGroup)) {
+                SettingsFile.Settings.Add(SettingsFile.CurrentGroup, new Dictionary<string, string>());
+                SettingsFile.CurrentGroup = SettingsFile.CurrentGroup;
+                SettingsFile.Settings[SettingsFile.CurrentGroup].Add(Key, def);
+                return def;
+            }
+
             if (!SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(Key)) {
                 SettingsFile.Settings[SettingsFile.CurrentGroup].Add(Key, def);
                 return def;
@@ -158,12 +165,20 @@ namespace Hypercube_Classic.Libraries {
 
         public void SettingsMain() {
             while (ServerCore.Running) {
-                foreach (ISettings c in SettingsFiles) {
-                    if (File.GetLastWriteTime("Settings/" + c.Filename) != c.LastModified)
-                        ReadSettings(c);
+                for (int i = 0; i < SettingsFiles.Count; i++) {
+                    if (File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename) != SettingsFiles[i].LastModified) {
+                        ReadSettings(SettingsFiles[i]);
+                        SettingsFiles[i].LastModified = File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename);
+                    }
                 }
+                    //foreach (ISettings c in SettingsFiles) {
+                    //    if (File.GetLastWriteTime("Settings/" + c.Filename) != c.LastModified) {
+                    //        ReadSettings(c);
+                    //        c.LastModified = File.GetLastWriteTime("Settings/" + c.Filename);
+                    //    }
+                    //}
 
-                Thread.Sleep(1000);
+                    Thread.Sleep(1000);
             }
         }
     }

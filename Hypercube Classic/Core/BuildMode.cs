@@ -32,13 +32,13 @@ namespace Hypercube_Classic.Core {
     public class BuildMode {
         public const string FileName = "Buildmodes.txt";
         public List<BMStruct> Modes;
-        public SystemSettings BuildModeLoader;
+        public ISettings BuildModeLoader;
         Hypercube ServerCore;
 
         public BuildMode(Hypercube Core) {
             ServerCore = Core;
 
-            BuildModeLoader = new SystemSettings();
+            BuildModeLoader = new ISettings();
             BuildModeLoader.Filename = FileName;
             BuildModeLoader.CurrentGroup = "";
             BuildModeLoader.Settings = new Dictionary<string, Dictionary<string, string>>();
@@ -59,7 +59,7 @@ namespace Hypercube_Classic.Core {
 
             foreach (string bm in BuildModeLoader.Settings.Keys) {
                 var myStruct = new BMStruct();
-                BuildModeLoader = (SystemSettings)ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
+                BuildModeLoader = ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
                 myStruct.Name = ServerCore.Settings.ReadSetting(BuildModeLoader, "Name", "");
                 myStruct.Plugin = ServerCore.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
                 Modes.Add(myStruct);

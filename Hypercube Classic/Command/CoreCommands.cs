@@ -384,6 +384,27 @@ namespace Hypercube_Classic.Command {
             }
         }
     }
+    public struct MapAddCommand : Command {
+        public string Command { get { return "/mapadd"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eAdds a new map.<br>&eUsage: /mapadd [Name]"; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            if (args.Length == 0) {
+                Chat.SendClientChat(Client, "&4Error:&f This command requires 1 argument. See /cmdhelp mapadd for usage.");
+                return;
+            }
+
+            var NewMap = new HypercubeMap(Core, "Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
+            Core.Maps.Add(NewMap);
+
+            Chat.SendClientChat(Client, "&eMap added successfully.");
+        }
+    }
     public struct MapsCommand : Command {
         public string Command { get { return "/maps"; } }
         public string Plugin { get { return ""; } }
@@ -531,7 +552,7 @@ namespace Hypercube_Classic.Command {
             if (args.Length == 0) 
                 Client.CS.CurrentMap.SaveMap();
              else 
-                Client.CS.CurrentMap.SaveMap(args[0]);
+                Client.CS.CurrentMap.SaveMap("/Maps/" + args[0] + ".cw");
             
             Chat.SendClientChat(Client, "&eMap saved.");
         }
@@ -895,6 +916,26 @@ namespace Hypercube_Classic.Command {
             Chat.SendClientChat(Client, "&e" + args[0] + "'s Rank was updated.");
         }
     }
+    public struct SetSpawnCommand : Command {
+        public string Command { get { return "/setspawn"; } }
+        public string Plugin { get { return ""; } }
+        public string Group { get { return "Map"; } }
+        public string Help { get { return "&eChanges the spawnpoint of the map."; } }
+
+        public string ShowRanks { get { return "2"; } }
+        public string UseRanks { get { return "2"; } }
+
+        public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
+            Client.CS.CurrentMap.Map.SpawnX = (short)(Client.CS.MyEntity.X / 32);
+            Client.CS.CurrentMap.Map.SpawnY = (short)(Client.CS.MyEntity.Z / 32);
+            Client.CS.CurrentMap.Map.SpawnZ = (short)(Client.CS.MyEntity.Y / 32);
+            Client.CS.CurrentMap.Map.SpawnLook = Client.CS.MyEntity.Look;
+            Client.CS.CurrentMap.Map.SpawnRotation = Client.CS.MyEntity.Rot;
+            Client.CS.CurrentMap.SaveMap();
+
+            Chat.SendClientChat(Client, "&eSpawnpoint set.");
+        }
+    }
     public struct StopCommand : Command {
         public string Command { get { return "/stop"; } }
         public string Plugin { get { return ""; } }
@@ -1007,7 +1048,6 @@ namespace Hypercube_Classic.Command {
             }
         }
     }
-
     public struct UnstopCommand : Command {
         public string Command { get { return "/unstop"; } }
         public string Plugin { get { return ""; } }

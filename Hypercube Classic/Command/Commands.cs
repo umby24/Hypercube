@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
+using Hypercube_Classic.Libraries;
 using Hypercube_Classic.Core;
 using Hypercube_Classic.Client;
 
@@ -24,7 +25,7 @@ namespace Hypercube_Classic.Command {
         public Dictionary<string, Command> CommandDict;
         public Dictionary<string, List<string>> Groups;
         public Dictionary<string, List<string>> Aliases;
-        public SystemSettings AliasLoader;
+        public ISettings AliasLoader;
         public Hypercube ServerCore;
 
         public Commands(Hypercube Core) {
@@ -40,6 +41,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/global", new GlobalCommand());
             CommandDict.Add("/kick", new KickCommand());
             CommandDict.Add("/map", new MapCommand());
+            CommandDict.Add("/mapadd", new MapAddCommand());
             CommandDict.Add("/maps", new MapsCommand());
             CommandDict.Add("/mapinfo", new MapInfoCommand());
             CommandDict.Add("/mapfill", new MapFillCommand());
@@ -58,6 +60,7 @@ namespace Hypercube_Classic.Command {
             CommandDict.Add("/redo", new RedoCommand());
             CommandDict.Add("/rules", new RulesCommand());
             CommandDict.Add("/setrank", new SetrankCommand());
+            CommandDict.Add("/setspawn", new SetSpawnCommand());
             CommandDict.Add("/stop", new StopCommand());
             CommandDict.Add("/unban", new UnbanCommand());
             CommandDict.Add("/undo", new UndoCommand());
@@ -66,15 +69,16 @@ namespace Hypercube_Classic.Command {
 
             ServerCore = Core;
 
-            AliasLoader = new SystemSettings();
+            AliasLoader = new ISettings();
             AliasLoader.Filename = "Aliases.txt";
             AliasLoader.Settings = new Dictionary<string, Dictionary<string, string>>();
             AliasLoader.LoadSettings = new Hypercube_Classic.Libraries.PBSettingsLoader.LoadSettings(LoadAliases);
+            AliasLoader.Save = false;
 
+            ServerCore.Settings.ReadSettings(AliasLoader);
             ServerCore.Settings.SettingsFiles.Add(AliasLoader);
 
             RegisterGroups();
-            LoadAliases();
         }
 
         public void HandleCommand(Hypercube Core, NetworkClient Client, string Message) {
@@ -208,21 +212,21 @@ namespace Hypercube_Classic.Command {
 
             } else if (args.Length == 1) { // -- list a group.
                 if (!Core.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
-                    Chat.SendClientChat(Client, "&4Error: &fGroup '" + args[0] + "' not found.");
+                    Chat.SendClientChat(Client, "§E&fGroup '" + args[0] + "' not found.");
                     return;
                 }
 
-                string commandString = "&3| &f";
+                string commandString = "§D";
 
                 if (args[0].ToLower() == "all") {
                     foreach (string b in Core.Commandholder.CommandDict.Keys) {
                         if (!RankContainer.RankListContains(RankContainer.SplitRanks(Core, Core.Commandholder.CommandDict[b].ShowRanks), Client.CS.PlayerRanks))
                             continue;
 
-                        if (b != Core.Commandholder.CommandDict.Keys.Last()) 
-                            commandString += b.Substring(1, b.Length - 1) + " | ";
+                        if (b != Core.Commandholder.CommandDict.Keys.Last())
+                            commandString += b.Substring(1, b.Length - 1) + " §D";
                         else
-                            commandString += b.Substring(1, b.Length - 1) + " &3|";
+                            commandString += b.Substring(1, b.Length - 1) + " §D";
                     }
 
                     Chat.SendClientChat(Client, "&aAll Commands:<br>" + commandString);
@@ -234,15 +238,15 @@ namespace Hypercube_Classic.Command {
                         continue;
 
                     if (b != Core.Commandholder.Groups[args[0]].Last())
-                        commandString += b + " | ";
+                        commandString += b + " §D";
                     else
-                        commandString += b + " &3|";
+                        commandString += b + " §D";
                 }
 
                 Chat.SendClientChat(Client, "&aGroup " + args[0]);
                 Chat.SendClientChat(Client, commandString);
             } else {
-                Chat.SendClientChat(Client, "&4Error: &fWrong number of arguments supplied.");
+                Chat.SendClientChat(Client, "§E&fWrong number of arguments supplied.");
                 return;
             }
         }
@@ -259,11 +263,11 @@ namespace Hypercube_Classic.Command {
 
         public void Run(string Command, string[] args, string Text1, string Text2, Hypercube Core, NetworkClient Client) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "&4Error: &fUsage of this command: /cmdhelp [command].");
+                Chat.SendClientChat(Client, "§E&fUsage of this command: /cmdhelp [command].");
                 return;
             }
             if (Core.Commandholder.CommandDict.ContainsKey("/" + args[0].ToLower()) == false) {
-                Chat.SendClientChat(Client, "&4Error: &fCommand not found.");
+                Chat.SendClientChat(Client, "§E&fCommand not found.");
                 return;
             }
 

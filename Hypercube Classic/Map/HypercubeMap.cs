@@ -24,7 +24,7 @@ namespace Hypercube_Classic.Map {
         public bool Building;
         public bool History;
         public string MOTD;
-
+        
         public NbtCompound Read(NbtCompound Metadata) {
             var HCData = Metadata.Get<NbtCompound>("Hypercube");
 

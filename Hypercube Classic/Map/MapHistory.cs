@@ -124,6 +124,7 @@ namespace Hypercube_Classic.Map {
         /// </summary>
         public void ReloadHistory() {
             ThisMap.ServerCore.Logger._Log("MapHistory", "Reloaded history", LogType.Debug);
+
             if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == false)
                 GZip.DecompressFile(BaseName + ".hch");
         }
@@ -134,6 +135,7 @@ namespace Hypercube_Classic.Map {
         public void UnloadHistory() {
             SaveEntries();
             ThisMap.ServerCore.Logger._Log("MapHistory", "Unloaded history", LogType.Debug);
+
             if (ThisMap.ServerCore.CompressHistory && ThisMap.Loaded == true)
                 GZip.CompressFile(BaseName + ".hch");
         }
@@ -183,10 +185,10 @@ namespace Hypercube_Classic.Map {
                         FS.Read(ThisEntry, 0, 10);
                         TempArray[i].FromByteArray(ThisEntry, h.x, h.y, h.z);
 
-                        if (TempArray[i].Player == h.Player) {
+                        if (TempArray[i].Player == h.Player) { // -- If there is a player, update the new block, and the change time.
                             TempArray[i].Timestamp = h.Timestamp;
                             TempArray[i].NewBlock = h.NewBlock;
-                            shift = true;
+                            shift = true; // -- This entry now needs to be shifted.
                         }
 
                         ThisEntry = null;
@@ -199,6 +201,7 @@ namespace Hypercube_Classic.Map {
                         foreach (HistoryEntry z in TempArray) // -- Write the newly ordered entries
                             FS.Write(z.ToByteArray(), 0, 10);
 
+                        TempArray = null;
                         continue; // -- Move to the next iteration.
                     }
 
@@ -213,6 +216,7 @@ namespace Hypercube_Classic.Map {
                         foreach (HistoryEntry z in TempArray) // -- Write the newly ordered entries
                             FS.Write(z.ToByteArray(), 0, 10);
 
+                        TempArray = null;
                         continue; // -- Move on to the next iteration.
                     }
 
@@ -231,6 +235,7 @@ namespace Hypercube_Classic.Map {
                     FS.Write(BitConverter.GetBytes(EndPosition), 0, 4); // -- Write in the location for that block's entries.
 
                     Fragmented = true;
+                    TempArray = null;
                     // -- Annnd that's all folks!
                 }
             }
@@ -292,6 +297,7 @@ namespace Hypercube_Classic.Map {
                             break;
                         }
                     }
+
                     if (Lebroke) {
                         Lebroke = false;
                         continue;
@@ -316,6 +322,8 @@ namespace Hypercube_Classic.Map {
                 Result = TempList.ToArray();
             }
 
+            TempList = null;
+
             return Result;
         }
 
@@ -335,6 +343,7 @@ namespace Hypercube_Classic.Map {
                 return result;
             }
         }
+
         /// <summary>
         /// Creates an entry into the History System. Will not be saved until SaveEntries() is called.
         /// </summary>

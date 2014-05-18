@@ -13,15 +13,6 @@ using Hypercube_Classic.Core;
 using Hypercube_Classic.Map;
 
 namespace Hypercube_Classic {
-    public struct NetworkSettings : ISettings {
-        public string Filename { get; set; }
-        public string CurrentGroup { get; set; }
-        public DateTime LastModified { get; set; }
-        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
-        public object LoadSettings { get; set; }
-        public bool Save { get; set; }
-    }
-
     /// <summary>
     /// Handles clients trying to connect, and is a container for some network settings.
     /// </summary>
@@ -30,7 +21,7 @@ namespace Hypercube_Classic {
         public ClassicWrapped.ClassicWrapped wSock;
         public List<Client.NetworkClient> Clients;
         public TcpListener CoreListener;
-        public NetworkSettings NS;
+        public ISettings NS;
         public object WriteLock = new object();
 
         // -- Network Settings
@@ -43,7 +34,7 @@ namespace Hypercube_Classic {
 
         public NetworkHandler(Hypercube Core) {
             ServerCore = Core;
-            NS = new NetworkSettings();
+            NS = new ISettings();
             NS.Filename = "Network.txt";
             NS.CurrentGroup = "";
             NS.Settings = new Dictionary<string, Dictionary<string, string>>();

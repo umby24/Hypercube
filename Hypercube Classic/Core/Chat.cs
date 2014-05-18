@@ -18,7 +18,7 @@ namespace Hypercube_Classic.Core {
             var Chat = new Message();
             Chat.PlayerID = MessageType;
             
-            Message = Text.CleanseString(Message);
+            Message = Text.CleanseString(Message, Core);
 
             if (Log)
                 Core.Logger._Log("Global", Message, LogType.Chat);
@@ -44,7 +44,7 @@ namespace Hypercube_Classic.Core {
             var Chat = new Message();
             Chat.PlayerID = MessageType;
 
-            Message = Text.CleanseString(Message);
+            Message = Text.CleanseString(Message, Core);
 
             if (Log)
                 Core.Logger._Log(Map.Map.MapName, Message, LogType.Chat);
@@ -64,7 +64,7 @@ namespace Hypercube_Classic.Core {
         /// Sends chat to an individual client
         /// </summary>
         public static void SendClientChat(NetworkClient Client, string Message, sbyte MessageType = 0) {
-            Message = Text.CleanseString(Message);
+            Message = Text.CleanseString(Message, Client.ServerCore);
             //TODO: Emote Replace
             string[] Sending = SplitLines(Message);
             var Chat = new Message();

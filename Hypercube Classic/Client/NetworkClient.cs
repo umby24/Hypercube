@@ -282,15 +282,19 @@ namespace Hypercube_Classic.Client {
         void Timeout() {
             while (BaseSocket.Connected) {
 
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
-
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
+                    var MyPing = new Ping();
+                    MyPing.Write(this);
+                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
                     ServerCore.Logger._Log("Timeout", "Player " + CS.IP + " timed out.", Libraries.LogType.Info);
                     KickPlayer("Timed out");
                     return;
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
+
+            ServerCore.nh.HandleDisconnect(this);
         }
     }
 }
