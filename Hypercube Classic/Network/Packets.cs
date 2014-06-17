@@ -20,7 +20,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(ProtocolVersion);
                 Client.wSock.WriteString(Name);
@@ -36,41 +36,26 @@ namespace Hypercube_Classic.Network {
 
             if (ProtocolVersion != 7) {
                 Core.Logger._Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion.ToString() + ")", Libraries.LogType.Info);
-
-                var DisconnectPack = new Disconnect();
-                DisconnectPack.Reason = "Unsupported protocol version.";
-                DisconnectPack.Write(Client);
+                Client.KickPlayer("Unsupported protocol version.");
             }
 
             if (!Core.ClassicubeHeartbeat.VerifyClientName(Client)) {
                 Core.Logger._Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", Libraries.LogType.Info);
-
-                var DisconnectPack = new Disconnect();
-                DisconnectPack.Reason = "Name verification incorrect.";
-                DisconnectPack.Write(Client);
+                Client.KickPlayer("Name verification incorrect.");
             }
 
             if (Libraries.Text.StringMatches(Name)) {
                 Core.Logger._Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", Libraries.LogType.Info);
-
-                var DisconnectPack = new Disconnect();
-                DisconnectPack.Reason = "Invalid characters in name.";
-                DisconnectPack.Write(Client);
+                Client.KickPlayer("Invalid characters in name.");
             }
 
             if (Name == "") {
                 Core.Logger._Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", Libraries.LogType.Info);
-
-                var DisconnectPack = new Disconnect();
-                DisconnectPack.Reason = "Invalid characters in name.";
-                DisconnectPack.Write(Client);
+                Client.KickPlayer("Invalid name.");
             }
 
-            if (Core.OnlinePlayers > Core.nh.MaxPlayers) {
-                var DisconnectPack = new Disconnect();
-                DisconnectPack.Reason = "Server is full.";
-                DisconnectPack.Write(Client);
-            }
+            if (Core.OnlinePlayers > Core.nh.MaxPlayers) 
+                Client.KickPlayer("Server is full.");
 
             Client.CS.MPPass = MOTD;
             Client.CS.LastActive = System.DateTime.UtcNow;
@@ -95,7 +80,7 @@ namespace Hypercube_Classic.Network {
 
         }
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.Purge();
             }
@@ -112,7 +97,7 @@ namespace Hypercube_Classic.Network {
 
         }
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.Purge();
             }
@@ -134,7 +119,7 @@ namespace Hypercube_Classic.Network {
             Percent = Client.wSock.ReadByte();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(Length);
                 Client.wSock.WriteByteArray(Data);
@@ -160,7 +145,7 @@ namespace Hypercube_Classic.Network {
             SizeY = Client.wSock.ReadShort();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(SizeX);
                 Client.wSock.WriteShort(SizeZ);
@@ -190,7 +175,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(X);
                 Client.wSock.WriteShort(Z);
@@ -220,7 +205,7 @@ namespace Hypercube_Classic.Network {
             Block = Client.wSock.ReadByte();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(X);
                 Client.wSock.WriteShort(Z);
@@ -255,7 +240,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteString(PlayerName);
@@ -292,7 +277,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteShort(X);
@@ -339,7 +324,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteShort(ChangeX);
@@ -408,7 +393,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
             }
@@ -430,7 +415,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteString(Text);
@@ -452,7 +437,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(Reason);
                 Client.wSock.Purge();
@@ -473,7 +458,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(Rank);
                 Client.wSock.Purge();
@@ -496,7 +481,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(AppName);
                 Client.wSock.WriteShort(ExtensionCount);
@@ -525,7 +510,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(ExtName);
                 Client.wSock.WriteInt(Version);
@@ -550,7 +535,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(Distance);
                 Client.wSock.Purge();
@@ -571,7 +556,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SupportLevel);
                 Client.wSock.Purge();
@@ -595,7 +580,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(BlockToHold);
                 Client.wSock.WriteByte(PreventChange);
@@ -620,7 +605,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(Label);
                 Client.wSock.WriteString(Action);
@@ -648,7 +633,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(NameID);
                 Client.wSock.WriteString(PlayerName);
@@ -675,7 +660,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(EntityID);
                 Client.wSock.WriteString(InGameName);
@@ -696,7 +681,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(NameID);
                 Client.wSock.Purge();
@@ -720,7 +705,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(ColorType);
                 Client.wSock.WriteShort(Red);
@@ -755,7 +740,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SelectionID);
                 Client.wSock.WriteString(Label);
@@ -787,7 +772,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SelectionID);
                 Client.wSock.Purge();
@@ -810,7 +795,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(BlockType);
                 Client.wSock.WriteByte(AllowPlacement);
@@ -834,7 +819,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(EntityID);
                 Client.wSock.WriteString(ModelName);
@@ -858,7 +843,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(TextureURL);
                 Client.wSock.WriteByte(SideBlock);
@@ -881,7 +866,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(WeatherType);
                 Client.wSock.Purge();
@@ -906,7 +891,7 @@ namespace Hypercube_Classic.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.ServerCore.nh.WriteLock) {
+            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(Flying);
                 Client.wSock.WriteByte(NoClip);

@@ -18,15 +18,13 @@ namespace Hypercube_Classic {
     /// </summary>
     public class NetworkHandler {
         #region Variables
-        public ClassicWrapped.ClassicWrapped wSock;
         public List<Client.NetworkClient> Clients;
         public TcpListener CoreListener;
         public ISettings NS;
-        public object WriteLock = new object();
 
         // -- Network Settings
         public int Port, MaxPlayers;
-        public bool VerifyNames, Public, DualHeartbeat;
+        public bool VerifyNames, Public;
 
         Hypercube ServerCore;
         Thread ListenThread;
@@ -83,15 +81,8 @@ namespace Hypercube_Classic {
             if (ListenThread != null) // -- Abort the connection thread, if it is still active.
                 ListenThread.Abort();
 
-            var DisconnectPacket = new Disconnect(); // -- Send a disconnect packet to all clients that are still connected.
-            DisconnectPacket.Reason = "Server closing";
-
-            foreach (NetworkClient c in Clients) {
-                DisconnectPacket.Write(c);
-                c.DataRunner.Abort();
-            }
-
-            Clients.Clear(); // -- Annnd kill them. :)
+            foreach (NetworkClient c in Clients) 
+                c.KickPlayer("Server closing.");
         }
 
         /// <summary>

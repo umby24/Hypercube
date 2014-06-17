@@ -65,7 +65,7 @@ namespace Hypercube_Classic.Network {
             
             while (ServerCore.Running) {
                 try {
-                    string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&salt=" + HttpUtility.UrlEncode(Salt));
+                    string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
                     ServerCore.Logger._Log("Heartbeat", "Heartbeat sent.", Libraries.LogType.Info);
                     File.WriteAllText("ServerURL.txt", Response);
                 } catch (Exception e) {

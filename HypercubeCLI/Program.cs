@@ -18,6 +18,7 @@ namespace HypercubeCLI {
 
             var Server = new Hypercube();
             Server.Start();
+            Console.Title = "Hypercube";
 
             string Input = "";
 

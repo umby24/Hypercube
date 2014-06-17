@@ -23,6 +23,8 @@ namespace Hypercube_Classic.Client {
         public Thread ClientTimeout;
         public ClientSettings CS;
         public Hypercube ServerCore;
+        public object WriteLock = new object();
+
         Dictionary<byte, Func<IPacket>> Packets;
         #endregion
 
@@ -118,6 +120,7 @@ namespace Hypercube_Classic.Client {
             
             CS.CurrentIndex += Steps;
         }
+        
         /// <summary>
         /// Performs basic login functions for this client. 
         /// </summary>
@@ -194,7 +197,6 @@ namespace Hypercube_Classic.Client {
                 ServerCore.NextID = ServerCore.FreeID;
             }
 
-            //TODO: CPE ExtPlayerList
             var ExtPlayerListPacket = new ExtAddPlayerName();
             ExtPlayerListPacket.GroupRank = 0;
 
@@ -264,8 +266,8 @@ namespace Hypercube_Classic.Client {
 
             } catch (Exception e) {
                 if (e.GetType() != typeof(System.IO.IOException)) {
-                    ServerCore.Logger._Log("Dunno", e.Message, Libraries.LogType.Error);
-                    ServerCore.Logger._Log("Dunno", e.StackTrace, Libraries.LogType.Error);
+                    ServerCore.Logger._Log("Client", e.Message, Libraries.LogType.Error);
+                    ServerCore.Logger._Log("Client", e.StackTrace, Libraries.LogType.Debug);
                 }
 
                 // -- User probably disconnected.
