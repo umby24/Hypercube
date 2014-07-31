@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,7 +87,8 @@ namespace Hypercube.Map {
         public List<Entity> Entities;
         public List<NetworkClient> Clients;
 
-        public List<QueueItem> BlockchangeQueue = new List<QueueItem>();
+        public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
+        //public List<QueueItem> BlockchangeQueue = new List<QueueItem>();
         public List<QueueItem> PhysicsQueue = new List<QueueItem>();
         #endregion
         #region IDs
@@ -443,7 +445,7 @@ namespace Hypercube.Map {
         }
 
         public void Resend() {
-            BlockchangeQueue.Clear();
+            BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 
             foreach (NetworkClient c in Clients) {
                 Send(c);
@@ -742,7 +744,7 @@ namespace Hypercube.Map {
             }
 
             if (Send)
-                BlockchangeQueue.Add(new QueueItem(X, Y, Z, Priority));
+                BlockchangeQueue.Enqueue(new QueueItem(X, Y, Z, Priority));
         }
 
         public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
@@ -800,8 +802,8 @@ namespace Hypercube.Map {
                 }
             }
 
-            BlockchangeQueue.Add(new QueueItem(X, Y, Z, priority));
-            BlockchangeQueue.Add(new QueueItem(X2, Y2, Z2, priority));
+            BlockchangeQueue.Enqueue(new QueueItem(X, Y, Z, priority));
+            BlockchangeQueue.Enqueue(new QueueItem(X2, Y2, Z2, priority));
 
             if (physics) {
                 for (short ix = -1; ix < 2; ix++) {
@@ -866,26 +868,20 @@ namespace Hypercube.Map {
                 int changes = 0;
 
                 while (BlockchangeQueue.Count > 0 && (changes <= Servercore.MaxBlockChanges)) {
-                    for(int i = 0; i < BlockchangeQueue.Count; i++) {
+                    QueueItem output;
 
-                        if (BlockchangeQueue[i] == null)
-                            continue;
+                    if (!BlockchangeQueue.TryDequeue(out output))
+                        continue;
 
-                        if (BlockchangeQueue[i].Priority == 0) { // -- Our block changes feature prioritized changes ;P
-                            changes += 1;
-                            SendBlockToAll(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z, GetBlock(BlockchangeQueue[i].X, BlockchangeQueue[i].Y, BlockchangeQueue[i].Z));
+                    if (output.Priority == 0) { // -- Our block changes feature prioritized changes ;P
+                        changes += 1;
+                        SendBlockToAll(output.X, output.Y, output.Z, GetBlock(output.X, output.Y, output.Z));
 
-                            BlockchangeQueue.RemoveAt(i);
-
-                            if (i != 0) // -- Adjust for the fact that an element was just removed.
-                                i -= 1;
-
-                            if (changes == Servercore.MaxBlockChanges)
-                                break;
-                        } else 
-                            BlockchangeQueue[i].Priority -= 1; // -- Every tick of the loop, the item will get bumped closer to being changed.
-                        
-
+                        if (changes == Servercore.MaxBlockChanges)
+                            break;
+                    } else {
+                        output.Priority -= 1; // -- Every tick of the loop, the item will get bumped closer to being changed.
+                        BlockchangeQueue.Enqueue(output);
                     }
                 }
                 Thread.Sleep(10);

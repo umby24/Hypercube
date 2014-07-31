@@ -239,7 +239,7 @@ namespace Hypercube.Command {
         };
 
         static void MapresendHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Client.CS.CurrentMap.BlockchangeQueue.Clear();
+            Client.CS.CurrentMap.BlockchangeQueue = new System.Collections.Concurrent.ConcurrentQueue<QueueItem>();
             Client.CS.CurrentMap.Resend();
         }
 
