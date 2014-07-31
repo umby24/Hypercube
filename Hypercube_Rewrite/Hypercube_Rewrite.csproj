@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{948FD104-59F1-450C-A576-CBCD601D3F35}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Hypercube</RootNamespace>
+    <AssemblyName>Hypercube_Rewrite</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ClassicWorld.NET">
+      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\ClassicWorld.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ClassicWrapped">
+      <HintPath>..\..\..\..\GitHub\Hypercube\ClassicWrapped\bin\Release\ClassicWrapped.dll</HintPath>
+    </Reference>
+    <Reference Include="fNbt">
+      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\fNbt.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Client\ClientSettings.cs" />
+    <Compile Include="Client\NetworkClient.cs" />
+    <Compile Include="Command\BuildCommands.cs" />
+    <Compile Include="Command\CommandHandler.cs" />
+    <Compile Include="Command\GeneralCommands.cs" />
+    <Compile Include="Command\MapCommands.cs" />
+    <Compile Include="Command\OpCommands.cs" />
+    <Compile Include="Core\Block.cs" />
+    <Compile Include="Core\Buildmode.cs" />
+    <Compile Include="Core\Chat.cs" />
+    <Compile Include="Core\Entity.cs" />
+    <Compile Include="Core\Permissions.cs" />
+    <Compile Include="Core\Rank.cs" />
+    <Compile Include="Core\Types.cs" />
+    <Compile Include="Hypercube.cs" />
+    <Compile Include="Libraries\ColoredConsole.cs" />
+    <Compile Include="Libraries\Database.cs" />
+    <Compile Include="Libraries\GZip.cs" />
+    <Compile Include="Libraries\HCLua.cs" />
+    <Compile Include="Libraries\Logging.cs" />
+    <Compile Include="Libraries\PBSettingsLoader.cs" />
+    <Compile Include="Libraries\Text.cs" />
+    <Compile Include="Mapfills\DefaultFills.cs" />
+    <Compile Include="Mapfills\FillContainer.cs" />
+    <Compile Include="Map\HypercubeMap.cs" />
+    <Compile Include="Map\MapHistory.cs" />
+    <Compile Include="NetworkHandler.cs" />
+    <Compile Include="Network\CPE.cs" />
+    <Compile Include="Network\Heartbeat.cs" />
+    <Compile Include="Network\IPacket.cs" />
+    <Compile Include="Network\Packets.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

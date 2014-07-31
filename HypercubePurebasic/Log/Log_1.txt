@@ -1,0 +1,21 @@
+[INFO] [LoadRanks] 26| Ranks loaded.
+[INFO] [] 0| Network settings loaded.
+[INFO] [Network_Init] 38| Server started on port 25565
+[INFO] [] 0| Map Cannonwars.cwu loaded. (X=64 Y=64 Z=64)
+[WARN] [NewUnloadedMap] 363| Unable to load map Fun.cwu: Map file uses incorrect NBT formatting.
+[INFO] [] 0| Map Guest.cw loaded. (X=512 Y=256 Z=512)
+[INFO] [] 0| Map Public.cwu loaded. (X=256 Y=256 Z=256)
+[INFO] [] 0| Map Wireworld.cwu loaded. (X=128 Y=64 Z=128)
+[WARN] [NewUnloadedMap] 363| Unable to load map world.cwu: Map file uses incorrect NBT formatting.
+[INFO] [] 0| Server Loaded.
+[INFO] [Log_Test] 120| This is a test
+[ERROR] [Log_Test] 121| Of the Hypercube Logging System
+[CHAT] [Log_Test] 122| And to the republic, for which she stands..
+[DEBUG] [Log_Test] 123| One Debug message
+[WARN] [Log_Test] 124| Under notch.
+[INFO] [LoadRanks] 26| Ranks loaded.
+[WARN] [NewUnloadedMap] 363| Unable to load map Fun.cwu: Map file uses incorrect NBT formatting.
+[WARN] [NewUnloadedMap] 363| Unable to load map world.cwu: Map file uses incorrect NBT formatting.
+[INFO] [DoHeartbeatClassicube] 30| Heartbeat sent.
+[WARN] [NewUnloadedMap] 363| Unable to load map Fun.cwu: Map file uses incorrect NBT formatting.
+[WARN] [NewUnloadedMap] 363| Unable to load map world.cwu: Map file uses incorrect NBT formatting.
