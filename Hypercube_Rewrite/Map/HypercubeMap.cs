@@ -867,24 +867,22 @@ namespace Hypercube.Map {
 
                 int changes = 0;
 
-                while (BlockchangeQueue.Count > 0 && (changes <= Servercore.MaxBlockChanges)) {
+                while (changes <= Servercore.MaxBlockChanges) {
                     QueueItem output;
 
                     if (!BlockchangeQueue.TryDequeue(out output))
-                        continue;
+                        break;
 
                     if (output.Priority == 0) { // -- Our block changes feature prioritized changes ;P
                         changes += 1;
                         SendBlockToAll(output.X, output.Y, output.Z, GetBlock(output.X, output.Y, output.Z));
-
-                        if (changes == Servercore.MaxBlockChanges)
-                            break;
                     } else {
                         output.Priority -= 1; // -- Every tick of the loop, the item will get bumped closer to being changed.
                         BlockchangeQueue.Enqueue(output);
                     }
                 }
-                Thread.Sleep(10);
+
+                Thread.Sleep(100);
             }
         }
 
@@ -901,15 +899,12 @@ namespace Hypercube.Map {
                             }
 
                             var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
-                            var randomGen = new Random();
                             short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
 
                             PhysicsQueue.RemoveAt(i);
 
                             if (i != 0)
                                 i -= 1;
-                            //TODO: v
-                            Thread.Sleep(physicBlock.PhysicsDelay + randomGen.Next(physicBlock.PhysicsRandom));
 
                             switch (physicBlock.Physics) {
                                 case 10:
@@ -922,6 +917,10 @@ namespace Hypercube.Map {
                                     PhysicsInfiniteWater(physicBlock, X, Y, Z);
                                     break;
                                 case 21:
+                                    PhysicsFiniteWater(physicBlock, X, Y, Z);
+                                    break;
+                                case 22:
+                                    PhysicsSnow(physicBlock, X, Y, Z);
                                     break;
                             }
 
@@ -955,7 +954,7 @@ namespace Hypercube.Map {
             int PlayerID = -1;
 
             if (HCSettings.History)
-                PlayerID = History.Lookup(X, Y, Z)[0].Player;
+                PlayerID = History.GetLastPlayer(X, Y, Z);
 
             if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
                 BlockChange(PlayerID, X, Y, (short)(Z - 1), physicBlock, GetBlock(X, Y, (short)(Z - 1)), true, true, true, 1);
@@ -970,7 +969,56 @@ namespace Hypercube.Map {
         }
 
         void PhysicsFiniteWater(Block physicBlock, short X, short Y, short Z) {
-            
+            if (GetBlock(X, Y, (short)(Z - 1)).Name == "Air")
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 2);
+            else {
+                int[,] FillArray = new int[1024, 1024];
+                var Fill = new ConcurrentQueue<QueueItem>();
+                bool found = false;
+
+                Fill.Enqueue(new QueueItem(X, Y, Z, 1));
+
+                while (true) {
+                    QueueItem working;
+
+                    if (!Fill.TryDequeue(out working))
+                        break;
+
+                    if (GetBlockID(working.X, working.Y, (short)(working.Z - 1)) == 0) {
+                        MoveBlock(X, Y, Z, working.X, working.Y, (short)(working.Z - 1), true, true, 2);
+                        found = true;
+                    } else {
+                        if (GetBlockID((short)(working.X + 1), working.Y, working.Z) == 0 && FillArray[working.X + 1, working.Y] == 0) {
+                            FillArray[working.X + 1, working.Y] = 1;
+                            Fill.Enqueue(new QueueItem((short)(working.X + 1), working.Y, working.Z, 1));
+                        }
+
+                        if (GetBlockID((short)(working.X - 1), working.Y, working.Z) == 0 && FillArray[working.X - 1, working.Y] == 0) {
+                            FillArray[working.X * 1, working.Y] = 1;
+                            Fill.Enqueue(new QueueItem((short)(working.X - 1), working.Y, working.Z, 1));
+                        }
+
+                        if (GetBlockID(working.X, (short)(working.Y + 1), working.Z) == 0 && FillArray[working.X, working.Y + 1] == 0) {
+                            FillArray[working.X, working.Y + 1] = 1;
+                            Fill.Enqueue(new QueueItem(working.X, (short)(working.Y + 1), working.Z, 1));
+                        }
+
+                        if (GetBlockID(working.X, (short)(working.Y - 1), working.Z) == 0 && FillArray[working.X, working.Y - 1] == 0) {
+                            FillArray[working.X, working.Y - 1] = 1;
+                            Fill.Enqueue(new QueueItem(working.X, (short)(working.Y - 1), working.Z, 1));
+                        }
+
+                    }
+
+                    if (Fill.Count > 50000 || found)
+                        Fill = new ConcurrentQueue<QueueItem>();
+                }
+            }
+        }
+
+        void PhysicsSnow(Block physicBlock, short X, short Y, short Z) {
+            if (GetBlockID(X, Y, (short)(Z - 1)) == 0 || GetBlockID(X, Y, (short)(Z - 1)) == 53)
+                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
         }
         #endregion
         #endregion

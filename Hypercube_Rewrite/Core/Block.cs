@@ -73,10 +73,10 @@ namespace Hypercube.Core {
             CreateBlock("Planks", 5, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 4220797, 0, 0, false, -1);
             CreateBlock("Sapling", 6, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 11401600, 0, 0, false, -1);
             CreateBlock("Solid", 7, "3,4", "3,4", 0, 0, 0, "", false, 4539717, 0, 0, true, -1);
-            CreateBlock("Water", 8, "0,1,2,3", "0,1,2,3", 20, 100, 100, "", false, 10438957, 0, 0, false, -1);
-            CreateBlock("Still Water", 9, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 10438957, 0, 0, true, -1);
-            CreateBlock("Lava", 10, "0,1,2,3", "0,1,2,3", 21, 500, 100, "", false, 1729750, 0, 0, false, -1);
-            CreateBlock("Still Lava", 11, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 1729750, 0, 0, true, -1);
+            CreateBlock("Water", 8, "2,3", "2,3", 20, 100, 100, "", false, 10438957, 0, 0, false, -1);
+            CreateBlock("Still Water", 9, "0,1,2,3", "0,1,2,3", 21, 100, 100, "", false, 10438957, 0, 0, true, -1);
+            CreateBlock("Lava", 10, "2,3", "2,3", 20, 500, 100, "", false, 1729750, 0, 0, false, -1);
+            CreateBlock("Still Lava", 11, "0,1,2,3", "0,1,2,3", 21, 500, 100, "", false, 1729750, 0, 0, true, -1);
             CreateBlock("Sand", 12, "0,1,2,3", "0,1,2,3", 11, 200, 100, "", false, 8431790, 0, 0, false, -1);
             CreateBlock("Gravel", 13, "0,1,2,3", "0,1,2,3", 10, 200, 100, "", false, 6710894, 0, 0, false, -1);
             CreateBlock("Gold ore", 14, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 6648180, 0, 0, false, -1);
@@ -117,22 +117,22 @@ namespace Hypercube.Core {
             CreateBlock("Obsidian", 49, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 1708562, 0, 0, false, -1);
 
             // -- CPE Blocks
-            CreateBlock("Cobblestone Slab", 50, "1,2", "1,2", 0, 0, 0, "", false, 8421504, 1, 44, false, -1);
-            CreateBlock("Rope", 51, "1,2", "1,2", 0, 0, 0, "", false, 4220797, 1, 39, false, -1);
-            CreateBlock("Sandstone", 52, "1,2", "1,2", 0, 0, 0, "", false, 8431790, 1, 12, false, -1);
-            CreateBlock("Snow", 53, "1,2", "1,2", 0, 0, 0, "", false, 15461355, 1, 0, false, -1);
-            CreateBlock("Fire", 54, "1,2", "1,2", 0, 0, 0, "", false, 33023, 1, 10, false, -1);
-            CreateBlock("Light Pink Wool", 55, "1,2", "1,2", 0, 0, 0, "", false, 16744703, 1, 33, false, -1);
-            CreateBlock("Forest Green Wool", 56, "1,2", "1,2", 0, 0, 0, "", false, 16384, 1, 25, false, -1);
-            CreateBlock("Brown Wool", 57, "1,2", "1,2", 0, 0, 0, "", false, 4019043, 1, 3, false, -1);
-            CreateBlock("Deep Blue Wool", 58, "1,2", "1,2", 0, 0, 0, "", false, 16711680, 1, 29, false, -1);
-            CreateBlock("Turquoise Wool", 59, "1,2", "1,2", 0, 0, 0, "", false, 16744448, 1, 28, false, -1);
-            CreateBlock("Ice", 60, "1,2", "1,2", 0, 0, 0, "", false, 16777139, 1, 20, false, -1);
-            CreateBlock("Ceramic Tile", 61, "1,2", "1,2", 0, 0, 0, "", false, 12632256, 1, 42, false, -1);
-            CreateBlock("Magma", 62, "1,2", "1,2", 0, 0, 0, "", false, 128, 1, 49, false, -1);
-            CreateBlock("Pillar", 63, "1,2", "1,2", 0, 0, 0, "", false, 12632256, 1, 36, false, -1);
-            CreateBlock("Crate", 64, "1,2", "1,2", 0, 0, 0, "", false, 4220797, 1, 5, false, -1);
-            CreateBlock("Stone Brick", 65, "1,2", "1,2", 0, 0, 0, "", false, 12632256, 1, 1, false, -1);
+            CreateBlock("Cobblestone Slab", 50, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 8421504, 1, 44, false, -1);
+            CreateBlock("Rope", 51, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 4220797, 1, 39, false, -1);
+            CreateBlock("Sandstone", 52, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 8431790, 1, 12, false, -1);
+            CreateBlock("Snow", 53, "0,1,2,3", "0,1,2,3", 22, 200, 50, "", false, 15461355, 1, 0, false, -1);
+            CreateBlock("Fire", 54, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 33023, 1, 10, false, -1);
+            CreateBlock("Light Pink Wool", 55, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 16744703, 1, 33, false, -1);
+            CreateBlock("Forest Green Wool", 56, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 16384, 1, 25, false, -1);
+            CreateBlock("Brown Wool", 57, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 4019043, 1, 3, false, -1);
+            CreateBlock("Deep Blue Wool", 58, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 16711680, 1, 29, false, -1);
+            CreateBlock("Turquoise Wool", 59, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 16744448, 1, 28, false, -1);
+            CreateBlock("Ice", 60, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 16777139, 1, 20, false, -1);
+            CreateBlock("Ceramic Tile", 61, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 12632256, 1, 42, false, -1);
+            CreateBlock("Magma", 62, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 128, 1, 49, false, -1);
+            CreateBlock("Pillar", 63, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 12632256, 1, 36, false, -1);
+            CreateBlock("Crate", 64, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 4220797, 1, 5, false, -1);
+            CreateBlock("Stone Brick", 65, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 12632256, 1, 1, false, -1);
         }
 
         /// <summary>
