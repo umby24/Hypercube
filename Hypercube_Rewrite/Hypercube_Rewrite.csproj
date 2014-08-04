@@ -67,21 +67,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ClassicWorld.NET">
-      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\ClassicWorld.NET.dll</HintPath>
+      <HintPath>..\..\Dependencies\ClassicWorld.NET.dll</HintPath>
     </Reference>
     <Reference Include="ClassicWrapped">
-      <HintPath>..\..\..\..\GitHub\Hypercube\ClassicWrapped\bin\Release\ClassicWrapped.dll</HintPath>
+      <HintPath>..\..\ClassicWrapped\bin\Release\ClassicWrapped.dll</HintPath>
     </Reference>
     <Reference Include="fNbt">
-      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\fNbt.dll</HintPath>
+      <HintPath>..\..\Dependencies\fNbt.dll</HintPath>
     </Reference>
     <Reference Include="NLua">
-      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\NLua.dll</HintPath>
+      <HintPath>..\..\Dependencies\NLua.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\..\..\GitHub\Hypercube\Dependencies\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\Dependencies\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
