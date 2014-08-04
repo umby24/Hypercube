@@ -56,6 +56,7 @@ namespace Hypercube.Core {
         public void CreatePermissions() {
             using (var SW = new StreamWriter("Settings/Permissions.txt")) {
                 SW.WriteLine("map.addmap");
+                SW.WriteLine("map.joinmap");
                 SW.WriteLine("map.fillmap");
                 SW.WriteLine("map.joinhiddenmap");
                 SW.WriteLine("command.tp");
@@ -97,7 +98,9 @@ namespace Hypercube.Core {
             foreach (Permission p in perms.Values) 
                 cds += p.Fullname + ",";
 
-            cds = cds.Substring(0, cds.Length - 1);
+            if (cds.EndsWith(","))
+                cds = cds.Substring(0, cds.Length - 1);
+
             return cds;
         }
 
