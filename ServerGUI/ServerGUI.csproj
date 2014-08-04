@@ -73,12 +73,8 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ClassicWorld.NET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Hypercube_Rewrite\bin\x86\Debug\ClassicWorld.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="Hypercube_Rewrite">
-      <HintPath>..\Hypercube_Rewrite\bin\x86\Debug\Hypercube_Rewrite.dll</HintPath>
+    <Reference Include="ClassicWorld.NET">
+      <HintPath>..\Dependencies\ClassicWorld.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -125,6 +121,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Hypercube_Rewrite\Hypercube_Rewrite.csproj">
+      <Project>{948fd104-59f1-450c-a576-cbcd601d3f35}</Project>
+      <Name>Hypercube_Rewrite</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
