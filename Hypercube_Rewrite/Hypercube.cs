@@ -160,6 +160,10 @@ namespace Hypercube
             }
 
             Logger.Log("Core", "Server started.", LogType.Info);
+
+            // -- kk..
+            //var TestConverter = new D3Map(this);
+            //TestConverter.LoadMap("D:\\Documents\\Visual Studio 2013\\Projects\\Hypercube_Rewrite\\ServerCLI\\bin\\x86\\Debug\\Maps\\Hub", "ConverTest");
         }
 
         /// <summary>

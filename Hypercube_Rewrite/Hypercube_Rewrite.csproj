@@ -116,6 +116,7 @@
     <Compile Include="Libraries\Text.cs" />
     <Compile Include="Mapfills\DefaultFills.cs" />
     <Compile Include="Mapfills\FillContainer.cs" />
+    <Compile Include="Map\D3Map.cs" />
     <Compile Include="Map\HypercubeMap.cs" />
     <Compile Include="Map\MapHistory.cs" />
     <Compile Include="NetworkHandler.cs" />

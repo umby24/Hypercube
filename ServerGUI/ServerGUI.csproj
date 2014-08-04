@@ -73,6 +73,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClassicWorld.NET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Hypercube_Rewrite\bin\x86\Debug\ClassicWorld.NET.dll</HintPath>
+    </Reference>
     <Reference Include="Hypercube_Rewrite">
       <HintPath>..\Hypercube_Rewrite\bin\x86\Debug\Hypercube_Rewrite.dll</HintPath>
     </Reference>

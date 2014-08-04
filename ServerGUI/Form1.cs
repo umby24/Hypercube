@@ -11,6 +11,7 @@ using System.IO;
 
 using Hypercube;
 using Hypercube.Core;
+using Hypercube.Map;
 
 namespace ServerGUI {
     public partial class mainForm : Form {
@@ -69,6 +70,10 @@ namespace ServerGUI {
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.ScrollToCaret()));
             };
             #endregion
+
+            foreach (HypercubeMap m in ServerCore.Maps) 
+                lstMaps.Items.Add(m.CWMap.MapName);
+            
         }
 
         private void LoadSettingsMenu() {
