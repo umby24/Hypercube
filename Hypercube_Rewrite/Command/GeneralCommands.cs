@@ -286,8 +286,10 @@ namespace Hypercube.Command {
             foreach (HypercubeMap hm in Client.ServerCore.Maps) {
                 OnlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
-                for (int i = 0; i < hm.Clients.Count; i++)
-                    OnlineString += hm.Clients[i].CS.FormattedName + " ";
+                lock (hm.ClientLock) {
+                    for (int i = 0; i < hm.Clients.Count; i++)
+                        OnlineString += hm.Clients[i].CS.FormattedName + " ";
+                }
 
                 OnlineString += "<br>";
             }

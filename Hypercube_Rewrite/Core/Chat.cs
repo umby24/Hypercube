@@ -31,15 +31,18 @@ namespace Hypercube.Core {
 
             string[] Sending = SplitLines(Message);
 
-            for (int i = 0; i < Core.nh.Clients.Count; i++) {
-                if (!Core.nh.Clients[i].CS.LoggedIn)
-                    continue;
+            lock (Core.nh.ClientLock) {
+                for (int i = 0; i < Core.nh.Clients.Count; i++) {
+                    if (!Core.nh.Clients[i].CS.LoggedIn)
+                        continue;
 
-                foreach (string b in Sending) {
-                    Chat.Text = b;
-                    Chat.Write(Core.nh.Clients[i]);
+                    foreach (string b in Sending) {
+                        Chat.Text = b;
+                        Chat.Write(Core.nh.Clients[i]);
+                    }
                 }
             }
+        
         }
 
         /// <summary>
@@ -61,13 +64,14 @@ namespace Hypercube.Core {
 
             string[] Sending = SplitLines(Message);
 
-            for (int i = 0; i < Map.Clients.Count; i++) {
-                foreach (string b in Sending) {
-                    Chat.Text = b;
-                    Chat.Write(Map.Clients[i]);
+            lock (Map.ClientLock) {
+                for (int i = 0; i < Map.Clients.Count; i++) {
+                    foreach (string b in Sending) {
+                        Chat.Text = b;
+                        Chat.Write(Map.Clients[i]);
+                    }
                 }
             }
-            
         }
 
         /// <summary>
@@ -131,10 +135,12 @@ namespace Hypercube.Core {
                 string Client = Message.Substring(1, Message.IndexOf(" ") - 1);
                 NetworkClient Tosend = null;
 
-                foreach (NetworkClient c in IncomingClient.ServerCore.nh.Clients) {
-                    if (c.CS.LoginName.ToLower() == Client.ToLower()) {
-                        Tosend = c;
-                        break;
+                lock (IncomingClient.ServerCore.nh.ClientLock) {
+                    foreach (NetworkClient c in IncomingClient.ServerCore.nh.Clients) {
+                        if (c.CS.LoginName.ToLower() == Client.ToLower()) {
+                            Tosend = c;
+                            break;
+                        }
                     }
                 }
 

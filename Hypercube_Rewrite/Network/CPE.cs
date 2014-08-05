@@ -126,29 +126,31 @@ namespace Hypercube.Network {
             var ExtPlayerListPacket = new ExtAddPlayerName();
             ExtPlayerListPacket.GroupRank = 0;
 
-            foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                    if (c != Client) {
-                        ExtPlayerListPacket.NameID = Client.CS.NameID;
-                        ExtPlayerListPacket.ListName = Client.CS.FormattedName;
-                        ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
-                        ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
+            lock (Client.ServerCore.nh.ClientLock) {
+                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
+                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                        if (c != Client) {
+                            ExtPlayerListPacket.NameID = Client.CS.NameID;
+                            ExtPlayerListPacket.ListName = Client.CS.FormattedName;
+                            ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
+                            ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
 
-                        ExtPlayerListPacket.Write(c);
+                            ExtPlayerListPacket.Write(c);
 
-                        if (Client.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                            ExtPlayerListPacket.NameID = c.CS.NameID;
-                            ExtPlayerListPacket.ListName = c.CS.FormattedName;
-                            ExtPlayerListPacket.PlayerName = c.CS.LoginName;
-                            ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
-                            ExtPlayerListPacket.Write(Client);
+                            if (Client.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                                ExtPlayerListPacket.NameID = c.CS.NameID;
+                                ExtPlayerListPacket.ListName = c.CS.FormattedName;
+                                ExtPlayerListPacket.PlayerName = c.CS.LoginName;
+                                ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
+                                ExtPlayerListPacket.Write(Client);
+                            }
+                        } else {
+                            ExtPlayerListPacket.NameID = Client.CS.NameID;
+                            ExtPlayerListPacket.ListName = Client.CS.FormattedName;
+                            ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
+                            ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
+                            ExtPlayerListPacket.Write(c);
                         }
-                    } else {
-                        ExtPlayerListPacket.NameID = Client.CS.NameID;
-                        ExtPlayerListPacket.ListName = Client.CS.FormattedName;
-                        ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
-                        ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
-                        ExtPlayerListPacket.Write(c);
                     }
                 }
             }
@@ -169,10 +171,12 @@ namespace Hypercube.Network {
             Client.ServerCore.Logger.Log("CPEU", Client.ServerCore.FreeID.ToString(), Core.LogType.Debug);
             Client.ServerCore.Logger.Log("CPEU", Client.ServerCore.NextID.ToString(), Core.LogType.Debug);
 
-            foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                    ToRemove.Write(c);
-                    ToUpdate.Write(c);
+            lock (Client.ServerCore.nh.ClientLock) {
+                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
+                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                        ToRemove.Write(c);
+                        ToUpdate.Write(c);
+                    }
                 }
             }
         }

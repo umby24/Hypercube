@@ -18,6 +18,7 @@ namespace Hypercube {
         public ISettings NS;
         public List<NetworkClient> Clients = new List<NetworkClient>();
         public TcpListener CoreListener;
+        public object ClientLock = new object();
 
         // -- Network Settings
         public int Port, MaxPlayers;
@@ -71,16 +72,21 @@ namespace Hypercube {
             ServerCore.Running = false;
             ListenThread.Abort();
 
-            for (int i = 0; i < Clients.Count; i++)
-                Clients[i].KickPlayer("Server closing.");
+            lock (ClientLock) {
+                for (int i = 0; i < Clients.Count; i++)
+                    Clients[i].KickPlayer("Server closing.");
+            }
         }
 
         public void HandleDisconnect(NetworkClient client) {
-            Clients.Remove(client);
+            lock (ClientLock) {
+                Clients.Remove(client);
+            }
 
             if (client.CS.LoggedIn) {
-                client.CS.CurrentMap.Clients.Remove(client);
-                
+                lock (client.CS.CurrentMap.ClientLock) {
+                    client.CS.CurrentMap.Clients.Remove(client);
+                }
 
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
@@ -90,9 +96,11 @@ namespace Hypercube {
                 var Remove = new ExtRemovePlayerName();
                 Remove.NameID = client.CS.NameID;
 
-                foreach (NetworkClient c in Clients) {
-                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
-                        Remove.Write(c);
+                lock (ClientLock) {
+                    foreach (NetworkClient c in Clients) {
+                        if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                            Remove.Write(c);
+                    }
                 }
 
                 ServerCore.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
@@ -127,7 +135,10 @@ namespace Hypercube {
                 }
 
                 var NewClient = new NetworkClient(tempClient, ServerCore, IP); // -- Creates a new network client, which will begin waiting for and parsing packets.
-                Clients.Add(NewClient);
+                
+                lock (ClientLock) {
+                    Clients.Add(NewClient);
+                }
 
                 ServerCore.Logger.Log("Network", "Client created (IP = " + NewClient.CS.IP + ")", LogType.Info);
             }

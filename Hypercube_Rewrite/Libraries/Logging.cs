@@ -13,6 +13,7 @@ namespace Hypercube.Libraries {
     public class Logging {
         #region Variables
         Hypercube Servercore;
+        object LogLock = new object();
         #endregion
         #region Events
         public delegate void MessageEventHandler(string Message);
@@ -113,8 +114,10 @@ namespace Hypercube.Libraries {
                 }
             }
 
-            if (Servercore.LogOutput)
-                LogWrite(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + message);
+            lock (LogLock) {
+                if (Servercore.LogOutput)
+                    LogWrite(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + message);
+            }
         }
 
         public void RotateLogs() {

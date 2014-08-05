@@ -91,7 +91,10 @@ namespace Hypercube.Client {
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
             CS.CurrentMap.Send(this);
-            CS.CurrentMap.Clients.Add(this);
+
+            lock (CS.CurrentMap.ClientLock) {
+                CS.CurrentMap.Clients.Add(this);
+            }
 
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
             ServerCore.Luahandler.RunFunction("E_PlayerLogin", this);
@@ -105,7 +108,10 @@ namespace Hypercube.Client {
             CS.MyEntity.MyClient = this;
             CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock"));
             CS.CurrentMap.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
-            CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+
+            lock (CS.CurrentMap.EntityLock) {
+                CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+            }
 
             CS.CurrentMap.SendAllEntities(this);
 
@@ -230,13 +236,18 @@ namespace Hypercube.Client {
             Chat.SendMapChat(CS.CurrentMap, ServerCore, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".");
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
-            CS.CurrentMap.Clients.Remove(this);
-            
+            lock (CS.CurrentMap.ClientLock) {
+                CS.CurrentMap.Clients.Remove(this);
+            }
+
             CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
             CS.CurrentMap = newMap;
 
             newMap.Send(this);
-            newMap.Clients.Add(this);
+
+            lock (newMap.ClientLock) {
+                newMap.Clients.Add(this);
+            }
 
             CS.MyEntity.X = (short)(newMap.CWMap.SpawnX * 32);
             CS.MyEntity.Y = (short)(newMap.CWMap.SpawnZ * 32);
@@ -246,7 +257,11 @@ namespace Hypercube.Client {
             CS.MyEntity.Map = newMap;
 
             newMap.SpawnEntity(CS.MyEntity);
-            newMap.Entities.Add(CS.MyEntity);
+
+            lock (newMap.EntityLock) {
+                newMap.Entities.Add(CS.MyEntity);
+            }
+
             newMap.SendAllEntities(this);
 
             CPE.UpdateExtPlayerList(this);

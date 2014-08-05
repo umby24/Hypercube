@@ -86,6 +86,8 @@ namespace Hypercube.Map {
 
         public List<Entity> Entities;
         public List<NetworkClient> Clients;
+        public object ClientLock = new object();
+        public object EntityLock = new object();
 
         public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
         public List<QueueItem> PhysicsQueue = new List<QueueItem>();
@@ -446,14 +448,12 @@ namespace Hypercube.Map {
         public void Resend() {
             BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 
-            for (int i = 0; i < Clients.Count; i++) {
-                Send(Clients[i]);
-                SendAllEntities(Clients[i]);
+            lock (ClientLock) {
+                foreach (NetworkClient c in Clients) {
+                    Send(c);
+                    SendAllEntities(c);
+                }
             }
-            //foreach (NetworkClient c in Clients) {
-            //    Send(c);
-            //    SendAllEntities(c);
-            //}
         }
 
         public void Send(NetworkClient Client) {
@@ -550,32 +550,35 @@ namespace Hypercube.Map {
         #region Entity Management
         public void EntityLocations() {
             while (Servercore.Running) {
-                for (int i = 0; i < Entities.Count; i++) {
-                    if (Entities[i].Changed) {
-                        var TeleportPacket = new PlayerTeleport();
-                        TeleportPacket.PlayerID = (sbyte)Entities[i].ClientID;
-                        TeleportPacket.X = Entities[i].X;
-                        TeleportPacket.Y = Entities[i].Y;
-                        TeleportPacket.Z = Entities[i].Z;
-                        TeleportPacket.yaw = Entities[i].Rot;
-                        TeleportPacket.pitch = Entities[i].Look;
+                lock (EntityLock) {
+                    for (int i = 0; i < Entities.Count; i++) {
+                        if (Entities[i].Changed) {
+                            var TeleportPacket = new PlayerTeleport();
+                            TeleportPacket.PlayerID = (sbyte)Entities[i].ClientID;
+                            TeleportPacket.X = Entities[i].X;
+                            TeleportPacket.Y = Entities[i].Y;
+                            TeleportPacket.Z = Entities[i].Z;
+                            TeleportPacket.yaw = Entities[i].Rot;
+                            TeleportPacket.pitch = Entities[i].Look;
 
-
-                        for (int z = 0; z < Clients.Count; z++) {
-                            if (Entities[i].MyClient != null && Entities[i].MyClient != Clients[z])
-                                TeleportPacket.Write(Clients[z]);
-                            else if (Entities[i].MyClient == Clients[z] && Entities[i].SendOwn == true) {
-                                TeleportPacket.PlayerID = (sbyte)-1;
-                                TeleportPacket.Write(Clients[z]);
-                                Entities[i].SendOwn = false;
+                            lock (ClientLock) {
+                                for (int z = 0; z < Clients.Count; z++) {
+                                    if (Entities[i].MyClient != null && Entities[i].MyClient != Clients[z])
+                                        TeleportPacket.Write(Clients[z]);
+                                    else if (Entities[i].MyClient == Clients[z] && Entities[i].SendOwn == true) {
+                                        TeleportPacket.PlayerID = (sbyte)-1;
+                                        TeleportPacket.Write(Clients[z]);
+                                        Entities[i].SendOwn = false;
+                                    }
+                                }
                             }
-                        }
-                        
 
-                        Entities[i].Changed = false;
+                            Entities[i].Changed = false;
+                        }
                     }
                 }
-                Thread.Sleep(1);
+
+                Thread.Sleep(5);
             }
         }
 
@@ -589,25 +592,17 @@ namespace Hypercube.Map {
             ESpawn.Yaw = ToSpawn.Rot;
             ESpawn.Pitch = ToSpawn.Look;
 
-            for (int i = 0; i < Clients.Count; i++) {
-                if (Clients[i] != ToSpawn.MyClient)
-                    ESpawn.Write(Clients[i]);
-                else {
-                    ESpawn.PlayerID = (sbyte)-1;
-                    ESpawn.Write(Clients[i]);
-                    ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
+            lock (ClientLock) {
+                foreach (NetworkClient c in Clients) {
+                    if (c != ToSpawn.MyClient)
+                        ESpawn.Write(c);
+                    else {
+                        ESpawn.PlayerID = (sbyte)-1;
+                        ESpawn.Write(c);
+                        ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
+                    }
                 }
             }
-                //foreach (NetworkClient c in Clients) {
-                //    if (c != ToSpawn.MyClient)
-                //        ESpawn.Write(c);
-                //    else {
-                //        ESpawn.PlayerID = (sbyte)-1;
-                //        ESpawn.Write(c);
-                //        ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
-                //    }
-                //}
-
 
                 Servercore.Luahandler.RunFunction("E_EntitySpawn", this, ToSpawn);
         }
@@ -615,39 +610,50 @@ namespace Hypercube.Map {
         public void SendAllEntities(NetworkClient Client) {
             var ESpawn = new SpawnPlayer();
 
-            foreach (Entity e in Entities) {
-                ESpawn.PlayerName = e.Name;
-                ESpawn.PlayerID = (sbyte)e.ClientID;
-                ESpawn.X = e.X;
-                ESpawn.Y = e.Y;
-                ESpawn.Z = e.Z;
-                ESpawn.Yaw = e.Rot;
-                ESpawn.Pitch = e.Look;
+            lock (EntityLock) {
+                foreach (Entity e in Entities) {
+                    ESpawn.PlayerName = e.Name;
+                    ESpawn.PlayerID = (sbyte)e.ClientID;
+                    ESpawn.X = e.X;
+                    ESpawn.Y = e.Y;
+                    ESpawn.Z = e.Z;
+                    ESpawn.Yaw = e.Rot;
+                    ESpawn.Pitch = e.Look;
 
-                if (e.MyClient != Client)
-                    ESpawn.Write(Client);
+                    if (e.MyClient != Client)
+                        ESpawn.Write(Client);
+                }
             }
         }
 
         public void DeleteEntity(ref Entity ToSpawn) {
             var Despawn = new DespawnPlayer();
 
-            if (Entities.Contains(ToSpawn))
-                Entities.Remove(ToSpawn);
+            if (Entities.Contains(ToSpawn)) {
+                lock (EntityLock) {
+                    Entities.Remove(ToSpawn);
+                }
+            }
 
             if (ToSpawn.MyClient != null && Clients.Contains(ToSpawn.MyClient)) {
-                Clients.Remove(ToSpawn.MyClient);
+                lock (ClientLock) {
+                    Clients.Remove(ToSpawn.MyClient);
+                }
 
-                foreach (Entity e in Entities) {
-                    Despawn.PlayerID = (sbyte)e.ClientID;
-                    Despawn.Write(ToSpawn.MyClient);
+                lock (EntityLock) {
+                    foreach (Entity e in Entities) {
+                        Despawn.PlayerID = (sbyte)e.ClientID;
+                        Despawn.Write(ToSpawn.MyClient);
+                    }
                 }
             }
 
             Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
 
-            for (int i = 0; i < Clients.Count; i++)
-                Despawn.Write(Clients[i]);
+            lock (ClientLock) {
+                for (int i = 0; i < Clients.Count; i++)
+                    Despawn.Write(Clients[i]);
+            }
 
             FreeID = ToSpawn.ClientID;
             Servercore.Luahandler.RunFunction("E_EntityDeleted", this, ToSpawn);
@@ -705,13 +711,14 @@ namespace Hypercube.Map {
             if (Undo) {
                 NetworkClient Client = null;
 
-                foreach (NetworkClient c in Clients) {
-                    if (c.CS.ID == ClientID) {
-                        Client = c;
-                        break;
+                lock (ClientLock) {
+                    foreach (NetworkClient c in Clients) {
+                        if (c.CS.ID == ClientID) {
+                            Client = c;
+                            break;
+                        }
                     }
                 }
-                
 
                 if (Client != null) {
                     if (Client.CS.CurrentIndex == -1)
@@ -777,13 +784,14 @@ namespace Hypercube.Map {
                 var lastPlayer = History.GetLastPlayer(X, Z, Y);
                 NetworkClient Client = null;
 
-                foreach (NetworkClient c in Clients) {
-                    if (c.CS.ID == lastPlayer) {
-                        Client = c;
-                        break;
+                lock (ClientLock) {
+                    foreach (NetworkClient c in Clients) {
+                        if (c.CS.ID == lastPlayer) {
+                            Client = c;
+                            break;
+                        }
                     }
                 }
-                
 
                 if (Client != null) {
                     if (Client.CS.CurrentIndex == -1)
@@ -871,8 +879,10 @@ namespace Hypercube.Map {
         }
 
         public void SendBlockToAll(short x, short y, short z, Block type) {
-            for (int i = 0; i < Clients.Count; i++) 
-                SendBlock(Clients[i], x, y, z, type);
+            lock (ClientLock) {
+                for (int i = 0; i < Clients.Count; i++)
+                    SendBlock(Clients[i], x, y, z, type);
+            }
         }
 
         public void BlockQueueLoop() {
