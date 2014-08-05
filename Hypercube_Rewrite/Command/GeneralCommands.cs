@@ -276,19 +276,14 @@ namespace Hypercube.Command {
         };
 
         static void PlayersHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            if (Client.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                Chat.SendClientChat(Client, "§SIt appears your client supports CPE ExtPlayerList.<br>§STo see all online players and what map they are on, hold tab!");
-                return;
-            }
-
             string OnlineString = "§SOnline Players: " + Client.ServerCore.nh.Clients.Count.ToString() + "<br>";
 
             foreach (HypercubeMap hm in Client.ServerCore.Maps) {
                 OnlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
                 lock (hm.ClientLock) {
-                    for (int i = 0; i < hm.Clients.Count; i++)
-                        OnlineString += hm.Clients[i].CS.FormattedName + " ";
+                    foreach(NetworkClient c in hm.Clients.Values)
+                        OnlineString += c.CS.FormattedName + "§D";
                 }
 
                 OnlineString += "<br>";

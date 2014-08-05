@@ -103,7 +103,7 @@ namespace Hypercube.Core
                 newRank.Group = ServerCore.Settings.ReadSetting(Ranksfile, "Group", "Default");
                 newRank.PointsInRank = ServerCore.Settings.ReadSetting(Ranksfile, "Points", 5);
                 newRank.Op = bool.Parse(ServerCore.Settings.ReadSetting(Ranksfile, "IsOp", "false"));
-                newRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, ServerCore.Settings.ReadSetting(Ranksfile, "Perms", "player.chat,player.build,player.delete,chat.useemotes,command.tp"));
+                newRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, ServerCore.Settings.ReadSetting(Ranksfile, "Perms", "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp"));
                 nameList.Add(newRank.Name, newRank);
                 numberList.Add(newRank.ID, newRank);
             }
@@ -111,19 +111,19 @@ namespace Hypercube.Core
             if (nameList.Count == 0) {
                 var GuestRank = new Rank("Guest", "Default", "&f", "", false, 50, "Builder");
                 GuestRank.ID = 0;
-                GuestRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "player.chat,player.build,player.delete,chat.useemotes,command.tp");
+                GuestRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp");
 
                 var BuilderRank = new Rank("Builder", "Default", "&e", "", false, 15, "");
                 BuilderRank.ID = 1;
-                BuilderRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "player.chat,player.build,player.delete,chat.useemotes,command.tp");
+                BuilderRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp");
 
                 var OpRank = new Rank("Op", "Staff", "&9", "", true, 100, "");
                 OpRank.ID = 2;
-                OpRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat");
+                OpRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat");
 
                 var OwnerRank = new Rank("Owner", "Staff", "&0", "", true, 0, "");
                 OwnerRank.ID = 3;
-                OwnerRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap");
+                OwnerRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap");
 
                 numberList.Add(0, GuestRank);
                 nameList.Add("Guest", GuestRank);

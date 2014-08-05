@@ -85,7 +85,7 @@ namespace Hypercube {
 
             if (client.CS.LoggedIn) {
                 lock (client.CS.CurrentMap.ClientLock) {
-                    client.CS.CurrentMap.Clients.Remove(client);
+                    client.CS.CurrentMap.Clients.Remove(client.CS.ID);
                 }
 
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);

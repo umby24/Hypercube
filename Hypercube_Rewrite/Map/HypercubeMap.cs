@@ -85,7 +85,8 @@ namespace Hypercube.Map {
         public SortedDictionary<string, Permission> Showperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
 
         public List<Entity> Entities;
-        public List<NetworkClient> Clients;
+        //public List<NetworkClient> Clients;
+        public Dictionary<short, NetworkClient> Clients;
         public object ClientLock = new object();
         public object EntityLock = new object();
 
@@ -146,7 +147,7 @@ namespace Hypercube.Map {
             cpeMeta.CustomBlocksFallback = null;
 
             Lastclient = DateTime.UtcNow;
-            Clients = new List<NetworkClient>();
+            Clients = new Dictionary<short, NetworkClient>();
             Entities = new List<Entity>();
 
             Path = filename;
@@ -208,7 +209,7 @@ namespace Hypercube.Map {
             cpeMeta.CustomBlocksFallback = null;
 
             Lastclient = DateTime.UtcNow;
-            Clients = new List<NetworkClient>();
+            Clients = new Dictionary<short, NetworkClient>();
             Entities = new List<Entity>();
 
             // -- Memory Conservation
@@ -449,7 +450,7 @@ namespace Hypercube.Map {
             BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 
             lock (ClientLock) {
-                foreach (NetworkClient c in Clients) {
+                foreach (NetworkClient c in Clients.Values) {
                     Send(c);
                     SendAllEntities(c);
                 }
@@ -562,25 +563,25 @@ namespace Hypercube.Map {
                             TeleportPacket.pitch = Entities[i].Look;
 
                             lock (ClientLock) {
-                                for (int z = 0; z < Clients.Count; z++) {
-                                    if (Entities[i].MyClient != null && Entities[i].MyClient != Clients[z])
-                                        TeleportPacket.Write(Clients[z]);
-                                    else if (Entities[i].MyClient == Clients[z] && Entities[i].SendOwn == true) {
+                                foreach (NetworkClient c in Clients.Values) {
+                                    if (Entities[i].MyClient != null && Entities[i].MyClient != c)
+                                        TeleportPacket.Write(c);
+                                    else if (Entities[i].MyClient == c && Entities[i].SendOwn == true) {
                                         TeleportPacket.PlayerID = (sbyte)-1;
-                                        TeleportPacket.Write(Clients[z]);
+                                        TeleportPacket.Write(c);
                                         Entities[i].SendOwn = false;
                                     }
                                 }
                             }
-
-                            Entities[i].Changed = false;
                         }
+
+                        Entities[i].Changed = false;
                     }
                 }
-
-                Thread.Sleep(5);
             }
+            Thread.Sleep(5);
         }
+    
 
         public void SpawnEntity(Entity ToSpawn) {
             var ESpawn = new SpawnPlayer();
@@ -593,7 +594,7 @@ namespace Hypercube.Map {
             ESpawn.Pitch = ToSpawn.Look;
 
             lock (ClientLock) {
-                foreach (NetworkClient c in Clients) {
+                foreach (NetworkClient c in Clients.Values) {
                     if (c != ToSpawn.MyClient)
                         ESpawn.Write(c);
                     else {
@@ -635,9 +636,9 @@ namespace Hypercube.Map {
                 }
             }
 
-            if (ToSpawn.MyClient != null && Clients.Contains(ToSpawn.MyClient)) {
+            if (ToSpawn.MyClient != null && Clients[ToSpawn.MyClient.CS.ID] != null) {
                 lock (ClientLock) {
-                    Clients.Remove(ToSpawn.MyClient);
+                    Clients.Remove(ToSpawn.MyClient.CS.ID);
                 }
 
                 lock (EntityLock) {
@@ -651,8 +652,8 @@ namespace Hypercube.Map {
             Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
 
             lock (ClientLock) {
-                for (int i = 0; i < Clients.Count; i++)
-                    Despawn.Write(Clients[i]);
+                foreach(NetworkClient c in Clients.Values)
+                    Despawn.Write(c);
             }
 
             FreeID = ToSpawn.ClientID;
@@ -705,19 +706,14 @@ namespace Hypercube.Map {
             BlockChange(Client.CS.ID, X, Y, Z, NewBlock, MapBlock, true, true, true, 250);
         }
 
-        public void BlockChange(int ClientID, short X, short Y, short Z, Block Type, Block LastType, bool Undo, bool Physics, bool Send, short Priority) {
+        public void BlockChange(short ClientID, short X, short Y, short Z, Block Type, Block LastType, bool Undo, bool Physics, bool Send, short Priority) {
             SetBlockID(X, Y, Z, (byte)(Type.ID), ClientID);
 
             if (Undo) {
                 NetworkClient Client = null;
 
                 lock (ClientLock) {
-                    foreach (NetworkClient c in Clients) {
-                        if (c.CS.ID == ClientID) {
-                            Client = c;
-                            break;
-                        }
-                    }
+                    Client = Clients[ClientID];
                 }
 
                 if (Client != null) {
@@ -785,12 +781,7 @@ namespace Hypercube.Map {
                 NetworkClient Client = null;
 
                 lock (ClientLock) {
-                    foreach (NetworkClient c in Clients) {
-                        if (c.CS.ID == lastPlayer) {
-                            Client = c;
-                            break;
-                        }
-                    }
+                    Client = Clients[lastPlayer];
                 }
 
                 if (Client != null) {
@@ -880,8 +871,8 @@ namespace Hypercube.Map {
 
         public void SendBlockToAll(short x, short y, short z, Block type) {
             lock (ClientLock) {
-                for (int i = 0; i < Clients.Count; i++)
-                    SendBlock(Clients[i], x, y, z, type);
+                foreach(NetworkClient c in Clients.Values)
+                    SendBlock(c, x, y, z, type);
             }
         }
 
@@ -978,7 +969,7 @@ namespace Hypercube.Map {
         }
 
         void PhysicsInfiniteWater(Block physicBlock, short X, short Y, short Z) {
-            int PlayerID = -1;
+            short PlayerID = -1;
 
             if (HCSettings.History)
                 PlayerID = History.GetLastPlayer(X, Y, Z);

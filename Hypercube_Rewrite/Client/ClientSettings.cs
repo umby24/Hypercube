@@ -14,10 +14,10 @@ namespace Hypercube.Client {
         public string LoginName, FormattedName, IP, MPPass;
         public DateTime LastActive;
         public bool LoggedIn, Stopped, Global, Op;
-        public short NameID;
+        public short NameID, ID;
         public List<Rank> PlayerRanks;
         public List<int> RankSteps;
-        public int ID, MuteTime;
+        public int MuteTime;
         public Entity MyEntity;
         public HypercubeMap CurrentMap;
 

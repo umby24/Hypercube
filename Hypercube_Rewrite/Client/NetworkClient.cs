@@ -54,7 +54,7 @@ namespace Hypercube.Client {
         }
 
         public void LoadDB() {
-            CS.ID = ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
+            CS.ID = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
             CS.Global = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
             CS.MuteTime = ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
@@ -93,7 +93,7 @@ namespace Hypercube.Client {
             CS.CurrentMap.Send(this);
 
             lock (CS.CurrentMap.ClientLock) {
-                CS.CurrentMap.Clients.Add(this);
+                CS.CurrentMap.Clients.Add(CS.ID, this);
             }
 
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
@@ -237,7 +237,7 @@ namespace Hypercube.Client {
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
             lock (CS.CurrentMap.ClientLock) {
-                CS.CurrentMap.Clients.Remove(this);
+                CS.CurrentMap.Clients.Remove(CS.ID);
             }
 
             CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
@@ -246,7 +246,7 @@ namespace Hypercube.Client {
             newMap.Send(this);
 
             lock (newMap.ClientLock) {
-                newMap.Clients.Add(this);
+                newMap.Clients.Add(CS.ID, this);
             }
 
             CS.MyEntity.X = (short)(newMap.CWMap.SpawnX * 32);

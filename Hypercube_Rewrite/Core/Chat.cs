@@ -65,10 +65,10 @@ namespace Hypercube.Core {
             string[] Sending = SplitLines(Message);
 
             lock (Map.ClientLock) {
-                for (int i = 0; i < Map.Clients.Count; i++) {
+                foreach(NetworkClient c in Map.Clients.Values) {
                     foreach (string b in Sending) {
                         Chat.Text = b;
-                        Chat.Write(Map.Clients[i]);
+                        Chat.Write(c);
                     }
                 }
             }

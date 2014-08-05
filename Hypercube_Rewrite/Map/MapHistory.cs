@@ -297,7 +297,7 @@ namespace Hypercube.Map {
             }
         }
 
-        public int GetLastPlayer(short x, short y, short z) {
+        public short GetLastPlayer(short x, short y, short z) {
             if (!ThisMap.HCSettings.History)
                 return -1;
 
@@ -306,7 +306,7 @@ namespace Hypercube.Map {
             if (Results == null)
                 return -1;
             else
-                return (int)Results[Results.Length - 1].Player;
+                return (short)Results[Results.Length - 1].Player;
         }
         /// <summary>
         /// Creates an entry into the History System. Will not be saved until SaveEntries() is called.
