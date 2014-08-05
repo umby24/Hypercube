@@ -27,6 +27,9 @@ namespace Hypercube.Libraries {
                 var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
                 Command.ExecuteNonQuery();
 
+                Command.CommandText = "CREATE INDEX PlayerDB_Index ON PlayerDB (Name COLLATE NOCASE)";
+                Command.ExecuteNonQuery();
+
                 Command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
                 Command.ExecuteNonQuery();
 
@@ -60,7 +63,7 @@ namespace Hypercube.Libraries {
         /// <param name="Name"></param>
         /// <returns></returns>
         public bool ContainsPlayer(string Name) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
+            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Name + "'");
 
             foreach (DataRow c in dt.Rows) {
                 if (((string)c["Name"]).ToLower() == Name.ToLower())
@@ -77,7 +80,7 @@ namespace Hypercube.Libraries {
         /// <param name="Name"></param>
         /// <returns></returns>
         public string GetPlayerName(string Name) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
+            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Name + "'");
 
             foreach (DataRow c in dt.Rows) {
                 if (((string)c["Name"]).ToLower() == Name.ToLower())
@@ -139,10 +142,10 @@ namespace Hypercube.Libraries {
         }
 
         public bool IsIPBanned(string IP) {
-            var dt = GetDataTable("SELECT * FROM IPBanDB"); //WHERE Name='" + Name + "' AND Service='" + Service + "'");
+            var dt = GetDataTable("SELECT * FROM IPBanDB WHERE IP=='" + IP + "'");
 
             foreach (DataRow c in dt.Rows) {
-                if (((string)c["IP"]).ToLower() == IP.ToLower())
+                if (((string)c["IP"]) == IP)
                     return true;
             }
 

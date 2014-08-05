@@ -67,6 +67,7 @@ namespace Hypercube.Core {
                     Chat.Write(Map.Clients[i]);
                 }
             }
+            
         }
 
         /// <summary>

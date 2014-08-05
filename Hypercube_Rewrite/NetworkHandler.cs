@@ -80,6 +80,8 @@ namespace Hypercube {
 
             if (client.CS.LoggedIn) {
                 client.CS.CurrentMap.Clients.Remove(client);
+                
+
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
                 ServerCore.OnlinePlayers -= 1;

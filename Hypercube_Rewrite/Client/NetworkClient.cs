@@ -92,6 +92,7 @@ namespace Hypercube.Client {
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
             CS.CurrentMap.Send(this);
             CS.CurrentMap.Clients.Add(this);
+
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
             ServerCore.Luahandler.RunFunction("E_PlayerLogin", this);
 
@@ -230,6 +231,7 @@ namespace Hypercube.Client {
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
             CS.CurrentMap.Clients.Remove(this);
+            
             CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
             CS.CurrentMap = newMap;
 
@@ -293,13 +295,13 @@ namespace Hypercube.Client {
                 ServerCore.nh.HandleDisconnect(this);
             }
         }
+
         void Timeout() {
             while (BaseSocket.Connected) {
-                //if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
-                //    var MyPing = new Ping();
-                //    MyPing.Write(this);
-                //} else 
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
+                    var MyPing = new Ping();
+                    MyPing.Write(this);
+                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
                     ServerCore.Logger.Log("Timeout", "Player " + CS.IP + " timed out.", LogType.Info);
                     KickPlayer("Timed out");
                     return;

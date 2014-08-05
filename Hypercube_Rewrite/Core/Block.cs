@@ -7,16 +7,15 @@ using Hypercube.Libraries;
 
 namespace Hypercube.Core {
     public class BlockContainer {
-        //public SortedDictionary<int, Block> numberList;
+        public SortedDictionary<int, Block> numberList;
         public SortedDictionary<string, Block> nameList;
 
-        //public List<Block> Blocks = new List<Block>();
         Hypercube Servercore;
         ISettings Blocksfile;
 
         public BlockContainer(Hypercube Core) {
             Servercore = Core;
-            //numberList = new SortedDictionary<int, Block>();
+            numberList = new SortedDictionary<int, Block>();
             nameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
             Blocksfile = Core.Settings.RegisterFile("Blocks.txt", true, new PBSettingsLoader.LoadSettings(LoadBlocks));
             Servercore.Settings.ReadSettings(Blocksfile);
@@ -27,7 +26,7 @@ namespace Hypercube.Core {
         /// </summary>
         public void LoadBlocks() {
             //Blocks.Clear();
-            //numberList.Clear();
+            numberList.Clear();
             nameList.Clear();
 
             foreach (string ID in Blocksfile.Settings.Keys) {
@@ -50,12 +49,11 @@ namespace Hypercube.Core {
                 Newblock.RanksPlace = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "PlaceRank", "0,1,2,3"));
                 Newblock.RanksDelete = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "DeleteRank", "0,1,2,3"));
                 //Blocks.Add(Newblock);
-                //numberList.Add(Newblock.ID, Newblock);
-                nameList.Add(Newblock.ID.ToString(), Newblock);
+                numberList.Add(Newblock.ID, Newblock);
                 nameList.Add(Newblock.Name, Newblock);
             }
 
-            if (nameList.Count == 0) 
+            if (nameList.Count == 0)
                 CreateBlocks();
 
             Servercore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
@@ -164,21 +162,18 @@ namespace Hypercube.Core {
         /// <param name="ID">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
         public Block GetBlock(int ID) {
-            //if (ID == 1)
-            //    ID = 1;
+            if (!numberList.ContainsKey(ID)) {
+                Block myBlock = new Block();
+                myBlock.ID = 99;
+                myBlock.Name = "Unknown";
+                myBlock.OnClient = 46;
+                myBlock.CPELevel = 0;
+                myBlock.CPEReplace = 46;
+                myBlock.RanksDelete = RankContainer.SplitRanks(Servercore, "2,3");
+                return myBlock;
+            }
 
-            //if (!numberList.ContainsKey(ID)) {
-            //    Block myBlock = new Block();
-            //    myBlock.ID = 99;
-            //    myBlock.Name = "Unknown";
-            //    myBlock.OnClient = 46;
-            //    myBlock.CPELevel = 0;
-            //    myBlock.CPEReplace = 46;
-            //    myBlock.RanksDelete = RankContainer.SplitRanks(Servercore, "2,3");
-            //    return myBlock;
-            //}
-
-            return GetBlock(ID.ToString());
+            return numberList[ID];
         }
 
         /// <summary>
@@ -187,9 +182,6 @@ namespace Hypercube.Core {
         /// <param name="Name">The name of the block you wish to be returned.</param>
         /// <returns>The block object that was found. The name will be "Unknown" if the block could not be found.</returns>
         public Block GetBlock(string Name) {
-            if (Name == "1")
-                Name = "Stone";
-
             if (!nameList.ContainsKey(Name)) {
                 Block myBlock = new Block();
                 myBlock.ID = 99;
@@ -210,7 +202,7 @@ namespace Hypercube.Core {
         /// <returns></returns>
         internal int GetNextID() {
             for (int i = 0; i < 256; i++) {
-                if (GetBlock(i).Name == "Unknown") 
+                if (GetBlock(i).Name == "Unknown")
                     return i;
             }
 
@@ -253,8 +245,7 @@ namespace Hypercube.Core {
             newBlock.Special = Special;
             newBlock.ReplaceOnLoad = ReplaceOnLoad;
 
-            //numberList.Add(newBlock.ID, newBlock);
-            nameList.Add(newBlock.ID.ToString(), newBlock);
+            numberList.Add(newBlock.ID, newBlock);
             nameList.Add(newBlock.Name, newBlock);
             //Blocks.Add(newBlock);
 
@@ -278,17 +269,14 @@ namespace Hypercube.Core {
         /// </summary>
         /// <param name="ID">ID of the block to remove.</param>
         public void DeleteBlock(int ID) {
-            DeleteBlock(ID.ToString());
-            //var toDelete = GetBlock(ID);
+            var toDelete = GetBlock(ID);
 
-            //if (toDelete != null) {
-            //    //Blocks.Remove(toDelete);
-            //    nameList.Remove(toDelete.Name);
-            //    nameList.Remove(toDelete.ID.ToString());
-            //    //numberList.Remove(toDelete.ID);
-            //    Blocksfile.Settings.Remove(toDelete.ID.ToString());
-            //    Servercore.Settings.SaveSettings(Blocksfile);
-            //}
+            if (toDelete != null) {
+                nameList.Remove(toDelete.Name);
+                numberList.Remove(toDelete.ID);
+                Blocksfile.Settings.Remove(toDelete.ID.ToString());
+                Servercore.Settings.SaveSettings(Blocksfile);
+            }
         }
 
         /// <summary>
@@ -301,7 +289,7 @@ namespace Hypercube.Core {
             if (toDelete != null) {
                 nameList.Remove(toDelete.Name);
                 nameList.Remove(toDelete.ID.ToString());
-                //numberList.Remove(toDelete.ID);
+                numberList.Remove(toDelete.ID);
                 Blocksfile.Settings.Remove(toDelete.ID.ToString());
                 Servercore.Settings.SaveSettings(Blocksfile);
             }

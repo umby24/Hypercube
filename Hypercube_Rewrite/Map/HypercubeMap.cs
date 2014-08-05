@@ -88,7 +88,6 @@ namespace Hypercube.Map {
         public List<NetworkClient> Clients;
 
         public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
-        //public List<QueueItem> BlockchangeQueue = new List<QueueItem>();
         public List<QueueItem> PhysicsQueue = new List<QueueItem>();
         #endregion
         #region IDs
@@ -447,10 +446,14 @@ namespace Hypercube.Map {
         public void Resend() {
             BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 
-            foreach (NetworkClient c in Clients) {
-                Send(c);
-                SendAllEntities(c);
+            for (int i = 0; i < Clients.Count; i++) {
+                Send(Clients[i]);
+                SendAllEntities(Clients[i]);
             }
+            //foreach (NetworkClient c in Clients) {
+            //    Send(c);
+            //    SendAllEntities(c);
+            //}
         }
 
         public void Send(NetworkClient Client) {
@@ -557,6 +560,7 @@ namespace Hypercube.Map {
                         TeleportPacket.yaw = Entities[i].Rot;
                         TeleportPacket.pitch = Entities[i].Look;
 
+
                         for (int z = 0; z < Clients.Count; z++) {
                             if (Entities[i].MyClient != null && Entities[i].MyClient != Clients[z])
                                 TeleportPacket.Write(Clients[z]);
@@ -566,6 +570,7 @@ namespace Hypercube.Map {
                                 Entities[i].SendOwn = false;
                             }
                         }
+                        
 
                         Entities[i].Changed = false;
                     }
@@ -584,17 +589,27 @@ namespace Hypercube.Map {
             ESpawn.Yaw = ToSpawn.Rot;
             ESpawn.Pitch = ToSpawn.Look;
 
-            foreach (NetworkClient c in Clients) {
-                if (c != ToSpawn.MyClient)
-                    ESpawn.Write(c);
+            for (int i = 0; i < Clients.Count; i++) {
+                if (Clients[i] != ToSpawn.MyClient)
+                    ESpawn.Write(Clients[i]);
                 else {
                     ESpawn.PlayerID = (sbyte)-1;
-                    ESpawn.Write(c);
+                    ESpawn.Write(Clients[i]);
                     ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
                 }
             }
+                //foreach (NetworkClient c in Clients) {
+                //    if (c != ToSpawn.MyClient)
+                //        ESpawn.Write(c);
+                //    else {
+                //        ESpawn.PlayerID = (sbyte)-1;
+                //        ESpawn.Write(c);
+                //        ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
+                //    }
+                //}
 
-            Servercore.Luahandler.RunFunction("E_EntitySpawn", this, ToSpawn);
+
+                Servercore.Luahandler.RunFunction("E_EntitySpawn", this, ToSpawn);
         }
 
         public void SendAllEntities(NetworkClient Client) {
@@ -631,8 +646,8 @@ namespace Hypercube.Map {
 
             Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
 
-            foreach (NetworkClient c in Clients)
-                Despawn.Write(c);
+            for (int i = 0; i < Clients.Count; i++)
+                Despawn.Write(Clients[i]);
 
             FreeID = ToSpawn.ClientID;
             Servercore.Luahandler.RunFunction("E_EntityDeleted", this, ToSpawn);
@@ -696,6 +711,7 @@ namespace Hypercube.Map {
                         break;
                     }
                 }
+                
 
                 if (Client != null) {
                     if (Client.CS.CurrentIndex == -1)
@@ -767,6 +783,7 @@ namespace Hypercube.Map {
                         break;
                     }
                 }
+                
 
                 if (Client != null) {
                     if (Client.CS.CurrentIndex == -1)

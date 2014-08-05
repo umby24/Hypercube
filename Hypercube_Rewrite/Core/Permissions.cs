@@ -40,8 +40,10 @@ namespace Hypercube.Core {
                 }
             }
 
-            if (Permissions.Count == 0)
+            if (Permissions.Count == 0) {
                 CreatePermissions();
+                LoadPermissions();
+            }
 
             ServerCore.Logger.Log("PermContainer", "Permissions loaded", LogType.Info);
         }
@@ -68,6 +70,8 @@ namespace Hypercube.Core {
                 SW.WriteLine("chat.readstaffchat");
                 SW.WriteLine("chat.useemotes");
             }
+
+            ServerCore.Logger.Log("PermContainer", "Permissions created", LogType.Info);
         }
 
         public Permission GetPermission(string name) {

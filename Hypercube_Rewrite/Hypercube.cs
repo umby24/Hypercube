@@ -128,7 +128,11 @@ namespace Hypercube
             Luahandler = new HCLua(this);
             Luahandler.RegisterFunctions();
             Luahandler.LoadScripts();
-            
+
+            foreach (ISettings i in Settings.SettingsFiles) {
+                if (i.Save)
+                    Settings.SaveSettings(i);
+            }
         }
 
         /// <summary>
