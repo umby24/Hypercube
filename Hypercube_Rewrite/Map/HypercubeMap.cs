@@ -91,7 +91,7 @@ namespace Hypercube.Map {
         public object EntityLock = new object();
 
         public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
-        public List<QueueItem> PhysicsQueue = new List<QueueItem>();
+        public List<QueueItem> PhysicsQueue = new List<QueueItem>(); //TODO: Update this to something faster
         #endregion
         #region IDs
         public short FreeID = 0, NextID = 0;
@@ -636,7 +636,7 @@ namespace Hypercube.Map {
                 }
             }
 
-            if (ToSpawn.MyClient != null && Clients[ToSpawn.MyClient.CS.ID] != null) {
+            if (ToSpawn.MyClient != null && Clients.ContainsKey(ToSpawn.MyClient.CS.ID) != false) {
                 lock (ClientLock) {
                     Clients.Remove(ToSpawn.MyClient.CS.ID);
                 }

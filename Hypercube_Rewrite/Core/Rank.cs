@@ -119,11 +119,11 @@ namespace Hypercube.Core
 
                 var OpRank = new Rank("Op", "Staff", "&9", "", true, 100, "");
                 OpRank.ID = 2;
-                OpRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat");
+                OpRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat");
 
                 var OwnerRank = new Rank("Owner", "Staff", "&0", "", true, 0, "");
                 OwnerRank.ID = 3;
-                OwnerRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap");
+                OwnerRank.Permissions = PermissionContainer.SplitPermissions(ServerCore, "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap");
 
                 numberList.Add(0, GuestRank);
                 nameList.Add("Guest", GuestRank);

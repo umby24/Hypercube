@@ -17,6 +17,7 @@ namespace Hypercube {
         #region Variables
         public ISettings NS;
         public List<NetworkClient> Clients = new List<NetworkClient>();
+        public Dictionary<string, NetworkClient> LoggedClients = new Dictionary<string, NetworkClient>(StringComparer.InvariantCultureIgnoreCase);
         public TcpListener CoreListener;
         public object ClientLock = new object();
 
@@ -87,6 +88,8 @@ namespace Hypercube {
                 lock (client.CS.CurrentMap.ClientLock) {
                     client.CS.CurrentMap.Clients.Remove(client.CS.ID);
                 }
+
+                LoggedClients.Remove(client.CS.LoginName);
 
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 

@@ -121,6 +121,7 @@ namespace Hypercube.Client {
             // -- Set the user as logged in.
             CS.LoggedIn = true;
             ServerCore.OnlinePlayers += 1;
+            ServerCore.nh.LoggedClients.Add(CS.LoginName, this);
         }
 
         public void SendHandshake(string MOTD = "") {

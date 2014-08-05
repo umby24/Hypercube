@@ -132,19 +132,19 @@ namespace Hypercube.Core {
             if (Message.StartsWith("/") && !Message.StartsWith("//"))
                 IncomingClient.ServerCore.Commandholder.HandleCommand(IncomingClient, Message);
             else if (Message.StartsWith("@")) {
-                string Client = Message.Substring(1, Message.IndexOf(" ") - 1);
-                NetworkClient Tosend = null;
+                string Client = "";
 
-                lock (IncomingClient.ServerCore.nh.ClientLock) {
-                    foreach (NetworkClient c in IncomingClient.ServerCore.nh.Clients) {
-                        if (c.CS.LoginName.ToLower() == Client.ToLower()) {
-                            Tosend = c;
-                            break;
-                        }
-                    }
+                try {
+                    Client = Message.Substring(1, Message.IndexOf(" ") - 1);
+                } catch {
+                    return;
                 }
 
-                if (Tosend == null) {
+                NetworkClient Tosend = null;
+
+                if (IncomingClient.ServerCore.nh.LoggedClients.ContainsKey(Client)) {
+                    Tosend = IncomingClient.ServerCore.nh.LoggedClients[Client];
+                } else {
                     SendClientChat(IncomingClient, "§EPlayer '" + Client + "' not found.");
                     return;
                 }

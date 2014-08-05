@@ -12,7 +12,7 @@ namespace Hypercube.Map {
 
     public class MapHistory {
         #region Variables
-        public List<HistoryEntry> Entries;
+        public List<HistoryEntry> Entries; //TODO: Look into possibly changing this..
 
         HypercubeMap ThisMap;
         string BaseName;
