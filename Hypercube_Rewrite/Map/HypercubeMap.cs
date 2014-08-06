@@ -489,7 +489,8 @@ namespace Hypercube.Map {
             Temp = Libraries.GZip.Compress(Temp);
 
             var init = new LevelInit();
-            init.Write(Client);
+            Client.SendQueue.Enqueue(init);
+            //init.Write(Client);
 
             Offset = 0;
 
@@ -502,7 +503,8 @@ namespace Hypercube.Map {
                     Chunk.Length = 1024;
                     Chunk.Data = Send;
                     Chunk.Percent = (byte)(((float)Offset / Temp.Length) * 100);
-                    Chunk.Write(Client);
+                    Client.SendQueue.Enqueue(Chunk);
+                    //Chunk.Write(Client);
 
                     Offset += 1024;
                 } else {
@@ -513,7 +515,7 @@ namespace Hypercube.Map {
                     Chunk.Length = (short)((Temp.Length - Offset));
                     Chunk.Data = Send;
                     Chunk.Percent = (byte)(((float)Offset / Temp.Length) * 100);
-                    Chunk.Write(Client);
+                    Client.SendQueue.Enqueue(Chunk);
 
                     Offset += Chunk.Length;
                 }
@@ -523,7 +525,7 @@ namespace Hypercube.Map {
             Final.SizeX = CWMap.SizeX;
             Final.SizeY = CWMap.SizeZ;
             Final.SizeZ = CWMap.SizeY;
-            Final.Write(Client);
+            Client.SendQueue.Enqueue(Final);
 
             Temp = null;
             GC.Collect();
@@ -777,7 +779,8 @@ namespace Hypercube.Map {
             else
                 Setblock.Block = type.OnClient;
 
-            Setblock.Write(client);
+            client.SendQueue.Enqueue(Setblock);
+            //Setblock.Write(client);
         }
 
         public void SendBlockToAll(short x, short y, short z, Block type) {

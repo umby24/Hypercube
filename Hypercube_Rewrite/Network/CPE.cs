@@ -36,20 +36,21 @@ namespace Hypercube.Network {
             var CExtInfo = new ExtInfo();
             CExtInfo.AppName = "Hypercube Server";
             CExtInfo.ExtensionCount = SupportedExtensions;
-            CExtInfo.Write(Client);
+            Client.SendQueue.Enqueue(CExtInfo);
+            //CExtInfo.Write(Client);
 
             var CExtEntry = new ExtEntry();
             CExtEntry.ExtName = "CustomBlocks";
             CExtEntry.Version = CustomBlocksVersion;
-            CExtEntry.Write(Client);
+            Client.SendQueue.Enqueue(CExtEntry);
 
             CExtEntry.ExtName = "EmoteFix";
             CExtEntry.Version = EmoteFixVersion;
-            CExtEntry.Write(Client);
+            Client.SendQueue.Enqueue(CExtEntry);
 
             CExtEntry.ExtName = "HeldBlock";
             CExtEntry.Version = HeldBlockVersion;
-            CExtEntry.Write(Client);
+            Client.SendQueue.Enqueue(CExtEntry);
 
             //CExtEntry.ExtName = "ClickDistance";
             //CExtEntry.Version = ClickDistanceVersion;
@@ -61,7 +62,7 @@ namespace Hypercube.Network {
 
             CExtEntry.ExtName = "ExtPlayerList";
             CExtEntry.Version = ExtPlayerListVersion;
-            CExtEntry.Write(Client);
+            Client.SendQueue.Enqueue(CExtEntry);
 
             //CExtEntry.ExtName = "EnvWeatherType";
             //CExtEntry.Version = EnvWeatherTypeVersion;
@@ -73,7 +74,7 @@ namespace Hypercube.Network {
 
             CExtEntry.ExtName = "MessageTypes";
             CExtEntry.Version = MessageTypesVersion;
-            CExtEntry.Write(Client);
+            Client.SendQueue.Enqueue(CExtEntry);
 
             //CExtEntry.ExtName = "BlockPermissions";
             //CExtEntry.Version = BlockPermissionsVersion;
@@ -104,7 +105,8 @@ namespace Hypercube.Network {
             if (Client.CS.CPEExtensions.ContainsKey("CustomBlocks")) {
                 var CBSL = new CustomBlockSupportLevel();
                 CBSL.SupportLevel = CustomBlocksSupportLevel;
-                CBSL.Write(Client);
+                Client.SendQueue.Enqueue(CBSL);
+                //CBSL.Write(Client);
             } else {
                 Client.Login();
             }
@@ -135,21 +137,22 @@ namespace Hypercube.Network {
                             ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
                             ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
 
-                            ExtPlayerListPacket.Write(c);
+                            Client.SendQueue.Enqueue(ExtPlayerListPacket);
+                            //ExtPlayerListPacket.Write(c);
 
                             if (Client.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
                                 ExtPlayerListPacket.NameID = c.CS.NameID;
                                 ExtPlayerListPacket.ListName = c.CS.FormattedName;
                                 ExtPlayerListPacket.PlayerName = c.CS.LoginName;
                                 ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
-                                ExtPlayerListPacket.Write(Client);
+                                Client.SendQueue.Enqueue(ExtPlayerListPacket);
                             }
                         } else {
                             ExtPlayerListPacket.NameID = Client.CS.NameID;
                             ExtPlayerListPacket.ListName = Client.CS.FormattedName;
                             ExtPlayerListPacket.PlayerName = Client.CS.LoginName;
                             ExtPlayerListPacket.GroupName = Client.ServerCore.TextFormats.ExtPlayerList + Client.CS.CurrentMap.CWMap.MapName;
-                            ExtPlayerListPacket.Write(c);
+                            Client.SendQueue.Enqueue(ExtPlayerListPacket);
                         }
                     }
                 }
@@ -174,8 +177,10 @@ namespace Hypercube.Network {
             lock (Client.ServerCore.nh.ClientLock) {
                 foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
                     if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                        ToRemove.Write(c);
-                        ToUpdate.Write(c);
+                        c.SendQueue.Enqueue(ToRemove);
+                        c.SendQueue.Enqueue(ToUpdate);
+                        //ToRemove.Write(c);
+                        //ToUpdate.Write(c);
                     }
                 }
             }

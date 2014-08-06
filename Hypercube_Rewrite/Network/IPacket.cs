@@ -7,7 +7,7 @@ namespace Hypercube.Network {
     /// <summary>
     /// Interface for Classic packets.
     /// </summary>
-    interface IPacket {
+    public interface IPacket {
         byte Id { get; }
         void Read(Client.NetworkClient Client);
         void Write(Client.NetworkClient Client);

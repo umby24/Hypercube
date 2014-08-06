@@ -20,14 +20,13 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(ProtocolVersion);
                 Client.wSock.WriteString(Name);
                 Client.wSock.WriteString(MOTD);
                 Client.wSock.WriteByte(Usertype);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -79,10 +78,9 @@ namespace Hypercube.Network {
 
         }
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.Purge();
-            }
+            
         }
         public void Handle(NetworkClient Client, Hypercube Core) {
 
@@ -96,10 +94,9 @@ namespace Hypercube.Network {
 
         }
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.Purge();
-            }
+            
         }
         public void Handle(NetworkClient Client, Hypercube Core) {
 
@@ -118,13 +115,11 @@ namespace Hypercube.Network {
             Percent = Client.wSock.ReadByte();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(Length);
                 Client.wSock.WriteByteArray(Data);
                 Client.wSock.WriteByte(Percent);
                 Client.wSock.Purge();
-            }
         }
         public void Handle(NetworkClient Client, Hypercube Core) {
 
@@ -144,13 +139,12 @@ namespace Hypercube.Network {
             SizeY = Client.wSock.ReadShort();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(SizeX);
                 Client.wSock.WriteShort(SizeZ);
                 Client.wSock.WriteShort(SizeY);
                 Client.wSock.Purge();
-            }
+            
         }
         public void Handle(NetworkClient Client, Hypercube Core) {
 
@@ -174,7 +168,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(X);
                 Client.wSock.WriteShort(Z);
@@ -182,7 +175,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteByte(Mode);
                 Client.wSock.WriteByte(Block);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -204,14 +197,13 @@ namespace Hypercube.Network {
             Block = Client.wSock.ReadByte();
         }
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(X);
                 Client.wSock.WriteShort(Z);
                 Client.wSock.WriteShort(Y);
                 Client.wSock.WriteByte(Block);
                 Client.wSock.Purge();
-            }
+            
         }
         public void Handle(NetworkClient Client, Hypercube Core) {
 
@@ -239,7 +231,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteString(PlayerName);
@@ -249,7 +240,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteByte(Yaw);
                 Client.wSock.WriteByte(Pitch);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -276,7 +267,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteShort(X);
@@ -285,7 +275,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteByte(yaw);
                 Client.wSock.WriteByte(pitch);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -332,7 +322,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteShort(ChangeX);
@@ -341,7 +330,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteByte(yaw);
                 Client.wSock.WriteByte(pitch);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -405,10 +394,8 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
-            }
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -427,12 +414,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteSByte(PlayerID);
                 Client.wSock.WriteString(Text);
                 Client.wSock.Purge();
-            }
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -449,11 +434,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(Reason);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -470,11 +454,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(Rank);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -493,12 +476,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(AppName);
                 Client.wSock.WriteShort(ExtensionCount);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -522,12 +504,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(ExtName);
                 Client.wSock.WriteInt(Version);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -547,11 +528,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(Distance);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -568,11 +548,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SupportLevel);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -592,12 +571,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(BlockToHold);
                 Client.wSock.WriteByte(PreventChange);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -617,14 +595,13 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(Label);
                 Client.wSock.WriteString(Action);
                 Client.wSock.WriteInt(KeyCode);
                 Client.wSock.WriteByte(KeyMods);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -645,7 +622,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(NameID);
                 Client.wSock.WriteString(PlayerName);
@@ -653,7 +629,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteString(GroupName);
                 Client.wSock.WriteByte(GroupRank);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -672,12 +648,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(EntityID);
                 Client.wSock.WriteString(InGameName);
                 Client.wSock.WriteString(SkinName);
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -693,11 +668,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteShort(NameID);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -717,14 +691,13 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(ColorType);
                 Client.wSock.WriteShort(Red);
                 Client.wSock.WriteShort(Green);
                 Client.wSock.WriteShort(Blue);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -752,7 +725,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SelectionID);
                 Client.wSock.WriteString(Label);
@@ -767,7 +739,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteShort(Blue);
                 Client.wSock.WriteShort(Opacity);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -784,11 +756,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(SelectionID);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -807,13 +778,12 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(BlockType);
                 Client.wSock.WriteByte(AllowPlacement);
                 Client.wSock.WriteByte(AllowDeletion);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -831,12 +801,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(EntityID);
                 Client.wSock.WriteString(ModelName);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -855,14 +824,13 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteString(TextureURL);
                 Client.wSock.WriteByte(SideBlock);
                 Client.wSock.WriteByte(EdgeBlock);
                 Client.wSock.WriteShort(SideLevel);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -878,11 +846,10 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(WeatherType);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
@@ -903,7 +870,6 @@ namespace Hypercube.Network {
         }
 
         public void Write(Client.NetworkClient Client) {
-            lock (Client.WriteLock) {
                 Client.wSock.WriteByte(Id);
                 Client.wSock.WriteByte(Flying);
                 Client.wSock.WriteByte(NoClip);
@@ -912,7 +878,7 @@ namespace Hypercube.Network {
                 Client.wSock.WriteByte(ThirdPerson);
                 Client.wSock.WriteShort(JumpHeight);
                 Client.wSock.Purge();
-            }
+            
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {

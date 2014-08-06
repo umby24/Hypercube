@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -20,7 +21,7 @@ namespace Hypercube.Client {
         public TcpClient BaseSocket;
         public NetworkStream BaseStream;
         public Thread DataRunner, TimeoutThread;
-        public object WriteLock = new Object();
+        public ConcurrentQueue<IPacket> SendQueue;
 
         Dictionary<byte, Func<IPacket>> Packets;
         public Hypercube ServerCore;
@@ -45,13 +46,11 @@ namespace Hypercube.Client {
             wSock = new ClassicWrapped.ClassicWrapped();
             wSock._Stream = BaseStream;
 
+            SendQueue = new ConcurrentQueue<IPacket>();
             Populate();
 
             DataRunner = new Thread(DataHandler);
             DataRunner.Start();
-
-            TimeoutThread = new Thread(Timeout);
-            TimeoutThread.Start();
         }
 
         public void LoadDB() {
@@ -90,7 +89,7 @@ namespace Hypercube.Client {
             LoadDB(); // -- Load the user's profile
 
             if (ServerCore.nh.LoggedClients.ContainsKey(CS.LoginName)) {
-
+                //TODO: This
             }
 
             // -- Get the user logged in to the main map.
@@ -147,13 +146,13 @@ namespace Hypercube.Client {
             else
                 HS.Usertype = 0;
 
-            HS.Write(this);
+            SendQueue.Enqueue(HS);
         }
 
         public void KickPlayer(string Reason, bool Log = false) {
             var DC = new Disconnect();
             DC.Reason = Reason;
-            DC.Write(this);
+            SendQueue.Enqueue(DC);
 
             Thread.Sleep(100);
 
@@ -371,13 +370,14 @@ namespace Hypercube.Client {
             Spawn.Z = Entity.Z;
             Spawn.Yaw = Entity.Rot;
             Spawn.Pitch = Entity.Look;
-            Spawn.Write(this);
+            SendQueue.Enqueue(Spawn);
+            //Spawn.Write(this);
         }
 
         void EDelete(sbyte ID) {
             var Despawn = new DespawnPlayer();
             Despawn.PlayerID = ID;
-            Despawn.Write(this);
+            SendQueue.Enqueue(Despawn);
         }
 
         void ELook(sbyte ID, byte Rot, byte Look) {
@@ -385,7 +385,7 @@ namespace Hypercube.Client {
             OUp.PlayerID = ID;
             OUp.Yaw = Rot;
             OUp.Pitch = Look;
-            OUp.Write(this);
+            SendQueue.Enqueue(OUp);
         }
 
         void EFullMove(Entity fullEntity, bool own = false) {
@@ -401,7 +401,7 @@ namespace Hypercube.Client {
             Move.Z = fullEntity.Z;
             Move.yaw = fullEntity.Rot;
             Move.pitch = fullEntity.Look;
-            Move.Write(this);
+            SendQueue.Enqueue(Move);
         }
         #endregion
         #region Network functions
@@ -421,12 +421,9 @@ namespace Hypercube.Client {
             };
         }
         void DataHandler() {
-            try {
-                byte opCode = 255;
-
-                while ((opCode = wSock.ReadByte()) != 255) {
-                    if (BaseSocket.Connected == false)
-                        break;
+            while (BaseSocket.Connected) {
+                if (BaseStream.DataAvailable) {
+                    var opCode = wSock.ReadByte();
 
                     if (!Packets.ContainsKey(opCode)) {
                         KickPlayer("Invalid packet received.");
@@ -437,20 +434,21 @@ namespace Hypercube.Client {
 
                     var Incoming = Packets[opCode]();
                     Incoming.Read(this);
-                    Incoming.Handle(this, ServerCore);
-                }
-            } catch (Exception e) {
-                if (e.GetType() != typeof(System.IO.IOException)) {
-                    ServerCore.Logger.Log("Client", e.Message, LogType.Error);
-                    ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
+
+                    try {
+                        Incoming.Handle(this, ServerCore);
+                    } catch (Exception e) {
+                        ServerCore.Logger.Log("Client", e.Message, LogType.Error);
+                        ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
+                    }
                 }
 
-                ServerCore.nh.HandleDisconnect(this);
-            }
-        }
+                IPacket myPacket;
 
-        void Timeout() {
-            while (BaseSocket.Connected) {
+                while (SendQueue.TryDequeue(out myPacket)) {
+                    myPacket.Write(this);
+                }
+
                 if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
                     var MyPing = new Ping();
                     MyPing.Write(this);
@@ -463,7 +461,7 @@ namespace Hypercube.Client {
                 if (CS.LoggedIn)
                     EntityPositions();
 
-                Thread.Sleep(5);
+                Thread.Sleep(0);
             }
 
             ServerCore.nh.HandleDisconnect(this);

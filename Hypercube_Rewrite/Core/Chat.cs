@@ -34,7 +34,7 @@ namespace Hypercube.Core {
             foreach (NetworkClient c in Core.nh.ClientList) {
                 foreach (string b in Sending) {
                     Chat.Text = b;
-                    Chat.Write(c);
+                    c.SendQueue.Enqueue(Chat);
                 }
             }
         
@@ -62,7 +62,7 @@ namespace Hypercube.Core {
             foreach(NetworkClient c in Map.ClientsList) {
                 foreach (string b in Sending) {
                     Chat.Text = b;
-                    Chat.Write(c);
+                    c.SendQueue.Enqueue(Chat);
                 }
             }
             
@@ -85,7 +85,7 @@ namespace Hypercube.Core {
 
             foreach (string b in Sending) {
                 Chat.Text = b;
-                Chat.Write(Client);
+                Client.SendQueue.Enqueue(Chat);
             }
 
         }

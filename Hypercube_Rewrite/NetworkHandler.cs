@@ -114,7 +114,8 @@ namespace Hypercube {
                 lock (ClientLock) {
                     foreach (NetworkClient c in Clients) {
                         if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
-                            Remove.Write(c);
+                            c.SendQueue.Enqueue(Remove);
+                            //Remove.Write(c);
                     }
                 }
 
