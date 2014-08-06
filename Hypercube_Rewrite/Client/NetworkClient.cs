@@ -31,6 +31,7 @@ namespace Hypercube.Client {
 
             CS = new ClientSettings();
             CS.LastActive = DateTime.UtcNow;
+            CS.Entities = new Dictionary<int, EntityStub>();
             CS.CPEExtensions = new Dictionary<string, int>();
             CS.SelectionCuboids = new List<byte>();
             CS.LoggedIn = false;
@@ -88,12 +89,17 @@ namespace Hypercube.Client {
 
             LoadDB(); // -- Load the user's profile
 
+            if (ServerCore.nh.LoggedClients.ContainsKey(CS.LoginName)) {
+
+            }
+
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
             CS.CurrentMap.Send(this);
 
             lock (CS.CurrentMap.ClientLock) {
                 CS.CurrentMap.Clients.Add(CS.ID, this);
+                CS.CurrentMap.CreateList();
             }
 
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
@@ -105,15 +111,15 @@ namespace Hypercube.Client {
             // -- Create the user's entity.
             CS.MyEntity = new Entity(ServerCore, CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.CWMap.SpawnX * 32), 
                 (short)(CS.CurrentMap.CWMap.SpawnZ * 32), (short)((CS.CurrentMap.CWMap.SpawnY * 32) + 51), CS.CurrentMap.CWMap.SpawnRotation, CS.CurrentMap.CWMap.SpawnLook);
+
             CS.MyEntity.MyClient = this;
             CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock"));
-            CS.CurrentMap.SpawnEntity(CS.MyEntity); // -- Send the client spawn to everyone.
+            
+            ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (CS.CurrentMap.EntityLock) {
-                CS.CurrentMap.Entities.Add(CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+                CS.CurrentMap.Entities.Add(CS.MyEntity.ID, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
             }
-
-            CS.CurrentMap.SendAllEntities(this);
 
             // -- CPE stuff
             CPE.SetupExtPlayerList(this);
@@ -122,6 +128,7 @@ namespace Hypercube.Client {
             CS.LoggedIn = true;
             ServerCore.OnlinePlayers += 1;
             ServerCore.nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.nh.CreateShit();
         }
 
         public void SendHandshake(string MOTD = "") {
@@ -152,9 +159,6 @@ namespace Hypercube.Client {
 
             if (BaseSocket.Connected)
                 BaseSocket.Close();
-
-            BaseStream.Close();
-            BaseStream.Dispose();
 
             if (CS.LoggedIn && Log) {
                 ServerCore.Logger.Log("Client", CS.LoginName + " has been kicked. (" + Reason + ")", LogType.Info);
@@ -239,6 +243,7 @@ namespace Hypercube.Client {
 
             lock (CS.CurrentMap.ClientLock) {
                 CS.CurrentMap.Clients.Remove(CS.ID);
+                CS.CurrentMap.CreateList();
             }
 
             CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
@@ -248,6 +253,7 @@ namespace Hypercube.Client {
 
             lock (newMap.ClientLock) {
                 newMap.Clients.Add(CS.ID, this);
+                newMap.CreateList();
             }
 
             CS.MyEntity.X = (short)(newMap.CWMap.SpawnX * 32);
@@ -257,16 +263,147 @@ namespace Hypercube.Client {
             CS.MyEntity.Look = newMap.CWMap.SpawnLook;
             CS.MyEntity.Map = newMap;
 
-            newMap.SpawnEntity(CS.MyEntity);
+            if (newMap.FreeID != 128) {
+                CS.MyEntity.ClientID = (byte)newMap.FreeID;
 
-            lock (newMap.EntityLock) {
-                newMap.Entities.Add(CS.MyEntity);
+                if (newMap.FreeID != newMap.NextID)
+                    newMap.FreeID = newMap.NextID;
+                else {
+                    newMap.FreeID += 1;
+                    newMap.NextID = newMap.FreeID;
+                }
             }
 
-            newMap.SendAllEntities(this);
+            ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
+
+            lock (newMap.EntityLock) {
+                newMap.Entities.Add(CS.ID, CS.MyEntity);
+            }
 
             CPE.UpdateExtPlayerList(this);
         }
+        #region Entity Management
+        void EntityPositions() {
+            var Delete = new List<int>();
+
+            foreach (EntityStub e in CS.Entities.Values) {
+                if (e.Map != CS.CurrentMap) {
+                    // -- Delete the entity.
+                    EDelete((sbyte)e.ClientID);
+                    Delete.Add(e.ID);
+                    continue;
+                }
+
+                if (e.ID == CS.MyEntity.ID) {
+                    // -- Delete yourself
+                    EDelete((sbyte)e.ClientID);
+                    Delete.Add(e.ID);
+                    continue;
+                }
+
+                if (!CS.CurrentMap.Entities.ContainsKey(e.ID)) { // -- Delete old entities.
+                    EDelete((sbyte)e.ClientID);
+                    Delete.Add(e.ID);
+                    continue;
+                }
+
+                if (!e.Spawned) { // -- Spawn an entity if it's not there yet.
+                    ESpawn(CS.CurrentMap.Entities[e.ID].Name, e);
+                    e.Spawned = true;
+                }
+
+                if (e.Looked) { // -- If the player looked, send them just an orient update.
+                    ELook((sbyte)e.ClientID, CS.CurrentMap.Entities[e.ID].Rot, CS.CurrentMap.Entities[e.ID].Look);
+                    e.Looked = false;
+                }
+
+                if (e.Changed) { // -- If they moved, send them both.
+                    EFullMove(CS.CurrentMap.Entities[e.ID]);
+                    e.Changed = false;
+                }
+            }
+
+            foreach (int i in Delete) 
+                CS.Entities.Remove(i); // -- If anyone needs to be removed, remove them. (Avoids collection modification)
+
+            Delete = null;
+
+            var IDs = CS.CurrentMap.Entities.Keys.ToList(); // -- Prevents need to use a lock.
+
+            foreach (int id in IDs) {
+                if (!CS.Entities.ContainsKey(id)) 
+                    CS.Entities.Add(id, CS.CurrentMap.Entities[id].CreateStub()); // -- If we do not have them yet, add them!
+                else {
+                    if (CS.CurrentMap.Entities[id].X != CS.Entities[id].X || CS.CurrentMap.Entities[id].Y != CS.Entities[id].Y || CS.CurrentMap.Entities[id].Z != CS.Entities[id].Z) {
+                        CS.Entities[id].X = CS.CurrentMap.Entities[id].X;
+                        CS.Entities[id].Y = CS.CurrentMap.Entities[id].Y;
+                        CS.Entities[id].Z = CS.CurrentMap.Entities[id].Z;
+                        CS.Entities[id].Changed = true;
+                    }
+
+                    if (CS.CurrentMap.Entities[id].Rot != CS.Entities[id].Rot || CS.CurrentMap.Entities[id].Look != CS.Entities[id].Look) {
+                        CS.Entities[id].Rot = CS.CurrentMap.Entities[id].Rot;
+                        CS.Entities[id].Look = CS.CurrentMap.Entities[id].Look;
+
+                        if (!CS.Entities[id].Changed)
+                            CS.Entities[id].Looked = true;
+                    }
+                }
+            }
+
+            IDs = null;
+
+            if (CS.MyEntity.SendOwn)
+                EFullMove(CS.MyEntity, true);
+        }
+
+        void ESpawn(string Name, EntityStub Entity) {
+            var Spawn = new SpawnPlayer();
+            Spawn.PlayerName = Name;
+
+            if (Entity.ID == CS.MyEntity.ID)
+                Spawn.PlayerID = -1;
+            else
+                Spawn.PlayerID = (sbyte)Entity.ClientID;
+
+            Spawn.X = Entity.X;
+            Spawn.Y = Entity.Y;
+            Spawn.Z = Entity.Z;
+            Spawn.Yaw = Entity.Rot;
+            Spawn.Pitch = Entity.Look;
+            Spawn.Write(this);
+        }
+
+        void EDelete(sbyte ID) {
+            var Despawn = new DespawnPlayer();
+            Despawn.PlayerID = ID;
+            Despawn.Write(this);
+        }
+
+        void ELook(sbyte ID, byte Rot, byte Look) {
+            var OUp = new OrientationUpdate();
+            OUp.PlayerID = ID;
+            OUp.Yaw = Rot;
+            OUp.Pitch = Look;
+            OUp.Write(this);
+        }
+
+        void EFullMove(Entity fullEntity, bool own = false) {
+            var Move = new PlayerTeleport();
+
+            if (own)
+                Move.PlayerID = (sbyte)-1;
+            else
+                Move.PlayerID = (sbyte)fullEntity.ClientID;
+
+            Move.X = fullEntity.X;
+            Move.Y = fullEntity.Y;
+            Move.Z = fullEntity.Z;
+            Move.yaw = fullEntity.Rot;
+            Move.pitch = fullEntity.Look;
+            Move.Write(this);
+        }
+        #endregion
         #region Network functions
         /// <summary>
         /// Populates the list of accetpable packets from the client. Anything other than these will be rejected.
@@ -323,7 +460,10 @@ namespace Hypercube.Client {
                     return;
                 }
 
-                Thread.Sleep(500);
+                if (CS.LoggedIn)
+                    EntityPositions();
+
+                Thread.Sleep(5);
             }
 
             ServerCore.nh.HandleDisconnect(this);

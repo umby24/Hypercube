@@ -9,7 +9,7 @@ using Hypercube.Network;
 namespace Hypercube.Network {
     public class CPE {
         // -- General information for CPE.
-        public const short SupportedExtensions = 14;
+        public const short SupportedExtensions = 5;
         public const byte CustomBlocksSupportLevel = 1;
 
         // -- Individual extension versions.
@@ -51,49 +51,49 @@ namespace Hypercube.Network {
             CExtEntry.Version = HeldBlockVersion;
             CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "ClickDistance";
-            CExtEntry.Version = ClickDistanceVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "ClickDistance";
+            //CExtEntry.Version = ClickDistanceVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "ChangeModel";
-            CExtEntry.Version = ChangeModelVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "ChangeModel";
+            //CExtEntry.Version = ChangeModelVersion;
+            //CExtEntry.Write(Client);
 
             CExtEntry.ExtName = "ExtPlayerList";
             CExtEntry.Version = ExtPlayerListVersion;
             CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "EnvWeatherType";
-            CExtEntry.Version = EnvWeatherTypeVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "EnvWeatherType";
+            //CExtEntry.Version = EnvWeatherTypeVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "EnvMapAppearance";
-            CExtEntry.Version = EnvMapAppearanceVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "EnvMapAppearance";
+            //CExtEntry.Version = EnvMapAppearanceVersion;
+            //CExtEntry.Write(Client);
 
             CExtEntry.ExtName = "MessageTypes";
             CExtEntry.Version = MessageTypesVersion;
             CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "BlockPermissions";
-            CExtEntry.Version = BlockPermissionsVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "BlockPermissions";
+            //CExtEntry.Version = BlockPermissionsVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "TextHotKey";
-            CExtEntry.Version = TextHotKeyVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "TextHotKey";
+            //CExtEntry.Version = TextHotKeyVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "HackControl";
-            CExtEntry.Version = HackControlVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "HackControl";
+            //CExtEntry.Version = HackControlVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "SelectionCuboid";
-            CExtEntry.Version = SelectionCuboidVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "SelectionCuboid";
+            //CExtEntry.Version = SelectionCuboidVersion;
+            //CExtEntry.Write(Client);
 
-            CExtEntry.ExtName = "EnvColors";
-            CExtEntry.Version = EnvColorsVersion;
-            CExtEntry.Write(Client);
+            //CExtEntry.ExtName = "EnvColors";
+            //CExtEntry.Version = EnvColorsVersion;
+            //CExtEntry.Write(Client);
         }
         
         /// <summary>

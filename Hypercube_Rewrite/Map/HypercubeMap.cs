@@ -73,7 +73,7 @@ namespace Hypercube.Map {
         public DateTime Lastclient;
         public ClassicWorld CWMap;
         public HypercubeMetadata HCSettings;
-        public Thread ClientThread, EntityThread, BlockThread, PhysicsThread;
+        public Thread ClientThread, BlockThread, PhysicsThread;
         public MapHistory History;
 
         public string Path;
@@ -84,9 +84,9 @@ namespace Hypercube.Map {
         public SortedDictionary<string, Permission> Buildperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public SortedDictionary<string, Permission> Showperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
 
-        public List<Entity> Entities;
-        //public List<NetworkClient> Clients;
+        public Dictionary<int, Entity> Entities;
         public Dictionary<short, NetworkClient> Clients;
+        public NetworkClient[] ClientsList;
         public object ClientLock = new object();
         public object EntityLock = new object();
 
@@ -148,7 +148,8 @@ namespace Hypercube.Map {
 
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
-            Entities = new List<Entity>();
+            Entities = new Dictionary<int, Entity>();
+            CreateList();
 
             Path = filename;
             Save(Path);
@@ -210,7 +211,8 @@ namespace Hypercube.Map {
 
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
-            Entities = new List<Entity>();
+            Entities = new Dictionary<int, Entity>();
+            CreateList();
 
             // -- Memory Conservation
             if (Path.Substring(Path.Length - 1, 1) == "u") {
@@ -452,7 +454,7 @@ namespace Hypercube.Map {
             lock (ClientLock) {
                 foreach (NetworkClient c in Clients.Values) {
                     Send(c);
-                    SendAllEntities(c);
+                    c.CS.Entities.Clear();
                 }
             }
         }
@@ -531,9 +533,6 @@ namespace Hypercube.Map {
             if (ClientThread != null)
                 ClientThread.Abort();
 
-            if (EntityThread != null)
-                EntityThread.Abort();
-
             if (BlockThread != null)
                 BlockThread.Abort();
 
@@ -549,111 +548,22 @@ namespace Hypercube.Map {
         }
         #endregion
         #region Entity Management
-        public void EntityLocations() {
-            while (Servercore.Running) {
-                lock (EntityLock) {
-                    for (int i = 0; i < Entities.Count; i++) {
-                        if (Entities[i].Changed) {
-                            var TeleportPacket = new PlayerTeleport();
-                            TeleportPacket.PlayerID = (sbyte)Entities[i].ClientID;
-                            TeleportPacket.X = Entities[i].X;
-                            TeleportPacket.Y = Entities[i].Y;
-                            TeleportPacket.Z = Entities[i].Z;
-                            TeleportPacket.yaw = Entities[i].Rot;
-                            TeleportPacket.pitch = Entities[i].Look;
-
-                            lock (ClientLock) {
-                                foreach (NetworkClient c in Clients.Values) {
-                                    if (Entities[i].MyClient != null && Entities[i].MyClient != c)
-                                        TeleportPacket.Write(c);
-                                    else if (Entities[i].MyClient == c && Entities[i].SendOwn == true) {
-                                        TeleportPacket.PlayerID = (sbyte)-1;
-                                        TeleportPacket.Write(c);
-                                        Entities[i].SendOwn = false;
-                                    }
-                                }
-                            }
-                        }
-
-                        Entities[i].Changed = false;
-                    }
-                }
-            }
-            Thread.Sleep(5);
-        }
-    
-
-        public void SpawnEntity(Entity ToSpawn) {
-            var ESpawn = new SpawnPlayer();
-            ESpawn.PlayerName = ToSpawn.Name;
-            ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
-            ESpawn.X = ToSpawn.X;
-            ESpawn.Y = ToSpawn.Y;
-            ESpawn.Z = ToSpawn.Z;
-            ESpawn.Yaw = ToSpawn.Rot;
-            ESpawn.Pitch = ToSpawn.Look;
-
-            lock (ClientLock) {
-                foreach (NetworkClient c in Clients.Values) {
-                    if (c != ToSpawn.MyClient)
-                        ESpawn.Write(c);
-                    else {
-                        ESpawn.PlayerID = (sbyte)-1;
-                        ESpawn.Write(c);
-                        ESpawn.PlayerID = (sbyte)ToSpawn.ClientID;
-                    }
-                }
-            }
-
-                Servercore.Luahandler.RunFunction("E_EntitySpawn", this, ToSpawn);
-        }
-
-        public void SendAllEntities(NetworkClient Client) {
-            var ESpawn = new SpawnPlayer();
-
-            lock (EntityLock) {
-                foreach (Entity e in Entities) {
-                    ESpawn.PlayerName = e.Name;
-                    ESpawn.PlayerID = (sbyte)e.ClientID;
-                    ESpawn.X = e.X;
-                    ESpawn.Y = e.Y;
-                    ESpawn.Z = e.Z;
-                    ESpawn.Yaw = e.Rot;
-                    ESpawn.Pitch = e.Look;
-
-                    if (e.MyClient != Client)
-                        ESpawn.Write(Client);
-                }
-            }
+        public void CreateList() {
+            ClientsList = Clients.Values.ToArray();
         }
 
         public void DeleteEntity(ref Entity ToSpawn) {
-            var Despawn = new DespawnPlayer();
-
-            if (Entities.Contains(ToSpawn)) {
+            if (Entities.ContainsKey(ToSpawn.ID)) {
                 lock (EntityLock) {
-                    Entities.Remove(ToSpawn);
+                    Entities.Remove(ToSpawn.ID);
                 }
             }
 
             if (ToSpawn.MyClient != null && Clients.ContainsKey(ToSpawn.MyClient.CS.ID) != false) {
                 lock (ClientLock) {
                     Clients.Remove(ToSpawn.MyClient.CS.ID);
+                    CreateList();
                 }
-
-                lock (EntityLock) {
-                    foreach (Entity e in Entities) {
-                        Despawn.PlayerID = (sbyte)e.ClientID;
-                        Despawn.Write(ToSpawn.MyClient);
-                    }
-                }
-            }
-
-            Despawn.PlayerID = (sbyte)ToSpawn.ClientID;
-
-            lock (ClientLock) {
-                foreach(NetworkClient c in Clients.Values)
-                    Despawn.Write(c);
             }
 
             FreeID = ToSpawn.ClientID;
@@ -709,36 +619,37 @@ namespace Hypercube.Map {
         public void BlockChange(short ClientID, short X, short Y, short Z, Block Type, Block LastType, bool Undo, bool Physics, bool Send, short Priority) {
             SetBlockID(X, Y, Z, (byte)(Type.ID), ClientID);
 
-            if (Undo) {
-                NetworkClient Client = null;
+            //if (Undo) {
+            //    NetworkClient Client = null;
 
-                lock (ClientLock) {
-                    Client = Clients[ClientID];
-                }
+            //    if (ServerCore.Clients.ContainsKey(ClientID))
+            //        Client = Clients[ClientID];
+            //    else
+            //        return;
 
-                if (Client != null) {
-                    if (Client.CS.CurrentIndex == -1)
-                        Client.CS.CurrentIndex = 0;
+            //    if (Client != null) {
+            //        if (Client.CS.CurrentIndex == -1)
+            //            Client.CS.CurrentIndex = 0;
 
-                    if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
-                        for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
-                            Client.CS.UndoObjects.RemoveAt(i);
-                    }
+            //        if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
+            //            for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
+            //                Client.CS.UndoObjects.RemoveAt(i);
+            //        }
 
-                    if (Client.CS.UndoObjects.Count >= 50000)
-                        Client.CS.UndoObjects.RemoveAt(0);
+            //        if (Client.CS.UndoObjects.Count >= 50000)
+            //            Client.CS.UndoObjects.RemoveAt(0);
 
-                    var newUndo = new Undo();
-                    newUndo.x = X;
-                    newUndo.y = Y;
-                    newUndo.z = Z;
-                    newUndo.OldBlock = LastType;
-                    newUndo.NewBlock = Type;
+            //        var newUndo = new Undo();
+            //        newUndo.x = X;
+            //        newUndo.y = Y;
+            //        newUndo.z = Z;
+            //        newUndo.OldBlock = LastType;
+            //        newUndo.NewBlock = Type;
 
-                    Client.CS.UndoObjects.Add(newUndo);
-                    Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
-                }
-            }
+            //        Client.CS.UndoObjects.Add(newUndo);
+            //        Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
+            //    }
+            //}
 
             if (Physics) {
                 for (short ix = -1; ix < 2; ix++) {
@@ -776,47 +687,47 @@ namespace Hypercube.Map {
             SetBlockID(X, Y, Z, 0, -1);
             SetBlockID(X2, Y2, Z2, (byte)(Block1.ID), History.GetLastPlayer(X, Z, Y));
 
-            if (undo) {
-                var lastPlayer = History.GetLastPlayer(X, Z, Y);
-                NetworkClient Client = null;
+            //if (undo) {
+            //    var lastPlayer = History.GetLastPlayer(X, Z, Y);
+            //    NetworkClient Client = null;
 
-                lock (ClientLock) {
-                    Client = Clients[lastPlayer];
-                }
+            //    lock (ClientLock) {
+            //        Client = Clients[lastPlayer];
+            //    }
 
-                if (Client != null) {
-                    if (Client.CS.CurrentIndex == -1)
-                        Client.CS.CurrentIndex = 0;
+            //    if (Client != null) {
+            //        if (Client.CS.CurrentIndex == -1)
+            //            Client.CS.CurrentIndex = 0;
 
-                    if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
-                        for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
-                            Client.CS.UndoObjects.RemoveAt(i);
-                    }
+            //        if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
+            //            for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
+            //                Client.CS.UndoObjects.RemoveAt(i);
+            //        }
 
-                    if (Client.CS.UndoObjects.Count >= 50000)
-                        Client.CS.UndoObjects.RemoveAt(0);
+            //        if (Client.CS.UndoObjects.Count >= 50000)
+            //            Client.CS.UndoObjects.RemoveAt(0);
 
-                    var newUndo = new Undo();
-                    newUndo.x = X;
-                    newUndo.y = Y;
-                    newUndo.z = Z;
-                    newUndo.OldBlock = Block1;
-                    newUndo.NewBlock = Servercore.Blockholder.GetBlock(0);
+            //        var newUndo = new Undo();
+            //        newUndo.x = X;
+            //        newUndo.y = Y;
+            //        newUndo.z = Z;
+            //        newUndo.OldBlock = Block1;
+            //        newUndo.NewBlock = Servercore.Blockholder.GetBlock(0);
 
-                    Client.CS.UndoObjects.Add(newUndo);
+            //        Client.CS.UndoObjects.Add(newUndo);
 
-                    var newUndo2 = new Undo();
-                    newUndo2.x = X2;
-                    newUndo2.y = Y2;
-                    newUndo2.z = Z2;
-                    newUndo2.OldBlock = Block2;
-                    newUndo2.NewBlock = Block1;
+            //        var newUndo2 = new Undo();
+            //        newUndo2.x = X2;
+            //        newUndo2.y = Y2;
+            //        newUndo2.z = Z2;
+            //        newUndo2.OldBlock = Block2;
+            //        newUndo2.NewBlock = Block1;
 
-                    Client.CS.UndoObjects.Add(newUndo2);
+            //        Client.CS.UndoObjects.Add(newUndo2);
 
-                    Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
-                }
-            }
+            //        Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
+            //    }
+            //}
 
             BlockchangeQueue.Enqueue(new QueueItem(X, Y, Z, priority));
             BlockchangeQueue.Enqueue(new QueueItem(X2, Y2, Z2, priority));
@@ -870,10 +781,9 @@ namespace Hypercube.Map {
         }
 
         public void SendBlockToAll(short x, short y, short z, Block type) {
-            lock (ClientLock) {
-                foreach(NetworkClient c in Clients.Values)
-                    SendBlock(c, x, y, z, type);
-            }
+            foreach(NetworkClient c in ClientsList)
+                SendBlock(c, x, y, z, type);
+            
         }
 
         public void BlockQueueLoop() {

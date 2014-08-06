@@ -18,11 +18,14 @@ namespace Hypercube {
         public ISettings NS;
         public List<NetworkClient> Clients = new List<NetworkClient>();
         public Dictionary<string, NetworkClient> LoggedClients = new Dictionary<string, NetworkClient>(StringComparer.InvariantCultureIgnoreCase);
+
+        public NetworkClient[] ClientList;
+
         public TcpListener CoreListener;
         public object ClientLock = new object();
 
         // -- Network Settings
-        public int Port, MaxPlayers;
+        public int Port, MaxPlayers, MaxPerIP;
         public bool VerifyNames, Public;
 
         Hypercube ServerCore;
@@ -35,11 +38,16 @@ namespace Hypercube {
             ServerCore.Settings.ReadSettings(NS);
         }
 
+        public void CreateShit() {
+            ClientList = LoggedClients.Values.ToArray();
+        }
+
         void LoadSettings() {
             Port = int.Parse(ServerCore.Settings.ReadSetting(NS, "Port", "25565"));
             MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(NS, "MaxPlayers", "128"));
             VerifyNames = bool.Parse(ServerCore.Settings.ReadSetting(NS, "VerifyNames", "true"));
             Public = bool.Parse(ServerCore.Settings.ReadSetting(NS, "Public", "true"));
+            MaxPerIP = int.Parse(ServerCore.Settings.ReadSetting(NS, "MaxPerIP", "5"));
 
             ServerCore.Logger.Log("Network", "Network settings loaded.", LogType.Info);
         }
@@ -61,6 +69,8 @@ namespace Hypercube {
 
             ListenThread = new Thread(Listen);
             ListenThread.Start();
+
+            CreateShit();
 
             ServerCore.Logger.Log("Network", "Server started on port " + Port.ToString(), LogType.Info);
         }
@@ -87,6 +97,7 @@ namespace Hypercube {
             if (client.CS.LoggedIn) {
                 lock (client.CS.CurrentMap.ClientLock) {
                     client.CS.CurrentMap.Clients.Remove(client.CS.ID);
+                    client.CS.CurrentMap.CreateList();
                 }
 
                 LoggedClients.Remove(client.CS.LoginName);
@@ -95,6 +106,7 @@ namespace Hypercube {
 
                 ServerCore.OnlinePlayers -= 1;
                 ServerCore.FreeID = client.CS.NameID;
+                ServerCore.EFree = (short)client.CS.MyEntity.ID;
 
                 var Remove = new ExtRemovePlayerName();
                 Remove.NameID = client.CS.NameID;
@@ -110,6 +122,7 @@ namespace Hypercube {
                 ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
                 Chat.SendGlobalChat(ServerCore, ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
                 client.CS.LoggedIn = false;
+                CreateShit();
             }
 
             try {
@@ -117,6 +130,23 @@ namespace Hypercube {
             } catch {
 
             }
+        }
+
+        /// <summary>
+        /// For kicking clients in the pre-connection stage with a message.
+        /// </summary>
+        /// <param name="Message"></param>
+        /// <param name="client"></param>
+        public void RawKick(string Message, TcpClient client) {
+            var tempWrapped = new ClassicWrapped.ClassicWrapped();
+            tempWrapped._Stream = client.GetStream();
+
+            tempWrapped.WriteByte(14);
+            tempWrapped.WriteString(Message);
+            tempWrapped.Purge();
+
+            tempWrapped = null;
+            Thread.Sleep(100); // -- Small delay to ensure message delivery
         }
 
         public void Listen() {
@@ -132,8 +162,23 @@ namespace Hypercube {
                 string IP = tempClient.Client.RemoteEndPoint.ToString().Substring(0, tempClient.Client.RemoteEndPoint.ToString().IndexOf(":")); // -- Strips the port the user is connecting from.
 
                 if (ServerCore.DB.IsIPBanned(IP)) {
-                    tempClient.Close();
                     ServerCore.Logger.Log("Network", "Disconnecting client " + IP + ": IP banned.", LogType.Info);
+                    RawKick("IP Banned", tempClient);
+                    tempClient.Close();
+                    continue;
+                }
+
+                if (IP != "127.0.0.1" && Clients.Count(p => p.CS.IP.Equals(IP)) > MaxPerIP) {
+                    ServerCore.Logger.Log("Network", "Disconnecting client " + IP + ": Connection limit reached.", LogType.Info);
+                    RawKick("Connection limit reached for this IP!", tempClient);
+                    tempClient.Close();
+                    continue;
+                }
+
+                if (ServerCore.OnlinePlayers >= MaxPlayers) {
+                    ServerCore.Logger.Log("Network", "Disconnecting client " + IP + ": Server is full.", LogType.Info);
+                    RawKick("Server is full.", tempClient);
+                    tempClient.Close();
                     continue;
                 }
 

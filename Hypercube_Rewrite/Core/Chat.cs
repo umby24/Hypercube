@@ -31,15 +31,10 @@ namespace Hypercube.Core {
 
             string[] Sending = SplitLines(Message);
 
-            lock (Core.nh.ClientLock) {
-                for (int i = 0; i < Core.nh.Clients.Count; i++) {
-                    if (!Core.nh.Clients[i].CS.LoggedIn)
-                        continue;
-
-                    foreach (string b in Sending) {
-                        Chat.Text = b;
-                        Chat.Write(Core.nh.Clients[i]);
-                    }
+            foreach (NetworkClient c in Core.nh.ClientList) {
+                foreach (string b in Sending) {
+                    Chat.Text = b;
+                    Chat.Write(c);
                 }
             }
         
@@ -64,14 +59,13 @@ namespace Hypercube.Core {
 
             string[] Sending = SplitLines(Message);
 
-            lock (Map.ClientLock) {
-                foreach(NetworkClient c in Map.Clients.Values) {
-                    foreach (string b in Sending) {
-                        Chat.Text = b;
-                        Chat.Write(c);
-                    }
+            foreach(NetworkClient c in Map.ClientsList) {
+                foreach (string b in Sending) {
+                    Chat.Text = b;
+                    Chat.Write(c);
                 }
             }
+            
         }
 
         /// <summary>

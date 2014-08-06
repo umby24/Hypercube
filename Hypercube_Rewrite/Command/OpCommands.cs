@@ -80,16 +80,12 @@ namespace Hypercube.Command {
             Client.ServerCore.DB.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
             Client.ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
 
-            lock (Client.ServerCore.nh.ClientLock) {
-                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                    if (c.CS.LoginName.ToLower() == args[0]) {
-                        c.CS.PlayerRanks = Ranks;
-                        c.CS.RankSteps = Steps;
-                        Chat.SendClientChat(c, "§SYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
-                        c.CS.FormattedName = newRank.Prefix + c.CS.LoginName + newRank.Suffix;
-                        Network.CPE.UpdateExtPlayerList(c);
-                    }
-                }
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) {
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.PlayerRanks = Ranks;
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.RankSteps = Steps;
+                Chat.SendClientChat(Client.ServerCore.nh.LoggedClients[args[0]], "§SYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Client.ServerCore.nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
+                Network.CPE.UpdateExtPlayerList(Client.ServerCore.nh.LoggedClients[args[0]]);
             }
 
             Chat.SendClientChat(Client, "§S" + args[0] + "'s Rank was updated.");
@@ -135,7 +131,7 @@ namespace Hypercube.Command {
             Chat.SendGlobalChat(Client.ServerCore, "§SPlayer " + args[0] + " was banned by " + Client.CS.FormattedName + "§S. (&f" + Reason + "§S).", 0, true);
             Client.ServerCore.DB.BanPlayer(Client.ServerCore.DB.GetPlayerName(args[0]), Reason, Client.CS.LoginName);
 
-            if (Client.ServerCore.nh.LoggedClients[args[0]] != null) 
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) 
                 Client.ServerCore.nh.LoggedClients[args[0]].KickPlayer("Banned: " + Reason);
             
         }
@@ -196,7 +192,7 @@ namespace Hypercube.Command {
             Client.ServerCore.DB.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
             Client.ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
 
-            if (Client.ServerCore.nh.LoggedClients[args[0]] != null) {
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) {
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.PlayerRanks = Ranks;
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.RankSteps = Steps;
                 Chat.SendClientChat(Client.ServerCore.nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "§S has been removed.");
@@ -239,7 +235,7 @@ namespace Hypercube.Command {
             else
                 Reason = Text2;
 
-            if (Client.ServerCore.nh.LoggedClients[args[0]] != null) {
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) {
                 Client.ServerCore.Logger.Log("Command", "Player " + args[0] + " was kicked by " + Client.CS.LoginName + ". (" + Reason + ")", LogType.Info);
                 Client.ServerCore.nh.LoggedClients[args[0]].KickPlayer(Reason, true);
             } else
@@ -287,7 +283,7 @@ namespace Hypercube.Command {
 
             Client.ServerCore.DB.MutePlayer(args[0], (int)MutedUntil.TotalSeconds, "You are muted");
 
-            if (Client.ServerCore.nh.LoggedClients[args[0]] != null)
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0]))
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.MuteTime = (int)MutedUntil.TotalSeconds;
         }
         #endregion
@@ -418,7 +414,7 @@ namespace Hypercube.Command {
             Client.ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
 
 
-            if (Client.ServerCore.nh.LoggedClients[args[0]] != null) {
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) {
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.PlayerRanks = Ranks;
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.RankSteps = Steps;
                 Client.ServerCore.nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Client.ServerCore.nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
@@ -529,14 +525,9 @@ namespace Hypercube.Command {
 
             Client.ServerCore.DB.StopPlayer(args[0], StopReason, Client.CS.LoginName);
 
-            lock (Client.ServerCore.nh.ClientLock) {
-                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                    if (c.CS.LoginName.ToLower() == args[0].ToLower()) {
-                        c.CS.Stopped = true;
-                        break;
-                    }
-                }
-            }
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) 
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.Stopped = true;
+                    
         }
         #endregion
         #region Unban
@@ -608,14 +599,9 @@ namespace Hypercube.Command {
 
             Client.ServerCore.DB.UnmutePlayer(args[0]);
 
-            lock (Client.ServerCore.nh.ClientLock) {
-                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                    if (c.CS.LoginName.ToLower() == args[0].ToLower() && c.CS.LoggedIn) {
-                        c.CS.MuteTime = 0;
-                        break;
-                    }
-                }
-            }
+
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0])) 
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.MuteTime = 0;
         }
         #endregion
         #region Unstop
@@ -652,14 +638,8 @@ namespace Hypercube.Command {
 
             Client.ServerCore.DB.UnstopPlayer(args[0]);
 
-            lock (Client.ServerCore.nh.ClientLock) {
-                foreach (NetworkClient c in Client.ServerCore.nh.Clients) {
-                    if (c.CS.LoginName.ToLower() == args[0].ToLower()) {
-                        c.CS.Stopped = false;
-                        break;
-                    }
-                }
-            }
+            if (Client.ServerCore.nh.LoggedClients.ContainsKey(args[0]))
+                Client.ServerCore.nh.LoggedClients[args[0]].CS.Stopped = false;
         }
         #endregion
     }

@@ -114,10 +114,12 @@ namespace Hypercube.Libraries {
                 }
             }
 
-            lock (LogLock) {
-                if (Servercore.LogOutput)
+            if (Servercore.LogOutput) {
+                lock (LogLock) {
                     LogWrite(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + message);
+                }
             }
+            
         }
 
         public void RotateLogs() {

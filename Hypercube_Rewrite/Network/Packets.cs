@@ -289,13 +289,15 @@ namespace Hypercube.Network {
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {
-            if (X != Client.CS.MyEntity.X || Y != Client.CS.MyEntity.Y || Z != Client.CS.MyEntity.Z || yaw != Client.CS.MyEntity.Rot || pitch != Client.CS.MyEntity.Look) {
+            if (yaw != Client.CS.MyEntity.Rot || pitch != Client.CS.MyEntity.Look) {
+                Client.CS.MyEntity.Rot = yaw;
+                Client.CS.MyEntity.Look = pitch;
+            }
+
+            if (X != Client.CS.MyEntity.X || Y != Client.CS.MyEntity.Y || Z != Client.CS.MyEntity.Z) {
                 Client.CS.MyEntity.X = X;
                 Client.CS.MyEntity.Y = Y;
                 Client.CS.MyEntity.Z = Z;
-                Client.CS.MyEntity.Rot = yaw;
-                Client.CS.MyEntity.Look = pitch;
-                Client.CS.MyEntity.Changed = true;
             }
 
             if (Client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
@@ -304,7 +306,7 @@ namespace Hypercube.Network {
 
                 if (Client.CS.HeldBlock.ID == PlayerID)
                     return;
-
+                //TODO: Held Block changed event
                 Client.CS.HeldBlock = Core.Blockholder.GetBlock(PlayerID);
             }
             
@@ -382,7 +384,11 @@ namespace Hypercube.Network {
         }
 
         public void Write(NetworkClient Client) {
-
+            Client.wSock.WriteByte(Id);
+            Client.wSock.WriteSByte(PlayerID);
+            Client.wSock.WriteByte(Yaw);
+            Client.wSock.WriteByte(Pitch);
+            Client.wSock.Purge();
         }
 
         public void Handle(NetworkClient Client, Hypercube Core) {

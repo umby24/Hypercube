@@ -21,6 +21,9 @@ namespace Hypercube.Client {
         public Entity MyEntity;
         public HypercubeMap CurrentMap;
 
+        // -- Entity stuff
+        public Dictionary<int, EntityStub> Entities;
+
         // -- Undo System
         public List<Undo> UndoObjects;
         public int CurrentIndex;

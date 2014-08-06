@@ -153,9 +153,6 @@ namespace Hypercube
                 m.ClientThread = new Thread(m.MapMain);
                 m.ClientThread.Start();
 
-                m.EntityThread = new Thread(m.EntityLocations);
-                m.EntityThread.Start();
-
                 m.BlockThread = new Thread(m.BlockQueueLoop);
                 m.BlockThread.Start();
 

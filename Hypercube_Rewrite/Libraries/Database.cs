@@ -14,6 +14,7 @@ namespace Hypercube.Libraries {
     /// </summary>
     public class Database {
         const string DatabaseName = "Database.s3db";
+        object DBLock = new object();
 
         public Database() {
             if (!File.Exists("Settings/" + DatabaseName)) {
@@ -21,19 +22,21 @@ namespace Hypercube.Libraries {
                 SQLiteConnection.CreateFile(Path.GetFullPath("Settings/" + DatabaseName));
 
                 // -- Now we need to connect and create the table.
-                var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-                Connection.Open();
+                lock (DBLock) {
+                    var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                    Connection.Open();
 
-                var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
-                Command.ExecuteNonQuery();
+                    var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
+                    Command.ExecuteNonQuery();
 
-                Command.CommandText = "CREATE INDEX PlayerDB_Index ON PlayerDB (Name COLLATE NOCASE)";
-                Command.ExecuteNonQuery();
+                    Command.CommandText = "CREATE INDEX PlayerDB_Index ON PlayerDB (Name COLLATE NOCASE)";
+                    Command.ExecuteNonQuery();
 
-                Command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
-                Command.ExecuteNonQuery();
+                    Command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
+                    Command.ExecuteNonQuery();
 
-                Connection.Close(); // -- All done.
+                    Connection.Close(); // -- All done.
+                }
             }
         }
 
@@ -230,16 +233,18 @@ namespace Hypercube.Libraries {
             var dt = new DataTable();
 
             try {
-                var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-                cnn.Open();
+                lock (DBLock) {
+                    var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                    cnn.Open();
 
-                var command = new SQLiteCommand(cnn);
-                command.CommandText = sql;
+                    var command = new SQLiteCommand(cnn);
+                    command.CommandText = sql;
 
-                var reader = command.ExecuteReader();
-                dt.Load(reader);
-                reader.Close();
-                cnn.Close();
+                    var reader = command.ExecuteReader();
+                    dt.Load(reader);
+                    reader.Close();
+                    cnn.Close();
+                }
             } catch (Exception e) {
                 throw new Exception(e.Message);
             }
@@ -248,16 +253,18 @@ namespace Hypercube.Libraries {
         }
 
         public int ExecuteNonQuery(string sql) {
-            var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-            cnn.Open();
+            lock (DBLock) {
+                var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                cnn.Open();
 
-            var command = new SQLiteCommand(cnn);
-            command.CommandText = sql;
+                var command = new SQLiteCommand(cnn);
+                command.CommandText = sql;
 
-            var rowsUpdated = command.ExecuteNonQuery();
-            cnn.Close();
+                var rowsUpdated = command.ExecuteNonQuery();
+                cnn.Close();
 
-            return rowsUpdated;
+                return rowsUpdated;
+            }
         }
 
         public bool Update(String tableName, Dictionary<String, String> data, String where) {
