@@ -71,7 +71,7 @@ namespace ServerGUI {
             };
             #endregion
 
-            foreach (HypercubeMap m in ServerCore.Maps) 
+            foreach (var m in ServerCore.Maps) 
                 lstMaps.Items.Add(m.CWMap.MapName);
             
         }

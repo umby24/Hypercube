@@ -29,7 +29,7 @@ namespace Hypercube.Map {
 
             if (!File.Exists(BaseName + ".hch")) {
                 // -- Create a history file.
-                using (FileStream stream = new FileStream(BaseName + ".hch", FileMode.Create)) {
+                using (var stream = new FileStream(BaseName + ".hch", FileMode.Create)) {
                     var History = new byte[(ThisMap.CWMap.SizeX * ThisMap.CWMap.SizeY * ThisMap.CWMap.SizeZ) * 4];
 
                     stream.Write(History, 0, History.Length);
@@ -54,11 +54,11 @@ namespace Hypercube.Map {
         }
 
         public bool FileCompressed() {
-            bool Compressed = false;
+            var Compressed = false;
 
             using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
-                int b1 = FS.ReadByte();
-                int b2 = FS.ReadByte();
+                var b1 = FS.ReadByte();
+                var b2 = FS.ReadByte();
 
                 if (b1 == 0x1f && b2 == 0x8B)
                     Compressed = true;
@@ -92,23 +92,23 @@ namespace Hypercube.Map {
         /// </summary>
         public void SaveEntries() {
             ThisMap.Servercore.Logger.Log("MapHistory", "Saving Entries", LogType.Debug);
-            int IndexTableSize = (ThisMap.CWMap.SizeX * ThisMap.CWMap.SizeY * ThisMap.CWMap.SizeZ) * 4;
+            var IndexTableSize = (ThisMap.CWMap.SizeX * ThisMap.CWMap.SizeY * ThisMap.CWMap.SizeZ) * 4;
 
             using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
-                foreach (HistoryEntry h in Entries) {
+                foreach (var h in Entries) {
                     var temp = new byte[4];
-                    int index = (h.z * ThisMap.CWMap.SizeZ + h.y) * ThisMap.CWMap.SizeX + h.x;
+                    var index = (h.z * ThisMap.CWMap.SizeZ + h.y) * ThisMap.CWMap.SizeX + h.x;
                     
                     FS.Seek(index * 4, SeekOrigin.Begin);
                     FS.Read(temp, 0, 4);
 
-                    int EntryIndex = BitConverter.ToInt32(temp, 0);
+                    var EntryIndex = BitConverter.ToInt32(temp, 0);
 
                     temp = null;
 
                     if (EntryIndex == 0) { // -- There are no entries for this block yet.
                         FS.Seek(0, SeekOrigin.End); // -- Seek to the end of the file.
-                        int EndLocation = ((int)FS.Position - IndexTableSize); // -- Store the index for this entry
+                        var EndLocation = ((int)FS.Position - IndexTableSize); // -- Store the index for this entry
 
                         FS.WriteByte(1); // -- There is now 1 entry
                         FS.Write(h.ToByteArray(), 0, 10); // -- And this is the data.
@@ -120,13 +120,13 @@ namespace Hypercube.Map {
 
                     // -- There is already one or more entries for this block.
                     FS.Seek(IndexTableSize + EntryIndex, SeekOrigin.Begin); // -- Seek to the position for this block
-                    int NumEntries = FS.ReadByte(); // -- And get the number of entries.
+                    var NumEntries = FS.ReadByte(); // -- And get the number of entries.
 
                     // -- Before adding anything, we'll check to see if this user already has an entry.
                     var TempArray = new HistoryEntry[NumEntries];
-                    bool shift = false;
+                    var shift = false;
 
-                    for (int i = 0; i < NumEntries; i++) { // -- Load the entries for checking.
+                    for (var i = 0; i < NumEntries; i++) { // -- Load the entries for checking.
                         var ThisEntry = new byte[10];
 
                         FS.Read(ThisEntry, 0, 10);
@@ -145,7 +145,7 @@ namespace Hypercube.Map {
                         TempArray = TempArray.OrderBy(o => o.Timestamp).ToArray(); // -- If there was an entry, order the array...
                         FS.Seek((IndexTableSize + EntryIndex) + 1, SeekOrigin.Begin); // -- Seek to the beginning of the entries..
 
-                        foreach (HistoryEntry z in TempArray) // -- Write the newly ordered entries
+                        foreach (var z in TempArray) // -- Write the newly ordered entries
                             FS.Write(z.ToByteArray(), 0, 10);
 
                         TempArray = null;
@@ -160,7 +160,7 @@ namespace Hypercube.Map {
 
                         FS.Seek((IndexTableSize + EntryIndex) + 1, SeekOrigin.Begin); // -- Seek to the beginning of the entries..
 
-                        foreach (HistoryEntry z in TempArray) // -- Write the newly ordered entries
+                        foreach (var z in TempArray) // -- Write the newly ordered entries
                             FS.Write(z.ToByteArray(), 0, 10);
 
                         TempArray = null;
@@ -170,10 +170,10 @@ namespace Hypercube.Map {
                     // -- And finally, the condition that causes fragmentation :( Actually creating an entry.
 
                     FS.Seek(0, SeekOrigin.End);
-                    int EndPosition = ((int)FS.Position - IndexTableSize);
+                    var EndPosition = ((int)FS.Position - IndexTableSize);
                     FS.WriteByte((byte)(NumEntries + 1));
 
-                    foreach (HistoryEntry z in TempArray)
+                    foreach (var z in TempArray)
                         FS.Write(z.ToByteArray(), 0, 10);
 
                     FS.Write(h.ToByteArray(), 0, 10);
@@ -201,17 +201,17 @@ namespace Hypercube.Map {
             if (!ThisMap.HCSettings.History)
                 return null;
 
-            int IndexTableSize = (ThisMap.CWMap.SizeX * ThisMap.CWMap.SizeY * ThisMap.CWMap.SizeZ) * 4;
+            var IndexTableSize = (ThisMap.CWMap.SizeX * ThisMap.CWMap.SizeY * ThisMap.CWMap.SizeZ) * 4;
             var Result = new HistoryEntry[ThisMap.Servercore.MaxHistoryEntries];
 
             using (var FS = new FileStream(BaseName + ".hch", FileMode.Open)) {
                 var temp = new byte[4];
-                int index = (z * ThisMap.CWMap.SizeZ + y) * ThisMap.CWMap.SizeX + x;
+                var index = (z * ThisMap.CWMap.SizeZ + y) * ThisMap.CWMap.SizeX + x;
 
                 FS.Seek(index * 4, SeekOrigin.Begin); // -- Seek to the int in the index table
                 FS.Read(temp, 0, 4);
 
-                int EntryIndex = BitConverter.ToInt32(temp, 0); // -- This will give us the location of our entries (if any).
+                var EntryIndex = BitConverter.ToInt32(temp, 0); // -- This will give us the location of our entries (if any).
 
                 temp = null;
 
@@ -219,9 +219,9 @@ namespace Hypercube.Map {
                     return null;
 
                 FS.Seek((IndexTableSize + EntryIndex), SeekOrigin.Begin); // -- Seek to the entries.
-                int NumEntries = FS.ReadByte(); // -- The number of entries to follow (max by design: 255).
+                var NumEntries = FS.ReadByte(); // -- The number of entries to follow (max by design: 255).
                 
-                for (int i = 0; i < NumEntries; i++) { // -- Load the entries.
+                for (var i = 0; i < NumEntries; i++) { // -- Load the entries.
                     var ThisEntry = new byte[10];
 
                     FS.Read(ThisEntry, 0, 10);
@@ -232,12 +232,12 @@ namespace Hypercube.Map {
             }
 
             var MyList = new List<HistoryEntry>();
-            bool Lebroke = false;
+            var Lebroke = false;
 
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
-            foreach (HistoryEntry h in Entries) {
+            foreach (var h in Entries) {
                 if (Result.Contains(h, new HistoryComparator())) { // -- If the coords for this entry match the results
-                    for (int q = 0; q < Result.Length; q++) {
+                    for (var q = 0; q < Result.Length; q++) {
                         if (Result[q].Player == h.Player) {
                             Result[q].NewBlock = h.NewBlock;
                             Result[q].Timestamp = h.Timestamp;
@@ -288,9 +288,9 @@ namespace Hypercube.Map {
             if (Entries == null || Entries.Length == 0)
                 return "No Entries";
             else {
-                string result = "";
+                var result = "";
 
-                foreach (HistoryEntry e in Entries) 
+                foreach (var e in Entries) 
                     result += "§S" + e.Player + " changed " + e.LastBlock + " to " + e.NewBlock + ".<br>";
 
                 return result;
@@ -353,16 +353,16 @@ namespace Hypercube.Map {
                     NFS.Write(History, 0, History.Length);
                     History = null;
 
-                    for (int ix = 0; ix < ThisMap.CWMap.SizeX; ix++) {
-                        for (int iy = 0; iy < ThisMap.CWMap.SizeZ; iy++) {
-                            for (int iz = 0; iz < ThisMap.CWMap.SizeY; iz++) {
+                    for (var ix = 0; ix < ThisMap.CWMap.SizeX; ix++) {
+                        for (var iy = 0; iy < ThisMap.CWMap.SizeZ; iy++) {
+                            for (var iz = 0; iz < ThisMap.CWMap.SizeY; iz++) {
                                 var temp = new byte[4];
-                                int index = (iz * ThisMap.CWMap.SizeZ + iy) * ThisMap.CWMap.SizeX + ix;
+                                var index = (iz * ThisMap.CWMap.SizeZ + iy) * ThisMap.CWMap.SizeX + ix;
 
                                 FS.Seek(index * 4, SeekOrigin.Begin);
                                 FS.Read(temp, 0, 4);
 
-                                int EntryIndex = BitConverter.ToInt32(temp, 0);
+                                var EntryIndex = BitConverter.ToInt32(temp, 0);
 
                                 if (EntryIndex == 0)
                                     continue;
@@ -374,7 +374,7 @@ namespace Hypercube.Map {
 
                                 NFS.WriteByte((byte)Entries.Length); // -- Write the number of entries..
 
-                                foreach (HistoryEntry f in Entries) 
+                                foreach (var f in Entries) 
                                     NFS.Write(f.ToByteArray(), 0, 10); // -- Write the entries in.
                                 
                                 NFS.Seek(index * 4, SeekOrigin.Begin); // -- Seek back to the index table.

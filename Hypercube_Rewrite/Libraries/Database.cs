@@ -14,6 +14,7 @@ namespace Hypercube.Libraries {
     /// </summary>
     public class Database {
         const string DatabaseName = "Database.s3db";
+        public SQLiteConnection DBConnection;
         object DBLock = new object();
 
         public Database() {
@@ -35,8 +36,11 @@ namespace Hypercube.Libraries {
                     Command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
                     Command.ExecuteNonQuery();
 
-                    Connection.Close(); // -- All done.
+                    DBConnection = Connection; // -- All done.
                 }
+            } else {
+                DBConnection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                DBConnection.Open();
             }
         }
 
@@ -234,16 +238,12 @@ namespace Hypercube.Libraries {
 
             try {
                 lock (DBLock) {
-                    var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-                    cnn.Open();
-
-                    var command = new SQLiteCommand(cnn);
+                    var command = new SQLiteCommand(DBConnection);
                     command.CommandText = sql;
 
                     var reader = command.ExecuteReader();
                     dt.Load(reader);
                     reader.Close();
-                    cnn.Close();
                 }
             } catch (Exception e) {
                 throw new Exception(e.Message);
@@ -254,25 +254,21 @@ namespace Hypercube.Libraries {
 
         public int ExecuteNonQuery(string sql) {
             lock (DBLock) {
-                var cnn = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-                cnn.Open();
-
-                var command = new SQLiteCommand(cnn);
+                var command = new SQLiteCommand(DBConnection);
                 command.CommandText = sql;
 
                 var rowsUpdated = command.ExecuteNonQuery();
-                cnn.Close();
 
                 return rowsUpdated;
             }
         }
 
         public bool Update(String tableName, Dictionary<String, String> data, String where) {
-            String vals = "";
-            Boolean returnCode = true;
+            var vals = "";
+            var returnCode = true;
 
             if (data.Count >= 1) {
-                foreach (KeyValuePair<String, String> val in data) {
+                foreach (var val in data) {
                     vals += String.Format(" {0} = '{1}',", val.Key.ToString(), val.Value.ToString());
                 }
                 vals = vals.Substring(0, vals.Length - 1);
@@ -294,7 +290,7 @@ namespace Hypercube.Libraries {
         /// <param name="where">The where clause for the delete.</param>
         /// <returns>A boolean true or false to signify success or failure.</returns>
         public bool Delete(String tableName, String where) {
-            Boolean returnCode = true;
+            var returnCode = true;
 
             try {
                 this.ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
@@ -312,11 +308,11 @@ namespace Hypercube.Libraries {
         /// <param name="data">A dictionary containing the column names and data for the insert.</param>
         /// <returns>A boolean true or false to signify success or failure.</returns>
         public bool Insert(String tableName, Dictionary<String, String> data) {
-            String columns = "";
-            String values = "";
-            Boolean returnCode = true;
+            var columns = "";
+            var values = "";
+            var returnCode = true;
 
-            foreach (KeyValuePair<String, String> val in data) {
+            foreach (var val in data) {
                 columns += String.Format(" {0},", val.Key.ToString());
                 values += String.Format(" '{0}',", val.Value);
             }

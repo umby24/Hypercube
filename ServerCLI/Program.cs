@@ -9,18 +9,18 @@ using Hypercube.Core;
 namespace ServerCLI {
     class Program {
         static void Main(string[] args) {
-            var Server = new Hypercube.Hypercube();
+            var server = new Hypercube.Hypercube();
             Console.Title = "Hypercube";
 
-            Server.Start();
+            server.Start();
 
-            string Input = "";
+            var input = "";
             
-            while (Input.ToLower() != "end") 
-                Input = Console.ReadLine();
+            while (input.ToLower() != "end") 
+                input = Console.ReadLine();
             
 
-            Server.Stop();
+            server.Stop();
         }
     }
 }

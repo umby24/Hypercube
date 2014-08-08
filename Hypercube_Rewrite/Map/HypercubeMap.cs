@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using System.IO;
 
@@ -25,46 +23,47 @@ namespace Hypercube.Map {
         public bool Physics;
         public bool Building;
         public bool History;
-        public string MOTD;
+        public string Motd;
 
-        public NbtCompound Read(NbtCompound Metadata) {
-            var HCData = Metadata.Get<NbtCompound>("Hypercube");
+        public NbtCompound Read(NbtCompound metadata) {
+            var hcData = metadata.Get<NbtCompound>("Hypercube");
 
-            if (HCData != null) {
+            if (hcData != null) {
                 try {
-                    BuildPerms = HCData["BuildPerms"].StringValue;
-                    ShowPerms = HCData["ShowPerms"].StringValue;
-                    JoinPerms = HCData["JoinPerms"].StringValue;
-                    Physics = Convert.ToBoolean(HCData["Physics"].ByteValue);
-                    Building = Convert.ToBoolean(HCData["Building"].ByteValue);
-                    History = Convert.ToBoolean(HCData["History"].ByteValue);
+                    BuildPerms = hcData["BuildPerms"].StringValue;
+                    ShowPerms = hcData["ShowPerms"].StringValue;
+                    JoinPerms = hcData["JoinPerms"].StringValue;
+                    Physics = Convert.ToBoolean(hcData["Physics"].ByteValue);
+                    Building = Convert.ToBoolean(hcData["Building"].ByteValue);
+                    History = Convert.ToBoolean(hcData["History"].ByteValue);
 
-                    if (HCData["MOTD"] != null)
-                        MOTD = HCData["MOTD"].StringValue;
-                } catch {
+                    if (hcData["MOTD"] != null)
+                        Motd = hcData["MOTD"].StringValue;
+                } catch (Exception) {
 
                 }
 
-                Metadata.Remove(HCData);
+                metadata.Remove(hcData);
             }
 
-            return Metadata;
+            return metadata;
         }
 
         public NbtCompound Write() {
-            var HCBase = new NbtCompound("Hypercube");
+            var hcBase = new NbtCompound("Hypercube")
+            {
+                new NbtString("BuildPerms", BuildPerms),
+                new NbtString("ShowPerms", ShowPerms),
+                new NbtString("JoinPerms", JoinPerms),
+                new NbtByte("Physics", Convert.ToByte(Physics)),
+                new NbtByte("Building", Convert.ToByte(Building)),
+                new NbtByte("History", Convert.ToByte(History))
+            };
 
-            HCBase.Add(new NbtString("BuildPerms", BuildPerms));
-            HCBase.Add(new NbtString("ShowPerms", ShowPerms));
-            HCBase.Add(new NbtString("JoinPerms", JoinPerms));
-            HCBase.Add(new NbtByte("Physics", Convert.ToByte(Physics)));
-            HCBase.Add(new NbtByte("Building", Convert.ToByte(Building)));
-            HCBase.Add(new NbtByte("History", Convert.ToByte(History)));
+            if (Motd != null)
+                hcBase.Add(new NbtString("MOTD", Motd));
 
-            if (MOTD != null)
-                HCBase.Add(new NbtString("MOTD", MOTD));
-
-            return HCBase;
+            return hcBase;
         }
     }
 
@@ -87,6 +86,7 @@ namespace Hypercube.Map {
         public Dictionary<int, Entity> Entities;
         public Dictionary<short, NetworkClient> Clients;
         public NetworkClient[] ClientsList;
+        public Entity[] EntitysList;
         public object ClientLock = new object();
         public object EntityLock = new object();
 
@@ -94,7 +94,7 @@ namespace Hypercube.Map {
         public List<QueueItem> PhysicsQueue = new List<QueueItem>(); //TODO: Update this to something faster
         #endregion
         #region IDs
-        public short FreeID = 0, NextID = 0;
+        public short FreeId = 0, NextId = 0;
         #endregion
         
         public Hypercube Servercore;
@@ -103,26 +103,23 @@ namespace Hypercube.Map {
         /// <summary>
         /// Creates a new map.
         /// </summary>
-        /// <param name="Core">Server core</param>
+        /// <param name="core">Server core</param>
         /// <param name="filename">Where to save the file</param>
         /// <param name="mapName">What to name the map</param>
         /// <param name="sizeX">Map's X size</param>
         /// <param name="sizeY">Map's Y size</param>
         /// <param name="sizeZ">Map's Z size</param>
-        public HypercubeMap(Hypercube Core, string filename, string mapName, short sizeX, short sizeY, short sizeZ) {
-            Servercore = Core;
+        public HypercubeMap(Hypercube core, string filename, string mapName, short sizeX, short sizeY, short sizeZ) {
+            Servercore = core;
             CWMap = new ClassicWorld(sizeX, sizeZ, sizeY);
 
-            HCSettings = new HypercubeMetadata(); // -- Hypercube specific settings, woo.
-            HCSettings.Building = true; // -- Enable building, history and physics by default.
-            HCSettings.Physics = true;
-            HCSettings.History = true;
+            HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true}; // -- Hypercube specific settings, woo.
 
-            var joinPerm = Core.Permholder.GetPermission("map.joinmap");
+            var joinPerm = core.Permholder.GetPermission("map.joinmap");
 
             Joinperms.Add("map.joinmap", joinPerm);
             Showperms.Add("map.joinmap", joinPerm);
-            Buildperms.Add("player.build", Core.Permholder.GetPermission("player.build"));
+            Buildperms.Add("player.build", core.Permholder.GetPermission("player.build"));
 
             CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.MapName = mapName;
@@ -138,8 +135,8 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
-                for (int i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)Core.Blockholder.GetBlock(i).CPEReplace;
+                for (var i = 50; i < 66; i++)
+                    cpeMeta.CustomBlocksFallback[i] = (byte)core.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
             }
@@ -149,7 +146,7 @@ namespace Hypercube.Map {
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
             Entities = new Dictionary<int, Entity>();
-            CreateList();
+            CreateClientList();
 
             Path = filename;
             Save(Path);
@@ -159,10 +156,10 @@ namespace Hypercube.Map {
         /// <summary>
         /// Loads a pre-existing map.
         /// </summary>
-        /// <param name="Core">Server core</param>
+        /// <param name="core">Server core</param>
         /// <param name="filename">File to load.</param>
-        public HypercubeMap(Hypercube Core, string filename) {
-            Servercore = Core;
+        public HypercubeMap(Hypercube core, string filename) {
+            Servercore = core;
             Path = filename;
 
             CWMap = new ClassicWorld(filename);
@@ -173,25 +170,25 @@ namespace Hypercube.Map {
             HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
 
             if (HCSettings.BuildPerms == null) {
-                Buildperms.Add("player.build", Core.Permholder.GetPermission("player.build"));
+                Buildperms.Add("player.build", core.Permholder.GetPermission("player.build"));
             } else
-                Buildperms = PermissionContainer.SplitPermissions(Core, HCSettings.BuildPerms);
+                Buildperms = PermissionContainer.SplitPermissions(core, HCSettings.BuildPerms);
             
 
             if (HCSettings.ShowPerms == null) {
-                Showperms.Add("map.joinmap", Core.Permholder.GetPermission("map.joinmap"));
+                Showperms.Add("map.joinmap", core.Permholder.GetPermission("map.joinmap"));
             } else 
-                Showperms = PermissionContainer.SplitPermissions(Core, HCSettings.ShowPerms);
+                Showperms = PermissionContainer.SplitPermissions(core, HCSettings.ShowPerms);
             
 
             if (HCSettings.JoinPerms == null) {
-                Joinperms.Add("map.joinmap", Core.Permholder.GetPermission("map.joinmap"));
+                Joinperms.Add("map.joinmap", core.Permholder.GetPermission("map.joinmap"));
 
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
                 HCSettings.History = true;
             } else
-                Joinperms = PermissionContainer.SplitPermissions(Core, HCSettings.JoinPerms);
+                Joinperms = PermissionContainer.SplitPermissions(core, HCSettings.JoinPerms);
             
 
             var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
@@ -201,8 +198,8 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
-                for (int i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)Core.Blockholder.GetBlock(i).CPEReplace;
+                for (var i = 50; i < 66; i++)
+                    cpeMeta.CustomBlocksFallback[i] = (byte)core.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
             }
@@ -212,7 +209,7 @@ namespace Hypercube.Map {
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
             Entities = new Dictionary<int, Entity>();
-            CreateList();
+            CreateClientList();
 
             // -- Memory Conservation
             if (Path.Substring(Path.Length - 1, 1) == "u") {
@@ -226,39 +223,39 @@ namespace Hypercube.Map {
                 History = new MapHistory(this);
         }
 
-        public static void LoadMaps(Hypercube Core) {
+        public static void LoadMaps(Hypercube core) {
             if (!Directory.Exists("Maps"))
                 Directory.CreateDirectory("Maps");
 
-            string[] files = Directory.GetFiles("Maps", "*.cw*", SearchOption.AllDirectories);
+            var files = Directory.GetFiles("Maps", "*.cw*", SearchOption.AllDirectories);
 
-            foreach (string file in files) {
+            foreach (var file in files) {
                 try {
-                    var NewMap = new HypercubeMap(Core, file);
+                    var newMap = new HypercubeMap(core, file);
 
-                    foreach (HypercubeMap m in Core.Maps) {
-                        if (m.CWMap.MapName == NewMap.CWMap.MapName) {
-                            Core.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
-                            NewMap = null;
+                    foreach (var m in core.Maps) {
+                        if (m.CWMap.MapName == newMap.CWMap.MapName) {
+                            core.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
+                            newMap = null;
                             break;
                         }
                     }
 
-                    if (NewMap == null)
+                    if (newMap == null)
                         continue;
 
-                    Core.Maps.Add(NewMap);
-                    Core.Logger.Log("Maps", "Loaded map '" + file + "'. (X=" + NewMap.CWMap.SizeX + " Y=" + NewMap.CWMap.SizeZ + " Z=" + NewMap.CWMap.SizeY + ")", LogType.Info);
+                    core.Maps.Add(newMap);
+                    core.Logger.Log("Maps", "Loaded map '" + file + "'. (X=" + newMap.CWMap.SizeX + " Y=" + newMap.CWMap.SizeZ + " Z=" + newMap.CWMap.SizeY + ")", LogType.Info);
                 } catch (Exception e) {
-                    Core.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
-                    Core.Logger.Log("Maps", e.Message, LogType.Error);
+                    core.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
+                    core.Logger.Log("Maps", e.Message, LogType.Error);
                     GC.Collect();
                 }
             }
         }
 
         #region Map Functions
-        public void Save(string Filename = "") {
+        public void Save(string filename = "") {
             if (!Loaded)
                 return;
 
@@ -272,10 +269,7 @@ namespace Hypercube.Map {
 
             CWMap.MetadataParsers["Hypercube"] = HCSettings;
 
-            if (Filename != "")
-                CWMap.Save(Filename);
-            else
-                CWMap.Save(Path);
+            CWMap.Save(filename != "" ? filename : Path);
         }
 
         public void Load() {
@@ -347,7 +341,7 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
-                for (int i = 50; i < 66; i++)
+                for (var i = 50; i < 66; i++)
                     cpeMeta.CustomBlocksFallback[i] = (byte)Servercore.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
@@ -379,54 +373,51 @@ namespace Hypercube.Map {
         }
 
         public void Resize(short x, short y, short z) {
-            bool UnloadMap = false;
+            var unloadMap = false;
 
             if (!Loaded) {
                 Load();
-                UnloadMap = true;
+                unloadMap = true;
             }
 
             CWMap.SizeX = x;
             CWMap.SizeY = z;
             CWMap.SizeZ = y;
 
-            var Temp = new byte[x * y * z];
+            var temp = new byte[x * y * z];
 
-            if (Temp.Length > CWMap.BlockData.Length)
-                Buffer.BlockCopy(CWMap.BlockData, 0, Temp, 0, CWMap.BlockData.Length);
-            else
-                Buffer.BlockCopy(CWMap.BlockData, 0, Temp, 0, Temp.Length);
+            Buffer.BlockCopy(CWMap.BlockData, 0, temp, 0,
+                temp.Length > CWMap.BlockData.Length ? CWMap.BlockData.Length : temp.Length);
 
-            CWMap.BlockData = Temp;
-            Temp = null;
+            CWMap.BlockData = temp;
 
-            if (UnloadMap)
+            if (unloadMap)
                 Unload();
             else
                 Resend();
                 
         }
 
-        public byte GetBlockID(short x, short z, short y) {
+        public byte GetBlockId(short x, short z, short y) {
             if ((0 > x || CWMap.SizeX <= x) || (0 > z || CWMap.SizeY <= z) || (0 > y || CWMap.SizeZ <= y))
                 return 255;
 
             if (!Loaded)
                 return 255;
 
-            int index = (y * CWMap.SizeZ + z) * CWMap.SizeX + x;
+            var index = (y * CWMap.SizeZ + z) * CWMap.SizeX + x;
             return CWMap.BlockData[index];
         }
 
         public Block GetBlock(short x, short z, short y) {
-            return Servercore.Blockholder.GetBlock(GetBlockID(x, z, y));
+            return Servercore.Blockholder.GetBlock(GetBlockId(x, z, y));
         }
 
-        public void SetBlockID(short x, short z, short y, byte type, int clientId) {
+        public void SetBlockId(short x, short z, short y, byte type, int clientId) {
             if (!Loaded)
                 return;
 
-            int index = (y * CWMap.SizeZ + z) * CWMap.SizeX + x;
+            var index = (y * CWMap.SizeZ + z) * CWMap.SizeX + x;
 
             if (clientId != -1 && HCSettings.History && History != null)
                 History.AddEntry(x, y, z, (ushort)clientId, (ushort)History.GetLastPlayer(x, y, z), type, CWMap.BlockData[index]);
@@ -439,7 +430,7 @@ namespace Hypercube.Map {
         /// </summary>
         public void MapMain() {
             while (Servercore.Running) {
-                if ((DateTime.UtcNow - Lastclient).TotalSeconds > 5 && Clients.Count == 0 && Loaded == true)
+                if ((DateTime.UtcNow - Lastclient).TotalSeconds > 5 && Clients.Count == 0 && Loaded)
                     Unload();
                 else if (Clients.Count > 0)
                     Lastclient = DateTime.UtcNow;
@@ -452,82 +443,82 @@ namespace Hypercube.Map {
             BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 
             lock (ClientLock) {
-                foreach (NetworkClient c in Clients.Values) {
+                foreach (var c in Clients.Values) {
                     Send(c);
                     c.CS.Entities.Clear();
                 }
             }
         }
 
-        public void Send(NetworkClient Client) {
+        public void Send(NetworkClient client) {
             if (!Loaded)
                 Load();
 
-            if (HCSettings.MOTD == null)
-                Client.SendHandshake();
+            if (HCSettings.Motd == null)
+                client.SendHandshake();
             else
-                Client.SendHandshake(HCSettings.MOTD);
+                client.SendHandshake(HCSettings.Motd);
 
-            byte[] Temp = new byte[(CWMap.SizeX * CWMap.SizeY * CWMap.SizeZ) + 4];
-            byte[] LenBytes = BitConverter.GetBytes(Temp.Length - 4);
-            int Offset = 4;
-            Array.Reverse(LenBytes);
+            var temp = new byte[(CWMap.SizeX * CWMap.SizeY * CWMap.SizeZ) + 4];
+            var lenBytes = BitConverter.GetBytes(temp.Length - 4);
+            var offset = 4;
+            Array.Reverse(lenBytes);
 
-            Buffer.BlockCopy(LenBytes, 0, Temp, 0, 4);
+            Buffer.BlockCopy(lenBytes, 0, temp, 0, 4);
 
-            for (int i = 0; i < CWMap.BlockData.Length - 1; i++) {
-                var ThisBlock = Servercore.Blockholder.GetBlock(CWMap.BlockData[i]);
+            for (var i = 0; i < CWMap.BlockData.Length - 1; i++) {
+                var thisBlock = Servercore.Blockholder.GetBlock(CWMap.BlockData[i]);
 
-                if (ThisBlock.CPELevel > Client.CS.CustomBlocksLevel)
-                    Temp[Offset] = (byte)ThisBlock.CPEReplace;
+                if (thisBlock.CPELevel > client.CS.CustomBlocksLevel)
+                    temp[offset] = (byte)thisBlock.CPEReplace;
                 else
-                    Temp[Offset] = ThisBlock.OnClient;
+                    temp[offset] = thisBlock.OnClient;
 
-                Offset += 1;
+                offset += 1;
             }
 
-            Temp = Libraries.GZip.Compress(Temp);
+            temp = Libraries.GZip.Compress(temp);
 
             var init = new LevelInit();
-            Client.SendQueue.Enqueue(init);
+            client.SendQueue.Enqueue(init);
             //init.Write(Client);
 
-            Offset = 0;
+            offset = 0;
 
-            while (Offset != Temp.Length) {
-                if (Temp.Length - Offset > 1024) {
-                    byte[] Send = new byte[1024];
-                    Buffer.BlockCopy(Temp, Offset, Send, 0, 1024);
+            while (offset != temp.Length) {
+                if (temp.Length - offset > 1024) {
+                    var send = new byte[1024];
+                    Buffer.BlockCopy(temp, offset, send, 0, 1024);
 
-                    var Chunk = new LevelChunk();
-                    Chunk.Length = 1024;
-                    Chunk.Data = Send;
-                    Chunk.Percent = (byte)(((float)Offset / Temp.Length) * 100);
-                    Client.SendQueue.Enqueue(Chunk);
+                    var chunk = new LevelChunk
+                    {
+                        Length = 1024,
+                        Data = send,
+                        Percent = (byte) (((float) offset/temp.Length)*100)
+                    };
+                    client.SendQueue.Enqueue(chunk);
                     //Chunk.Write(Client);
 
-                    Offset += 1024;
+                    offset += 1024;
                 } else {
-                    byte[] Send = new byte[1024];
-                    Buffer.BlockCopy(Temp, Offset, Send, 0, Temp.Length - Offset);
+                    var send = new byte[1024];
+                    Buffer.BlockCopy(temp, offset, send, 0, temp.Length - offset);
 
-                    var Chunk = new LevelChunk();
-                    Chunk.Length = (short)((Temp.Length - Offset));
-                    Chunk.Data = Send;
-                    Chunk.Percent = (byte)(((float)Offset / Temp.Length) * 100);
-                    Client.SendQueue.Enqueue(Chunk);
+                    var chunk = new LevelChunk
+                    {
+                        Length = (short) ((temp.Length - offset)),
+                        Data = send,
+                        Percent = (byte) (((float) offset/temp.Length)*100)
+                    };
+                    client.SendQueue.Enqueue(chunk);
 
-                    Offset += Chunk.Length;
+                    offset += chunk.Length;
                 }
             }
 
-            var Final = new LevelFinalize();
-            Final.SizeX = CWMap.SizeX;
-            Final.SizeY = CWMap.SizeZ;
-            Final.SizeZ = CWMap.SizeY;
-            Client.SendQueue.Enqueue(Final);
+            var final = new LevelFinalize {SizeX = CWMap.SizeX, SizeY = CWMap.SizeZ, SizeZ = CWMap.SizeY};
+            client.SendQueue.Enqueue(final);
 
-            Temp = null;
             GC.Collect();
         }
 
@@ -550,76 +541,81 @@ namespace Hypercube.Map {
         }
         #endregion
         #region Entity Management
-        public void CreateList() {
+        public void CreateClientList() {
             ClientsList = Clients.Values.ToArray();
         }
 
-        public void DeleteEntity(ref Entity ToSpawn) {
-            if (Entities.ContainsKey(ToSpawn.ID)) {
+        public void CreateEntityList() {
+            EntitysList = Entities.Values.ToArray();
+        }
+
+        public void DeleteEntity(ref Entity toSpawn) {
+            if (Entities.ContainsKey(toSpawn.Id)) {
                 lock (EntityLock) {
-                    Entities.Remove(ToSpawn.ID);
+                    Entities.Remove(toSpawn.Id);
+                    CreateEntityList();
                 }
             }
 
-            if (ToSpawn.MyClient != null && Clients.ContainsKey(ToSpawn.MyClient.CS.ID) != false) {
+            if (toSpawn.MyClient != null && Clients.ContainsKey(toSpawn.MyClient.CS.Id)) {
                 lock (ClientLock) {
-                    Clients.Remove(ToSpawn.MyClient.CS.ID);
-                    CreateList();
+                    Clients.Remove(toSpawn.MyClient.CS.Id);
+                    CreateClientList();
                 }
             }
 
-            FreeID = ToSpawn.ClientID;
-            Servercore.Luahandler.RunFunction("E_EntityDeleted", this, ToSpawn);
+            FreeId = toSpawn.ClientId;
+            Servercore.Luahandler.RunFunction("E_EntityDeleted", this, toSpawn);
         }
         #endregion
         #region Block Management
-        public void ClientChangeBlock(NetworkClient Client, short X, short Y, short Z, byte Mode, Block NewBlock) {
-            if ((0 > X || CWMap.SizeX <= X) || (0 > Z || CWMap.SizeY <= Z) || (0 > Y || CWMap.SizeZ <= Y)) {
-                Chat.SendClientChat(Client, "§EThat block is outside the bounds of the map.");
+        public void ClientChangeBlock(NetworkClient client, short x, short y, short z, byte mode, Block newBlock) {
+            if ((0 > x || CWMap.SizeX <= x) || (0 > z || CWMap.SizeY <= z) || (0 > y || CWMap.SizeZ <= y)) {
+                Chat.SendClientChat(client, "§EThat block is outside the bounds of the map.");
                 return;
             }
 
-            var MapBlock = GetBlock(X, Y, Z);
+            var mapBlock = GetBlock(x, y, z);
 
-            if (Mode == 0)
-                NewBlock = Servercore.Blockholder.GetBlock(0);
+            if (mode == 0)
+                newBlock = Servercore.Blockholder.GetBlock(0);
 
-            if (NewBlock == MapBlock && NewBlock != Servercore.Blockholder.GetBlock(0))
+            if (newBlock == mapBlock && newBlock != Servercore.Blockholder.GetBlock(0))
                 return;
 
-            bool Canbuild = false;
+            var canbuild = false;
 
-            foreach(Rank r in Client.CS.PlayerRanks) {
+            foreach(var r in client.CS.PlayerRanks) {
                 if (PermissionContainer.RankMatchesPermissions(r, Buildperms.Values.ToList(), true)) {
-                    Canbuild = true;
+                    canbuild = true;
                     break;
                 }
             }
 
-            if (!Canbuild) {
-                Chat.SendClientChat(Client, "§EYou are not allowed to build here.");
-                SendBlock(Client, X, Y, Z, MapBlock);
+            if (!canbuild) {
+                Chat.SendClientChat(client, "§EYou are not allowed to build here.");
+                SendBlock(client, x, y, z, mapBlock);
                 return;
             }
 
-            if (!RankContainer.RankListContains(MapBlock.RanksDelete, Client.CS.PlayerRanks) && Mode == 0) {
-                Chat.SendClientChat(Client, "§EYou are not allowed to delete this block type.");
-                SendBlock(Client, X, Y, Z, MapBlock);
+            if (!RankContainer.RankListContains(mapBlock.RanksDelete, client.CS.PlayerRanks) && mode == 0) {
+                Chat.SendClientChat(client, "§EYou are not allowed to delete this block type.");
+                SendBlock(client, x, y, z, mapBlock);
                 return;
             }
 
-            if (!RankContainer.RankListContains(NewBlock.RanksPlace, Client.CS.PlayerRanks) && Mode > 0) {
-                Chat.SendClientChat(Client, "§EYou are not allowed to place this block type.");
-                SendBlock(Client, X, Y, Z, MapBlock);
+            if (!RankContainer.RankListContains(newBlock.RanksPlace, client.CS.PlayerRanks) && mode > 0) {
+                Chat.SendClientChat(client, "§EYou are not allowed to place this block type.");
+                SendBlock(client, x, y, z, mapBlock);
                 return;
             }
 
-            Servercore.Luahandler.RunFunction("E_BlockChange", Client, X, Y, Z, NewBlock);
-            BlockChange(Client.CS.ID, X, Y, Z, NewBlock, MapBlock, true, true, true, 250);
+            Servercore.Luahandler.RunFunction("E_BlockChange", client, x, y, z, newBlock);
+            BlockChange(client.CS.Id, x, y, z, newBlock, mapBlock, true, true, true, 250);
         }
 
-        public void BlockChange(short ClientID, short X, short Y, short Z, Block Type, Block LastType, bool Undo, bool Physics, bool Send, short Priority) {
-            SetBlockID(X, Y, Z, (byte)(Type.ID), ClientID);
+        public void BlockChange(short clientId, short x, short y, short z, Block type, Block lastType, bool undo, bool physics, bool send, short priority) {
+            SetBlockId(x, y, z, (byte)(type.Id), clientId);
 
             //if (Undo) {
             //    NetworkClient Client = null;
@@ -653,20 +649,20 @@ namespace Hypercube.Map {
             //    }
             //}
 
-            if (Physics) {
+            if (physics) {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
 
-                            if ((0 > (X + ix) || CWMap.SizeX <= (X + ix)) || (0 > (Z + iz) || CWMap.SizeY <= (Z + iz)) || (0 > (Y + iy) || CWMap.SizeZ <= (Y + iy)))
+                            if ((0 > (x + ix) || CWMap.SizeX <= (x + ix)) || (0 > (z + iz) || CWMap.SizeY <= (z + iz)) || (0 > (y + iy) || CWMap.SizeZ <= (y + iy)))
                                 continue;
 
-                            var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
+                            var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
 
-                            if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) {
+                            if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) {
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), 1), new QueueComparator())) {
                                     var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), DateTime.UtcNow.AddMilliseconds(Type.PhysicsDelay + randomGen.Next(Type.PhysicsRandom))));
+                                    PhysicsQueue.Add(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(type.PhysicsDelay + randomGen.Next(type.PhysicsRandom))));
                                 }
                             }
 
@@ -675,19 +671,19 @@ namespace Hypercube.Map {
                 }
             }
 
-            if (Send)
-                BlockchangeQueue.Enqueue(new QueueItem(X, Y, Z, Priority));
+            if (send)
+                BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
         }
 
-        public void MoveBlock(short X, short Y, short Z, short X2, short Y2, short Z2, bool undo, bool physics, short priority) {
-            if ((0 > X || CWMap.SizeX <= X) || (0 > Z || CWMap.SizeY <= Z) || (0 > Y || CWMap.SizeZ <= Y) || (0 > X2 || CWMap.SizeX <= X2) || (0 > Z2 || CWMap.SizeY <= Z2) || (0 > Y2 || CWMap.SizeZ <= Y2))
+        public void MoveBlock(short x, short y, short z, short x2, short y2, short z2, bool undo, bool physics, short priority) {
+            if ((0 > x || CWMap.SizeX <= x) || (0 > z || CWMap.SizeY <= z) || (0 > y || CWMap.SizeZ <= y) || (0 > x2 || CWMap.SizeX <= x2) || (0 > z2 || CWMap.SizeY <= z2) || (0 > y2 || CWMap.SizeZ <= y2))
                 return;
 
-            var Block1 = GetBlock(X, Y, Z);
-            var Block2 = GetBlock(X2, Y2, Z2);
+            var block1 = GetBlock(x, y, z);
+            var block2 = GetBlock(x2, y2, z2);
 
-            SetBlockID(X, Y, Z, 0, -1);
-            SetBlockID(X2, Y2, Z2, (byte)(Block1.ID), History.GetLastPlayer(X, Z, Y));
+            SetBlockId(x, y, z, 0, -1);
+            SetBlockId(x2, y2, z2, (byte)(block1.Id), History.GetLastPlayer(x, z, y));
 
             //if (undo) {
             //    var lastPlayer = History.GetLastPlayer(X, Z, Y);
@@ -731,34 +727,34 @@ namespace Hypercube.Map {
             //    }
             //}
 
-            BlockchangeQueue.Enqueue(new QueueItem(X, Y, Z, priority));
-            BlockchangeQueue.Enqueue(new QueueItem(X2, Y2, Z2, priority));
+            BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
+            BlockchangeQueue.Enqueue(new QueueItem(x2, y2, z2, priority));
 
             if (physics) {
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
 
-                            if ((0 > (X + ix) || CWMap.SizeX <= (X + ix)) || (0 > (Z + iz) || CWMap.SizeY <= (Z + iz)) || (0 > (Y + iy) || CWMap.SizeZ <= (Y + iy)))
+                            if ((0 > (x + ix) || CWMap.SizeX <= (x + ix)) || (0 > (z + iz) || CWMap.SizeY <= (z + iz)) || (0 > (y + iy) || CWMap.SizeZ <= (y + iy)))
                                 continue;
 
-                            if ((0 > (X2 + ix) || CWMap.SizeX <= (X2 + ix)) || (0 > (Z2 + iz) || CWMap.SizeY <= (Z2 + iz)) || (0 > (Y2 + iy) || CWMap.SizeZ <= (Y2 + iy)))
+                            if ((0 > (x2 + ix) || CWMap.SizeX <= (x2 + ix)) || (0 > (z2 + iz) || CWMap.SizeY <= (z2 + iz)) || (0 > (y2 + iy) || CWMap.SizeZ <= (y2 + iy)))
                                 continue;
 
-                            var BlockQueue = GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz));
-                            var BlockQueue2 = GetBlock((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz));
+                            var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
+                            var blockQueue2 = GetBlock((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz));
 
-                            if (BlockQueue.Physics > 0 || (BlockQueue.PhysicsPlugin != "" && BlockQueue.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), 1), new QueueComparator())) {
+                            if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) {
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), 1), new QueueComparator())) {
                                     var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(X + ix), (short)(Y + iy), (short)(Z + iz), DateTime.UtcNow.AddMilliseconds(Block1.PhysicsDelay + randomGen.Next(Block1.PhysicsRandom))));
+                                    PhysicsQueue.Add(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(block1.PhysicsDelay + randomGen.Next(block1.PhysicsRandom))));
                                 }
                             }
 
-                            if (BlockQueue2.Physics > 0 || (BlockQueue2.PhysicsPlugin != "" && BlockQueue2.PhysicsPlugin != null)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), 250), new QueueComparator())) {
+                            if (blockQueue2.Physics > 0 || !string.IsNullOrEmpty(blockQueue2.PhysicsPlugin)) {
+                                if (!PhysicsQueue.Contains(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), 250), new QueueComparator())) {
                                     var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(X2 + ix), (short)(Y2 + iy), (short)(Z2 + iz), DateTime.UtcNow.AddMilliseconds(Block2.PhysicsDelay + randomGen.Next(Block2.PhysicsRandom))));
+                                    PhysicsQueue.Add(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), DateTime.UtcNow.AddMilliseconds(block2.PhysicsDelay + randomGen.Next(block2.PhysicsRandom))));
                                 }
                             }
                         }
@@ -769,22 +765,19 @@ namespace Hypercube.Map {
         }
 
         public void SendBlock(NetworkClient client, short x, short y, short z, Block type) {
-            var Setblock = new SetBlockServer();
-            Setblock.X = x;
-            Setblock.Y = y;
-            Setblock.Z = z;
+            var setblock = new SetBlockServer {X = x, Y = y, Z = z};
 
             if (type.CPELevel > client.CS.CustomBlocksLevel)
-                Setblock.Block = (byte)type.CPEReplace;
+                setblock.Block = (byte)type.CPEReplace;
             else
-                Setblock.Block = type.OnClient;
+                setblock.Block = type.OnClient;
 
-            client.SendQueue.Enqueue(Setblock);
+            client.SendQueue.Enqueue(setblock);
             //Setblock.Write(client);
         }
 
         public void SendBlockToAll(short x, short y, short z, Block type) {
-            foreach(NetworkClient c in ClientsList)
+            foreach(var c in ClientsList)
                 SendBlock(c, x, y, z, type);
             
         }
@@ -796,7 +789,7 @@ namespace Hypercube.Map {
                     continue;
                 }
 
-                int changes = 0;
+                var changes = 0;
 
                 while (changes <= Servercore.MaxBlockChanges) {
                     QueueItem output;
@@ -821,7 +814,7 @@ namespace Hypercube.Map {
             while (Servercore.Running) {
                 if (HCSettings.Building && HCSettings.Physics) {
                     while (PhysicsQueue.Count > 0) {
-                        for (int i = 0; i < PhysicsQueue.Count; i++) {
+                        for (var i = 0; i < PhysicsQueue.Count; i++) {
                             try {
                                 if ((PhysicsQueue[i].DoneTime - DateTime.UtcNow).Milliseconds > 0)
                                     continue;
@@ -830,7 +823,7 @@ namespace Hypercube.Map {
                             }
 
                             var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
-                            short X = PhysicsQueue[i].X, Y = PhysicsQueue[i].Y, Z = PhysicsQueue[i].Z;
+                            short x = PhysicsQueue[i].X, y = PhysicsQueue[i].Y, z = PhysicsQueue[i].Z;
 
                             PhysicsQueue.RemoveAt(i);
 
@@ -839,19 +832,19 @@ namespace Hypercube.Map {
 
                             switch (physicBlock.Physics) {
                                 case 10:
-                                    PhysicsOriginalSand(physicBlock, X, Y, Z);
+                                    PhysicsOriginalSand(x, y, z);
                                     break;
                                 case 11:
-                                    PhysicsD3Sand(physicBlock, X, Y, Z);
+                                    PhysicsD3Sand(x, y, z);
                                     break;
                                 case 20:
-                                    PhysicsInfiniteWater(physicBlock, X, Y, Z);
+                                    PhysicsInfiniteWater(physicBlock, x, y, z);
                                     break;
                                 case 21:
-                                    PhysicsFiniteWater(physicBlock, X, Y, Z);
+                                    PhysicsFiniteWater(x, y, z);
                                     break;
                                 case 22:
-                                    PhysicsSnow(physicBlock, X, Y, Z);
+                                    PhysicsSnow(x, y, z);
                                     break;
                             }
 
@@ -863,122 +856,122 @@ namespace Hypercube.Map {
         }
 
         #region Physics Functions
-        void PhysicsOriginalSand(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
+        void PhysicsOriginalSand(short x, short y, short z) {
+            if (GetBlockId(x, y, (short)(z - 1)) == 0)
+                MoveBlock(x, y, z, x, y, (short)(z - 1), true, true, 1);
         }
 
-        void PhysicsD3Sand(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
-            else if (GetBlockID((short)(X + 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X + 1), Y, Z) == 0)
-                MoveBlock(X, Y, Z, (short)(X + 1), Y, (short)(Z - 1), true, true, 900);
-            else if (GetBlockID((short)(X - 1), Y, (short)(Z - 1)) == 0 && GetBlockID((short)(X - 1), Y, Z) == 0)
-                MoveBlock(X, Y, Z, (short)(X - 1), Y, (short)(Z - 1), true, true, 900);
-            else if (GetBlockID(X, (short)(Y + 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y + 1), Z) == 0)
-                MoveBlock(X, Y, Z, X, (short)(Y + 1), (short)(Z - 1), true, true, 900);
-            else if (GetBlockID(X, (short)(Y - 1), (short)(Z - 1)) == 0 && GetBlockID(X, (short)(Y - 1), Z) == 0)
-                MoveBlock(X, Y, Z, X, (short)(Y - 1), (short)(Z - 1), true, true, 900);
+        void PhysicsD3Sand(short x, short y, short z) {
+            if (GetBlockId(x, y, (short)(z - 1)) == 0)
+                MoveBlock(x, y, z, x, y, (short)(z - 1), true, true, 1);
+            else if (GetBlockId((short)(x + 1), y, (short)(z - 1)) == 0 && GetBlockId((short)(x + 1), y, z) == 0)
+                MoveBlock(x, y, z, (short)(x + 1), y, (short)(z - 1), true, true, 900);
+            else if (GetBlockId((short)(x - 1), y, (short)(z - 1)) == 0 && GetBlockId((short)(x - 1), y, z) == 0)
+                MoveBlock(x, y, z, (short)(x - 1), y, (short)(z - 1), true, true, 900);
+            else if (GetBlockId(x, (short)(y + 1), (short)(z - 1)) == 0 && GetBlockId(x, (short)(y + 1), z) == 0)
+                MoveBlock(x, y, z, x, (short)(y + 1), (short)(z - 1), true, true, 900);
+            else if (GetBlockId(x, (short)(y - 1), (short)(z - 1)) == 0 && GetBlockId(x, (short)(y - 1), z) == 0)
+                MoveBlock(x, y, z, x, (short)(y - 1), (short)(z - 1), true, true, 900);
         }
 
-        void PhysicsInfiniteWater(Block physicBlock, short X, short Y, short Z) {
-            short PlayerID = -1;
+        void PhysicsInfiniteWater(Block physicBlock, short x, short y, short z) {
+            short playerId = -1;
 
             if (HCSettings.History)
-                PlayerID = History.GetLastPlayer(X, Y, Z);
+                playerId = History.GetLastPlayer(x, y, z);
 
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0)
-                BlockChange(PlayerID, X, Y, (short)(Z - 1), physicBlock, GetBlock(X, Y, (short)(Z - 1)), true, true, true, 1);
-            else if (GetBlockID((short)(X + 1), Y, Z) == 0)
-                BlockChange(PlayerID, (short)(X + 1), Y, Z, physicBlock, GetBlock((short)(X + 1), Y, Z), true, true, true, 1);
-            else if (GetBlockID((short)(X - 1), Y, Z) == 0)
-                BlockChange(PlayerID, (short)(X - 1), Y, Z, physicBlock, GetBlock((short)(X - 1), Y, Z), true, true, true, 1);
-            else if (GetBlockID(X, (short)(Y + 1), Z) == 0)
-                BlockChange(PlayerID, X, (short)(Y + 1), Z, physicBlock, GetBlock(X, (short)(Y + 1), Z), true, true, true, 1);
-            else if (GetBlockID(X, (short)(Y - 1), Z) == 0)
-                BlockChange(PlayerID, X, (short)(Y - 1), Z, physicBlock, GetBlock(X, (short)(Y - 1), Z), true, true, true, 1);
+            if (GetBlockId(x, y, (short)(z - 1)) == 0)
+                BlockChange(playerId, x, y, (short)(z - 1), physicBlock, GetBlock(x, y, (short)(z - 1)), true, true, true, 1);
+            else if (GetBlockId((short)(x + 1), y, z) == 0)
+                BlockChange(playerId, (short)(x + 1), y, z, physicBlock, GetBlock((short)(x + 1), y, z), true, true, true, 1);
+            else if (GetBlockId((short)(x - 1), y, z) == 0)
+                BlockChange(playerId, (short)(x - 1), y, z, physicBlock, GetBlock((short)(x - 1), y, z), true, true, true, 1);
+            else if (GetBlockId(x, (short)(y + 1), z) == 0)
+                BlockChange(playerId, x, (short)(y + 1), z, physicBlock, GetBlock(x, (short)(y + 1), z), true, true, true, 1);
+            else if (GetBlockId(x, (short)(y - 1), z) == 0)
+                BlockChange(playerId, x, (short)(y - 1), z, physicBlock, GetBlock(x, (short)(y - 1), z), true, true, true, 1);
         }
 
-        void PhysicsFiniteWater(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlock(X, Y, (short)(Z - 1)).Name == "Air")
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 2);
+        void PhysicsFiniteWater(short x, short y, short z) {
+            if (GetBlock(x, y, (short)(z - 1)).Name == "Air")
+                MoveBlock(x, y, z, x, y, (short)(z - 1), true, true, 2);
             else {
-                int[,] FillArray = new int[1024, 1024];
-                var Fill = new ConcurrentQueue<QueueItem>();
-                bool found = false;
+                var fillArray = new int[1024, 1024];
+                var fill = new ConcurrentQueue<QueueItem>();
+                var found = false;
 
-                Fill.Enqueue(new QueueItem(X, Y, Z, 1));
+                fill.Enqueue(new QueueItem(x, y, z, 1));
 
                 while (true) {
                     QueueItem working;
 
-                    if (!Fill.TryDequeue(out working))
+                    if (!fill.TryDequeue(out working))
                         break;
 
-                    if (GetBlockID(working.X, working.Y, (short)(working.Z - 1)) == 0) {
-                        MoveBlock(X, Y, Z, working.X, working.Y, (short)(working.Z - 1), true, true, 2);
+                    if (GetBlockId(working.X, working.Y, (short)(working.Z - 1)) == 0) {
+                        MoveBlock(x, y, z, working.X, working.Y, (short)(working.Z - 1), true, true, 2);
                         found = true;
                     } else {
-                        if (GetBlockID((short)(working.X + 1), working.Y, working.Z) == 0 && FillArray[working.X + 1, working.Y] == 0) {
-                            FillArray[working.X + 1, working.Y] = 1;
-                            Fill.Enqueue(new QueueItem((short)(working.X + 1), working.Y, working.Z, 1));
+                        if (GetBlockId((short)(working.X + 1), working.Y, working.Z) == 0 && fillArray[working.X + 1, working.Y] == 0) {
+                            fillArray[working.X + 1, working.Y] = 1;
+                            fill.Enqueue(new QueueItem((short)(working.X + 1), working.Y, working.Z, 1));
                         }
 
-                        if (GetBlockID((short)(working.X - 1), working.Y, working.Z) == 0 && FillArray[working.X - 1, working.Y] == 0) {
-                            FillArray[working.X * 1, working.Y] = 1;
-                            Fill.Enqueue(new QueueItem((short)(working.X - 1), working.Y, working.Z, 1));
+                        if (GetBlockId((short)(working.X - 1), working.Y, working.Z) == 0 && fillArray[working.X - 1, working.Y] == 0) {
+                            fillArray[working.X * 1, working.Y] = 1;
+                            fill.Enqueue(new QueueItem((short)(working.X - 1), working.Y, working.Z, 1));
                         }
 
-                        if (GetBlockID(working.X, (short)(working.Y + 1), working.Z) == 0 && FillArray[working.X, working.Y + 1] == 0) {
-                            FillArray[working.X, working.Y + 1] = 1;
-                            Fill.Enqueue(new QueueItem(working.X, (short)(working.Y + 1), working.Z, 1));
+                        if (GetBlockId(working.X, (short)(working.Y + 1), working.Z) == 0 && fillArray[working.X, working.Y + 1] == 0) {
+                            fillArray[working.X, working.Y + 1] = 1;
+                            fill.Enqueue(new QueueItem(working.X, (short)(working.Y + 1), working.Z, 1));
                         }
 
-                        if (GetBlockID(working.X, (short)(working.Y - 1), working.Z) == 0 && FillArray[working.X, working.Y - 1] == 0) {
-                            FillArray[working.X, working.Y - 1] = 1;
-                            Fill.Enqueue(new QueueItem(working.X, (short)(working.Y - 1), working.Z, 1));
+                        if (GetBlockId(working.X, (short)(working.Y - 1), working.Z) == 0 && fillArray[working.X, working.Y - 1] == 0) {
+                            fillArray[working.X, working.Y - 1] = 1;
+                            fill.Enqueue(new QueueItem(working.X, (short)(working.Y - 1), working.Z, 1));
                         }
 
                     }
 
-                    if (Fill.Count > 50000 || found)
-                        Fill = new ConcurrentQueue<QueueItem>();
+                    if (fill.Count > 50000 || found)
+                        fill = new ConcurrentQueue<QueueItem>();
                 }
             }
         }
 
-        void PhysicsSnow(Block physicBlock, short X, short Y, short Z) {
-            if (GetBlockID(X, Y, (short)(Z - 1)) == 0 || GetBlockID(X, Y, (short)(Z - 1)) == 53)
-                MoveBlock(X, Y, Z, X, Y, (short)(Z - 1), true, true, 1);
+        void PhysicsSnow(short x, short y, short z) {
+            if (GetBlockId(x, y, (short)(z - 1)) == 0 || GetBlockId(x, y, (short)(z - 1)) == 53)
+                MoveBlock(x, y, z, x, y, (short)(z - 1), true, true, 1);
         }
         #endregion
         #endregion
         #region FillFunctions
-        public void BuildBox(NetworkClient Client, short X, short Y, short Z, short X2, short Y2, short Z2, Block Material, Block ReplaceMaterial, bool Hollow, short Priority, bool undo, bool physics) {
-            if (X > X2) {
-                var temp = X;
-                X = X2;
-                X2 = temp;
+        public void BuildBox(NetworkClient client, short x, short y, short z, short x2, short y2, short z2, Block material, Block replaceMaterial, bool hollow, short priority, bool undo, bool physics) {
+            if (x > x2) {
+                var temp = x;
+                x = x2;
+                x2 = temp;
             }
-            if (Y > Y2) {
-                var temp = Y;
-                Y = Y2;
-                Y2 = temp;
+            if (y > y2) {
+                var temp = y;
+                y = y2;
+                y2 = temp;
             }
-            if (Z > Z2) {
-                var temp = Z;
-                Z = Z2;
-                Z2 = temp;
+            if (z > z2) {
+                var temp = z;
+                z = z2;
+                z2 = temp;
             }
 
-            for (short ix = X; ix < X2 + 1; ix++) {
-                for (short iy = Y; iy < Y2 + 1; iy++) {
-                    for (short iz = Z; iz < Z2 + 1; iz++) {
-                        if (ReplaceMaterial.ID == 99 || ReplaceMaterial == GetBlock(ix, iy, iz)) {
-                            if (ix == X || ix == X2 || iy == Y || iy == Y2 || iz == Z || iz == Z2)
-                                BlockChange(Client.CS.ID, ix, iy, iz, Material, GetBlock(ix, iy, iz), undo, physics, true, Priority);
-                            else if (Hollow == false)
-                                BlockChange(Client.CS.ID, ix, iy, iz, Material, GetBlock(ix, iy, iz), undo, physics, true, Priority);
+            for (var ix = x; ix < x2 + 1; ix++) {
+                for (var iy = y; iy < y2 + 1; iy++) {
+                    for (var iz = z; iz < z2 + 1; iz++) {
+                        if (replaceMaterial.Id == 99 || replaceMaterial == GetBlock(ix, iy, iz)) {
+                            if (ix == x || ix == x2 || iy == y || iy == y2 || iz == z || iz == z2)
+                                BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                            else if (hollow == false)
+                                BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
                         }
                     }
                 }
@@ -986,68 +979,66 @@ namespace Hypercube.Map {
 
         }
 
-        public void BuildLine(NetworkClient Client, short X, short Y, short Z, short X2, short Y2, short Z2, Block Material, short Priority, bool undo, bool physics) {
-            var Dx = X2 - X;
-            var Dy = Y2 - Y;
-            var Dz = Z2 - Z;
+        public void BuildLine(NetworkClient client, short x, short y, short z, short x2, short y2, short z2, Block material, short priority, bool undo, bool physics) {
+            var dx = x2 - x;
+            var dy = y2 - y;
+            var dz = z2 - z;
 
-            int Blocks = 1;
+            var blocks = 1;
 
-            if (Blocks < Math.Abs(Dx))
-                Blocks = Math.Abs(Dx);
+            if (blocks < Math.Abs(dx))
+                blocks = Math.Abs(dx);
 
-            if (Blocks < Math.Abs(Dy))
-                Blocks = Math.Abs(Dy);
+            if (blocks < Math.Abs(dy))
+                blocks = Math.Abs(dy);
 
-            if (Blocks < Math.Abs(Dz))
-                Blocks = Math.Abs(Dz);
+            if (blocks < Math.Abs(dz))
+                blocks = Math.Abs(dz);
 
-            float Mx = Dx / (float) Blocks;
-            float My = Dy / (float)Blocks;
-            float Mz = Dz / (float)Blocks;
+            var mx = dx / (float) blocks;
+            var my = dy / (float)blocks;
+            var mz = dz / (float)blocks;
 
-            for (int i = 0; i < Blocks; i++)
-                BlockChange(Client.CS.ID, (short)(X + Mx * i), (short)(Y + My * i), (short)(Z + Mz * i), Material, GetBlock((short)(X + Mx * i), (short)(Y + My * i), (short)(Z + Mz * i)), undo, physics, true, Priority);
+            for (var i = 0; i < blocks; i++)
+                BlockChange(client.CS.Id, (short)(x + mx * i), (short)(y + my * i), (short)(z + mz * i), material, GetBlock((short)(x + mx * i), (short)(y + my * i), (short)(z + mz * i)), undo, physics, true, priority);
         }
 
-        public void BuildSphere(NetworkClient Client, short X, short Y, short Z, float Radius, Block Material, Block ReplaceMaterial, bool Hollow, short Priority, bool Undo, bool Physics) {
-            int Rounded = (int)Math.Round(Radius, 1);
-            float Power = (float)Math.Pow((double)Radius, 2);
+        public void BuildSphere(NetworkClient client, short x, short y, short z, float radius, Block material, Block replaceMaterial, bool hollow, short priority, bool undo, bool physics) {
+            var rounded = (int)Math.Round(radius, 1);
+            var power = (float)Math.Pow(radius, 2);
 
-            for (int ix = -Rounded; ix < Rounded; ix++) {
-                for (int iy = -Rounded; iy < Rounded; iy++) {
-                    for (int iz = -Rounded; iz < Rounded; iz++) {
-                        int SquareDistance = (int)(Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2));
-                        bool allowed = false;
+            for (var ix = -rounded; ix < rounded; ix++) {
+                for (var iy = -rounded; iy < rounded; iy++) {
+                    for (var iz = -rounded; iz < rounded; iz++) {
+                        var squareDistance = (int)(Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2));
 
-                        if (SquareDistance <= Power) {
-                            if (Hollow) {
-                                allowed = false;
-
-                                if (Math.Pow(ix + 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > Power)
+                        if (squareDistance <= power) {
+                            var allowed = false;
+                            if (hollow) {
+                                if (Math.Pow(ix + 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
                                     allowed = true;
 
-                                if (Math.Pow(ix - 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > Power)
+                                if (Math.Pow(ix - 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
                                     allowed = true;
 
-                                if (Math.Pow(ix, 2) + Math.Pow(iy + 1, 2) + Math.Pow(iz, 2) > Power)
+                                if (Math.Pow(ix, 2) + Math.Pow(iy + 1, 2) + Math.Pow(iz, 2) > power)
                                     allowed = true;
 
-                                if (Math.Pow(ix, 2) + Math.Pow(iy - 1, 2) + Math.Pow(iz, 2) > Power)
+                                if (Math.Pow(ix, 2) + Math.Pow(iy - 1, 2) + Math.Pow(iz, 2) > power)
                                     allowed = true;
 
-                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz + 1, 2) > Power)
+                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz + 1, 2) > power)
                                     allowed = true;
 
-                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz - 1, 2) > Power)
+                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz - 1, 2) > power)
                                     allowed = true;
                             } else {
                                 allowed = true;
                             }
 
                             if (allowed) {
-                                if (ReplaceMaterial.ID == 99 || ReplaceMaterial == GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz)))
-                                    BlockChange(Client.CS.ID, (short)(X + ix), (short)(Y + iy), (short)(Z + iz), Material, GetBlock((short)(X + ix), (short)(Y + iy), (short)(Z + iz)), Undo, Physics, true, Priority);
+                                if (replaceMaterial.Id == 99 || replaceMaterial == GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)))
+                                    BlockChange(client.CS.Id, (short)(x + ix), (short)(y + iy), (short)(z + iz), material, GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)), undo, physics, true, priority);
                             }
                         }
                     }

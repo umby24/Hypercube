@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Hypercube.Libraries;
 
 namespace Hypercube.Core {
     public class BlockContainer {
-        public SortedDictionary<int, Block> numberList;
-        public SortedDictionary<string, Block> nameList;
+        public Block[] NumberList;
+        //public SortedDictionary<int, Block> numberList;
+        public SortedDictionary<string, Block> NameList;
 
         Hypercube Servercore;
         ISettings Blocksfile;
 
-        public BlockContainer(Hypercube Core) {
-            Servercore = Core;
-            numberList = new SortedDictionary<int, Block>();
-            nameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
-            Blocksfile = Core.Settings.RegisterFile("Blocks.txt", true, new PBSettingsLoader.LoadSettings(LoadBlocks));
+        public BlockContainer(Hypercube core) {
+            Servercore = core;
+            NumberList = new Block[255];
+            NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
+            Blocksfile = core.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
             Servercore.Settings.ReadSettings(Blocksfile);
         }
 
@@ -26,34 +24,34 @@ namespace Hypercube.Core {
         /// </summary>
         public void LoadBlocks() {
             //Blocks.Clear();
-            numberList.Clear();
-            nameList.Clear();
+            //numberList.Clear();
+            NameList.Clear();
 
-            foreach (string ID in Blocksfile.Settings.Keys) {
-                Servercore.Settings.SelectGroup(Blocksfile, ID);
+            foreach (var id in Blocksfile.Settings.Keys) {
+                Servercore.Settings.SelectGroup(Blocksfile, id);
 
-                var Newblock = new Block();
-                Newblock.ID = int.Parse(ID);
-                Newblock.Name = Servercore.Settings.ReadSetting(Blocksfile, "Name", "");
-                Newblock.OnClient = (byte)Servercore.Settings.ReadSetting(Blocksfile, "OnClient", 46);
-                Newblock.Physics = Servercore.Settings.ReadSetting(Blocksfile, "Physics", 0);
-                Newblock.PhysicsDelay = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsDelay", 0);
-                Newblock.PhysicsRandom = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsRandom", 0);
-                Newblock.PhysicsPlugin = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsPlugin", "");
-                Newblock.Kills = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Kills", "false"));
-                Newblock.Color = Servercore.Settings.ReadSetting(Blocksfile, "Color", 0);
-                Newblock.CPELevel = Servercore.Settings.ReadSetting(Blocksfile, "CPELevel", 0);
-                Newblock.CPEReplace = Servercore.Settings.ReadSetting(Blocksfile, "CPEReplace", 0);
-                Newblock.Special = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Special", "false"));
-                Newblock.ReplaceOnLoad = Servercore.Settings.ReadSetting(Blocksfile, "ReplaceOnLoad", -1);
-                Newblock.RanksPlace = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "PlaceRank", "0,1,2,3"));
-                Newblock.RanksDelete = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "DeleteRank", "0,1,2,3"));
+                var newblock = new Block();
+                newblock.Id = int.Parse(id);
+                newblock.Name = Servercore.Settings.ReadSetting(Blocksfile, "Name", "");
+                newblock.OnClient = (byte)Servercore.Settings.ReadSetting(Blocksfile, "OnClient", 46);
+                newblock.Physics = Servercore.Settings.ReadSetting(Blocksfile, "Physics", 0);
+                newblock.PhysicsDelay = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsDelay", 0);
+                newblock.PhysicsRandom = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsRandom", 0);
+                newblock.PhysicsPlugin = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsPlugin", "");
+                newblock.Kills = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Kills", "false"));
+                newblock.Color = Servercore.Settings.ReadSetting(Blocksfile, "Color", 0);
+                newblock.CPELevel = Servercore.Settings.ReadSetting(Blocksfile, "CPELevel", 0);
+                newblock.CPEReplace = Servercore.Settings.ReadSetting(Blocksfile, "CPEReplace", 0);
+                newblock.Special = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Special", "false"));
+                newblock.ReplaceOnLoad = Servercore.Settings.ReadSetting(Blocksfile, "ReplaceOnLoad", -1);
+                newblock.RanksPlace = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "PlaceRank", "0,1,2,3"));
+                newblock.RanksDelete = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "DeleteRank", "0,1,2,3"));
                 //Blocks.Add(Newblock);
-                numberList.Add(Newblock.ID, Newblock);
-                nameList.Add(Newblock.Name, Newblock);
+                NumberList[newblock.Id] = newblock;
+                NameList.Add(newblock.Name, newblock);
             }
 
-            if (nameList.Count == 0)
+            if (NameList.Count == 0)
                 CreateBlocks();
 
             Servercore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
@@ -138,20 +136,20 @@ namespace Hypercube.Core {
         /// </summary>
         /// <param name="toUpdate">The block to be updated on file.</param>
         public void UpdateBlock(Block toUpdate) {
-            Servercore.Settings.SelectGroup(Blocksfile, toUpdate.ID.ToString());
+            Servercore.Settings.SelectGroup(Blocksfile, toUpdate.Id.ToString());
 
-            Blocksfile.Settings[toUpdate.ID.ToString()]["Name"] = toUpdate.Name;
-            Blocksfile.Settings[toUpdate.ID.ToString()]["OnClient"] = toUpdate.OnClient.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["Physics"] = toUpdate.Physics.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["PhysicsDelay"] = toUpdate.PhysicsDelay.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["PhysicsRandom"] = toUpdate.PhysicsRandom.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["PhysicsPlugin"] = toUpdate.PhysicsPlugin;
-            Blocksfile.Settings[toUpdate.ID.ToString()]["Kills"] = toUpdate.Kills.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["Color"] = toUpdate.Color.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["CPELevel"] = toUpdate.CPELevel.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["CPEReplace"] = toUpdate.CPEReplace.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["Special"] = toUpdate.Special.ToString();
-            Blocksfile.Settings[toUpdate.ID.ToString()]["ReplaceOnLoad"] = toUpdate.ReplaceOnLoad.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["Name"] = toUpdate.Name;
+            Blocksfile.Settings[toUpdate.Id.ToString()]["OnClient"] = toUpdate.OnClient.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["Physics"] = toUpdate.Physics.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsDelay"] = toUpdate.PhysicsDelay.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsRandom"] = toUpdate.PhysicsRandom.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsPlugin"] = toUpdate.PhysicsPlugin;
+            Blocksfile.Settings[toUpdate.Id.ToString()]["Kills"] = toUpdate.Kills.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["Color"] = toUpdate.Color.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["CPELevel"] = toUpdate.CPELevel.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["CPEReplace"] = toUpdate.CPEReplace.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["Special"] = toUpdate.Special.ToString();
+            Blocksfile.Settings[toUpdate.Id.ToString()]["ReplaceOnLoad"] = toUpdate.ReplaceOnLoad.ToString();
 
             Servercore.Settings.SaveSettings(Blocksfile);
         }
@@ -159,32 +157,34 @@ namespace Hypercube.Core {
         /// <summary>
         /// Returns the block for a given ID.
         /// </summary>
-        /// <param name="ID">The block ID for the block you want.</param>
+        /// <param name="id">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
-        public Block GetBlock(int ID) {
-            if (!numberList.ContainsKey(ID)) {
-                Block myBlock = new Block();
-                myBlock.ID = 99;
-                myBlock.Name = "Unknown";
-                myBlock.OnClient = 46;
-                myBlock.CPELevel = 0;
-                myBlock.CPEReplace = 46;
-                myBlock.RanksDelete = RankContainer.SplitRanks(Servercore, "2,3");
+        public Block GetBlock(int id) {
+            if (NumberList[id] == null) {
+                var myBlock = new Block
+                {
+                    Id = 99,
+                    Name = "Unknown",
+                    OnClient = 46,
+                    CPELevel = 0,
+                    CPEReplace = 46,
+                    RanksDelete = RankContainer.SplitRanks(Servercore, "2,3")
+                };
                 return myBlock;
             }
 
-            return numberList[ID];
+            return NumberList[id];
         }
 
         /// <summary>
         /// Performs a slow, name based lookup for a block.
         /// </summary>
-        /// <param name="Name">The name of the block you wish to be returned.</param>
+        /// <param name="name">The name of the block you wish to be returned.</param>
         /// <returns>The block object that was found. The name will be "Unknown" if the block could not be found.</returns>
-        public Block GetBlock(string Name) {
-            if (!nameList.ContainsKey(Name)) {
-                Block myBlock = new Block();
-                myBlock.ID = 99;
+        public Block GetBlock(string name) {
+            if (!NameList.ContainsKey(name)) {
+                var myBlock = new Block();
+                myBlock.Id = 99;
                 myBlock.Name = "Unknown";
                 myBlock.OnClient = 46;
                 myBlock.CPELevel = 0;
@@ -193,15 +193,15 @@ namespace Hypercube.Core {
                 return myBlock;
             }
 
-            return nameList[Name];
+            return NameList[name];
         }
 
         /// <summary>
         /// Gets the next availiable internal ID for a block to use. If one is not available, 257 is returned.
         /// </summary>
         /// <returns></returns>
-        internal int GetNextID() {
-            for (int i = 0; i < 256; i++) {
+        internal int GetNextId() {
+            for (var i = 0; i < 256; i++) {
                 if (GetBlock(i).Name == "Unknown")
                     return i;
             }
@@ -212,44 +212,44 @@ namespace Hypercube.Core {
         /// <summary>
         /// Creates a new block and saves it to file.
         /// </summary>
-        /// <param name="Name">Name of the block.</param>
-        /// <param name="OnClient">The block ID to send to the client.</param>
-        /// <param name="PlaceRanks">Comma seperated list of ranks that can place this block.</param>
-        /// <param name="DeleteRanks">Comma seperated list of ranks that can delete this block.</param>
-        /// <param name="Physics">The physics type to be processed for this block.</param>
-        /// <param name="PhysicsDelay">The amount of time between physics ticks for this block.</param>
-        /// <param name="PhysicsRandom">A random time added to the base physics delay.</param>
-        /// <param name="PhysicsPlugin">The plugin that will be called to handle physics.</param>
-        /// <param name="Kills">True if a player will be killed upon contact with this block.</param>
-        /// <param name="Color">The color code for this block.</param>
-        /// <param name="CPELevel">The CustomBlocks level that this block is in.</param>
-        /// <param name="CPEReplace">The block to replace this block with if the client doesn't support the above CPE Level.</param>
-        /// <param name="Special">True to show this block on the custom materials list.</param>
-        /// <param name="ReplaceOnLoad">-1 for none. Replaces this block with another on map load.</param>
-        public void CreateBlock(string Name, byte OnClient, string PlaceRanks, string DeleteRanks, int Physics, int PhysicsDelay, int PhysicsRandom, string PhysicsPlugin, bool Kills, int Color, int CPELevel, int CPEReplace, bool Special, int ReplaceOnLoad) {
-            if (GetBlock(Name).Name != "Unknown") // -- Block already exists, do not overwrite.
+        /// <param name="name">Name of the block.</param>
+        /// <param name="onClient">The block ID to send to the client.</param>
+        /// <param name="placeRanks">Comma seperated list of ranks that can place this block.</param>
+        /// <param name="deleteRanks">Comma seperated list of ranks that can delete this block.</param>
+        /// <param name="physics">The physics type to be processed for this block.</param>
+        /// <param name="physicsDelay">The amount of time between physics ticks for this block.</param>
+        /// <param name="physicsRandom">A random time added to the base physics delay.</param>
+        /// <param name="physicsPlugin">The plugin that will be called to handle physics.</param>
+        /// <param name="kills">True if a player will be killed upon contact with this block.</param>
+        /// <param name="color">The color code for this block.</param>
+        /// <param name="cpeLevel">The CustomBlocks level that this block is in.</param>
+        /// <param name="cpeReplace">The block to replace this block with if the client doesn't support the above CPE Level.</param>
+        /// <param name="special">True to show this block on the custom materials list.</param>
+        /// <param name="replaceOnLoad">-1 for none. Replaces this block with another on map load.</param>
+        public void CreateBlock(string name, byte onClient, string placeRanks, string deleteRanks, int physics, int physicsDelay, int physicsRandom, string physicsPlugin, bool kills, int color, int cpeLevel, int cpeReplace, bool special, int replaceOnLoad) {
+            if (GetBlock(name).Name != "Unknown") // -- Block already exists, do not overwrite.
                 return;
 
             var newBlock = new Block();
-            newBlock.ID = GetNextID();
-            newBlock.Name = Name;
-            newBlock.OnClient = OnClient;
-            newBlock.Physics = Physics;
-            newBlock.PhysicsDelay = PhysicsDelay;
-            newBlock.PhysicsRandom = PhysicsRandom;
-            newBlock.PhysicsPlugin = PhysicsPlugin;
-            newBlock.Kills = Kills;
-            newBlock.Color = Color;
-            newBlock.CPELevel = CPELevel;
-            newBlock.CPEReplace = CPEReplace;
-            newBlock.Special = Special;
-            newBlock.ReplaceOnLoad = ReplaceOnLoad;
+            newBlock.Id = GetNextId();
+            newBlock.Name = name;
+            newBlock.OnClient = onClient;
+            newBlock.Physics = physics;
+            newBlock.PhysicsDelay = physicsDelay;
+            newBlock.PhysicsRandom = physicsRandom;
+            newBlock.PhysicsPlugin = physicsPlugin;
+            newBlock.Kills = kills;
+            newBlock.Color = color;
+            newBlock.CPELevel = cpeLevel;
+            newBlock.CPEReplace = cpeReplace;
+            newBlock.Special = special;
+            newBlock.ReplaceOnLoad = replaceOnLoad;
 
-            numberList.Add(newBlock.ID, newBlock);
-            nameList.Add(newBlock.Name, newBlock);
+            NumberList[newBlock.Id] = newBlock;
+            NameList.Add(newBlock.Name, newBlock);
             //Blocks.Add(newBlock);
 
-            Servercore.Settings.SelectGroup(Blocksfile, newBlock.ID.ToString());
+            Servercore.Settings.SelectGroup(Blocksfile, newBlock.Id.ToString());
             Servercore.Settings.SaveSetting(Blocksfile, "Name", newBlock.Name);
             Servercore.Settings.SaveSetting(Blocksfile, "OnClient", newBlock.OnClient.ToString());
             Servercore.Settings.SaveSetting(Blocksfile, "Physics", newBlock.Physics.ToString());
@@ -267,14 +267,14 @@ namespace Hypercube.Core {
         /// <summary>
         /// Removes a block from the server.
         /// </summary>
-        /// <param name="ID">ID of the block to remove.</param>
-        public void DeleteBlock(int ID) {
-            var toDelete = GetBlock(ID);
+        /// <param name="id">ID of the block to remove.</param>
+        public void DeleteBlock(int id) {
+            var toDelete = GetBlock(id);
 
             if (toDelete != null) {
-                nameList.Remove(toDelete.Name);
-                numberList.Remove(toDelete.ID);
-                Blocksfile.Settings.Remove(toDelete.ID.ToString());
+                NameList.Remove(toDelete.Name);
+                NumberList[toDelete.Id] = null;
+                Blocksfile.Settings.Remove(toDelete.Id.ToString());
                 Servercore.Settings.SaveSettings(Blocksfile);
             }
         }
@@ -282,22 +282,22 @@ namespace Hypercube.Core {
         /// <summary>
         /// Removes a block from the server.
         /// </summary>
-        /// <param name="Name">Name of the block to remove.</param>
-        public void DeleteBlock(string Name) {
-            var toDelete = GetBlock(Name);
+        /// <param name="name">Name of the block to remove.</param>
+        public void DeleteBlock(string name) {
+            var toDelete = GetBlock(name);
 
             if (toDelete != null) {
-                nameList.Remove(toDelete.Name);
-                nameList.Remove(toDelete.ID.ToString());
-                numberList.Remove(toDelete.ID);
-                Blocksfile.Settings.Remove(toDelete.ID.ToString());
+                NameList.Remove(toDelete.Name);
+                NameList.Remove(toDelete.Id.ToString());
+                NumberList[toDelete.Id] = null;
+                Blocksfile.Settings.Remove(toDelete.Id.ToString());
                 Servercore.Settings.SaveSettings(Blocksfile);
             }
         }
     }
 
     public class Block {
-        public int ID, Physics, Color, CPELevel, CPEReplace, ReplaceOnLoad, PhysicsDelay, PhysicsRandom;
+        public int Id, Physics, Color, CPELevel, CPEReplace, ReplaceOnLoad, PhysicsDelay, PhysicsRandom;
         public byte OnClient;
         public string Name, PhysicsPlugin;
         public bool Kills, Special;

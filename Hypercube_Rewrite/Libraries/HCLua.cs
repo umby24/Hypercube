@@ -29,9 +29,9 @@ namespace Hypercube.Libraries {
             if (Directory.Exists("Lua") == false)
                 Directory.CreateDirectory("Lua");
 
-            string[] files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
+            var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
-            foreach (string file in files) {
+            foreach (var file in files) {
                 Scripts.Add(file, File.GetLastWriteTime(file));
 
                 try {
@@ -79,7 +79,7 @@ namespace Hypercube.Libraries {
         }
 
         public void RunFunction(string function, params object[] args) {
-            LuaFunction LuaF = LuaHandler.GetFunction(function);
+            var LuaF = LuaHandler.GetFunction(function);
 
             try {
                 if (LuaF != null && args != null)
@@ -93,9 +93,9 @@ namespace Hypercube.Libraries {
 
         public void Main() {
             while (Servercore.Running) {
-                string[] files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
+                var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
-                foreach (string file in files) {
+                foreach (var file in files) {
                     if (!Scripts.ContainsKey(file)) { // -- New file, add it and load it.
                         Scripts.Add(file, File.GetLastWriteTime(file));
 

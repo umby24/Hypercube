@@ -123,14 +123,14 @@ namespace Hypercube.Libraries {
         }
 
         public void RotateLogs() {
-            string[] files = Directory.GetFiles("Logs");
-            int Rotation = 0;
+            var files = Directory.GetFiles("Logs");
+            var Rotation = 0;
 
-            foreach (string path in files) {
-                string fileName = path.Substring(path.LastIndexOf("\\") + 1, path.Length - (path.LastIndexOf("\\") + 1));
+            foreach (var path in files) {
+                var fileName = path.Substring(path.LastIndexOf("\\") + 1, path.Length - (path.LastIndexOf("\\") + 1));
 
                 if (fileName.Substring(0, Servercore.Logfile.Length + 1) == Servercore.Logfile + "_") { // -- If the file name ends in _, it is a rotated log.
-                    short tempRotation = short.Parse(fileName.Substring(fileName.LastIndexOf("_") + 1, fileName.Length - (fileName.LastIndexOf("_") + 5))); // -- Get the rotation number for that log.
+                    var tempRotation = short.Parse(fileName.Substring(fileName.LastIndexOf("_") + 1, fileName.Length - (fileName.LastIndexOf("_") + 5))); // -- Get the rotation number for that log.
 
                     if (tempRotation == Rotation)
                         Rotation += 1;

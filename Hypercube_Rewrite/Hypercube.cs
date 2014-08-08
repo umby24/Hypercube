@@ -79,10 +79,10 @@ namespace Hypercube
             Logger = new Logging(this);
             TextFormats = new Text(this);
 
-            SysSettings = Settings.RegisterFile("System.txt", true, new PBSettingsLoader.LoadSettings(ReadSystemSettings));
+            SysSettings = Settings.RegisterFile("System.txt", true, ReadSystemSettings);
             Settings.ReadSettings(SysSettings);
 
-            Rulesfile = Settings.RegisterFile("Rules.txt", false, new PBSettingsLoader.LoadSettings(ReadRules));
+            Rulesfile = Settings.RegisterFile("Rules.txt", false, ReadRules);
             Settings.ReadSettings(Rulesfile);
 
             if (RotateLogs)
@@ -107,7 +107,7 @@ namespace Hypercube
 
             var found = false;
 
-            for (int i = 0; i < Maps.Count; i++) {
+            for (var i = 0; i < Maps.Count; i++) {
                 if (Maps[i].Path.Contains(MapMain + ".cw")) {
                     MapIndex = i;
                     found = true;
@@ -129,7 +129,7 @@ namespace Hypercube
             Luahandler.RegisterFunctions();
             Luahandler.LoadScripts();
 
-            foreach (ISettings i in Settings.SettingsFiles) {
+            foreach (var i in Settings.SettingsFiles) {
                 if (i.Save)
                     Settings.SaveSettings(i);
             }
@@ -149,7 +149,7 @@ namespace Hypercube
             Luahandler.luaThread = new Thread(Luahandler.Main);
             Luahandler.luaThread.Start();
 
-            foreach (HypercubeMap m in Maps) {
+            foreach (var m in Maps) {
                 m.ClientThread = new Thread(m.MapMain);
                 m.ClientThread.Start();
 
@@ -180,7 +180,7 @@ namespace Hypercube
 
             nh.Stop();
 
-            foreach (ISettings i in Settings.SettingsFiles) {
+            foreach (var i in Settings.SettingsFiles) {
                 if (i.Save)
                     Settings.SaveSettings(i);
             }
@@ -191,8 +191,10 @@ namespace Hypercube
             if (Luahandler.luaThread != null)
                 Luahandler.luaThread.Abort();
 
-            foreach (HypercubeMap m in Maps)
+            foreach (var m in Maps)
                 m.Shutdown();
+
+            DB.DBConnection.Close();
         }
 
         #region Main Settings Loading
@@ -258,7 +260,7 @@ namespace Hypercube
         public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static long GetCurrentUnixTime() {
-            TimeSpan timeSinceEpoch = (DateTime.UtcNow - UnixEpoch);
+            var timeSinceEpoch = (DateTime.UtcNow - UnixEpoch);
             return (long)timeSinceEpoch.TotalSeconds;
         }
     }

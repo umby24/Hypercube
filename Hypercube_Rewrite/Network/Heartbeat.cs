@@ -45,13 +45,13 @@ namespace Hypercube.Network {
             Salt = "";
             var Random = new Random();
 
-            for (int i = 1; i < 33; i++)
+            for (var i = 1; i < 33; i++)
                 Salt += (char)(65 + Random.Next(25));
         }
 
         public string GetIPv4Address(string site) {
-            IPAddress[] Addresses = Dns.GetHostAddresses(site);
-            IPAddress v4 = Addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            var Addresses = Dns.GetHostAddresses(site);
+            var v4 = Addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
 
             return v4.ToString();
         }
@@ -69,7 +69,7 @@ namespace Hypercube.Network {
             }
             while (ServerCore.Running) {
                 try {
-                    string Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
+                    var Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
                     ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
                     ServerCore.Luahandler.RunFunction("E_Heartbeat");
                     File.WriteAllText("ServerURL.txt", Response);
@@ -88,16 +88,16 @@ namespace Hypercube.Network {
         /// <param name="Client"></param>
         /// <returns></returns>
         public bool VerifyClientName(NetworkClient Client) {
-            if (Client.CS.IP == "127.0.0.1" || Client.CS.IP.Substring(0, 7) == "192.168" || ServerCore.nh.VerifyNames == false)
+            if (Client.CS.Ip == "127.0.0.1" || Client.CS.Ip.Substring(0, 7) == "192.168" || ServerCore.nh.VerifyNames == false)
                 return true;
 
             var MD5Creator = MD5.Create();
-            string Correct = BitConverter.ToString(MD5Creator.ComputeHash(Encoding.ASCII.GetBytes(Salt + Client.CS.LoginName))).Replace("-", "");
+            var Correct = BitConverter.ToString(MD5Creator.ComputeHash(Encoding.ASCII.GetBytes(Salt + Client.CS.LoginName))).Replace("-", "");
 
-            if (Correct.Trim().ToLower() == Client.CS.MPPass.Trim().ToLower()) 
+            if (Correct.Trim().ToLower() == Client.CS.MpPass.Trim().ToLower()) 
                 return true;
             else {
-                ServerCore.Logger.Log("Heartbeat", Correct.Trim() + " != " + Client.CS.MPPass.Trim(), LogType.Warning);
+                ServerCore.Logger.Log("Heartbeat", Correct.Trim() + " != " + Client.CS.MpPass.Trim(), LogType.Warning);
                 return false;
             }
         }

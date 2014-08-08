@@ -55,7 +55,7 @@ namespace Hypercube.Command {
                     }
 
                     Client.CS.MyEntity.Boundblock = newBlock;
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.ID);
+                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.Id);
                     Chat.SendClientChat(Client, "§SYour bound block is now " + newBlock.Name);
                     break;
                 case 2:
@@ -74,7 +74,7 @@ namespace Hypercube.Command {
                     }
 
                     Client.CS.MyEntity.Boundblock = newBlocka;
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.ID);
+                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.Id);
                     Chat.SendClientChat(Client, "§SYour bound block is now " + newBlocka.Name);
 
                     Client.CS.MyEntity.BuildMaterial = materialBlock;
@@ -216,7 +216,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            int myInt = 30000;
+            var myInt = 30000;
             int.TryParse(args[0], out myInt);
 
             Client.Redo(myInt);
@@ -249,7 +249,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            int myInt = 30000;
+            var myInt = 30000;
             int.TryParse(args[0], out myInt);
 
             Client.Undo(myInt);

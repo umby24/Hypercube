@@ -60,11 +60,11 @@ namespace Hypercube.Libraries {
                 return;
 
             using (var fileWriter = new StreamWriter("Settings/" + SettingsFile.Filename)) {
-                foreach (KeyValuePair<string, Dictionary<string, string>> pair in SettingsFile.Settings) {
+                foreach (var pair in SettingsFile.Settings) {
                     if (pair.Key != "")
                         fileWriter.WriteLine("[" + pair.Key + "]");
 
-                    foreach (KeyValuePair<string, string> subset in pair.Value)
+                    foreach (var subset in pair.Value)
                         fileWriter.WriteLine(subset.Key + " = " + subset.Value);
                 }
             }
@@ -81,7 +81,7 @@ namespace Hypercube.Libraries {
 
             using (var SR = new StreamReader("Settings/" + SettingsFile.Filename)) {
                 while (!SR.EndOfStream) {
-                    string thisLine = SR.ReadLine();
+                    var thisLine = SR.ReadLine();
 
                     if (thisLine.StartsWith(";")) // -- Comment
                         continue;
@@ -195,7 +195,7 @@ namespace Hypercube.Libraries {
         /// </summary>
         public void SettingsMain() {
             while (ServerCore.Running) {
-                for (int i = 0; i < SettingsFiles.Count; i++) {
+                for (var i = 0; i < SettingsFiles.Count; i++) {
                     if (File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename) != SettingsFiles[i].LastModified) {
                         ReadSettings(SettingsFiles[i]);
                         SettingsFiles[i].LastModified = File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename);

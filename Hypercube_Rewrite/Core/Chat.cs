@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Hypercube.Client;
 using Hypercube.Network;
@@ -14,27 +11,29 @@ namespace Hypercube.Core {
         /// <summary>
         /// Sends a chat message to all players across all maps.
         /// </summary>
-        /// <param name="Core"></param>
-        public static void SendGlobalChat(Hypercube Core, string Message, sbyte MessageType = 0, bool Log = false) {
-            var Chat = new Message();
-            Chat.PlayerID = MessageType;
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        /// <param name="messageType"></param>
+        /// <param name="log"></param>
+        public static void SendGlobalChat(Hypercube core, string message, sbyte messageType = 0, bool log = false) {
+            var chat = new Message {PlayerID = messageType};
 
-            Message = Text.CleanseString(Message, Core);
+            message = Text.CleanseString(message, core);
 
-            if (Log)
-                Core.Logger.Log("Global", Message, LogType.Chat);
+            if (log)
+                core.Logger.Log("Global", message, LogType.Chat);
 
-            Message = EmoteReplace(Message);
+            message = EmoteReplace(message);
 
-            if (Message.Length > 0 && Text.StringMatches(Message.Substring(Message.Length - 1)))
-                Message += ".";
+            if (message.Length > 0 && Text.StringMatches(message.Substring(message.Length - 1)))
+                message += ".";
 
-            string[] Sending = SplitLines(Message);
+            var sending = SplitLines(message);
 
-            foreach (NetworkClient c in Core.nh.ClientList) {
-                foreach (string b in Sending) {
-                    Chat.Text = b;
-                    c.SendQueue.Enqueue(Chat);
+            foreach (var c in core.nh.ClientList) {
+                foreach (var b in sending) {
+                    chat.Text = b;
+                    c.SendQueue.Enqueue(chat);
                 }
             }
         
@@ -43,26 +42,25 @@ namespace Hypercube.Core {
         /// <summary>
         /// Sends a message to all clients on a certain map.
         /// </summary>
-        public static void SendMapChat(HypercubeMap Map, Hypercube Core, string Message, sbyte MessageType = 0, bool Log = false) {
-            var Chat = new Message();
-            Chat.PlayerID = MessageType;
+        public static void SendMapChat(HypercubeMap map, Hypercube core, string message, sbyte messageType = 0, bool log = false) {
+            var chat = new Message {PlayerID = messageType};
 
-            Message = Text.CleanseString(Message, Core);
+            message = Text.CleanseString(message, core);
 
-            if (Log)
-                Core.Logger.Log(Map.CWMap.MapName, Message, LogType.Chat);
+            if (log)
+                core.Logger.Log(map.CWMap.MapName, message, LogType.Chat);
 
-            Message = EmoteReplace(Message);
+            message = EmoteReplace(message);
 
-            if (Message.Length > 0 && Text.StringMatches(Message.Substring(Message.Length - 1)))
-                Message += ".";
+            if (message.Length > 0 && Text.StringMatches(message.Substring(message.Length - 1)))
+                message += ".";
 
-            string[] Sending = SplitLines(Message);
+            var sending = SplitLines(message);
 
-            foreach(NetworkClient c in Map.ClientsList) {
-                foreach (string b in Sending) {
-                    Chat.Text = b;
-                    c.SendQueue.Enqueue(Chat);
+            foreach(var c in map.ClientsList) {
+                foreach (var b in sending) {
+                    chat.Text = b;
+                    c.SendQueue.Enqueue(chat);
                 }
             }
             
@@ -71,21 +69,20 @@ namespace Hypercube.Core {
         /// <summary>
         /// Sends chat to an individual client
         /// </summary>
-        public static void SendClientChat(NetworkClient Client, string Message, sbyte MessageType = 0) {
-            Message = Text.CleanseString(Message, Client.ServerCore);
-            Message = EmoteReplace(Message);
+        public static void SendClientChat(NetworkClient client, string message, sbyte messageType = 0) {
+            message = Text.CleanseString(message, client.ServerCore);
+            message = EmoteReplace(message);
 
-            if (!Client.CS.CPEExtensions.ContainsKey("EmoteFix") && Text.StringMatches(Message.Substring(Message.Length - 1)))
-                Message += ".";
+            if (!client.CS.CPEExtensions.ContainsKey("EmoteFix") && Text.StringMatches(message.Substring(message.Length - 1)))
+                message += ".";
 
-            string[] Sending = SplitLines(Message);
+            var sending = SplitLines(message);
 
-            var Chat = new Message();
-            Chat.PlayerID = MessageType;
+            var chat = new Message {PlayerID = messageType};
 
-            foreach (string b in Sending) {
-                Chat.Text = b;
-                Client.SendQueue.Enqueue(Chat);
+            foreach (var b in sending) {
+                chat.Text = b;
+                client.SendQueue.Enqueue(chat);
             }
 
         }
@@ -93,280 +90,280 @@ namespace Hypercube.Core {
         /// <summary>
         /// Performs any required escaping operations on strings coming in from clients.
         /// </summary>
-        /// <param name="Message"></param>
+        /// <param name="message"></param>
         /// <returns></returns>
-        public static string FilterIncomingChat(string Message) {
-            Message = Message.Replace("%%", "§"); // -- Double %, player actually wants to type %.
+        public static string FilterIncomingChat(string message) {
+            message = message.Replace("%%", "§"); // -- Double %, player actually wants to type %.
 
-            for (int i = 0; i < 10; i++)
-                Message = Message.Replace("%" + i.ToString(), "&" + i.ToString());
+            for (var i = 0; i < 10; i++)
+                message = message.Replace("%" + i, "&" + i);
 
-            for (int i = 97; i < 103; i++)
-                Message = Message.Replace("%" + (char)i, "&" + (char)i);
+            for (var i = 97; i < 103; i++)
+                message = message.Replace("%" + (char)i, "&" + (char)i);
 
-            Message = Message.Replace("§", "%");
-            Message = Message.Replace("<br>", ""); // -- Don't allow clients to create newlines :).
-            Message = Message.Replace("^detail.user=", ""); // -- Filter out WoM Messages from clients.
+            message = message.Replace("§", "%");
+            message = message.Replace("<br>", ""); // -- Don't allow clients to create newlines :).
+            message = message.Replace("^detail.user=", ""); // -- Filter out WoM Messages from clients.
 
-            Message = Text.CleanseString(Message);
+            message = Text.CleanseString(message);
 
-            return Message;
+            return message;
         }
 
-        public static void HandleIncomingChat(NetworkClient IncomingClient, string Message) {
-            Message = FilterIncomingChat(Message);
+        public static void HandleIncomingChat(NetworkClient incomingClient, string message) {
+            message = FilterIncomingChat(message);
 
-            if (IncomingClient.CS.MuteTime > Hypercube.GetCurrentUnixTime()) {
-                SendClientChat(IncomingClient, "§EYou are muted.");
+            if (incomingClient.CS.MuteTime > Hypercube.GetCurrentUnixTime()) {
+                SendClientChat(incomingClient, "§EYou are muted.");
                 return;
             }
 
-            IncomingClient.ServerCore.Luahandler.RunFunction("E_ChatMessage", IncomingClient, Message);
+            incomingClient.ServerCore.Luahandler.RunFunction("E_ChatMessage", incomingClient, message);
 
-            if (Message.StartsWith("/") && !Message.StartsWith("//"))
-                IncomingClient.ServerCore.Commandholder.HandleCommand(IncomingClient, Message);
-            else if (Message.StartsWith("@")) {
-                string Client = "";
+            if (message.StartsWith("/") && !message.StartsWith("//"))
+                incomingClient.ServerCore.Commandholder.HandleCommand(incomingClient, message);
+            else if (message.StartsWith("@")) {
+                var client = "";
 
                 try {
-                    Client = Message.Substring(1, Message.IndexOf(" ") - 1);
+                    client = message.Substring(1, message.IndexOf(" ") - 1);
                 } catch {
                     return;
                 }
 
-                NetworkClient Tosend = null;
+                NetworkClient tosend;
 
-                if (IncomingClient.ServerCore.nh.LoggedClients.ContainsKey(Client)) {
-                    Tosend = IncomingClient.ServerCore.nh.LoggedClients[Client];
+                if (incomingClient.ServerCore.nh.LoggedClients.ContainsKey(client)) {
+                    tosend = incomingClient.ServerCore.nh.LoggedClients[client];
                 } else {
-                    SendClientChat(IncomingClient, "§EPlayer '" + Client + "' not found.");
+                    SendClientChat(incomingClient, "§EPlayer '" + client + "' not found.");
                     return;
                 }
 
-                SendClientChat(IncomingClient, "&c@" + Tosend.CS.FormattedName + "&f: " + Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1)));
-                SendClientChat(Tosend, "&c@" + IncomingClient.CS.FormattedName + "&f: " + Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1)));
-            } else if (Message.StartsWith("#")) {
-                Message = Message.Substring(1, Message.Length - 1);
+                SendClientChat(incomingClient, "&c@" + tosend.CS.FormattedName + "&f: " + message.Substring(message.IndexOf(" ") + 1, message.Length - (message.IndexOf(" ") + 1)));
+                SendClientChat(tosend, "&c@" + incomingClient.CS.FormattedName + "&f: " + message.Substring(message.IndexOf(" ") + 1, message.Length - (message.IndexOf(" ") + 1)));
+            } else if (message.StartsWith("#")) {
+                message = message.Substring(1, message.Length - 1);
 
-                if (IncomingClient.CS.Global) {
-                    SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger.Log(IncomingClient.CS.CurrentMap.CWMap.MapName, IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
+                if (incomingClient.CS.Global) {
+                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.ServerCore, incomingClient.CS.FormattedName + "&f: " + message);
+                    incomingClient.ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
-                    SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger.Log("Global", IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
+                    SendGlobalChat(incomingClient.ServerCore, "&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
+                    incomingClient.ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             } else {
-                if (IncomingClient.CS.Global) {
-                    SendGlobalChat(IncomingClient.ServerCore, "&c#&f " + IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger.Log("Global", IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
+                if (incomingClient.CS.Global) {
+                    SendGlobalChat(incomingClient.ServerCore, "&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
+                    incomingClient.ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
-                    SendMapChat(IncomingClient.CS.CurrentMap, IncomingClient.ServerCore, IncomingClient.CS.FormattedName + "&f: " + Message);
-                    IncomingClient.ServerCore.Logger.Log(IncomingClient.CS.CurrentMap.CWMap.MapName, IncomingClient.CS.LoginName + ": " + Message, LogType.Chat);
+                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.ServerCore, incomingClient.CS.FormattedName + "&f: " + message);
+                    incomingClient.ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             }
         }
 
-        public static List<string> SplitBrs(string Input) {
-            var Builder = new List<string>();
+        public static List<string> SplitBrs(string input) {
+            var builder = new List<string>();
 
-            while (Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) {
-                int index = Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
-                Builder.Add(Input.Substring(0, index)); // -- Add to our string builder
-                Input = Input.Substring(index + 4, Input.Length - (index + 4)); // -- Remove from Input the string, and discard the <br>.
+            while (input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) {
+                var index = input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
+                builder.Add(input.Substring(0, index)); // -- Add to our string builder
+                input = input.Substring(index + 4, input.Length - (index + 4)); // -- Remove from Input the string, and discard the <br>.
             }
 
             // -- If there's any leftovers that wern't split, we will need to go ahead and add that as well.
-            if (Input != "")
-                Builder.Add(Input);
+            if (input != "")
+                builder.Add(input);
 
             // -- If we miracously made it here without having to break the line, we will need to do this.
-            if (Builder.Count == 0)
-                Builder.Add(Input);
+            if (builder.Count == 0)
+                builder.Add(input);
 
-            return Builder;
+            return builder;
         }
 
         /// <summary>
         /// Replaces in-game text codes with emotes (unicode).
         /// </summary>
-        /// <param name="Message"></param>
+        /// <param name="message"></param>
         /// <returns></returns>
-        public static string EmoteReplace(string Message) {
-            Message = Message.Replace("{:)}", "\u0001"); // ☺
-            Message = Message.Replace("{smile}", "\u0001");
+        public static string EmoteReplace(string message) {
+            message = message.Replace("{:)}", "\u0001"); // ☺
+            message = message.Replace("{smile}", "\u0001");
 
-            Message = Message.Replace("{smile2}", "\u0002"); // ☻
+            message = message.Replace("{smile2}", "\u0002"); // ☻
 
-            Message = Message.Replace("{heart}", "\u0003"); // ♥
-            Message = Message.Replace("{hearts}", "\u0003");
-            Message = Message.Replace("{<3}", "\u0003");
+            message = message.Replace("{heart}", "\u0003"); // ♥
+            message = message.Replace("{hearts}", "\u0003");
+            message = message.Replace("{<3}", "\u0003");
 
-            Message = Message.Replace("{diamond}", "\u0004"); // ♦
-            Message = Message.Replace("{diamonds}", "\u0004");
-            Message = Message.Replace("{rhombus}", "\u0004");
+            message = message.Replace("{diamond}", "\u0004"); // ♦
+            message = message.Replace("{diamonds}", "\u0004");
+            message = message.Replace("{rhombus}", "\u0004");
 
-            Message = Message.Replace("{club}", "\u0005"); // ♣
-            Message = Message.Replace("{clubs}", "\u0005");
-            Message = Message.Replace("{clover}", "\u0005");
-            Message = Message.Replace("{shamrock}", "\u0005");
+            message = message.Replace("{club}", "\u0005"); // ♣
+            message = message.Replace("{clubs}", "\u0005");
+            message = message.Replace("{clover}", "\u0005");
+            message = message.Replace("{shamrock}", "\u0005");
 
-            Message = Message.Replace("{spade}", "\u0006"); // ♠
-            Message = Message.Replace("{spades}", "\u0006");
+            message = message.Replace("{spade}", "\u0006"); // ♠
+            message = message.Replace("{spades}", "\u0006");
 
-            Message = Message.Replace("{*}", "\u0007"); // •
-            Message = Message.Replace("{bullet}", "\u0007");
-            Message = Message.Replace("{dot}", "\u0007");
-            Message = Message.Replace("{point}", "\u0007");
+            message = message.Replace("{*}", "\u0007"); // •
+            message = message.Replace("{bullet}", "\u0007");
+            message = message.Replace("{dot}", "\u0007");
+            message = message.Replace("{point}", "\u0007");
 
-            Message = Message.Replace("{hole}", "\u0008"); // ◘
+            message = message.Replace("{hole}", "\u0008"); // ◘
 
-            Message = Message.Replace("{circle}", "\u0009"); // ○
-            Message = Message.Replace("{o}", "\u0009");
+            message = message.Replace("{circle}", "\u0009"); // ○
+            message = message.Replace("{o}", "\u0009");
 
-            Message = Message.Replace("{male}", "\u000B"); // ♂
-            Message = Message.Replace("{mars}", "\u000B");
+            message = message.Replace("{male}", "\u000B"); // ♂
+            message = message.Replace("{mars}", "\u000B");
 
-            Message = Message.Replace("{female}", "\u000C"); // ♀
-            Message = Message.Replace("{venus}", "\u000C");
+            message = message.Replace("{female}", "\u000C"); // ♀
+            message = message.Replace("{venus}", "\u000C");
 
-            Message = Message.Replace("{8}", "\u000D"); // ♪
-            Message = Message.Replace("{note}", "\u000D");
-            Message = Message.Replace("{quaver}", "\u000D");
+            message = message.Replace("{8}", "\u000D"); // ♪
+            message = message.Replace("{note}", "\u000D");
+            message = message.Replace("{quaver}", "\u000D");
 
-            Message = Message.Replace("{notes}", "\u000E"); // ♫
-            Message = Message.Replace("{music}", "\u000E");
+            message = message.Replace("{notes}", "\u000E"); // ♫
+            message = message.Replace("{music}", "\u000E");
 
-            Message = Message.Replace("{sun}", "\u000F"); // ☼
-            Message = Message.Replace("{celestia}", "\u000F");
+            message = message.Replace("{sun}", "\u000F"); // ☼
+            message = message.Replace("{celestia}", "\u000F");
 
-            Message = Message.Replace("{>>}", "\u0010"); // ►
-            Message = Message.Replace("{right2}", "\u0010");
+            message = message.Replace("{>>}", "\u0010"); // ►
+            message = message.Replace("{right2}", "\u0010");
 
-            Message = Message.Replace("{<<}", "\u0011"); // ◄
-            Message = Message.Replace("{left2}", "\u0011");
+            message = message.Replace("{<<}", "\u0011"); // ◄
+            message = message.Replace("{left2}", "\u0011");
 
-            Message = Message.Replace("{updown}", "\u0012"); // ↕
-            Message = Message.Replace("{^v}", "\u0012");
+            message = message.Replace("{updown}", "\u0012"); // ↕
+            message = message.Replace("{^v}", "\u0012");
 
-            Message = Message.Replace("{!!}", "\u0013"); // ‼
+            message = message.Replace("{!!}", "\u0013"); // ‼
 
-            Message = Message.Replace("{p}", "\u0014"); // ¶
-            Message = Message.Replace("{para}", "\u0014");
-            Message = Message.Replace("{pilcrow}", "\u0014");
-            Message = Message.Replace("{paragraph}", "\u0014");
+            message = message.Replace("{p}", "\u0014"); // ¶
+            message = message.Replace("{para}", "\u0014");
+            message = message.Replace("{pilcrow}", "\u0014");
+            message = message.Replace("{paragraph}", "\u0014");
 
-            Message = Message.Replace("{s}", "\u0015"); // §
-            Message = Message.Replace("{sect}", "\u0015");
-            Message = Message.Replace("{section}", "\u0015");
+            message = message.Replace("{s}", "\u0015"); // §
+            message = message.Replace("{sect}", "\u0015");
+            message = message.Replace("{section}", "\u0015");
 
-            Message = Message.Replace("{-}", "\u0016"); // ▬
-            Message = Message.Replace("{_}", "\u0016");
-            Message = Message.Replace("{bar}", "\u0016");
-            Message = Message.Replace("{half}", "\u0016");
+            message = message.Replace("{-}", "\u0016"); // ▬
+            message = message.Replace("{_}", "\u0016");
+            message = message.Replace("{bar}", "\u0016");
+            message = message.Replace("{half}", "\u0016");
 
-            Message = Message.Replace("{updown2}", "\u0017"); // ↨
-            Message = Message.Replace("{^v_}", "\u0017");
+            message = message.Replace("{updown2}", "\u0017"); // ↨
+            message = message.Replace("{^v_}", "\u0017");
 
-            Message = Message.Replace("{^}", "\u0018"); // ↑
-            Message = Message.Replace("{up}", "\u0018");
+            message = message.Replace("{^}", "\u0018"); // ↑
+            message = message.Replace("{up}", "\u0018");
 
-            Message = Message.Replace("{v}", "\u0019"); // ↓
-            Message = Message.Replace("{down}", "\u0019");
+            message = message.Replace("{v}", "\u0019"); // ↓
+            message = message.Replace("{down}", "\u0019");
 
-            Message = Message.Replace("{>}", "\u001A"); // →
-            Message = Message.Replace("{->}", "\u001A");
-            Message = Message.Replace("{right}", "\u001A");
+            message = message.Replace("{>}", "\u001A"); // →
+            message = message.Replace("{->}", "\u001A");
+            message = message.Replace("{right}", "\u001A");
 
-            Message = Message.Replace("{<}", "\u001B"); // ←
-            Message = Message.Replace("{<-}", "\u001B");
-            Message = Message.Replace("{left}", "\u001B");
+            message = message.Replace("{<}", "\u001B"); // ←
+            message = message.Replace("{<-}", "\u001B");
+            message = message.Replace("{left}", "\u001B");
 
-            Message = Message.Replace("{l}", "\u001C"); // ∟
-            Message = Message.Replace("{angle}", "\u001C");
-            Message = Message.Replace("{corner}", "\u001C");
+            message = message.Replace("{l}", "\u001C"); // ∟
+            message = message.Replace("{angle}", "\u001C");
+            message = message.Replace("{corner}", "\u001C");
 
-            Message = Message.Replace("{<>}", "\u001D"); // ↔
-            Message = Message.Replace("{<->}", "\u001D");
-            Message = Message.Replace("{leftright}", "\u001D");
+            message = message.Replace("{<>}", "\u001D"); // ↔
+            message = message.Replace("{<->}", "\u001D");
+            message = message.Replace("{leftright}", "\u001D");
 
-            Message = Message.Replace("{^^}", "\u001E"); // ▲
-            Message = Message.Replace("{up2}", "\u001E");
+            message = message.Replace("{^^}", "\u001E"); // ▲
+            message = message.Replace("{up2}", "\u001E");
 
-            Message = Message.Replace("{vv}", "\u001F"); // ▼
-            Message = Message.Replace("{down2}", "\u001F");
+            message = message.Replace("{vv}", "\u001F"); // ▼
+            message = message.Replace("{down2}", "\u001F");
 
-            Message = Message.Replace("{house}", "\u007F"); // ⌂
+            message = message.Replace("{house}", "\u007F"); // ⌂
             
-            Message = Message.Replace("{caret}", "^");
-            Message = Message.Replace("{hat}", "^");
+            message = message.Replace("{caret}", "^");
+            message = message.Replace("{hat}", "^");
 
-            Message = Message.Replace("{tilde}", "~");
-            Message = Message.Replace("{wave}", "~");
+            message = message.Replace("{tilde}", "~");
+            message = message.Replace("{wave}", "~");
 
-            Message = Message.Replace("{grave}", "`");
-            Message = Message.Replace("{\"}", "`");
-            return Message;
+            message = message.Replace("{grave}", "`");
+            message = message.Replace("{\"}", "`");
+            return message;
         }
         /// <summary>
         /// Splits a long message into multiple lines as needed. Appends ">>" as needed. This will also pad messages if they are of incorrect length.
         /// </summary>
-        /// <param name="Input"></param>
+        /// <param name="input"></param>
         /// <returns></returns>
-        public static string[] SplitLines(string Input) {
-            var Builder = new List<string>();
+        public static string[] SplitLines(string input) {
+            var builder = new List<string>();
 
-            if (Input.Length <= 64 && Input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) <= 0)
-                return new string[] { Input.PadRight(64) };
+            if (input.Length <= 64 && input.IndexOf("<br>", StringComparison.OrdinalIgnoreCase) <= 0)
+                return new[] { input.PadRight(64) };
 
             // -- The string is longer than 64 characters, or contains '<br>'.
-            Builder.AddRange(SplitBrs(Input));
-            string temp = "";
+            builder.AddRange(SplitBrs(input));
+            var temp = "";
 
             // -- First, going to insert our own <br>'s wherever the string is too long.
-            for (int i = 0; i < Builder.Count; i++) {
+            for (var i = 0; i < builder.Count; i++) {
                 temp = "";
 
-                while (Builder[i].Length > 0) { // -- Going to use temp here so we don't mess up our original string
-                    if (Builder[i].Length > 64) {
-                        int thisIndex = Builder[i].Substring(0, 60).LastIndexOf(' '); // -- Split by words.
+                while (builder[i].Length > 0) { // -- Going to use temp here so we don't mess up our original string
+                    if (builder[i].Length > 64) {
+                        var thisIndex = builder[i].Substring(0, 60).LastIndexOf(' '); // -- Split by words.
 
                         if (thisIndex == -1) // -- Just incase it's one spaceless string.
                             thisIndex = 60;
 
-                        temp += Builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
+                        temp += builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
 
                         // -- Finally, Remove this part of the string from the original Builder[i], and add our newline seperators.
-                        Builder[i] = "&3>>&f" + Builder[i].Substring(thisIndex + 1, Builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
+                        builder[i] = "&3>>&f" + builder[i].Substring(thisIndex + 1, builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
                     } else {
                         // -- Since Builder[i] is not (or is no longer) greater than 64 characters long, we can simply remove the whole thing :)
-                        temp += Builder[i];
-                        Builder[i] = "";
+                        temp += builder[i];
+                        builder[i] = "";
                     }
                 }
 
-                Builder[i] = temp;
+                builder[i] = temp;
             }
 
             // -- Next, remove any "<br>"'s, and split up the line on either side of it.
-            for (int z = 0; z < Builder.Count; z++) {
+            for (var z = 0; z < builder.Count; z++) {
 
-                while (Builder[z].IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) {
-                    temp = Builder[z];
-                    int index = Builder[z].IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
-                    Builder[z] = temp.Substring(0, index).PadRight(64);
-                    Builder.Insert(z + 1, temp.Substring(index + 4, temp.Length - (index + 4)));
+                while (builder[z].IndexOf("<br>", StringComparison.OrdinalIgnoreCase) >= 0) {
+                    temp = builder[z];
+                    var index = builder[z].IndexOf("<br>", StringComparison.OrdinalIgnoreCase);
+                    builder[z] = temp.Substring(0, index).PadRight(64);
+                    builder.Insert(z + 1, temp.Substring(index + 4, temp.Length - (index + 4)));
                 }
 
                 // -- If there's any leftovers that wern't split, we will need to go ahead and add that as well.
-                if (Builder[z] != "")
-                    Builder[z] = Builder[z].PadRight(64);
+                if (builder[z] != "")
+                    builder[z] = builder[z].PadRight(64);
             }
 
             // -- If we miracously made it here without having to break the line, we will need to do this.
-            if (Builder.Count == 0)
-                Builder.Add(Input.PadRight(64));
+            if (builder.Count == 0)
+                builder.Add(input.PadRight(64));
 
-            return Builder.ToArray(); // -- Return our nice array'd string :)
+            return builder.ToArray(); // -- Return our nice array'd string :)
         }
     }
 }

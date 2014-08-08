@@ -68,7 +68,7 @@ namespace Hypercube.Libraries {
             /// <exception cref="T:System.ArgumentNullException"><paramref name="message"/> is null.</exception>
             public static void Write(string message) {
                 if (message == null) throw new ArgumentNullException("message");
-                int start = message.IndexOf('&');
+                var start = message.IndexOf('&');
                 lock (ConsoleLock) {
                     Console.ForegroundColor = DefaultColor;
                     if (start == -1) {
@@ -76,7 +76,7 @@ namespace Hypercube.Libraries {
                         Console.Write(message);
                     } else {
                         // Colors detected. Split it up and print in fragments.
-                        int lastInsert = 0;
+                        var lastInsert = 0;
                         while (start != -1) {
                             SetColor(lastInsert, message);
                             Console.Write(message.Substring(lastInsert, start - lastInsert));
@@ -97,7 +97,7 @@ namespace Hypercube.Libraries {
                     // No color codes have been encountered yet.
                     return;
                 }
-                char colorCode = message[lastInsert - 1];
+                var colorCode = message[lastInsert - 1];
                 Console.ForegroundColor = MinecraftToConsoleColor(colorCode);
                 if (Console.ForegroundColor == ConsoleColor.Black) {
                     // Make sure that black-on-black remains visible

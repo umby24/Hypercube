@@ -19,7 +19,7 @@ namespace Hypercube.Libraries {
 
         public Text(Hypercube Core) {
             ServerCore = Core;
-            TextSettings = Core.Settings.RegisterFile("Colors.txt", true, new PBSettingsLoader.LoadSettings(ReadTextSettings));
+            TextSettings = Core.Settings.RegisterFile("Colors.txt", true, ReadTextSettings);
             ServerCore.Settings.ReadSettings(TextSettings);
         }
 

@@ -30,9 +30,9 @@ namespace Hypercube.Mapfills {
             var DirtBlock = map.Servercore.Blockholder.GetBlock(3);
             var AirBlock = map.Servercore.Blockholder.GetBlock(0);
 
-            for (int X = 0; X < map.CWMap.SizeX; X++) {
-                for (int Y = 0; Y < map.CWMap.SizeZ; Y++) {
-                    for (int Z = 0; Z < (map.CWMap.SizeY / 2); Z++) {
+            for (var X = 0; X < map.CWMap.SizeX; X++) {
+                for (var Y = 0; Y < map.CWMap.SizeZ; Y++) {
+                    for (var Z = 0; Z < (map.CWMap.SizeY / 2); Z++) {
                         if (Z == (map.CWMap.SizeY / 2) - 1)
                             map.BlockChange(-1, (short)X, (short)Y, (short)Z, GrassBlock, AirBlock, false, false, false, 1);
                         else
@@ -54,20 +54,20 @@ namespace Hypercube.Mapfills {
             var AirBlock = map.Servercore.Blockholder.GetBlock(0);
             var WhiteBlock = map.Servercore.Blockholder.GetBlock(36);
 
-            for (int ix = 0; ix < map.CWMap.SizeX; ix++) {
-                for (int iy = 0; iy < map.CWMap.SizeY; iy++)
+            for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
+                for (var iy = 0; iy < map.CWMap.SizeY; iy++)
                     map.BlockChange(-1, (short)ix, (short)iy, 0, WhiteBlock, AirBlock, false, false, false, 1);
             }
 
-            for (int ix = 0; ix < map.CWMap.SizeX; ix++) {
-                for (int iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
+            for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
+                for (var iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
                     map.BlockChange(-1, (short)ix, 0, (short)iz, WhiteBlock, AirBlock, false, false, false, 1);
                     map.BlockChange(-1, (short)ix, (short)(map.CWMap.SizeY - 1), (short)iz, WhiteBlock, AirBlock, false, false, false, 1);
                 }
             }
 
-            for (int iy = 0; iy < map.CWMap.SizeY; iy++) {
-                for (int iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
+            for (var iy = 0; iy < map.CWMap.SizeY; iy++) {
+                for (var iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
                     map.BlockChange(-1, 0, (short)iy, (short)iz, WhiteBlock, AirBlock, false, false, false, 1);
                     map.BlockChange(-1, (short)(map.CWMap.SizeX - 1), (short)iy, (short)iz, WhiteBlock, AirBlock, false, false, false, 1);
                 }
@@ -85,20 +85,20 @@ namespace Hypercube.Mapfills {
             var AirBlock = map.Servercore.Blockholder.GetBlock(0);
             var Bedrock = map.Servercore.Blockholder.GetBlock(7);
 
-            for (int ix = 0; ix < map.CWMap.SizeX; ix++) {
-                for (int iy = 0; iy < map.CWMap.SizeY; iy++)
+            for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
+                for (var iy = 0; iy < map.CWMap.SizeY; iy++)
                     map.BlockChange(-1, (short)ix, (short)iy, 0, Bedrock, AirBlock, false, false, false, 1);
             }
 
-            for (int ix = 0; ix < map.CWMap.SizeX; ix++) {
-                for (int iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
+            for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
+                for (var iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
                     map.BlockChange(-1, (short)ix, 0, (short)iz, Bedrock, AirBlock, false, false, false, 1);
                     map.BlockChange(-1, (short)ix, (short)(map.CWMap.SizeY - 1), (short)iz, Bedrock, AirBlock, false, false, false, 1);
                 }
             }
 
-            for (int iy = 0; iy < map.CWMap.SizeY; iy++) {
-                for (int iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
+            for (var iy = 0; iy < map.CWMap.SizeY; iy++) {
+                for (var iz = 0; iz < map.CWMap.SizeZ / 2; iz++) {
                     map.BlockChange(-1, 0, (short)iy, (short)iz, Bedrock, AirBlock, false, false, false, 1);
                     map.BlockChange(-1, (short)(map.CWMap.SizeX - 1), (short)iy, (short)iz, Bedrock, AirBlock, false, false, false, 1);
                 }
@@ -116,8 +116,8 @@ namespace Hypercube.Mapfills {
             var AirBlock = map.Servercore.Blockholder.GetBlock(0);
             var BlackBlock = map.Servercore.Blockholder.GetBlock(34);
 
-            for (int x = 0; x < map.CWMap.SizeX; x++) {
-                for (int y = 0; y < map.CWMap.SizeY; y++)
+            for (var x = 0; x < map.CWMap.SizeX; x++) {
+                for (var y = 0; y < map.CWMap.SizeY; y++)
                     map.BlockChange(-1, (short)x, (short)y, 0, BlackBlock, AirBlock, false, false, false, 1);
             }
 

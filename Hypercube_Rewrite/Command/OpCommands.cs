@@ -70,9 +70,9 @@ namespace Hypercube.Command {
             Ranks.Add(newRank);
             Steps.Add(0);
 
-            string RankString = "";
+            var RankString = "";
 
-            foreach (Rank r in Ranks)
+            foreach (var r in Ranks)
                 RankString += r.ID.ToString() + ",";
 
             RankString = RankString.Substring(0, RankString.Length - 1);
@@ -182,9 +182,9 @@ namespace Hypercube.Command {
             Steps.RemoveAt(Ranks.IndexOf(newRank));
             Ranks.Remove(newRank);
 
-            string RankString = "";
+            var RankString = "";
 
-            foreach (Rank r in Ranks)
+            foreach (var r in Ranks)
                 RankString += r.ID.ToString() + ",";
 
             RankString = RankString.Substring(0, RankString.Length - 1);
@@ -272,7 +272,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            int MuteDuration = 999999;
+            var MuteDuration = 999999;
 
             if (args.Length == 2)
                 MuteDuration = int.Parse(Text2);
@@ -319,7 +319,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            string PlayerInfo = "§SPlayerinfo:<br>";
+            var PlayerInfo = "§SPlayerinfo:<br>";
 
             var dt = Client.ServerCore.DB.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + args[0] + "' LIMIT 1");
             PlayerInfo += "§SNumber: " + Client.ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Number").ToString() + "<br>";
@@ -328,7 +328,7 @@ namespace Hypercube.Command {
             var PlayerRanks = RankContainer.SplitRanks(Client.ServerCore, Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
             PlayerInfo += "§SRank(s): ";
 
-            foreach (Rank r in PlayerRanks)
+            foreach (var r in PlayerRanks)
                 PlayerInfo += r.Prefix + r.Name + r.Suffix + ",";
 
             PlayerInfo = PlayerInfo.Substring(0, PlayerInfo.Length - 1); // -- Remove the final comma.
@@ -397,15 +397,15 @@ namespace Hypercube.Command {
             }
 
             var Steps = RankContainer.SplitSteps(Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
-            int TempInt = Steps[Ranks.IndexOf(newRank)];
+            var TempInt = Steps[Ranks.IndexOf(newRank)];
             Steps.RemoveAt(Ranks.IndexOf(newRank));
             Ranks.Remove(newRank);
             Ranks.Add(newRank);
             Steps.Add(TempInt);
 
-            string RankString = "";
+            var RankString = "";
 
-            foreach (Rank r in Ranks)
+            foreach (var r in Ranks)
                 RankString += r.ID.ToString() + ",";
 
             RankString = RankString.Substring(0, RankString.Length - 1);
@@ -516,7 +516,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            string StopReason = "You have been stopped.";
+            var StopReason = "You have been stopped.";
 
             if (args.Length > 1) 
                 StopReason = Text2;

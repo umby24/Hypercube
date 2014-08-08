@@ -47,7 +47,7 @@ namespace Hypercube.Core {
         }
 
         public int GetHashCode(QueueItem Item) {
-            int hCode = Item.X ^ Item.Y ^ Item.Z;
+            var hCode = Item.X ^ Item.Y ^ Item.Z;
             return hCode.GetHashCode();
         }
     }
@@ -129,7 +129,7 @@ namespace Hypercube.Core {
         }
 
         public int GetHashCode(HistoryEntry Item) {
-            int hCode = Item.x ^ Item.y ^ Item.z;
+            var hCode = Item.x ^ Item.y ^ Item.z;
             return hCode.GetHashCode();
         }
     }

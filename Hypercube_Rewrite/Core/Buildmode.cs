@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Hypercube.Client;
 using Hypercube.Libraries;
@@ -17,16 +14,16 @@ namespace Hypercube.Core {
         public ISettings BuildModeLoader;
         Hypercube ServerCore;
 
-        public BuildMode(Hypercube Core) {
-            ServerCore = Core;
-            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", true, new PBSettingsLoader.LoadSettings(Load));
+        public BuildMode(Hypercube core) {
+            ServerCore = core;
+            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", true, Load);
             ServerCore.Settings.ReadSettings(BuildModeLoader);
         }
 
         public void Load() {
             Modes = new Dictionary<string, BMStruct>(StringComparer.InvariantCultureIgnoreCase);
 
-            foreach (string bm in BuildModeLoader.Settings.Keys) {
+            foreach (var bm in BuildModeLoader.Settings.Keys) {
                 var myStruct = new BMStruct();
                 BuildModeLoader = ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
                 myStruct.Name = ServerCore.Settings.ReadSetting(BuildModeLoader, "Name", "");
@@ -42,14 +39,14 @@ namespace Hypercube.Core {
         public const int MaxResendSize = 1000;
         public List<string> SItems;
         public List<float> FItems;
-        public List<int> IItems;
+        public List<int> Items;
         public List<Vector3S> CoordItems;
         public List<Vector3S> Blocks;
 
         public BuildState() {
             SItems = new List<string>();
             FItems = new List<float>();
-            IItems = new List<int>();
+            Items = new List<int>();
             CoordItems = new List<Vector3S>();
             Blocks = new List<Vector3S>();
         }
@@ -57,8 +54,8 @@ namespace Hypercube.Core {
         public string GetString(int index) {
             if (SItems.Count >= index + 1)
                 return SItems[index];
-            else
-                return null;
+
+            return null;
         }
 
         public float GetFloat(int index) {
@@ -66,7 +63,7 @@ namespace Hypercube.Core {
         }
 
         public int GetInt(int index) {
-            return IItems[index];
+            return Items[index];
         }
 
         public Vector3S GetCoord(int index) {
@@ -89,47 +86,41 @@ namespace Hypercube.Core {
 
         // -- Set functions
 
-        public void SetString(string Value, int index) {
-            SItems.Insert(index, Value);
+        public void SetString(string value, int index) {
+            SItems.Insert(index, value);
         }
 
-        public void SetFloat(float Value, int index) {
-            FItems.Insert(index, Value);
+        public void SetFloat(float value, int index) {
+            FItems.Insert(index, value);
         }
 
-        public void SetInt(int Value, int index) {
-            IItems.Insert(Value, index);
+        public void SetInt(int value, int index) {
+            Items.Insert(value, index);
         }
 
         public void SetCoord(short x, short y, short z, int index) {
-            var myCoord = new Vector3S();
-            myCoord.X = x;
-            myCoord.Y = y;
-            myCoord.Z = z;
+            var myCoord = new Vector3S {X = x, Y = y, Z = z};
 
             CoordItems.Insert(index, myCoord);
         }
 
-        public void AddBlock(short X, short Y, short Z) {
-            var ThisPoint = new Vector3S();
-            ThisPoint.X = X;
-            ThisPoint.Y = Y;
-            ThisPoint.Z = Z;
+        public void AddBlock(short x, short y, short z) {
+            var thisPoint = new Vector3S {X = x, Y = y, Z = z};
 
-            if (Blocks.Contains(ThisPoint))
+            if (Blocks.Contains(thisPoint))
                 return;
 
             if (Blocks.Count < MaxResendSize)
-                Blocks.Add(ThisPoint);
+                Blocks.Add(thisPoint);
             else {
                 Blocks.RemoveAt(0);
-                Blocks.Add(ThisPoint);
+                Blocks.Add(thisPoint);
             }
         }
 
-        public void ResendBlocks(NetworkClient Client) {
-            foreach (Vector3S point in Blocks)
-                Client.CS.CurrentMap.SendBlock(Client, point.X, point.Y, point.Z, Client.CS.CurrentMap.GetBlock(point.X, point.Y, point.Z));
+        public void ResendBlocks(NetworkClient client) {
+            foreach (var point in Blocks)
+                client.CS.CurrentMap.SendBlock(client, point.X, point.Y, point.Z, client.CS.CurrentMap.GetBlock(point.X, point.Y, point.Z));
 
             Blocks.Clear();
         }

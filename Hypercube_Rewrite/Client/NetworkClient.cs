@@ -1,50 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Net.Sockets;
-using ClassicWrapped;
-
 using Hypercube.Core;
 using Hypercube.Network;
 using Hypercube.Map;
+using JetBrains.Annotations;
 
 namespace Hypercube.Client {
     public class NetworkClient {
         #region Variables
         public ClientSettings CS;
 
-        public ClassicWrapped.ClassicWrapped wSock;
+        public ClassicWrapped.ClassicWrapped WSock;
         public TcpClient BaseSocket;
         public NetworkStream BaseStream;
         public Thread DataRunner, TimeoutThread;
         public ConcurrentQueue<IPacket> SendQueue;
 
-        Dictionary<byte, Func<IPacket>> Packets;
+        [NotNull] Dictionary<byte, Func<IPacket>> _packets;
         public Hypercube ServerCore;
         #endregion
 
-        public NetworkClient(TcpClient baseSock, Hypercube Core, string IP) {
-            ServerCore = Core;
+        public NetworkClient(TcpClient baseSock, [NotNull] Hypercube core, string ip) {
+            ServerCore = core;
 
-            CS = new ClientSettings();
-            CS.LastActive = DateTime.UtcNow;
-            CS.Entities = new Dictionary<int, EntityStub>();
-            CS.CPEExtensions = new Dictionary<string, int>();
-            CS.SelectionCuboids = new List<byte>();
-            CS.LoggedIn = false;
-            CS.CurrentIndex = 0;
-            CS.UndoObjects = new List<Undo>();
-            CS.IP = IP;
+            CS = new ClientSettings
+            {
+                LastActive = DateTime.UtcNow,
+                Entities = new Dictionary<int, EntityStub>(),
+                CPEExtensions = new Dictionary<string, int>(),
+                SelectionCuboids = new List<byte>(),
+                LoggedIn = false,
+                CurrentIndex = 0,
+                UndoObjects = new List<Undo>(),
+                Ip = ip
+            };
 
             BaseSocket = baseSock;
             BaseStream = BaseSocket.GetStream();
 
-            wSock = new ClassicWrapped.ClassicWrapped();
-            wSock._Stream = BaseStream;
+            WSock = new ClassicWrapped.ClassicWrapped {Stream = BaseStream};
 
             SendQueue = new ConcurrentQueue<IPacket>();
             Populate();
@@ -54,7 +51,7 @@ namespace Hypercube.Client {
         }
 
         public void LoadDB() {
-            CS.ID = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
+            CS.Id = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
             CS.Global = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
             CS.MuteTime = ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
@@ -63,20 +60,19 @@ namespace Hypercube.Client {
             CS.RankSteps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "RankStep"));
             CS.FormattedName = CS.PlayerRanks[CS.PlayerRanks.Count - 1].Prefix + CS.LoginName + CS.PlayerRanks[CS.PlayerRanks.Count - 1].Suffix;
 
-            foreach (Rank r in CS.PlayerRanks) {
-                if (r.Op) {
-                    CS.Op = true;
-                    break;
-                }
+            foreach (var r in CS.PlayerRanks) {
+                if (!r.Op) continue;
+                CS.Op = true;
+                break;
             }
 
             ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
-            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.IP);
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
         }
 
         public void Login() {
             if (!ServerCore.DB.ContainsPlayer(CS.LoginName))
-                ServerCore.DB.CreatePlayer(CS.LoginName, CS.IP, ServerCore);
+                ServerCore.DB.CreatePlayer(CS.LoginName, CS.Ip, ServerCore);
 
             CS.LoginName = ServerCore.DB.GetPlayerName(CS.LoginName);
 
@@ -97,8 +93,8 @@ namespace Hypercube.Client {
             CS.CurrentMap.Send(this);
 
             lock (CS.CurrentMap.ClientLock) {
-                CS.CurrentMap.Clients.Add(CS.ID, this);
-                CS.CurrentMap.CreateList();
+                CS.CurrentMap.Clients.Add(CS.Id, this);
+                CS.CurrentMap.CreateClientList();
             }
 
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
@@ -109,15 +105,19 @@ namespace Hypercube.Client {
 
             // -- Create the user's entity.
             CS.MyEntity = new Entity(ServerCore, CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.CWMap.SpawnX * 32), 
-                (short)(CS.CurrentMap.CWMap.SpawnZ * 32), (short)((CS.CurrentMap.CWMap.SpawnY * 32) + 51), CS.CurrentMap.CWMap.SpawnRotation, CS.CurrentMap.CWMap.SpawnLook);
+                (short)(CS.CurrentMap.CWMap.SpawnZ * 32), (short)((CS.CurrentMap.CWMap.SpawnY * 32) + 51), CS.CurrentMap.CWMap.SpawnRotation, CS.CurrentMap.CWMap.SpawnLook)
+            {
+                MyClient = this,
+                Boundblock =
+                    ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB",
+                        "BoundBlock"))
+            };
 
-            CS.MyEntity.MyClient = this;
-            CS.MyEntity.Boundblock = ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "BoundBlock"));
-            
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (CS.CurrentMap.EntityLock) {
-                CS.CurrentMap.Entities.Add(CS.MyEntity.ID, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+                CS.CurrentMap.Entities.Add(CS.MyEntity.Id, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
+                CS.CurrentMap.CreateEntityList();
             }
 
             // -- CPE stuff
@@ -130,45 +130,46 @@ namespace Hypercube.Client {
             ServerCore.nh.CreateShit();
         }
 
-        public void SendHandshake(string MOTD = "") {
-            var HS = new Handshake();
-            HS.Name = ServerCore.ServerName;
-
-            if (MOTD == "")
-                HS.MOTD = ServerCore.MOTD;
-            else
-                HS.MOTD = MOTD;
-
-            HS.ProtocolVersion = 7;
+        public void SendHandshake(string motd = "") {
+            var hs = new Handshake
+            {
+                Name = ServerCore.ServerName,
+                ProtocolVersion = 7,
+                MOTD = motd == "" ? ServerCore.MOTD : motd,
+            };
 
             if (CS.Op)
-                HS.Usertype = 100;
+                hs.Usertype = 100;
             else
-                HS.Usertype = 0;
+                hs.Usertype = 0;
 
-            SendQueue.Enqueue(HS);
+            SendQueue.Enqueue(hs);
         }
 
-        public void KickPlayer(string Reason, bool Log = false) {
-            var DC = new Disconnect();
-            DC.Reason = Reason;
-            SendQueue.Enqueue(DC);
+        public void KickPlayer(string reason, bool log = false) {
+            var dc = new Disconnect {Reason = reason};
+            SendQueue.Enqueue(dc);
 
             Thread.Sleep(100);
 
             if (BaseSocket.Connected)
                 BaseSocket.Close();
 
-            if (CS.LoggedIn && Log) {
-                ServerCore.Logger.Log("Client", CS.LoginName + " has been kicked. (" + Reason + ")", LogType.Info);
-                ServerCore.Luahandler.RunFunction("E_PlayerKicked", CS.LoginName, Reason);
-                Chat.SendGlobalChat(ServerCore, CS.FormattedName + ServerCore.TextFormats.SystemMessage + " has been kicked. (" + Reason + ")");
+            if (CS.LoggedIn && log) {
+                ServerCore.Logger.Log("Client", CS.LoginName + " has been kicked. (" + reason + ")", LogType.Info);
+                ServerCore.Luahandler.RunFunction("E_PlayerKicked", CS.LoginName, reason);
+                Chat.SendGlobalChat(ServerCore, CS.FormattedName + ServerCore.TextFormats.SystemMessage + " has been kicked. (" + reason + ")");
 
-                var Values = new Dictionary<string, string>();
-                Values.Add("KickCounter", (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString());
-                Values.Add("KickMessage", Reason);
+                var values = new Dictionary<string, string>
+                {
+                    {
+                        "KickCounter",
+                        (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString()
+                    },
+                    {"KickMessage", reason}
+                };
 
-                ServerCore.DB.Update("PlayerDB", Values, "Name='" + CS.LoginName + "'");
+                ServerCore.DB.Update("PlayerDB", values, "Name='" + CS.LoginName + "'");
             }
         }
 
@@ -182,7 +183,7 @@ namespace Hypercube.Client {
             if ((0 > x || CS.CurrentMap.CWMap.SizeX <= x) || (0 > z || CS.CurrentMap.CWMap.SizeY <= z) || (0 > y || CS.CurrentMap.CWMap.SizeZ <= y)) // -- Out of bounds check.
                 return;
 
-            var myBlock = ServerCore.Blockholder.GetBlock((int)block);
+            var myBlock = ServerCore.Blockholder.GetBlock(block);
 
             if (myBlock == CS.MyEntity.Boundblock && CS.MyEntity.BuildMaterial.Name != "Unknown") // -- If there is a bound block, change the material.
                 myBlock = CS.MyEntity.BuildMaterial;
@@ -194,13 +195,12 @@ namespace Hypercube.Client {
 
                 if (!ServerCore.BMContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
                     Chat.SendClientChat(this, "§EBuild mode '" + CS.MyEntity.BuildMode + "' not found.");
-                    CS.MyEntity.BuildMode = new BMStruct();
-                    CS.MyEntity.BuildMode.Name = "";
+                    CS.MyEntity.BuildMode = new BMStruct {Name = ""};
                     CS.MyEntity.ClientState.ResendBlocks(this);
                     return;
                 }
 
-                ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.ID);
+                ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
             } else 
                 CS.CurrentMap.ClientChangeBlock(this, x, y, z, mode, myBlock);
             
@@ -216,8 +216,8 @@ namespace Hypercube.Client {
             if (CS.CurrentIndex == -1)
                 CS.CurrentIndex = 0;
 
-            for (int i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++)
-                CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].NewBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
+            for (var i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++)
+                CS.CurrentMap.BlockChange(CS.Id, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].NewBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
 
             CS.CurrentIndex += (steps - 1);
         }
@@ -229,8 +229,8 @@ namespace Hypercube.Client {
             if (CS.CurrentIndex == -1)
                 return;
 
-            for (int i = CS.CurrentIndex; i > (CS.CurrentIndex - steps); i--)
-                CS.CurrentMap.BlockChange(CS.ID, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
+            for (var i = CS.CurrentIndex; i > (CS.CurrentIndex - steps); i--)
+                CS.CurrentMap.BlockChange(CS.Id, CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].x, CS.UndoObjects[i].y, CS.UndoObjects[i].z), false, false, true, 100);
 
             CS.CurrentIndex -= (steps - 1);
         }
@@ -241,8 +241,8 @@ namespace Hypercube.Client {
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
             lock (CS.CurrentMap.ClientLock) {
-                CS.CurrentMap.Clients.Remove(CS.ID);
-                CS.CurrentMap.CreateList();
+                CS.CurrentMap.Clients.Remove(CS.Id);
+                CS.CurrentMap.CreateClientList();
             }
 
             CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
@@ -251,8 +251,8 @@ namespace Hypercube.Client {
             newMap.Send(this);
 
             lock (newMap.ClientLock) {
-                newMap.Clients.Add(CS.ID, this);
-                newMap.CreateList();
+                newMap.Clients.Add(CS.Id, this);
+                newMap.CreateClientList();
             }
 
             CS.MyEntity.X = (short)(newMap.CWMap.SpawnX * 32);
@@ -262,146 +262,145 @@ namespace Hypercube.Client {
             CS.MyEntity.Look = newMap.CWMap.SpawnLook;
             CS.MyEntity.Map = newMap;
 
-            if (newMap.FreeID != 128) {
-                CS.MyEntity.ClientID = (byte)newMap.FreeID;
+            if (newMap.FreeId != 128) {
+                CS.MyEntity.ClientId = (byte)newMap.FreeId;
 
-                if (newMap.FreeID != newMap.NextID)
-                    newMap.FreeID = newMap.NextID;
+                if (newMap.FreeId != newMap.NextId)
+                    newMap.FreeId = newMap.NextId;
                 else {
-                    newMap.FreeID += 1;
-                    newMap.NextID = newMap.FreeID;
+                    newMap.FreeId += 1;
+                    newMap.NextId = newMap.FreeId;
                 }
             }
 
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (newMap.EntityLock) {
-                newMap.Entities.Add(CS.ID, CS.MyEntity);
+                newMap.Entities.Add(CS.Id, CS.MyEntity);
+                newMap.CreateEntityList();
             }
 
             CPE.UpdateExtPlayerList(this);
         }
         #region Entity Management
         void EntityPositions() {
-            var Delete = new List<int>();
+            var delete = new List<int>();
 
-            foreach (EntityStub e in CS.Entities.Values) {
+            foreach (var e in CS.Entities.Values) {
                 if (e.Map != CS.CurrentMap) {
                     // -- Delete the entity.
-                    EDelete((sbyte)e.ClientID);
-                    Delete.Add(e.ID);
+                    EDelete((sbyte)e.ClientId);
+                    delete.Add(e.Id);
                     continue;
                 }
 
-                if (e.ID == CS.MyEntity.ID) {
+                if (e.Id == CS.MyEntity.Id) {
                     // -- Delete yourself
-                    EDelete((sbyte)e.ClientID);
-                    Delete.Add(e.ID);
+                    EDelete((sbyte)e.ClientId);
+                    delete.Add(e.Id);
                     continue;
                 }
 
-                if (!CS.CurrentMap.Entities.ContainsKey(e.ID)) { // -- Delete old entities.
-                    EDelete((sbyte)e.ClientID);
-                    Delete.Add(e.ID);
+                if (!CS.CurrentMap.Entities.ContainsKey(e.Id)) { // -- Delete old entities.
+                    EDelete((sbyte)e.ClientId);
+                    delete.Add(e.Id);
                     continue;
                 }
 
                 if (!e.Spawned) { // -- Spawn an entity if it's not there yet.
-                    ESpawn(CS.CurrentMap.Entities[e.ID].Name, e);
+                    ESpawn(CS.CurrentMap.Entities[e.Id].Name, e);
                     e.Spawned = true;
                 }
 
                 if (e.Looked) { // -- If the player looked, send them just an orient update.
-                    ELook((sbyte)e.ClientID, CS.CurrentMap.Entities[e.ID].Rot, CS.CurrentMap.Entities[e.ID].Look);
+                    ELook((sbyte)e.ClientId, CS.CurrentMap.Entities[e.Id].Rot, CS.CurrentMap.Entities[e.Id].Look);
                     e.Looked = false;
                 }
 
                 if (e.Changed) { // -- If they moved, send them both.
-                    EFullMove(CS.CurrentMap.Entities[e.ID]);
+                    EFullMove(CS.CurrentMap.Entities[e.Id]);
                     e.Changed = false;
                 }
             }
 
-            foreach (int i in Delete) 
+            foreach (var i in delete) 
                 CS.Entities.Remove(i); // -- If anyone needs to be removed, remove them. (Avoids collection modification)
 
-            Delete = null;
+            foreach (var e in CS.CurrentMap.EntitysList) {
+                if (!CS.Entities.ContainsKey(e.Id)) {
+                    if (e.Id != CS.MyEntity.Id)
+                        CS.Entities.Add(e.Id, CS.CurrentMap.Entities[e.Id].CreateStub()); // -- If we do not have them yet, add them!
+                } else {
+                    var csEnt = CS.Entities[e.Id];
 
-            var IDs = CS.CurrentMap.Entities.Keys.ToList(); // -- Prevents need to use a lock.
-
-            foreach (int id in IDs) {
-                if (!CS.Entities.ContainsKey(id)) 
-                    CS.Entities.Add(id, CS.CurrentMap.Entities[id].CreateStub()); // -- If we do not have them yet, add them!
-                else {
-                    if (CS.CurrentMap.Entities[id].X != CS.Entities[id].X || CS.CurrentMap.Entities[id].Y != CS.Entities[id].Y || CS.CurrentMap.Entities[id].Z != CS.Entities[id].Z) {
-                        CS.Entities[id].X = CS.CurrentMap.Entities[id].X;
-                        CS.Entities[id].Y = CS.CurrentMap.Entities[id].Y;
-                        CS.Entities[id].Z = CS.CurrentMap.Entities[id].Z;
-                        CS.Entities[id].Changed = true;
+                    if (e.X != csEnt.X || e.Y != csEnt.Y || e.Z != csEnt.Z) {
+                        csEnt.X = e.X;
+                        csEnt.Y = e.Y;
+                        csEnt.Z = e.Z;
+                        csEnt.Changed = true;
                     }
 
-                    if (CS.CurrentMap.Entities[id].Rot != CS.Entities[id].Rot || CS.CurrentMap.Entities[id].Look != CS.Entities[id].Look) {
-                        CS.Entities[id].Rot = CS.CurrentMap.Entities[id].Rot;
-                        CS.Entities[id].Look = CS.CurrentMap.Entities[id].Look;
+                    if (e.Rot != csEnt.Rot || e.Look != csEnt.Look) {
+                        csEnt.Rot = e.Rot;
+                        csEnt.Look = e.Look;
 
-                        if (!CS.Entities[id].Changed)
-                            CS.Entities[id].Looked = true;
+                        if (!csEnt.Changed)
+                            csEnt.Looked = true;
                     }
                 }
             }
-
-            IDs = null;
 
             if (CS.MyEntity.SendOwn)
                 EFullMove(CS.MyEntity, true);
         }
 
-        void ESpawn(string Name, EntityStub Entity) {
-            var Spawn = new SpawnPlayer();
-            Spawn.PlayerName = Name;
+        void ESpawn(string name, EntityStub entity) {
+            var spawn = new SpawnPlayer
+            {
+                PlayerName = name,
+                X = entity.X,
+                Y = entity.Y,
+                Z = entity.Z,
+                Yaw = entity.Rot,
+                Pitch = entity.Look
+            };
 
-            if (Entity.ID == CS.MyEntity.ID)
-                Spawn.PlayerID = -1;
+            if (entity.Id == CS.MyEntity.Id)
+                spawn.PlayerID = -1;
             else
-                Spawn.PlayerID = (sbyte)Entity.ClientID;
-
-            Spawn.X = Entity.X;
-            Spawn.Y = Entity.Y;
-            Spawn.Z = Entity.Z;
-            Spawn.Yaw = Entity.Rot;
-            Spawn.Pitch = Entity.Look;
-            SendQueue.Enqueue(Spawn);
+                spawn.PlayerID = (sbyte)entity.ClientId;
+            
+            SendQueue.Enqueue(spawn);
             //Spawn.Write(this);
         }
 
-        void EDelete(sbyte ID) {
-            var Despawn = new DespawnPlayer();
-            Despawn.PlayerID = ID;
-            SendQueue.Enqueue(Despawn);
+        void EDelete(sbyte id) {
+            var despawn = new DespawnPlayer {PlayerID = id};
+            SendQueue.Enqueue(despawn);
         }
 
-        void ELook(sbyte ID, byte Rot, byte Look) {
-            var OUp = new OrientationUpdate();
-            OUp.PlayerID = ID;
-            OUp.Yaw = Rot;
-            OUp.Pitch = Look;
-            SendQueue.Enqueue(OUp);
+        void ELook(sbyte id, byte rot, byte look) {
+            var oUp = new OrientationUpdate {PlayerID = id, Yaw = rot, Pitch = look};
+            SendQueue.Enqueue(oUp);
         }
 
         void EFullMove(Entity fullEntity, bool own = false) {
-            var Move = new PlayerTeleport();
+            var move = new PlayerTeleport
+            {
+                X = fullEntity.X,
+                Y = fullEntity.Y,
+                Z = fullEntity.Z,
+                yaw = fullEntity.Rot,
+                pitch = fullEntity.Look
+            };
 
             if (own)
-                Move.PlayerID = (sbyte)-1;
+                move.PlayerID = -1;
             else
-                Move.PlayerID = (sbyte)fullEntity.ClientID;
+                move.PlayerID = (sbyte)fullEntity.ClientId;
 
-            Move.X = fullEntity.X;
-            Move.Y = fullEntity.Y;
-            Move.Z = fullEntity.Z;
-            Move.yaw = fullEntity.Rot;
-            Move.pitch = fullEntity.Look;
-            SendQueue.Enqueue(Move);
+
+            SendQueue.Enqueue(move);
         }
         #endregion
         #region Network functions
@@ -409,7 +408,7 @@ namespace Hypercube.Client {
         /// Populates the list of accetpable packets from the client. Anything other than these will be rejected.
         /// </summary>
         void Populate() {
-            Packets = new Dictionary<byte, Func<IPacket>> {
+            _packets = new Dictionary<byte, Func<IPacket>> {
                 {0, () => new Handshake()},
                 {1, () => new Ping()},
                 {5, () => new SetBlock()},
@@ -423,20 +422,20 @@ namespace Hypercube.Client {
         void DataHandler() {
             while (BaseSocket.Connected) {
                 if (BaseStream.DataAvailable) {
-                    var opCode = wSock.ReadByte();
+                    var opCode = WSock.ReadByte();
 
-                    if (!Packets.ContainsKey(opCode)) {
+                    if (!_packets.ContainsKey(opCode)) {
                         KickPlayer("Invalid packet received.");
-                        ServerCore.Logger.Log("Client", "Invalid packet received: " + opCode.ToString(), LogType.Warning);
+                        ServerCore.Logger.Log("Client", "Invalid packet received: " + opCode, LogType.Warning);
                     }
 
                     CS.LastActive = DateTime.UtcNow;
 
-                    var Incoming = Packets[opCode]();
-                    Incoming.Read(this);
+                    var incoming = _packets[opCode]();
+                    incoming.Read(this);
 
                     try {
-                        Incoming.Handle(this, ServerCore);
+                        incoming.Handle(this, ServerCore);
                     } catch (Exception e) {
                         ServerCore.Logger.Log("Client", e.Message, LogType.Error);
                         ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
@@ -449,11 +448,11 @@ namespace Hypercube.Client {
                     myPacket.Write(this);
                 }
 
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
-                    var MyPing = new Ping();
-                    MyPing.Write(this);
-                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
-                    ServerCore.Logger.Log("Timeout", "Player " + CS.IP + " timed out.", LogType.Info);
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 500 && (DateTime.UtcNow - CS.LastActive).Seconds < 1000) {
+                    var myPing = new Ping();
+                    myPing.Write(this);
+                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
+                    ServerCore.Logger.Log("Timeout", "Player " + CS.Ip + " timed out.", LogType.Info);
                     KickPlayer("Timed out");
                     return;
                 }
@@ -461,7 +460,7 @@ namespace Hypercube.Client {
                 if (CS.LoggedIn)
                     EntityPositions();
 
-                Thread.Sleep(0);
+                Thread.Sleep(1);
             }
 
             ServerCore.nh.HandleDisconnect(this);

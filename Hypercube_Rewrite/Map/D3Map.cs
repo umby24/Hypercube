@@ -30,7 +30,7 @@ namespace Hypercube.Map {
             File.Copy(Directory + "/Config.txt", "Settings/TempD3Config.txt");
 
             // -- Load the Config data first..
-            var Configfile = Servercore.Settings.RegisterFile("TempD3Config.txt", false, new PBSettingsLoader.LoadSettings(LoadConfig));
+            var Configfile = Servercore.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
             Servercore.Settings.ReadSettings(Configfile);
 
             Mapsize = new Vector3S();
@@ -66,9 +66,9 @@ namespace Hypercube.Map {
 
             Blockdata = new byte[Mapsize.X * Mapsize.Y * Mapsize.Z];
 
-            for (int x = 0; x < Mapsize.X; x++) {
-                for (int y = 0; y < Mapsize.Y; y++) {
-                    for (int z = 0; z < Mapsize.Z; z++) 
+            for (var x = 0; x < Mapsize.X; x++) {
+                for (var y = 0; y < Mapsize.Y; y++) {
+                    for (var z = 0; z < Mapsize.Z; z++) 
                         Blockdata[GetIndex(x, y, z)] = AllData[GetBlock(x, y, z)];
                 }
             }

@@ -25,9 +25,9 @@ namespace Hypercube.Command {
         }
 
         public bool CanBeCalled(NetworkClient client) {
-            bool result = false;
+            var result = false;
 
-            foreach (Rank r in client.CS.PlayerRanks) {
+            foreach (var r in client.CS.PlayerRanks) {
                 if (PermissionContainer.RankMatchesPermissions(r, UsePermissions, AllPerms)) {
                     result = true;
                     break;
@@ -42,9 +42,9 @@ namespace Hypercube.Command {
         }
 
         public bool CanBeSeen(NetworkClient client) {
-            bool result = false;
+            var result = false;
 
-            foreach (Rank r in client.CS.PlayerRanks) {
+            foreach (var r in client.CS.PlayerRanks) {
                 if (PermissionContainer.RankMatchesPermissions(r, ShowPermissions, AllPerms)) {
                     result = true;
                     break;
@@ -80,7 +80,7 @@ namespace Hypercube.Command {
             Populate();
             RegisterGroups();
 
-            AliasLoader = Core.Settings.RegisterFile("Aliases.txt", false, new PBSettingsLoader.LoadSettings(LoadAliases));
+            AliasLoader = Core.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
             ServerCore.Settings.ReadSettings(AliasLoader);
         }
 
@@ -140,7 +140,7 @@ namespace Hypercube.Command {
             else
                 Groups = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
 
-            foreach (string command in CommandDict.Keys) {
+            foreach (var command in CommandDict.Keys) {
                 if (Groups.ContainsKey(CommandDict[command].Group)) 
                     Groups[CommandDict[command].Group].Add(command.Replace("/", ""));
                  else 
@@ -200,7 +200,7 @@ namespace Hypercube.Command {
             else
                 Aliases.Clear();
 
-            foreach (string c in CommandDict.Keys) // -- Create an entry for every command, and a list for its aliases.
+            foreach (var c in CommandDict.Keys) // -- Create an entry for every command, and a list for its aliases.
                 Aliases.Add(c, new List<string>());
 
             using (var SR = new StreamReader("Settings/Aliases.txt")) {
@@ -214,8 +214,8 @@ namespace Hypercube.Command {
                         continue;
 
                     // -- Command = Alias
-                    string command = Myline.Substring(0, Myline.IndexOf("=")).Replace(" ", "").ToLower();
-                    string alias = Myline.Substring(Myline.IndexOf("=") + 1, Myline.Length - (Myline.IndexOf("=") + 1)).Replace(" ", "").ToLower();
+                    var command = Myline.Substring(0, Myline.IndexOf("=")).Replace(" ", "").ToLower();
+                    var alias = Myline.Substring(Myline.IndexOf("=") + 1, Myline.Length - (Myline.IndexOf("=") + 1)).Replace(" ", "").ToLower();
 
                     if (!command.StartsWith("/")) // -- Just a check incase the user didn't include a /.
                         command = "/" + command;
@@ -237,7 +237,7 @@ namespace Hypercube.Command {
         }
 
         public string GetAlias(string command) {
-            foreach (string s in Aliases.Keys) {
+            foreach (var s in Aliases.Keys) {
                 if (Aliases[s].Contains(command.ToLower()))
                     return s;
             }

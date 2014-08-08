@@ -41,7 +41,7 @@ namespace Hypercube.Libraries {
                         var Buffer = new byte[ChunkSize];
 
                         while (true) {
-                            int BytesRead = FS.Read(Buffer, 0, ChunkSize);
+                            var BytesRead = FS.Read(Buffer, 0, ChunkSize);
 
                             if (BytesRead == 0) break;
 
@@ -75,7 +75,7 @@ namespace Hypercube.Libraries {
                         var Buffer = new byte[ChunkSize];
 
                         while (true) {
-                            int BytesRead = GS.Read(Buffer, 0, ChunkSize);
+                            var BytesRead = GS.Read(Buffer, 0, ChunkSize);
 
                             if (BytesRead == 0) break;
 

@@ -135,9 +135,9 @@ namespace Hypercube.Command {
         };
 
         static void MapfillsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            string MapFillString = "§D";
+            var MapFillString = "§D";
 
-            foreach (KeyValuePair<string, Fill> value in Client.ServerCore.Fillholder.Mapfills)
+            foreach (var value in Client.ServerCore.Fillholder.Mapfills)
                 MapFillString += " §S" + value.Key + " §D";
 
             Chat.SendClientChat(Client, "§SMapFills:");

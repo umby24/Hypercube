@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using Hypercube.Map;
 using Hypercube.Client;
 
 namespace Hypercube.Core {
     public class EntityStub {
-        public int ID;
-        public byte ClientID, Rot, Look;
+        public int Id;
+        public byte ClientId, Rot, Look;
         public short X, Y, Z;
         public bool Looked, Changed, Visible, Spawned;
         public HypercubeMap Map;
 
-        public EntityStub(int _ID, byte _ClientID, bool _Visible, HypercubeMap cMap, short x, short y, short z, byte rot, byte look) {
+        public EntityStub(int id, byte clientId, bool visible, HypercubeMap cMap, short x, short y, short z, byte rot, byte look) {
             Map = cMap;
-            ID = _ID;
-            ClientID = _ClientID;
-            Visible = _Visible;
+            Id = id;
+            ClientId = clientId;
+            Visible = visible;
             X = x;
             Y = y;
             Z = z;
@@ -32,10 +28,10 @@ namespace Hypercube.Core {
     }
 
     public class Entity {
-        public byte ClientID, Rot, Look, Heldblock;
+        public byte ClientId, Rot, Look, Heldblock;
         public bool SendOwn, Visible;
         public short X, Y, Z;
-        public int ID, BuildState;
+        public int Id, BuildState;
         public string Name, Model;
         public BMStruct BuildMode;
         public BuildState ClientState;
@@ -55,12 +51,11 @@ namespace Hypercube.Core {
             Map = map;
             Servercore = core;
             
-            ID = core.EFree;
+            Id = core.EFree;
             BuildMaterial = core.Blockholder.GetBlock("");
             Lastmaterial = core.Blockholder.GetBlock(1);
             ClientState = new BuildState();
-            BuildMode = new BMStruct();
-            BuildMode.Name = "";
+            BuildMode = new BMStruct {Name = ""};
 
             // -- Move entity free IDs.
             if (core.EFree != core.ENext)
@@ -70,35 +65,27 @@ namespace Hypercube.Core {
                 core.ENext = core.EFree;
             }
 
-            if (Map.FreeID != 128) {
-                ClientID = (byte)Map.FreeID;
+            if (Map.FreeId != 128) {
+                ClientId = (byte)Map.FreeId;
 
-                if (Map.FreeID != Map.NextID)
-                    Map.FreeID = Map.NextID;
+                if (Map.FreeId != Map.NextId)
+                    Map.FreeId = Map.NextId;
                 else {
-                    Map.FreeID += 1;
-                    Map.NextID = Map.FreeID;
+                    Map.FreeId += 1;
+                    Map.NextId = Map.FreeId;
                 }
             }
 
         }
 
-        public void SetBuildmode(string Mode) {
-            var TestBM = new BMStruct();
-            TestBM.Name = Mode;
-
-            if (Servercore.BMContainer.Modes.ContainsKey(Mode)) {
-                BuildMode = Servercore.BMContainer.Modes[Mode];
-            } else {
-                BuildMode = new BMStruct();
-                BuildMode.Name = "";
-            }
-
+        public void SetBuildmode(string mode)
+        {
+            BuildMode = Servercore.BMContainer.Modes.ContainsKey(mode) ? Servercore.BMContainer.Modes[mode] : new BMStruct {Name = ""};
             ClientState.ResendBlocks(MyClient);
         }
 
         public EntityStub CreateStub() {
-            return new EntityStub(ID, ClientID, Visible, Map, X, Y, Z, Rot, Look);
+            return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look);
         }
     }
 }
