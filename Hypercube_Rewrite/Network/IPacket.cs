@@ -9,8 +9,8 @@ namespace Hypercube.Network {
     /// </summary>
     public interface IPacket {
         byte Id { get; }
-        void Read(Client.NetworkClient Client);
-        void Write(Client.NetworkClient Client);
-        void Handle(Client.NetworkClient Client, Hypercube Core);
+        void Read(Client.NetworkClient client);
+        void Write(Client.NetworkClient client);
+        void Handle(Client.NetworkClient client, Hypercube core);
     }
 }

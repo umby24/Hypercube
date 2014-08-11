@@ -26,7 +26,7 @@ namespace Hypercube {
         public int Port, MaxPlayers, MaxPerIp;
         public bool VerifyNames, Public;
 
-        Hypercube ServerCore;
+        readonly Hypercube ServerCore;
         Thread _listenThread;
         #endregion
 
@@ -103,11 +103,11 @@ namespace Hypercube {
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
                 ServerCore.OnlinePlayers -= 1;
-                ServerCore.FreeID = client.CS.NameId;
+                ServerCore.FreeId = client.CS.NameId;
                 ServerCore.EFree = (short)client.CS.MyEntity.Id;
 
                 var remove = new ExtRemovePlayerName();
-                remove.NameID = client.CS.NameId;
+                remove.NameId = client.CS.NameId;
 
                 lock (ClientLock) {
                     foreach (var c in Clients) {
@@ -158,7 +158,7 @@ namespace Hypercube {
 
                 var ip = tempClient.Client.RemoteEndPoint.ToString().Substring(0, tempClient.Client.RemoteEndPoint.ToString().IndexOf(":")); // -- Strips the port the user is connecting from.
 
-                if (ServerCore.DB.IsIPBanned(ip)) {
+                if (ServerCore.DB.IsIpBanned(ip)) {
                     ServerCore.Logger.Log("Network", "Disconnecting client " + ip + ": IP banned.", LogType.Info);
                     RawKick("IP Banned", tempClient);
                     tempClient.Close();

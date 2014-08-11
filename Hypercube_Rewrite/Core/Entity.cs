@@ -80,7 +80,7 @@ namespace Hypercube.Core {
 
         public void SetBuildmode(string mode)
         {
-            BuildMode = Servercore.BMContainer.Modes.ContainsKey(mode) ? Servercore.BMContainer.Modes[mode] : new BMStruct {Name = ""};
+            BuildMode = Servercore.BmContainer.Modes.ContainsKey(mode) ? Servercore.BmContainer.Modes[mode] : new BMStruct {Name = ""};
             ClientState.ResendBlocks(MyClient);
         }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
 
@@ -35,7 +32,7 @@ namespace Hypercube
         public int OnlinePlayers = 0;
 
         #region Server Settings
-        public string ServerName, MOTD, WelcomeMessage, MapMain;
+        public string ServerName, Motd, WelcomeMessage, MapMain;
         public bool CompressHistory, ColoredConsole;
         public int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
         public List<string> Rules;
@@ -51,11 +48,11 @@ namespace Hypercube
         public ISettings SysSettings, Rulesfile;
         public Database DB;
 
-        public Heartbeat HB;
+        public Heartbeat Hb;
         public Logging Logger;
         public Text TextFormats;
 
-        public BuildMode BMContainer;
+        public BuildMode BmContainer;
         public BlockContainer Blockholder;
         public PermissionContainer Permholder;
         public RankContainer Rankholder;
@@ -65,11 +62,11 @@ namespace Hypercube
         #endregion
 
         #region Ids
-        public short NextID = 0, FreeID = 0, ENext = 0, EFree = 0;
+        public short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
         public int MapIndex;
         #endregion
 
-        public NetworkHandler nh;
+        public NetworkHandler Nh;
         public List<HypercubeMap> Maps;
         #endregion
 
@@ -91,14 +88,14 @@ namespace Hypercube
             Permholder = new PermissionContainer(this);
             Rankholder = new RankContainer(this);
             Blockholder = new BlockContainer(this);
-            BMContainer = new BuildMode(this);
+            BmContainer = new BuildMode(this);
 
             DefaultRank = Rankholder.GetRank(DefaultRank.Name);
 
             DB = new Database();
             Logger.Log("Database", "Database loaded.", LogType.Info);
 
-            nh = new NetworkHandler(this);
+            Nh = new NetworkHandler(this);
 
             Logger.Log("", "Core Initialized.", LogType.Info);
 
@@ -116,8 +113,8 @@ namespace Hypercube
             }
 
             if (!found) {
-                var MainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
-                Maps.Add(MainMap);
+                var mainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
+                Maps.Add(mainMap);
                 MapIndex = Maps.Count - 1;
                 Logger.Log("Core", "Main world not found, a new one has been created.", LogType.Warning);
             }
@@ -139,15 +136,15 @@ namespace Hypercube
         /// Starts the server.
         /// </summary>
         public void Start() {
-            nh.Start();
+            Nh.Start();
             Running = true;
 
-            HB = new Heartbeat(this);
+            Hb = new Heartbeat(this);
             Settings.ReadingThead = new Thread(Settings.SettingsMain);
             Settings.ReadingThead.Start();
 
-            Luahandler.luaThread = new Thread(Luahandler.Main);
-            Luahandler.luaThread.Start();
+            Luahandler.LuaThread = new Thread(Luahandler.Main);
+            Luahandler.LuaThread.Start();
 
             foreach (var m in Maps) {
                 m.ClientThread = new Thread(m.MapMain);
@@ -173,12 +170,12 @@ namespace Hypercube
         public void Stop() {
             OnlinePlayers = 0;
 
-            if (HB != null) {
-                HB.Shutdown();
-                HB = null;
+            if (Hb != null) {
+                Hb.Shutdown();
+                Hb = null;
             }
 
-            nh.Stop();
+            Nh.Stop();
 
             foreach (var i in Settings.SettingsFiles) {
                 if (i.Save)
@@ -188,8 +185,8 @@ namespace Hypercube
             if (Settings.ReadingThead != null)
                 Settings.ReadingThead.Abort();
 
-            if (Luahandler.luaThread != null)
-                Luahandler.luaThread.Abort();
+            if (Luahandler.LuaThread != null)
+                Luahandler.LuaThread.Abort();
 
             foreach (var m in Maps)
                 m.Shutdown();
@@ -200,7 +197,7 @@ namespace Hypercube
         #region Main Settings Loading
         public void ReadSystemSettings() {
             ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
-            MOTD = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
+            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
             MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
             WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
             //DefaultRank = Rankholder.GetRank(Settings.ReadSetting(SysSettings, "Default Rank", "Guest"));
@@ -222,7 +219,7 @@ namespace Hypercube
 
         public void SaveSystemSettings() {
             Settings.SaveSetting(SysSettings, "Name", ServerName);
-            Settings.SaveSetting(SysSettings, "MOTD", MOTD);
+            Settings.SaveSetting(SysSettings, "MOTD", Motd);
             Settings.SaveSetting(SysSettings, "MainMap", MapMain);
             Settings.SaveSetting(SysSettings, "Welcome Message", WelcomeMessage);
             Settings.SaveSetting(SysSettings, "RotateLogs", RotateLogs.ToString());

@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 
 using Hypercube.Core;
 using Hypercube.Map;
@@ -32,14 +28,14 @@ namespace Hypercube.Mapfills {
             Servercore.Logger.Log("MapFill", "Fill registered: " + name, LogType.Info);
         }
 
-        public void FillMap(HypercubeMap map, string fillname, params string[] Args) {
+        public void FillMap(HypercubeMap map, string fillname, params string[] args) {
             if (!Mapfills.ContainsKey(fillname))
                 return;
 
             if (Mapfills[fillname].Plugin == "") {
-                Mapfills[fillname].Run(map, Args);
+                Mapfills[fillname].Run(map, args);
             } else {
-                Servercore.Luahandler.RunFunction(Mapfills[fillname].Plugin, map, Args);
+                Servercore.Luahandler.RunFunction(Mapfills[fillname].Plugin, map, args);
             }
 
             map.Resend();

@@ -84,7 +84,7 @@ namespace Hypercube.Client {
 
             LoadDB(); // -- Load the user's profile
 
-            if (ServerCore.nh.LoggedClients.ContainsKey(CS.LoginName)) {
+            if (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
                 //TODO: This
             }
 
@@ -126,8 +126,8 @@ namespace Hypercube.Client {
             // -- Set the user as logged in.
             CS.LoggedIn = true;
             ServerCore.OnlinePlayers += 1;
-            ServerCore.nh.LoggedClients.Add(CS.LoginName, this);
-            ServerCore.nh.CreateShit();
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.CreateShit();
         }
 
         public void SendHandshake(string motd = "") {
@@ -135,7 +135,7 @@ namespace Hypercube.Client {
             {
                 Name = ServerCore.ServerName,
                 ProtocolVersion = 7,
-                MOTD = motd == "" ? ServerCore.MOTD : motd,
+                Motd = motd == "" ? ServerCore.Motd : motd,
             };
 
             if (CS.Op)
@@ -193,7 +193,7 @@ namespace Hypercube.Client {
             if (CS.MyEntity.BuildMode.Name != "") {
                 CS.MyEntity.ClientState.AddBlock(x, y, z);
 
-                if (!ServerCore.BMContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
+                if (!ServerCore.BmContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
                     Chat.SendClientChat(this, "§EBuild mode '" + CS.MyEntity.BuildMode + "' not found.");
                     CS.MyEntity.BuildMode = new BMStruct {Name = ""};
                     CS.MyEntity.ClientState.ResendBlocks(this);
@@ -366,21 +366,21 @@ namespace Hypercube.Client {
             };
 
             if (entity.Id == CS.MyEntity.Id)
-                spawn.PlayerID = -1;
+                spawn.PlayerId = -1;
             else
-                spawn.PlayerID = (sbyte)entity.ClientId;
+                spawn.PlayerId = (sbyte)entity.ClientId;
             
             SendQueue.Enqueue(spawn);
             //Spawn.Write(this);
         }
 
         void EDelete(sbyte id) {
-            var despawn = new DespawnPlayer {PlayerID = id};
+            var despawn = new DespawnPlayer {PlayerId = id};
             SendQueue.Enqueue(despawn);
         }
 
         void ELook(sbyte id, byte rot, byte look) {
-            var oUp = new OrientationUpdate {PlayerID = id, Yaw = rot, Pitch = look};
+            var oUp = new OrientationUpdate {PlayerId = id, Yaw = rot, Pitch = look};
             SendQueue.Enqueue(oUp);
         }
 
@@ -390,14 +390,14 @@ namespace Hypercube.Client {
                 X = fullEntity.X,
                 Y = fullEntity.Y,
                 Z = fullEntity.Z,
-                yaw = fullEntity.Rot,
-                pitch = fullEntity.Look
+                Yaw = fullEntity.Rot,
+                Pitch = fullEntity.Look
             };
 
             if (own)
-                move.PlayerID = -1;
+                move.PlayerId = -1;
             else
-                move.PlayerID = (sbyte)fullEntity.ClientId;
+                move.PlayerId = (sbyte)fullEntity.ClientId;
 
 
             SendQueue.Enqueue(move);
@@ -463,7 +463,7 @@ namespace Hypercube.Client {
                 Thread.Sleep(1);
             }
 
-            ServerCore.nh.HandleDisconnect(this);
+            ServerCore.Nh.HandleDisconnect(this);
         }
         #endregion
     }

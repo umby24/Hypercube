@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Hypercube.Core;
 using Hypercube.Client;
-using Hypercube.Map;
 
 namespace Hypercube.Command {
     internal static class GeneralCommands {
@@ -42,11 +38,11 @@ namespace Hypercube.Command {
             Handler = AboutHandler,
         };
 
-        static void AboutHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Chat.SendClientChat(Client, "§SServer Software:&f Hypercube");
-            Chat.SendClientChat(Client, "§SServer Developer:&f Umby24");
-            Chat.SendClientChat(Client, "§SServer Version:&f 0.0 ALPHA");
-            Chat.SendClientChat(Client, "§SThis server is written from scratch in C#<br>§Sand supports Lua scripting!");
+        static void AboutHandler(NetworkClient client, string[] args, string text1, string text2) {
+            Chat.SendClientChat(client, "§SServer Software:&f Hypercube");
+            Chat.SendClientChat(client, "§SServer Developer:&f Umby24");
+            Chat.SendClientChat(client, "§SServer Version:&f 0.0 ALPHA");
+            Chat.SendClientChat(client, "§SThis server is written from scratch in C#<br>§Sand supports Lua scripting!");
         }
         #endregion
         #region Commands
@@ -83,19 +79,19 @@ namespace Hypercube.Command {
                 }
 
                 var commandString = "§D&f ";
-                var CurrentLen = 5;
+                var currentLen = 5;
 
                 if (args[0].ToLower() == "all") {
                     foreach (var b in Client.ServerCore.Commandholder.CommandDict.Keys) {
                         if (!Client.ServerCore.Commandholder.CommandDict[b].CanBeSeen(Client))
                             continue;
 
-                        if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + CurrentLen >= 59) {
+                        if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
                             commandString += "<br>§D&f " + b.Substring(1, b.Length - 1) + " §D&f ";
-                            CurrentLen = ("§D&f " + b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                            currentLen = ("§D&f " + b.Substring(1, b.Length - 1) + " §D&f ").Length;
                         } else {
                             commandString += b.Substring(1, b.Length - 1) + " §D&f ";
-                            CurrentLen += (b.Substring(1, b.Length - 1) + " §D&f ").Length;
+                            currentLen += (b.Substring(1, b.Length - 1) + " §D&f ").Length;
                         }
                     }
 
@@ -107,12 +103,12 @@ namespace Hypercube.Command {
                     if (!Client.ServerCore.Commandholder.CommandDict["/" + b].CanBeSeen(Client))
                         continue;
 
-                    if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + CurrentLen >= 59) {
+                    if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
                         commandString += "<br>§D&f " + b + " §D&f ";
-                        CurrentLen = ("§D&f " + b + " §D&f ").Length;
+                        currentLen = ("§D&f " + b + " §D&f ").Length;
                     } else {
                         commandString += b + " §D&f ";
-                        CurrentLen += (b + " §D&f ").Length;
+                        currentLen += (b + " §D&f ").Length;
                     }
                 }
 
@@ -198,17 +194,17 @@ namespace Hypercube.Command {
             }
 
 
-            var PlayerRanks = RankContainer.SplitRanks(Client.ServerCore, Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
-            var PlayerSteps = RankContainer.SplitSteps(Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
-            var PlayerInfo = "§SRank(s) for " + args[0] + ": ";
+            var playerRanks = RankContainer.SplitRanks(Client.ServerCore, Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var playerSteps = RankContainer.SplitSteps(Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var playerInfo = "§SRank(s) for " + args[0] + ": ";
 
-            foreach (var r in PlayerRanks)
-                PlayerInfo += r.Prefix + r.Name + r.Suffix + "(" + PlayerSteps[PlayerRanks.IndexOf(r)] + "), ";
+            foreach (var r in playerRanks)
+                playerInfo += r.Prefix + r.Name + r.Suffix + "(" + playerSteps[playerRanks.IndexOf(r)] + "), ";
 
-            PlayerInfo = PlayerInfo.Substring(0, PlayerInfo.Length - 1); // -- Remove the final comma.
-            PlayerInfo += "<br>";
+            playerInfo = playerInfo.Substring(0, playerInfo.Length - 1); // -- Remove the final comma.
+            playerInfo += "<br>";
 
-            Chat.SendClientChat(Client, PlayerInfo);
+            Chat.SendClientChat(Client, playerInfo);
         }
         #endregion
         #region Global
@@ -276,18 +272,18 @@ namespace Hypercube.Command {
         };
 
         static void PlayersHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            var OnlineString = "§SOnline Players: " + Client.ServerCore.nh.Clients.Count.ToString() + "<br>";
+            var onlineString = "§SOnline Players: " + Client.ServerCore.Nh.Clients.Count + "<br>";
 
             foreach (var hm in Client.ServerCore.Maps) {
-                OnlineString += "§S" + hm.CWMap.MapName + "&f: ";
+                onlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
                 foreach(var c in hm.ClientsList)
-                    OnlineString += c.CS.FormattedName + "§D";
+                    onlineString += c.CS.FormattedName + "§D";
 
-                OnlineString += "<br>";
+                onlineString += "<br>";
             }
 
-            Chat.SendClientChat(Client, OnlineString);
+            Chat.SendClientChat(Client, onlineString);
         }
         #endregion
         #region Ranks
@@ -311,17 +307,17 @@ namespace Hypercube.Command {
 
         static void RanksHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             Chat.SendClientChat(Client, "§SGroups&f:");
-            var GroupDict = new Dictionary<string, string>();
+            var groupDict = new Dictionary<string, string>();
 
             foreach (var r in Client.ServerCore.Rankholder.NameList.Values) {
-                if (GroupDict.Keys.Contains(r.Group))
-                    GroupDict[r.Group] += "§S| " + r.Prefix + r.Name + r.Suffix + " ";
+                if (groupDict.Keys.Contains(r.Group))
+                    groupDict[r.Group] += "§S| " + r.Prefix + r.Name + r.Suffix + " ";
                 else
-                    GroupDict.Add(r.Group, "§S" + r.Group + "&f: " + r.Prefix + r.Name + r.Suffix + " ");
+                    groupDict.Add(r.Group, "§S" + r.Group + "&f: " + r.Prefix + r.Name + r.Suffix + " ");
             }
 
-            foreach (var b in GroupDict.Keys)
-                Chat.SendClientChat(Client, GroupDict[b]);
+            foreach (var b in groupDict.Keys)
+                Chat.SendClientChat(Client, groupDict[b]);
         }
         #endregion
         #region Rules
@@ -343,11 +339,11 @@ namespace Hypercube.Command {
             Handler = RulesHandler,
         };
 
-        static void RulesHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Chat.SendClientChat(Client, "&6Server Rules:");
+        static void RulesHandler(NetworkClient client, string[] args, string text1, string text2) {
+            Chat.SendClientChat(client, "&6Server Rules:");
 
-            for (var i = 0; i < Client.ServerCore.Rules.Count; i++)
-                Chat.SendClientChat(Client, "&6" + (i + 1).ToString() + ": " + Client.ServerCore.Rules[i]);
+            for (var i = 0; i < client.ServerCore.Rules.Count; i++)
+                Chat.SendClientChat(client, "&6" + (i + 1) + ": " + client.ServerCore.Rules[i]);
         }
         #endregion
         #region Maps

@@ -15,7 +15,7 @@ namespace Hypercube.Libraries {
     public class Database {
         const string DatabaseName = "Database.s3db";
         public SQLiteConnection DBConnection;
-        object DBLock = new object();
+        readonly object _dbLock = new object();
 
         public Database() {
             if (!File.Exists("Settings/" + DatabaseName)) {
@@ -23,20 +23,20 @@ namespace Hypercube.Libraries {
                 SQLiteConnection.CreateFile(Path.GetFullPath("Settings/" + DatabaseName));
 
                 // -- Now we need to connect and create the table.
-                lock (DBLock) {
-                    var Connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
-                    Connection.Open();
+                lock (_dbLock) {
+                    var connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                    connection.Open();
 
-                    var Command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", Connection);
-                    Command.ExecuteNonQuery();
+                    var command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", connection);
+                    command.ExecuteNonQuery();
 
-                    Command.CommandText = "CREATE INDEX PlayerDB_Index ON PlayerDB (Name COLLATE NOCASE)";
-                    Command.ExecuteNonQuery();
+                    command.CommandText = "CREATE INDEX PlayerDB_Index ON PlayerDB (Name COLLATE NOCASE)";
+                    command.ExecuteNonQuery();
 
-                    Command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
-                    Command.ExecuteNonQuery();
+                    command.CommandText = "CREATE TABLE IPBanDB (Number INTEGER PRIMARY KEY, IP TEXT UNIQUE, Reason TEXT, BannedBy TEXT)";
+                    command.ExecuteNonQuery();
 
-                    DBConnection = Connection; // -- All done.
+                    DBConnection = connection; // -- All done.
                 }
             } else {
                 DBConnection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
@@ -47,19 +47,22 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Creates a new entry in the PlayerDB for a player.
         /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="IP"></param>
-        public void CreatePlayer(string Name, string IP, Hypercube Core) {
-            var myValues = new Dictionary<string, string>();
-            myValues.Add("Name", Name);
-            myValues.Add("IP", IP);
-            myValues.Add("Rank", Core.DefaultRank.ID.ToString());
-            myValues.Add("RankStep", "0");
-            myValues.Add("Global", "1");
-            myValues.Add("Banned", "0");
-            myValues.Add("Stopped", "0");
-            myValues.Add("Vanished", "0");
-            myValues.Add("BoundBlock", "1");
+        /// <param name="name"></param>
+        /// <param name="ip"></param>
+        /// <param name="core"></param>
+        public void CreatePlayer(string name, string ip, Hypercube core) {
+            var myValues = new Dictionary<string, string>
+            {
+                {"Name", name},
+                {"IP", ip},
+                {"Rank", core.DefaultRank.ID.ToString()},
+                {"RankStep", "0"},
+                {"Global", "1"},
+                {"Banned", "0"},
+                {"Stopped", "0"},
+                {"Vanished", "0"},
+                {"BoundBlock", "1"}
+            };
 
             Insert("PlayerDB", myValues);
         }
@@ -67,108 +70,96 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Checks to see if a player by this name already exists for this server.
         /// </summary>
-        /// <param name="Name"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public bool ContainsPlayer(string Name) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Name + "'");
+        public bool ContainsPlayer(string name) {
+            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + name + "'");
 
-            foreach (DataRow c in dt.Rows) {
-                if (((string)c["Name"]).ToLower() == Name.ToLower())
-                    return true;
-            }
+            foreach (DataRow c in dt.Rows)
+                if (((string) c["Name"]).ToLower() == name.ToLower()) return true;
 
             return false;
-
         }
 
         /// <summary>
         /// Returns the Case-correct version of a player's name.
         /// </summary>
-        /// <param name="Name"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public string GetPlayerName(string Name) {
-            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + Name + "'");
+        public string GetPlayerName(string name) {
+            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + name + "'");
 
-            foreach (DataRow c in dt.Rows) {
-                if (((string)c["Name"]).ToLower() == Name.ToLower())
-                    return (string)c["Name"];
-            }
+            foreach (DataRow c in dt.Rows)
+                if (((string) c["Name"]).ToLower() == name.ToLower()) return (string) c["Name"];
+            
 
             return "";
         }
 
-        public void BanPlayer(string Name, string Reason, string BannedBy) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "Banned", 1);
-            SetDatabase(Name, "PlayerDB", "BanMessage", Reason);
-            SetDatabase(Name, "PlayerDB", "BannedBy", BannedBy);
+        public void BanPlayer(string name, string reason, string bannedBy) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "Banned", 1);
+            SetDatabase(name, "PlayerDB", "BanMessage", reason);
+            SetDatabase(name, "PlayerDB", "BannedBy", bannedBy);
         }
 
-        public void UnbanPlayer(string Name) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "Banned", 0);
+        public void UnbanPlayer(string name) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "Banned", 0);
         }
 
-        public void StopPlayer(string Name, string Reason, string StoppedBy) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "Stopped", 1);
-            SetDatabase(Name, "PlayerDB", "StopMessage", Reason);
-            SetDatabase(Name, "PlayerDB", "StoppedBy", StoppedBy);
+        public void StopPlayer(string name, string reason, string stoppedBy) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "Stopped", 1);
+            SetDatabase(name, "PlayerDB", "StopMessage", reason);
+            SetDatabase(name, "PlayerDB", "StoppedBy", stoppedBy);
         }
 
-        public void UnstopPlayer(string Name) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "Stopped", 0);
+        public void UnstopPlayer(string name) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "Stopped", 0);
         }
 
-        public void MutePlayer(string Name, int Minutes, string Reason) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "MuteMessage", Reason);
-            SetDatabase(Name, "PlayerDB", "Time_Muted", Minutes);
+        public void MutePlayer(string name, int minutes, string reason) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "MuteMessage", reason);
+            SetDatabase(name, "PlayerDB", "Time_Muted", minutes);
         }
 
-        public void UnmutePlayer(string Name) {
-            Name = GetPlayerName(Name);
-            SetDatabase(Name, "PlayerDB", "Time_Muted", 0);
+        public void UnmutePlayer(string name) {
+            name = GetPlayerName(name);
+            SetDatabase(name, "PlayerDB", "Time_Muted", 0);
         }
 
-        public void IPBan(string IP, string Reason, string Bannedby) {
-            var Values = new Dictionary<string, string>();
-            Values.Add("IP", IP);
-            Values.Add("Reason", Reason);
-            Values.Add("BannedBy", Bannedby);
-
-            Insert("IPBanDB", Values);
+        public void IpBan(string ip, string reason, string bannedby) {
+            var values = new Dictionary<string, string> {{"IP", ip}, {"Reason", reason}, {"BannedBy", bannedby}};
+            Insert("IPBanDB", values);
         }
 
-        public void UnIPBan(string IP) {
-            if (!IsIPBanned(IP))
+        public void UnIpBan(string ip) {
+            if (!IsIpBanned(ip))
                 return;
 
-            Delete("IPBanDB", "IP='" + IP + "'");
+            Delete("IPBanDB", "IP='" + ip + "'");
         }
 
-        public bool IsIPBanned(string IP) {
-            var dt = GetDataTable("SELECT * FROM IPBanDB WHERE IP=='" + IP + "'");
-
-            foreach (DataRow c in dt.Rows) {
-                if (((string)c["IP"]) == IP)
-                    return true;
-            }
-
-            return false;
+        public bool IsIpBanned(string ip) {
+            var dt = GetDataTable("SELECT * FROM IPBanDB WHERE IP=='" + ip + "'");
+            return dt.Rows.Cast<DataRow>().Any(c => ((string) c["IP"]) == ip);
         }
+
         /// <summary>
         /// Retreives an integer value from the database.
         /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public int GetDatabaseInt(string Name, string Table, string Field) {
-            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
+        public int GetDatabaseInt(string name, string table, string field) {
+            var dt = GetDataTable("SELECT * FROM " + table + " WHERE Name='" + name + "' LIMIT 1");
 
             try {
-                return Convert.ToInt32(dt.Rows[0][Field]);
+                return Convert.ToInt32(dt.Rows[0][field]);
             } catch {
                 return -1;
             }
@@ -177,14 +168,15 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Retreives a string value from the database.
         /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public string GetDatabaseString(string Name, string Table, string Field) {
-            var dt = GetDataTable("SELECT * FROM " + Table + " WHERE Name='" + Name + "' LIMIT 1");
+        public string GetDatabaseString(string name, string table, string field) {
+            var dt = GetDataTable("SELECT * FROM " + table + " WHERE Name='" + name + "' LIMIT 1");
 
             try {
-                return (string)dt.Rows[0][Field];
+                return (string)dt.Rows[0][field];
             } catch {
                 return "";
             }
@@ -193,40 +185,38 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Sets a value on the player in the database.
         /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
-        /// <param name="Value"></param>
-        public void SetDatabase(string Name, string Table, string Field, bool Value) {
-            var Values = new Dictionary<string, string>();
-            Values.Add(Field, Value.ToString());
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+        /// <param name="value"></param>
+        /// <param name="name"></param>
+        public void SetDatabase(string name, string table, string field, bool value) {
+            var values = new Dictionary<string, string> {{field, value.ToString()}};
 
-            Update(Table, Values, "Name='" + Name + "'");
+            Update(table, values, "Name='" + name + "'");
         }
 
         /// <summary>
         /// Sets a value on the player in the database.
         /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
-        /// <param name="Value"></param>
-        public void SetDatabase(string Name, string Table, string Field, int Value) {
-            var Values = new Dictionary<string, string>();
-            Values.Add(Field, Value.ToString());
-
-            Update(Table, Values, "Name='" + Name + "'");
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+        /// <param name="value"></param>
+        /// <param name="name"></param>
+        public void SetDatabase(string name, string table, string field, int value) {
+            var values = new Dictionary<string, string> {{field, value.ToString()}};
+            Update(table, values, "Name='" + name + "'");
         }
 
         /// <summary>
         /// Sets a value on the player in the database.
         /// </summary>
-        /// <param name="Playername"></param>
-        /// <param name="Field"></param>
-        /// <param name="Value"></param>
-        public void SetDatabase(string Name, string Table, string Field, string Value) {
-            var Values = new Dictionary<string, string>();
-            Values.Add(Field, Value);
-
-            Update(Table, Values, "Name='" + Name + "'");
+        /// <param name="table"></param>
+        /// <param name="field"></param>
+        /// <param name="value"></param>
+        /// <param name="name"></param>
+        public void SetDatabase(string name, string table, string field, string value) {
+            var values = new Dictionary<string, string> {{field, value}};
+            Update(table, values, "Name='" + name + "'");
         }
 
         #region Basic DB Interaction
@@ -237,9 +227,8 @@ namespace Hypercube.Libraries {
             var dt = new DataTable();
 
             try {
-                lock (DBLock) {
-                    var command = new SQLiteCommand(DBConnection);
-                    command.CommandText = sql;
+                lock (_dbLock) {
+                    var command = new SQLiteCommand(DBConnection) {CommandText = sql};
 
                     var reader = command.ExecuteReader();
                     dt.Load(reader);
@@ -253,9 +242,8 @@ namespace Hypercube.Libraries {
         }
 
         public int ExecuteNonQuery(string sql) {
-            lock (DBLock) {
-                var command = new SQLiteCommand(DBConnection);
-                command.CommandText = sql;
+            lock (_dbLock) {
+                var command = new SQLiteCommand(DBConnection) {CommandText = sql};
 
                 var rowsUpdated = command.ExecuteNonQuery();
 
@@ -268,14 +256,14 @@ namespace Hypercube.Libraries {
             var returnCode = true;
 
             if (data.Count >= 1) {
-                foreach (var val in data) {
-                    vals += String.Format(" {0} = '{1}',", val.Key.ToString(), val.Value.ToString());
-                }
+                foreach (var val in data) 
+                    vals += String.Format(" {0} = '{1}',", val.Key, val.Value);
+                
                 vals = vals.Substring(0, vals.Length - 1);
             }
 
             try {
-                this.ExecuteNonQuery(String.Format("update {0} set {1} where {2};", tableName, vals, where));
+                ExecuteNonQuery(String.Format("update {0} set {1} where {2};", tableName, vals, where));
             } catch {
                 returnCode = false;
             }
@@ -293,7 +281,7 @@ namespace Hypercube.Libraries {
             var returnCode = true;
 
             try {
-                this.ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
+                ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
             } catch {
                 returnCode = false;
             }
@@ -313,7 +301,7 @@ namespace Hypercube.Libraries {
             var returnCode = true;
 
             foreach (var val in data) {
-                columns += String.Format(" {0},", val.Key.ToString());
+                columns += String.Format(" {0},", val.Key);
                 values += String.Format(" '{0}',", val.Value);
             }
 
@@ -321,7 +309,7 @@ namespace Hypercube.Libraries {
             values = values.Substring(0, values.Length - 1);
 
             try {
-                this.ExecuteNonQuery(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
+                ExecuteNonQuery(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
             } catch {
                 returnCode = false;
             }
@@ -337,11 +325,10 @@ namespace Hypercube.Libraries {
             DataTable tables;
 
             try {
-                tables = this.GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
+                tables = GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
 
-                foreach (DataRow table in tables.Rows) {
-                    this.ClearTable(table["NAME"].ToString());
-                }
+                foreach (DataRow table in tables.Rows) 
+                    ClearTable(table["NAME"].ToString());
 
                 return true;
             } catch {
@@ -351,7 +338,7 @@ namespace Hypercube.Libraries {
 
         public bool ClearTable(String table) {
             try {
-                this.ExecuteNonQuery(string.Format("delete from {0};", table));
+                ExecuteNonQuery(string.Format("delete from {0};", table));
                 return true;
             } catch {
                 return false;

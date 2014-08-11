@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
 using System.Web;
-using System.Web.Services;
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
@@ -15,27 +13,27 @@ using Hypercube.Core;
 namespace Hypercube.Network {
     public class Heartbeat {
         public string Salt;
-        Hypercube ServerCore;
-        Thread HeartbeatThread;
+        readonly Hypercube _serverCore;
+        readonly Thread _heartbeatThread;
 
         /// <summary>
         /// Generates a new salt and starts heartbeating.
         /// </summary>
-        /// <param name="Core"></param>
-        public Heartbeat(Hypercube Core) {
-            ServerCore = Core;
+        /// <param name="core"></param>
+        public Heartbeat(Hypercube core) {
+            _serverCore = core;
             CreateSalt();
 
-            HeartbeatThread = new Thread(DoHeartbeatClassicube);
-            HeartbeatThread.Start();
+            _heartbeatThread = new Thread(DoHeartbeatClassicube);
+            _heartbeatThread.Start();
         }
 
         /// <summary>
         /// Aborts the heartbeat thread.
         /// </summary>
         public void Shutdown() {
-            if (HeartbeatThread != null)
-                HeartbeatThread.Abort();
+            if (_heartbeatThread != null)
+                _heartbeatThread.Abort();
         }
 
         /// <summary>
@@ -43,15 +41,15 @@ namespace Hypercube.Network {
         /// </summary>
         public void CreateSalt() {
             Salt = "";
-            var Random = new Random();
+            var random = new Random();
 
             for (var i = 1; i < 33; i++)
-                Salt += (char)(65 + Random.Next(25));
+                Salt += (char)(65 + random.Next(25));
         }
 
         public string GetIPv4Address(string site) {
-            var Addresses = Dns.GetHostAddresses(site);
-            var v4 = Addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            var addresses = Dns.GetHostAddresses(site);
+            var v4 = addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
 
             return v4.ToString();
         }
@@ -60,22 +58,24 @@ namespace Hypercube.Network {
         /// Sends a heartbeat to Classicube.net for this server.
         /// </summary>
         public void DoHeartbeatClassicube() {
-            var Request = new WebClient();
+            var request = new WebClient();
+
             try {
-                Request.Proxy = new WebProxy("http://" + GetIPv4Address("classicube.net") + ":80/"); // -- Makes sure we're using an IPv4 Address and not IPv6.
+                request.Proxy = new WebProxy("http://" + GetIPv4Address("classicube.net") + ":80/"); // -- Makes sure we're using an IPv4 Address and not IPv6.
             } catch {
-                ServerCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
+                _serverCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
                 return;
             }
-            while (ServerCore.Running) {
+
+            while (_serverCore.Running) {
                 try {
-                    var Response = Request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.nh.Port.ToString() + "&users=" + ServerCore.OnlinePlayers.ToString() + "&max=" + ServerCore.nh.MaxPlayers.ToString() + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.nh.Public.ToString() + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
-                    ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
-                    ServerCore.Luahandler.RunFunction("E_Heartbeat");
-                    File.WriteAllText("ServerURL.txt", Response);
+                    var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + _serverCore.Nh.Port + "&users=" + _serverCore.OnlinePlayers + "&max=" + _serverCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(_serverCore.ServerName) + "&public=" + _serverCore.Nh.Public + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
+                    _serverCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
+                    _serverCore.Luahandler.RunFunction("E_Heartbeat");
+                    File.WriteAllText("ServerURL.txt", response);
                 } catch (Exception e) {
-                    ServerCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
-                    ServerCore.Logger.Log("Classicube", e.Message, LogType.Error);
+                    _serverCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
+                    _serverCore.Logger.Log("Classicube", e.Message, LogType.Error);
                 }
 
                 Thread.Sleep(45000);
@@ -85,21 +85,20 @@ namespace Hypercube.Network {
         /// <summary>
         /// Verifys the authenticity of this user.
         /// </summary>
-        /// <param name="Client"></param>
+        /// <param name="client"></param>
         /// <returns></returns>
-        public bool VerifyClientName(NetworkClient Client) {
-            if (Client.CS.Ip == "127.0.0.1" || Client.CS.Ip.Substring(0, 7) == "192.168" || ServerCore.nh.VerifyNames == false)
+        public bool VerifyClientName(NetworkClient client) {
+            if (client.CS.Ip == "127.0.0.1" || client.CS.Ip.Substring(0, 7) == "192.168" || _serverCore.Nh.VerifyNames == false)
                 return true;
 
-            var MD5Creator = MD5.Create();
-            var Correct = BitConverter.ToString(MD5Creator.ComputeHash(Encoding.ASCII.GetBytes(Salt + Client.CS.LoginName))).Replace("-", "");
+            var md5Creator = MD5.Create();
+            var correct = BitConverter.ToString(md5Creator.ComputeHash(Encoding.ASCII.GetBytes(Salt + client.CS.LoginName))).Replace("-", "");
 
-            if (Correct.Trim().ToLower() == Client.CS.MpPass.Trim().ToLower()) 
+            if (correct.Trim().ToLower() == client.CS.MpPass.Trim().ToLower()) 
                 return true;
-            else {
-                ServerCore.Logger.Log("Heartbeat", Correct.Trim() + " != " + Client.CS.MpPass.Trim(), LogType.Warning);
-                return false;
-            }
+
+            _serverCore.Logger.Log("Heartbeat", correct.Trim() + " != " + client.CS.MpPass.Trim(), LogType.Warning);
+            return false;
         }
     }
 }

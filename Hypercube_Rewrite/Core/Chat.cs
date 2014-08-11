@@ -16,7 +16,7 @@ namespace Hypercube.Core {
         /// <param name="messageType"></param>
         /// <param name="log"></param>
         public static void SendGlobalChat(Hypercube core, string message, sbyte messageType = 0, bool log = false) {
-            var chat = new Message {PlayerID = messageType};
+            var chat = new Message {PlayerId = messageType};
 
             message = Text.CleanseString(message, core);
 
@@ -30,7 +30,7 @@ namespace Hypercube.Core {
 
             var sending = SplitLines(message);
 
-            foreach (var c in core.nh.ClientList) {
+            foreach (var c in core.Nh.ClientList) {
                 foreach (var b in sending) {
                     chat.Text = b;
                     c.SendQueue.Enqueue(chat);
@@ -43,7 +43,7 @@ namespace Hypercube.Core {
         /// Sends a message to all clients on a certain map.
         /// </summary>
         public static void SendMapChat(HypercubeMap map, Hypercube core, string message, sbyte messageType = 0, bool log = false) {
-            var chat = new Message {PlayerID = messageType};
+            var chat = new Message {PlayerId = messageType};
 
             message = Text.CleanseString(message, core);
 
@@ -78,7 +78,7 @@ namespace Hypercube.Core {
 
             var sending = SplitLines(message);
 
-            var chat = new Message {PlayerID = messageType};
+            var chat = new Message {PlayerId = messageType};
 
             foreach (var b in sending) {
                 chat.Text = b;
@@ -133,8 +133,8 @@ namespace Hypercube.Core {
 
                 NetworkClient tosend;
 
-                if (incomingClient.ServerCore.nh.LoggedClients.ContainsKey(client)) {
-                    tosend = incomingClient.ServerCore.nh.LoggedClients[client];
+                if (incomingClient.ServerCore.Nh.LoggedClients.ContainsKey(client)) {
+                    tosend = incomingClient.ServerCore.Nh.LoggedClients[client];
                 } else {
                     SendClientChat(incomingClient, "§EPlayer '" + client + "' not found.");
                     return;

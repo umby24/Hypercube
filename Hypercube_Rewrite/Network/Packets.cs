@@ -1,5 +1,6 @@
 ﻿using Hypercube.Client;
 using Hypercube.Core;
+using Hypercube.Libraries;
 
 namespace Hypercube.Network {
     // -- Contains structures for every supported packet.
@@ -9,64 +10,64 @@ namespace Hypercube.Network {
         public byte Id { get { return 0; } }
         public byte ProtocolVersion { get; set; }
         public string Name { get; set; }
-        public string MOTD { get; set; }
+        public string Motd { get; set; }
         public byte Usertype { get; set; }
 
-        public void Read(NetworkClient Client) {
-            ProtocolVersion = Client.WSock.ReadByte();
-            Name = Client.WSock.ReadString();
-            MOTD = Client.WSock.ReadString();
-            Usertype = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            ProtocolVersion = client.WSock.ReadByte();
+            Name = client.WSock.ReadString();
+            Motd = client.WSock.ReadString();
+            Usertype = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(ProtocolVersion);
-                Client.WSock.WriteString(Name);
-                Client.WSock.WriteString(MOTD);
-                Client.WSock.WriteByte(Usertype);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(ProtocolVersion);
+                client.WSock.WriteString(Name);
+                client.WSock.WriteString(Motd);
+                client.WSock.WriteByte(Usertype);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Client.CS.LoginName = Name;
-            Client.CS.MpPass = MOTD;
+        public void Handle(NetworkClient client, Hypercube core) {
+            client.CS.LoginName = Name;
+            client.CS.MpPass = Motd;
 
             if (ProtocolVersion != 7) {
-                Core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion.ToString() + ")", LogType.Info);
-                Client.KickPlayer("Unsupported protocol version.");
+                core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion + ")", LogType.Info);
+                client.KickPlayer("Unsupported protocol version.");
             }
 
-            if (!Core.HB.VerifyClientName(Client)) {
-                Core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", LogType.Info);
-                Client.KickPlayer("Name verification incorrect.");
+            if (!core.Hb.VerifyClientName(client)) {
+                core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", LogType.Info);
+                client.KickPlayer("Name verification incorrect.");
             }
 
-            if (Libraries.Text.StringMatches(Name)) {
-                Core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", LogType.Info);
-                Client.KickPlayer("Invalid characters in name.");
+            if (Text.StringMatches(Name)) {
+                core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", LogType.Info);
+                client.KickPlayer("Invalid characters in name.");
             }
 
             if (Name == "") {
-                Core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid name.", LogType.Info);
-                Client.KickPlayer("Invalid name.");
+                core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid name.", LogType.Info);
+                client.KickPlayer("Invalid name.");
             }
 
-            if (Core.OnlinePlayers > Core.nh.MaxPlayers) 
-                Client.KickPlayer("The server is full.");
+            if (core.OnlinePlayers > core.Nh.MaxPlayers) 
+                client.KickPlayer("The server is full.");
 
-            Client.CS.MpPass = MOTD;
+            client.CS.MpPass = Motd;
 
             if (Usertype == 66) {
                 // -- CPE Client
-                Core.Logger.Log("Handshake", "CPE Client Detected.", LogType.Info);
-                Client.CS.CPE = true;
-                CPE.CPEHandshake(Client);
+                core.Logger.Log("Handshake", "CPE Client Detected.", LogType.Info);
+                client.CS.CPE = true;
+                CPE.CPEHandshake(client);
             } else {
                 // -- Normal Client.
-                Client.CS.CPE = false;
-                Client.Login();
+                client.CS.CPE = false;
+                client.Login();
             }
         }
     }
@@ -74,15 +75,15 @@ namespace Hypercube.Network {
     public struct Ping : IPacket {
         public byte Id { get { return 1; } }
 
-        public void Read(NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -90,15 +91,15 @@ namespace Hypercube.Network {
     public struct LevelInit : IPacket {
         public byte Id { get { return 2; } }
 
-        public void Read(NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -109,19 +110,19 @@ namespace Hypercube.Network {
         public byte[] Data { get; set; }
         public byte Percent { get; set; }
 
-        public void Read(NetworkClient Client) {
-            Length = Client.WSock.ReadShort();
-            Data = Client.WSock.ReadByteArray();
-            Percent = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            Length = client.WSock.ReadShort();
+            Data = client.WSock.ReadByteArray();
+            Percent = client.WSock.ReadByte();
         }
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(Length);
-                Client.WSock.WriteByteArray(Data);
-                Client.WSock.WriteByte(Percent);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(Length);
+                client.WSock.WriteByteArray(Data);
+                client.WSock.WriteByte(Percent);
+                client.WSock.Purge();
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -133,20 +134,20 @@ namespace Hypercube.Network {
         public short SizeY { get; set; }
         public short SizeZ { get; set; }
 
-        public void Read(NetworkClient Client) {
-            SizeX = Client.WSock.ReadShort();
-            SizeZ = Client.WSock.ReadShort();
-            SizeY = Client.WSock.ReadShort();
+        public void Read(NetworkClient client) {
+            SizeX = client.WSock.ReadShort();
+            SizeZ = client.WSock.ReadShort();
+            SizeY = client.WSock.ReadShort();
         }
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(SizeX);
-                Client.WSock.WriteShort(SizeZ);
-                Client.WSock.WriteShort(SizeY);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(SizeX);
+                client.WSock.WriteShort(SizeZ);
+                client.WSock.WriteShort(SizeY);
+                client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -159,27 +160,27 @@ namespace Hypercube.Network {
         public byte Mode { get; set; }
         public byte Block { get; set; }
 
-        public void Read(NetworkClient Client) {
-            X = Client.WSock.ReadShort();
-            Z = Client.WSock.ReadShort();
-            Y = Client.WSock.ReadShort();
-            Mode = Client.WSock.ReadByte();
-            Block = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            X = client.WSock.ReadShort();
+            Z = client.WSock.ReadShort();
+            Y = client.WSock.ReadShort();
+            Mode = client.WSock.ReadByte();
+            Block = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(X);
-                Client.WSock.WriteShort(Z);
-                Client.WSock.WriteShort(Y);
-                Client.WSock.WriteByte(Mode);
-                Client.WSock.WriteByte(Block);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(X);
+                client.WSock.WriteShort(Z);
+                client.WSock.WriteShort(Y);
+                client.WSock.WriteByte(Mode);
+                client.WSock.WriteByte(Block);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Client.HandleBlockChange(X, Y, Z, Mode, Block);
+        public void Handle(NetworkClient client, Hypercube core) {
+            client.HandleBlockChange(X, Y, Z, Mode, Block);
         }
     }
 
@@ -190,29 +191,29 @@ namespace Hypercube.Network {
         public short Z { get; set; }
         public byte Block { get; set; }
 
-        public void Read(NetworkClient Client) {
-            X = Client.WSock.ReadShort();
-            Z = Client.WSock.ReadShort();
-            Y = Client.WSock.ReadShort();
-            Block = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            X = client.WSock.ReadShort();
+            Z = client.WSock.ReadShort();
+            Y = client.WSock.ReadShort();
+            Block = client.WSock.ReadByte();
         }
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(X);
-                Client.WSock.WriteShort(Z);
-                Client.WSock.WriteShort(Y);
-                Client.WSock.WriteByte(Block);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(X);
+                client.WSock.WriteShort(Z);
+                client.WSock.WriteShort(Y);
+                client.WSock.WriteByte(Block);
+                client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct SpawnPlayer : IPacket {
         public byte Id { get { return 7; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public string PlayerName { get; set; }
         public short X { get; set; }
         public short Y { get; set; }
@@ -220,84 +221,84 @@ namespace Hypercube.Network {
         public byte Yaw { get; set; }
         public byte Pitch { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            PlayerName = Client.WSock.ReadString();
-            X = Client.WSock.ReadShort();
-            Z = Client.WSock.ReadShort();
-            Y = Client.WSock.ReadShort();
-            Yaw = Client.WSock.ReadByte();
-            Pitch = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            PlayerName = client.WSock.ReadString();
+            X = client.WSock.ReadShort();
+            Z = client.WSock.ReadShort();
+            Y = client.WSock.ReadShort();
+            Yaw = client.WSock.ReadByte();
+            Pitch = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteSByte(PlayerID);
-                Client.WSock.WriteString(PlayerName);
-                Client.WSock.WriteShort(X);
-                Client.WSock.WriteShort(Z);
-                Client.WSock.WriteShort(Y);
-                Client.WSock.WriteByte(Yaw);
-                Client.WSock.WriteByte(Pitch);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteSByte(PlayerId);
+                client.WSock.WriteString(PlayerName);
+                client.WSock.WriteShort(X);
+                client.WSock.WriteShort(Z);
+                client.WSock.WriteShort(Y);
+                client.WSock.WriteByte(Yaw);
+                client.WSock.WriteByte(Pitch);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct PlayerTeleport : IPacket {
         public byte Id { get { return 8; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public short X { get; set; }
         public short Y { get; set; }
         public short Z { get; set; }
-        public byte yaw { get; set; }
-        public byte pitch { get; set; }
+        public byte Yaw { get; set; }
+        public byte Pitch { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            X = Client.WSock.ReadShort();
-            Z = Client.WSock.ReadShort();
-            Y = Client.WSock.ReadShort();
-            yaw = Client.WSock.ReadByte();
-            pitch = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            X = client.WSock.ReadShort();
+            Z = client.WSock.ReadShort();
+            Y = client.WSock.ReadShort();
+            Yaw = client.WSock.ReadByte();
+            Pitch = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteSByte(PlayerID);
-                Client.WSock.WriteShort(X);
-                Client.WSock.WriteShort(Z);
-                Client.WSock.WriteShort(Y);
-                Client.WSock.WriteByte(yaw);
-                Client.WSock.WriteByte(pitch);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteSByte(PlayerId);
+                client.WSock.WriteShort(X);
+                client.WSock.WriteShort(Z);
+                client.WSock.WriteShort(Y);
+                client.WSock.WriteByte(Yaw);
+                client.WSock.WriteByte(Pitch);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            if (yaw != Client.CS.MyEntity.Rot || pitch != Client.CS.MyEntity.Look) {
-                Client.CS.MyEntity.Rot = yaw;
-                Client.CS.MyEntity.Look = pitch;
+        public void Handle(NetworkClient client, Hypercube core) {
+            if (Yaw != client.CS.MyEntity.Rot || Pitch != client.CS.MyEntity.Look) {
+                client.CS.MyEntity.Rot = Yaw;
+                client.CS.MyEntity.Look = Pitch;
             }
 
-            if (X != Client.CS.MyEntity.X || Y != Client.CS.MyEntity.Y || Z != Client.CS.MyEntity.Z) {
-                Client.CS.MyEntity.X = X;
-                Client.CS.MyEntity.Y = Y;
-                Client.CS.MyEntity.Z = Z;
+            if (X != client.CS.MyEntity.X || Y != client.CS.MyEntity.Y || Z != client.CS.MyEntity.Z) {
+                client.CS.MyEntity.X = X;
+                client.CS.MyEntity.Y = Y;
+                client.CS.MyEntity.Z = Z;
             }
 
-            if (Client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
-                if (Client.CS.HeldBlock == null)
-                    Client.CS.HeldBlock = Core.Blockholder.GetBlock(0);
+            if (client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
+                if (client.CS.HeldBlock == null)
+                    client.CS.HeldBlock = core.Blockholder.GetBlock(0);
 
-                if (Client.CS.HeldBlock.Id == PlayerID)
+                if (client.CS.HeldBlock.Id == PlayerId)
                     return;
                 //TODO: Held Block changed event
-                Client.CS.HeldBlock = Core.Blockholder.GetBlock(PlayerID);
+                client.CS.HeldBlock = core.Blockholder.GetBlock(PlayerId);
             }
             
         }
@@ -305,123 +306,123 @@ namespace Hypercube.Network {
 
     public struct PosAndOrient : IPacket {
         public byte Id { get { return 9; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public short ChangeX { get; set; }
         public short ChangeY { get; set; }
         public short ChangeZ { get; set; }
-        public byte yaw { get; set; }
-        public byte pitch { get; set; }
+        public byte Yaw { get; set; }
+        public byte Pitch { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            ChangeX = Client.WSock.ReadShort();
-            ChangeZ = Client.WSock.ReadShort();
-            ChangeY = Client.WSock.ReadShort();
-            yaw = Client.WSock.ReadByte();
-            pitch = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            ChangeX = client.WSock.ReadShort();
+            ChangeZ = client.WSock.ReadShort();
+            ChangeY = client.WSock.ReadShort();
+            Yaw = client.WSock.ReadByte();
+            Pitch = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteSByte(PlayerID);
-                Client.WSock.WriteShort(ChangeX);
-                Client.WSock.WriteShort(ChangeZ);
-                Client.WSock.WriteShort(ChangeY);
-                Client.WSock.WriteByte(yaw);
-                Client.WSock.WriteByte(pitch);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteSByte(PlayerId);
+                client.WSock.WriteShort(ChangeX);
+                client.WSock.WriteShort(ChangeZ);
+                client.WSock.WriteShort(ChangeY);
+                client.WSock.WriteByte(Yaw);
+                client.WSock.WriteByte(Pitch);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct PositionUpdate : IPacket {
         public byte Id { get { return 10; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public short ChangeX { get; set; }
         public short ChangeY { get; set; }
         public short ChangeZ { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            ChangeX = Client.WSock.ReadShort();
-            ChangeZ = Client.WSock.ReadShort();
-            ChangeY = Client.WSock.ReadShort();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            ChangeX = client.WSock.ReadShort();
+            ChangeZ = client.WSock.ReadShort();
+            ChangeY = client.WSock.ReadShort();
         }
 
-        public void Write(NetworkClient Client) {
+        public void Write(NetworkClient client) {
 
         }
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct OrientationUpdate : IPacket {
         public byte Id { get { return 11; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public byte Yaw { get; set; }
         public byte Pitch { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            Yaw = Client.WSock.ReadByte();
-            Pitch = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            Yaw = client.WSock.ReadByte();
+            Pitch = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-            Client.WSock.WriteByte(Id);
-            Client.WSock.WriteSByte(PlayerID);
-            Client.WSock.WriteByte(Yaw);
-            Client.WSock.WriteByte(Pitch);
-            Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+            client.WSock.WriteByte(Id);
+            client.WSock.WriteSByte(PlayerId);
+            client.WSock.WriteByte(Yaw);
+            client.WSock.WriteByte(Pitch);
+            client.WSock.Purge();
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct DespawnPlayer : IPacket {
         public byte Id { get { return 12; } }
-        public sbyte PlayerID;
+        public sbyte PlayerId;
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteSByte(PlayerID);
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteSByte(PlayerId);
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct Message : IPacket {
         public byte Id { get { return 13; } }
-        public sbyte PlayerID { get; set; }
+        public sbyte PlayerId { get; set; }
         public string Text { get; set; }
 
-        public void Read(NetworkClient Client) {
-            PlayerID = Client.WSock.ReadSByte();
-            Text = Client.WSock.ReadString();
+        public void Read(NetworkClient client) {
+            PlayerId = client.WSock.ReadSByte();
+            Text = client.WSock.ReadString();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteSByte(PlayerID);
-                Client.WSock.WriteString(Text);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteSByte(PlayerId);
+                client.WSock.WriteString(Text);
+                client.WSock.Purge();
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Chat.HandleIncomingChat(Client, Text);
+        public void Handle(NetworkClient client, Hypercube core) {
+            Chat.HandleIncomingChat(client, Text);
         }
     }
 
@@ -429,18 +430,18 @@ namespace Hypercube.Network {
         public byte Id { get { return 14; } }
         public string Reason { get; set; }
 
-        public void Read(NetworkClient Client) {
-            Reason = Client.WSock.ReadString();
+        public void Read(NetworkClient client) {
+            Reason = client.WSock.ReadString();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteString(Reason);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteString(Reason);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -449,18 +450,18 @@ namespace Hypercube.Network {
         public byte Id { get { return 15; } }
         public byte Rank { get; set; }
 
-        public void Read(NetworkClient Client) {
-            Rank = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            Rank = client.WSock.ReadByte();
         }
 
-        public void Write(NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(Rank);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(Rank);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -470,26 +471,26 @@ namespace Hypercube.Network {
         public string AppName { get; set; }
         public short ExtensionCount { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
-            AppName = Client.WSock.ReadString();
-            ExtensionCount = Client.WSock.ReadShort();
+        public void Read(NetworkClient client) {
+            AppName = client.WSock.ReadString();
+            ExtensionCount = client.WSock.ReadShort();
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteString(AppName);
-                Client.WSock.WriteShort(ExtensionCount);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteString(AppName);
+                client.WSock.WriteShort(ExtensionCount);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Core.Logger.Log("CPE", "Client " + Client.CS.Ip + " is running on " + AppName + ", which supports " + ExtensionCount.ToString() + " extensions.", LogType.Info);
-            Client.CS.Appname = AppName;
-            Client.CS.Extensions = ExtensionCount;
+        public void Handle(NetworkClient client, Hypercube core) {
+            core.Logger.Log("CPE", "Client " + client.CS.Ip + " is running on " + AppName + ", which supports " + ExtensionCount + " extensions.", LogType.Info);
+            client.CS.Appname = AppName;
+            client.CS.Extensions = ExtensionCount;
 
-            if (Client.CS.Extensions == 0)
-                CPE.CPEPackets(Client);
+            if (client.CS.Extensions == 0)
+                CPE.CPEPackets(client);
         }
     }
 
@@ -498,24 +499,24 @@ namespace Hypercube.Network {
         public string ExtName { get; set; }
         public int Version { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
-            ExtName = Client.WSock.ReadString();
-            Version = Client.WSock.ReadInt();
+        public void Read(NetworkClient client) {
+            ExtName = client.WSock.ReadString();
+            Version = client.WSock.ReadInt();
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteString(ExtName);
-                Client.WSock.WriteInt(Version);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteString(ExtName);
+                client.WSock.WriteInt(Version);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Client.CS.CPEExtensions.Add(ExtName, Version);
+        public void Handle(NetworkClient client, Hypercube core) {
+            client.CS.CPEExtensions.Add(ExtName, Version);
 
-            if (Client.CS.CPEExtensions.Keys.Count == Client.CS.Extensions)
-                CPE.CPEPackets(Client);
+            if (client.CS.CPEExtensions.Keys.Count == client.CS.Extensions)
+                CPE.CPEPackets(client);
         }
     }
 
@@ -523,18 +524,18 @@ namespace Hypercube.Network {
         public byte Id { get { return 18; } }
         public short Distance { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
-            Distance = Client.WSock.ReadShort();
+        public void Read(NetworkClient client) {
+            Distance = client.WSock.ReadShort();
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(Distance);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(Distance);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -543,20 +544,20 @@ namespace Hypercube.Network {
         public byte Id { get { return 19; } }
         public byte SupportLevel { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
-            SupportLevel = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            SupportLevel = client.WSock.ReadByte();
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(SupportLevel);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(SupportLevel);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
-            Client.CS.CustomBlocksLevel = SupportLevel;
-            Client.Login();
+        public void Handle(NetworkClient client, Hypercube core) {
+            client.CS.CustomBlocksLevel = SupportLevel;
+            client.Login();
         }
     }
 
@@ -565,20 +566,20 @@ namespace Hypercube.Network {
         public byte BlockToHold { get; set; }
         public byte PreventChange { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
-            BlockToHold = Client.WSock.ReadByte();
-            PreventChange = Client.WSock.ReadByte();
+        public void Read(NetworkClient client) {
+            BlockToHold = client.WSock.ReadByte();
+            PreventChange = client.WSock.ReadByte();
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(BlockToHold);
-                Client.WSock.WriteByte(PreventChange);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(BlockToHold);
+                client.WSock.WriteByte(PreventChange);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -590,91 +591,91 @@ namespace Hypercube.Network {
         public int KeyCode { get; set; }
         public byte KeyMods { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteString(Label);
-                Client.WSock.WriteString(Action);
-                Client.WSock.WriteInt(KeyCode);
-                Client.WSock.WriteByte(KeyMods);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteString(Label);
+                client.WSock.WriteString(Action);
+                client.WSock.WriteInt(KeyCode);
+                client.WSock.WriteByte(KeyMods);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct ExtAddPlayerName : IPacket {
         public byte Id { get { return 22; } }
-        public short NameID { get; set; }
+        public short NameId { get; set; }
         public string PlayerName { get; set; }
         public string ListName { get; set; }
         public string GroupName { get; set; }
         public byte GroupRank { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(NameID);
-                Client.WSock.WriteString(PlayerName);
-                Client.WSock.WriteString(ListName);
-                Client.WSock.WriteString(GroupName);
-                Client.WSock.WriteByte(GroupRank);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(NameId);
+                client.WSock.WriteString(PlayerName);
+                client.WSock.WriteString(ListName);
+                client.WSock.WriteString(GroupName);
+                client.WSock.WriteByte(GroupRank);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct ExtAddEntity : IPacket {
         public byte Id { get { return 23; } }
-        public byte EntityID { get; set; }
+        public byte EntityId { get; set; }
         public string InGameName { get; set; }
         public string SkinName { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(EntityID);
-                Client.WSock.WriteString(InGameName);
-                Client.WSock.WriteString(SkinName);
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(EntityId);
+                client.WSock.WriteString(InGameName);
+                client.WSock.WriteString(SkinName);
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
     public struct ExtRemovePlayerName : IPacket {
         public byte Id { get { return 24; } }
-        public short NameID { get; set; }
+        public short NameId { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteShort(NameID);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteShort(NameId);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -686,28 +687,28 @@ namespace Hypercube.Network {
         public short Green { get; set; }
         public short Blue { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(ColorType);
-                Client.WSock.WriteShort(Red);
-                Client.WSock.WriteShort(Green);
-                Client.WSock.WriteShort(Blue);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(ColorType);
+                client.WSock.WriteShort(Red);
+                client.WSock.WriteShort(Green);
+                client.WSock.WriteShort(Blue);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct MakeSelection : IPacket {
         public byte Id { get { return 26; } }
-        public byte SelectionID { get; set; }
+        public byte SelectionId { get; set; }
         public string Label { get; set; }
         public short StartX { get; set; }
         public short StartY { get; set; }
@@ -720,49 +721,49 @@ namespace Hypercube.Network {
         public short Blue { get; set; }
         public short Opacity { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(SelectionID);
-                Client.WSock.WriteString(Label);
-                Client.WSock.WriteShort(StartX);
-                Client.WSock.WriteShort(StartZ);
-                Client.WSock.WriteShort(StartY);
-                Client.WSock.WriteShort(EndX);
-                Client.WSock.WriteShort(EndZ);
-                Client.WSock.WriteShort(EndY);
-                Client.WSock.WriteShort(Red);
-                Client.WSock.WriteShort(Green);
-                Client.WSock.WriteShort(Blue);
-                Client.WSock.WriteShort(Opacity);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(SelectionId);
+                client.WSock.WriteString(Label);
+                client.WSock.WriteShort(StartX);
+                client.WSock.WriteShort(StartZ);
+                client.WSock.WriteShort(StartY);
+                client.WSock.WriteShort(EndX);
+                client.WSock.WriteShort(EndZ);
+                client.WSock.WriteShort(EndY);
+                client.WSock.WriteShort(Red);
+                client.WSock.WriteShort(Green);
+                client.WSock.WriteShort(Blue);
+                client.WSock.WriteShort(Opacity);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct RemoveSelection : IPacket {
         public byte Id { get { return 27; } }
-        public byte SelectionID { get; set; }
+        public byte SelectionId { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(SelectionID);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(SelectionId);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -773,67 +774,67 @@ namespace Hypercube.Network {
         public byte AllowPlacement { get; set; }
         public byte AllowDeletion { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(BlockType);
-                Client.WSock.WriteByte(AllowPlacement);
-                Client.WSock.WriteByte(AllowDeletion);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(BlockType);
+                client.WSock.WriteByte(AllowPlacement);
+                client.WSock.WriteByte(AllowDeletion);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
 
     public struct ChangeModel : IPacket {
         public byte Id { get { return 29; } }
-        public byte EntityID { get; set; }
+        public byte EntityId { get; set; }
         public string ModelName { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(EntityID);
-                Client.WSock.WriteString(ModelName);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(EntityId);
+                client.WSock.WriteString(ModelName);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
     public struct EnvSetMapAppearance : IPacket {
         public byte Id { get { return 30; } }
-        public string TextureURL { get; set; }
+        public string TextureUrl { get; set; }
         public byte SideBlock { get; set; }
         public byte EdgeBlock { get; set; }
         public short SideLevel { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteString(TextureURL);
-                Client.WSock.WriteByte(SideBlock);
-                Client.WSock.WriteByte(EdgeBlock);
-                Client.WSock.WriteShort(SideLevel);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteString(TextureUrl);
+                client.WSock.WriteByte(SideBlock);
+                client.WSock.WriteByte(EdgeBlock);
+                client.WSock.WriteShort(SideLevel);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -841,18 +842,18 @@ namespace Hypercube.Network {
         public byte Id { get { return 31; } }
         public byte WeatherType { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(WeatherType);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(WeatherType);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
@@ -865,23 +866,23 @@ namespace Hypercube.Network {
         public byte ThirdPerson { get; set; }
         public short JumpHeight { get; set; }
 
-        public void Read(Client.NetworkClient Client) {
+        public void Read(NetworkClient client) {
 
         }
 
-        public void Write(Client.NetworkClient Client) {
-                Client.WSock.WriteByte(Id);
-                Client.WSock.WriteByte(Flying);
-                Client.WSock.WriteByte(NoClip);
-                Client.WSock.WriteByte(Speeding);
-                Client.WSock.WriteByte(SpawnControl);
-                Client.WSock.WriteByte(ThirdPerson);
-                Client.WSock.WriteShort(JumpHeight);
-                Client.WSock.Purge();
+        public void Write(NetworkClient client) {
+                client.WSock.WriteByte(Id);
+                client.WSock.WriteByte(Flying);
+                client.WSock.WriteByte(NoClip);
+                client.WSock.WriteByte(Speeding);
+                client.WSock.WriteByte(SpawnControl);
+                client.WSock.WriteByte(ThirdPerson);
+                client.WSock.WriteShort(JumpHeight);
+                client.WSock.Purge();
             
         }
 
-        public void Handle(NetworkClient Client, Hypercube Core) {
+        public void Handle(NetworkClient client, Hypercube core) {
 
         }
     }
