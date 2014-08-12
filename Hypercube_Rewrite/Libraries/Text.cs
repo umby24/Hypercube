@@ -13,8 +13,8 @@ namespace Hypercube.Libraries {
         public string Divider; // -- $D
 
         public Text() {
-            TextSettings = Hypercube.Settings.RegisterFile("Colors.txt", true, ReadTextSettings);
-            Hypercube.Settings.ReadSettings(TextSettings);
+            TextSettings = ServerCore.Settings.RegisterFile("Colors.txt", true, ReadTextSettings);
+            ServerCore.Settings.ReadSettings(TextSettings);
         }
 
         /// <summary>
@@ -23,9 +23,9 @@ namespace Hypercube.Libraries {
         /// <param name="input"></param>
         /// <returns></returns>
         public static string CleanseString(string input) {
-            input = input.Replace("§E", Hypercube.TextFormats.ErrorMessage);
-            input = input.Replace("§S", Hypercube.TextFormats.SystemMessage);
-            input = input.Replace("§D", Hypercube.TextFormats.Divider);
+            input = input.Replace("§E", ServerCore.TextFormats.ErrorMessage);
+            input = input.Replace("§S", ServerCore.TextFormats.SystemMessage);
+            input = input.Replace("§D", ServerCore.TextFormats.Divider);
 
             var matcher = new Regex(RegexString, RegexOptions.Multiline);
             return matcher.Replace(input, "*");
@@ -90,41 +90,41 @@ namespace Hypercube.Libraries {
         /// Parses the text settings from file.
         /// </summary>
         public void ReadTextSettings() {
-            ErrorMessage = Hypercube.Settings.ReadSetting(TextSettings, "Error", "&4Error:&f ");
-            SystemMessage = Hypercube.Settings.ReadSetting(TextSettings, "System", "&e");
-            ExtPlayerList = Hypercube.Settings.ReadSetting(TextSettings, "ExtPlayerList", "&c");
-            Divider = Hypercube.Settings.ReadSetting(TextSettings, "Divider", "&3|");
+            ErrorMessage = ServerCore.Settings.ReadSetting(TextSettings, "Error", "&4Error:&f ");
+            SystemMessage = ServerCore.Settings.ReadSetting(TextSettings, "System", "&e");
+            ExtPlayerList = ServerCore.Settings.ReadSetting(TextSettings, "ExtPlayerList", "&c");
+            Divider = ServerCore.Settings.ReadSetting(TextSettings, "Divider", "&3|");
 
             // -- Console colors (Must be vanilla MC color codes, no shortcuts.)
-            DebugConsole = Hypercube.Settings.ReadSetting(TextSettings, "DebugConsole", "&7[#TYPE#]");
-            InfoConsole = Hypercube.Settings.ReadSetting(TextSettings, "InfoConsole", "&e[#TYPE#]");
-            WarningConsole = Hypercube.Settings.ReadSetting(TextSettings, "WarningConsole", "&6[#TYPE#]");
-            ErrorConsole = Hypercube.Settings.ReadSetting(TextSettings, "ErrorConsole", "&c[#TYPE#]");
-            CriticalConsole = Hypercube.Settings.ReadSetting(TextSettings, "CriticalConsole", "&4[#TYPE#]");
-            ChatConsole = Hypercube.Settings.ReadSetting(TextSettings, "ChatConsole", "&7[#TYPE#]");
-            CommandConsole = Hypercube.Settings.ReadSetting(TextSettings, "CommandConsole", "&a[#TYPE#]");
-            NotSetConsole = Hypercube.Settings.ReadSetting(TextSettings, "NotSetConsole", "&b[#TYPE#]");
-            ConsoleModule = Hypercube.Settings.ReadSetting(TextSettings, "ConsoleModule", "&9[#MODULE#]");
-            ConsoleMessage = Hypercube.Settings.ReadSetting(TextSettings, "ConsoleMessage", "&f #MESSAGE#");
+            DebugConsole = ServerCore.Settings.ReadSetting(TextSettings, "DebugConsole", "&7[#TYPE#]");
+            InfoConsole = ServerCore.Settings.ReadSetting(TextSettings, "InfoConsole", "&e[#TYPE#]");
+            WarningConsole = ServerCore.Settings.ReadSetting(TextSettings, "WarningConsole", "&6[#TYPE#]");
+            ErrorConsole = ServerCore.Settings.ReadSetting(TextSettings, "ErrorConsole", "&c[#TYPE#]");
+            CriticalConsole = ServerCore.Settings.ReadSetting(TextSettings, "CriticalConsole", "&4[#TYPE#]");
+            ChatConsole = ServerCore.Settings.ReadSetting(TextSettings, "ChatConsole", "&7[#TYPE#]");
+            CommandConsole = ServerCore.Settings.ReadSetting(TextSettings, "CommandConsole", "&a[#TYPE#]");
+            NotSetConsole = ServerCore.Settings.ReadSetting(TextSettings, "NotSetConsole", "&b[#TYPE#]");
+            ConsoleModule = ServerCore.Settings.ReadSetting(TextSettings, "ConsoleModule", "&9[#MODULE#]");
+            ConsoleMessage = ServerCore.Settings.ReadSetting(TextSettings, "ConsoleMessage", "&f #MESSAGE#");
         }
 
         public void SaveTextSettings() {
-            Hypercube.Settings.SaveSetting(TextSettings, "Error", ErrorMessage); 
-            Hypercube.Settings.SaveSetting(TextSettings, "System", SystemMessage);
-            Hypercube.Settings.SaveSetting(TextSettings, "ExtPlayerList", ExtPlayerList);
-            Hypercube.Settings.SaveSetting(TextSettings, "Divider", Divider);
+            ServerCore.Settings.SaveSetting(TextSettings, "Error", ErrorMessage); 
+            ServerCore.Settings.SaveSetting(TextSettings, "System", SystemMessage);
+            ServerCore.Settings.SaveSetting(TextSettings, "ExtPlayerList", ExtPlayerList);
+            ServerCore.Settings.SaveSetting(TextSettings, "Divider", Divider);
 
             // -- Console colors (Must be vanilla MC color codes, no shortcuts.)
-            Hypercube.Settings.SaveSetting(TextSettings, "DebugConsole", DebugConsole);
-            Hypercube.Settings.SaveSetting(TextSettings, "InfoConsole", InfoConsole); 
-            Hypercube.Settings.SaveSetting(TextSettings, "WarningConsole", WarningConsole); 
-            Hypercube.Settings.SaveSetting(TextSettings, "ErrorConsole", ErrorConsole); 
-            Hypercube.Settings.SaveSetting(TextSettings, "CriticalConsole", CriticalConsole);
-            Hypercube.Settings.SaveSetting(TextSettings, "ChatConsole", ChatConsole);
-            Hypercube.Settings.SaveSetting(TextSettings, "CommandConsole", CommandConsole);
-            Hypercube.Settings.SaveSetting(TextSettings, "NotSetConsole", NotSetConsole);
-            Hypercube.Settings.SaveSetting(TextSettings, "ConsoleModule", ConsoleModule);
-            Hypercube.Settings.SaveSetting(TextSettings, "ConsoleMessage", ConsoleMessage);
+            ServerCore.Settings.SaveSetting(TextSettings, "DebugConsole", DebugConsole);
+            ServerCore.Settings.SaveSetting(TextSettings, "InfoConsole", InfoConsole); 
+            ServerCore.Settings.SaveSetting(TextSettings, "WarningConsole", WarningConsole); 
+            ServerCore.Settings.SaveSetting(TextSettings, "ErrorConsole", ErrorConsole); 
+            ServerCore.Settings.SaveSetting(TextSettings, "CriticalConsole", CriticalConsole);
+            ServerCore.Settings.SaveSetting(TextSettings, "ChatConsole", ChatConsole);
+            ServerCore.Settings.SaveSetting(TextSettings, "CommandConsole", CommandConsole);
+            ServerCore.Settings.SaveSetting(TextSettings, "NotSetConsole", NotSetConsole);
+            ServerCore.Settings.SaveSetting(TextSettings, "ConsoleModule", ConsoleModule);
+            ServerCore.Settings.SaveSetting(TextSettings, "ConsoleMessage", ConsoleMessage);
         }
     }
 }

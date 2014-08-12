@@ -14,8 +14,8 @@ namespace Hypercube.Core {
         public Settings BuildModeLoader;
 
         public BuildMode() {
-            BuildModeLoader = Hypercube.Settings.RegisterFile("Buildmodes.txt", true, Load);
-            Hypercube.Settings.ReadSettings(BuildModeLoader);
+            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", true, Load);
+            ServerCore.Settings.ReadSettings(BuildModeLoader);
         }
 
         public void Load() {
@@ -23,13 +23,13 @@ namespace Hypercube.Core {
 
             foreach (var bm in BuildModeLoader.SettingsDictionary.Keys) {
                 var myStruct = new BmStruct();
-                BuildModeLoader = Hypercube.Settings.SelectGroup(BuildModeLoader, bm);
-                myStruct.Name = Hypercube.Settings.ReadSetting(BuildModeLoader, "Name", "");
-                myStruct.Plugin = Hypercube.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
+                BuildModeLoader = ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
+                myStruct.Name = ServerCore.Settings.ReadSetting(BuildModeLoader, "Name", "");
+                myStruct.Plugin = ServerCore.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
                 Modes.Add(myStruct.Name, myStruct);
             }
 
-            Hypercube.Logger.Log("Buildmode", "Buildmodes loaded.", LogType.Info);
+            ServerCore.Logger.Log("Buildmode", "Buildmodes loaded.", LogType.Info);
         }
     }
 

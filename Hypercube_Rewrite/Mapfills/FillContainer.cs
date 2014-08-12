@@ -22,7 +22,7 @@ namespace Hypercube.Mapfills {
                 Mapfills.Remove(name);
 
             Mapfills.Add(name, mapfill);
-            Hypercube.Logger.Log("MapFill", "Fill registered: " + name, LogType.Info);
+            ServerCore.Logger.Log("MapFill", "Fill registered: " + name, LogType.Info);
         }
 
         public void FillMap(HypercubeMap map, string fillname, params string[] args) {
@@ -30,10 +30,10 @@ namespace Hypercube.Mapfills {
                 return;
 
             if (Mapfills[fillname].Plugin == "") Mapfills[fillname].Run(map, args);
-            else Hypercube.Luahandler.RunFunction(Mapfills[fillname].Plugin, map, args);
+            else ServerCore.Luahandler.RunFunction(Mapfills[fillname].Plugin, map, args);
 
             map.Resend();
-            Hypercube.Luahandler.RunFunction("E_MapFilled", map, fillname);
+            ServerCore.Luahandler.RunFunction("E_MapFilled", map, fillname);
         }
     }
 }

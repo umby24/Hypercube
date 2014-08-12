@@ -14,7 +14,7 @@ using Hypercube.Network;
 
 namespace Hypercube.Map {
     /// <summary>
-    /// Hypercube metadata structure for Hypercube maps. This plugs into ClassicWorld.net to load and save Hypercube-specific settings.
+    /// ServerCore metadata structure for ServerCore maps. This plugs into ClassicWorld.net to load and save ServerCore-specific settings.
     /// </summary>
     public struct HypercubeMetadata : IMetadataStructure {
         public string BuildPerms;
@@ -26,7 +26,7 @@ namespace Hypercube.Map {
         public string Motd;
 
         public NbtCompound Read(NbtCompound metadata) {
-            var hcData = metadata.Get<NbtCompound>("Hypercube");
+            var hcData = metadata.Get<NbtCompound>("ServerCore");
 
             if (hcData != null) {
                 try {
@@ -50,7 +50,7 @@ namespace Hypercube.Map {
         }
 
         public NbtCompound Write() {
-            var hcBase = new NbtCompound("Hypercube")
+            var hcBase = new NbtCompound("ServerCore")
             {
                 new NbtString("BuildPerms", BuildPerms),
                 new NbtString("ShowPerms", ShowPerms),
@@ -109,17 +109,17 @@ namespace Hypercube.Map {
         public HypercubeMap(string filename, string mapName, short sizeX, short sizeY, short sizeZ) {
             CWMap = new ClassicWorld(sizeX, sizeZ, sizeY);
 
-            HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true}; // -- Hypercube specific settings, woo.
+            HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true}; // -- ServerCore specific settings, woo.
 
-            var joinPerm = Hypercube.Permholder.GetPermission("map.joinmap");
+            var joinPerm = ServerCore.Permholder.GetPermission("map.joinmap");
 
             Joinperms.Add("map.joinmap", joinPerm);
             Showperms.Add("map.joinmap", joinPerm);
-            Buildperms.Add("player.build", Hypercube.Permholder.GetPermission("player.build"));
+            Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
 
-            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
+            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.MapName = mapName;
-            CWMap.GeneratingSoftware = "Hypercube";
+            CWMap.GeneratingSoftware = "ServerCore";
             CWMap.GeneratorName = "Blank";
             CWMap.CreatingService = "Classicube";
             CWMap.CreatingUsername = "[SERVER]";
@@ -132,7 +132,7 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)Hypercube.Blockholder.GetBlock(i).CPEReplace;
+                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
             }
@@ -158,25 +158,25 @@ namespace Hypercube.Map {
 
             CWMap = new ClassicWorld(filename);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
+            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
 
             if (HCSettings.BuildPerms == null) {
-                Buildperms.Add("player.build", Hypercube.Permholder.GetPermission("player.build"));
+                Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
             } else
                 Buildperms = PermissionContainer.SplitPermissions(HCSettings.BuildPerms);
             
 
             if (HCSettings.ShowPerms == null) {
-                Showperms.Add("map.joinmap", Hypercube.Permholder.GetPermission("map.joinmap"));
+                Showperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
             } else 
                 Showperms = PermissionContainer.SplitPermissions(HCSettings.ShowPerms);
             
 
             if (HCSettings.JoinPerms == null) {
-                Joinperms.Add("map.joinmap", Hypercube.Permholder.GetPermission("map.joinmap"));
+                Joinperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
 
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
@@ -193,7 +193,7 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)Hypercube.Blockholder.GetBlock(i).CPEReplace;
+                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
             }
@@ -227,9 +227,9 @@ namespace Hypercube.Map {
                 try {
                     var newMap = new HypercubeMap(file);
 
-                    foreach (var m in Hypercube.Maps) {
+                    foreach (var m in ServerCore.Maps) {
                         if (m.CWMap.MapName == newMap.CWMap.MapName) {
-                            Hypercube.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
+                            ServerCore.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
                             newMap = null;
                             break;
                         }
@@ -238,11 +238,11 @@ namespace Hypercube.Map {
                     if (newMap == null)
                         continue;
 
-                    Hypercube.Maps.Add(newMap);
-                    Hypercube.Logger.Log("Maps", "Loaded map '" + file + "'. (X=" + newMap.CWMap.SizeX + " Y=" + newMap.CWMap.SizeZ + " Z=" + newMap.CWMap.SizeY + ")", LogType.Info);
+                    ServerCore.Maps.Add(newMap);
+                    ServerCore.Logger.Log("Maps", "Loaded map '" + file + "'. (X=" + newMap.CWMap.SizeX + " Y=" + newMap.CWMap.SizeZ + " Z=" + newMap.CWMap.SizeY + ")", LogType.Info);
                 } catch (Exception e) {
-                    Hypercube.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
-                    Hypercube.Logger.Log("Maps", e.Message, LogType.Error);
+                    ServerCore.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
+                    ServerCore.Logger.Log("Maps", e.Message, LogType.Error);
                     GC.Collect();
                 }
             }
@@ -261,7 +261,7 @@ namespace Hypercube.Map {
             HCSettings.JoinPerms = PermissionContainer.PermissionsToString(Joinperms);
             HCSettings.ShowPerms = PermissionContainer.PermissionsToString(Showperms);
 
-            CWMap.MetadataParsers["Hypercube"] = HCSettings;
+            CWMap.MetadataParsers["ServerCore"] = HCSettings;
 
             CWMap.Save(filename != "" ? filename : Path);
         }
@@ -272,10 +272,10 @@ namespace Hypercube.Map {
 
             CWMap = new ClassicWorld(Path);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
+            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
             Path = Path.Replace(".cwu", ".cw");
             Loaded = true;
             File.Move(Path + "u", Path);
@@ -286,8 +286,8 @@ namespace Hypercube.Map {
                 History = new MapHistory(this);
             
 
-            Hypercube.Logger.Log("Map", CWMap.MapName + " reloaded.", LogType.Info);
-            Hypercube.Luahandler.RunFunction("E_MapReloaded", this);
+            ServerCore.Logger.Log("Map", CWMap.MapName + " reloaded.", LogType.Info);
+            ServerCore.Luahandler.RunFunction("E_MapReloaded", this);
         }
 
         public void Load(string filename) {
@@ -301,25 +301,25 @@ namespace Hypercube.Map {
             Path = filename;
             CWMap = new ClassicWorld(filename);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
+            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
 
             if (HCSettings.BuildPerms == null) {
-                Buildperms.Add("player.build", Hypercube.Permholder.GetPermission("player.build"));
+                Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
             } else
                 Buildperms = PermissionContainer.SplitPermissions(HCSettings.BuildPerms);
 
 
             if (HCSettings.ShowPerms == null) {
-                Showperms.Add("map.joinmap", Hypercube.Permholder.GetPermission("map.joinmap"));
+                Showperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
             } else
                 Showperms = PermissionContainer.SplitPermissions(HCSettings.ShowPerms);
 
 
             if (HCSettings.JoinPerms == null) {
-                Joinperms.Add("map.joinmap", Hypercube.Permholder.GetPermission("map.joinmap"));
+                Joinperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
 
                 HCSettings.Building = true;
                 HCSettings.Physics = true;
@@ -336,7 +336,7 @@ namespace Hypercube.Map {
                 cpeMeta.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)Hypercube.Blockholder.GetBlock(i).CPEReplace;
+                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
                 CWMap.MetadataParsers["CPE"] = cpeMeta;
             }
@@ -362,8 +362,8 @@ namespace Hypercube.Map {
             CWMap.MetadataParsers.Clear();
             GC.Collect();
             Loaded = false;
-            Hypercube.Logger.Log("Map", CWMap.MapName + " unloaded.", LogType.Info);
-            Hypercube.Luahandler.RunFunction("E_MapUnloaded", this);
+            ServerCore.Logger.Log("Map", CWMap.MapName + " unloaded.", LogType.Info);
+            ServerCore.Luahandler.RunFunction("E_MapUnloaded", this);
         }
 
         public void Resize(short x, short y, short z) {
@@ -404,7 +404,7 @@ namespace Hypercube.Map {
         }
 
         public Block GetBlock(short x, short z, short y) {
-            return Hypercube.Blockholder.GetBlock(GetBlockId(x, z, y));
+            return ServerCore.Blockholder.GetBlock(GetBlockId(x, z, y));
         }
 
         public void SetBlockId(short x, short z, short y, byte type, int clientId) {
@@ -423,7 +423,7 @@ namespace Hypercube.Map {
         /// Checks for clients. If clients have not been active for more than 30 seconds, the map will be unloaded.
         /// </summary>
         public void MapMain() {
-            while (Hypercube.Running) {
+            while (ServerCore.Running) {
                 if ((DateTime.UtcNow - Lastclient).TotalSeconds > 5 && Clients.Count == 0 && Loaded)
                     Unload();
                 else if (Clients.Count > 0)
@@ -461,7 +461,7 @@ namespace Hypercube.Map {
             Buffer.BlockCopy(lenBytes, 0, temp, 0, 4);
 
             for (var i = 0; i < CWMap.BlockData.Length - 1; i++) {
-                var thisBlock = Hypercube.Blockholder.GetBlock(CWMap.BlockData[i]);
+                var thisBlock = ServerCore.Blockholder.GetBlock(CWMap.BlockData[i]);
 
                 if (thisBlock.CPELevel > client.CS.CustomBlocksLevel)
                     temp[offset] = (byte)thisBlock.CPEReplace;
@@ -559,7 +559,7 @@ namespace Hypercube.Map {
             }
 
             FreeId = toSpawn.ClientId;
-            Hypercube.Luahandler.RunFunction("E_EntityDeleted", this, toSpawn);
+            ServerCore.Luahandler.RunFunction("E_EntityDeleted", this, toSpawn);
         }
         #endregion
         #region Block Management
@@ -572,9 +572,9 @@ namespace Hypercube.Map {
             var mapBlock = GetBlock(x, y, z);
 
             if (mode == 0)
-                newBlock = Hypercube.Blockholder.GetBlock(0);
+                newBlock = ServerCore.Blockholder.GetBlock(0);
 
-            if (newBlock == mapBlock && newBlock != Hypercube.Blockholder.GetBlock(0))
+            if (newBlock == mapBlock && newBlock != ServerCore.Blockholder.GetBlock(0))
                 return;
 
             var canbuild = false;
@@ -604,7 +604,7 @@ namespace Hypercube.Map {
                 return;
             }
 
-            Hypercube.Luahandler.RunFunction("E_BlockChange", client, x, y, z, newBlock);
+            ServerCore.Luahandler.RunFunction("E_BlockChange", client, x, y, z, newBlock);
             BlockChange(client.CS.Id, x, y, z, newBlock, mapBlock, true, true, true, 250);
         }
 
@@ -614,7 +614,7 @@ namespace Hypercube.Map {
             //if (Undo) {
             //    NetworkClient Client = null;
 
-            //    if (Hypercube.Clients.ContainsKey(ClientID))
+            //    if (ServerCore.Clients.ContainsKey(ClientID))
             //        Client = Clients[ClientID];
             //    else
             //        return;
@@ -704,7 +704,7 @@ namespace Hypercube.Map {
             //        newUndo.y = Y;
             //        newUndo.z = Z;
             //        newUndo.OldBlock = Block1;
-            //        newUndo.NewBlock = Hypercube.Blockholder.GetBlock(0);
+            //        newUndo.NewBlock = ServerCore.Blockholder.GetBlock(0);
 
             //        Client.CS.UndoObjects.Add(newUndo);
 
@@ -777,7 +777,7 @@ namespace Hypercube.Map {
         }
 
         public void BlockQueueLoop() {
-            while (Hypercube.Running) {
+            while (ServerCore.Running) {
                 if (!HCSettings.Building) { // -- if the map has building disabled.
                     Thread.Sleep(10);
                     continue;
@@ -785,7 +785,7 @@ namespace Hypercube.Map {
 
                 var changes = 0;
 
-                while (changes <= Hypercube.MaxBlockChanges) {
+                while (changes <= ServerCore.MaxBlockChanges) {
                     QueueItem output;
 
                     if (!BlockchangeQueue.TryDequeue(out output))
@@ -805,7 +805,7 @@ namespace Hypercube.Map {
         }
 
         public void PhysicsQueueLoop() {
-            while (Hypercube.Running) {
+            while (ServerCore.Running) {
                 if (HCSettings.Building && HCSettings.Physics) {
                     while (PhysicsQueue.Count > 0) {
                         for (var i = 0; i < PhysicsQueue.Count; i++) {

@@ -49,13 +49,13 @@ namespace Hypercube.Client {
         }
 
         public void LoadDB() {
-            CS.Id = (short)Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
-            CS.Stopped = (Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
-            CS.Global = (Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
-            CS.MuteTime = Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
+            CS.Id = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
+            CS.Stopped = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
+            CS.Global = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
+            CS.MuteTime = ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
 
-            CS.PlayerRanks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "Rank"));
-            CS.RankSteps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "RankStep"));
+            CS.PlayerRanks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "Rank"));
+            CS.RankSteps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "RankStep"));
             CS.FormattedName = CS.PlayerRanks[CS.PlayerRanks.Count - 1].Prefix + CS.LoginName + CS.PlayerRanks[CS.PlayerRanks.Count - 1].Suffix;
 
             foreach (var r in CS.PlayerRanks) {
@@ -64,30 +64,30 @@ namespace Hypercube.Client {
                 break;
             }
 
-            Hypercube.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
-            Hypercube.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
         }
 
         public void Login() {
-            if (!Hypercube.DB.ContainsPlayer(CS.LoginName))
-                Hypercube.DB.CreatePlayer(CS.LoginName, CS.Ip);
+            if (!ServerCore.DB.ContainsPlayer(CS.LoginName))
+                ServerCore.DB.CreatePlayer(CS.LoginName, CS.Ip);
 
-            CS.LoginName = Hypercube.DB.GetPlayerName(CS.LoginName);
+            CS.LoginName = ServerCore.DB.GetPlayerName(CS.LoginName);
 
-            if ((Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) { // -- Check if the player is banned
-                KickPlayer("Banned: " + Hypercube.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage"));
-                Hypercube.Logger.Log("Client", "Disconnecting player " + CS.LoginName + ": Player is banned.", LogType.Info);
+            if ((ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) { // -- Check if the player is banned
+                KickPlayer("Banned: " + ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage"));
+                ServerCore.Logger.Log("Client", "Disconnecting player " + CS.LoginName + ": Player is banned.", LogType.Info);
                 return;
             }
 
             LoadDB(); // -- Load the user's profile
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
+            if (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
                 //TODO: This
             }
 
             // -- Get the user logged in to the main map.
-            CS.CurrentMap = Hypercube.Maps[Hypercube.MapIndex];
+            CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
             CS.CurrentMap.Send(this);
 
             lock (CS.CurrentMap.ClientLock) {
@@ -95,11 +95,11 @@ namespace Hypercube.Client {
                 CS.CurrentMap.CreateClientList();
             }
 
-            Hypercube.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
-            Hypercube.Luahandler.RunFunction("E_PlayerLogin", this);
+            ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
+            ServerCore.Luahandler.RunFunction("E_PlayerLogin", this);
 
-            Chat.SendGlobalChat(Hypercube.TextFormats.SystemMessage + "Player " + CS.FormattedName + Hypercube.TextFormats.SystemMessage + " has joined.");
-            Chat.SendClientChat(this, Hypercube.WelcomeMessage);
+            Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + CS.FormattedName + ServerCore.TextFormats.SystemMessage + " has joined.");
+            Chat.SendClientChat(this, ServerCore.WelcomeMessage);
 
             // -- Create the user's entity.
             CS.MyEntity = new Entity(CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.CWMap.SpawnX * 32), 
@@ -107,7 +107,7 @@ namespace Hypercube.Client {
             {
                 MyClient = this,
                 Boundblock =
-                    Hypercube.Blockholder.GetBlock(Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB",
+                    ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB",
                         "BoundBlock"))
             };
 
@@ -123,20 +123,18 @@ namespace Hypercube.Client {
 
             // -- Set the user as logged in.
             CS.LoggedIn = true;
-            Hypercube.OnlinePlayers += 1;
-            Hypercube.Nh.LoggedClients.Add(CS.LoginName, this);
-            Hypercube.Nh.CreateShit();
+            ServerCore.OnlinePlayers += 1;
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.CreateShit();
         }
 
         public void SendHandshake(string motd = "") {
-            var hs = new Handshake
-            {
-                Name = Hypercube.ServerName,
+            var hs = new Handshake {
+                Name = ServerCore.ServerName,
                 ProtocolVersion = 7,
-                Motd = motd == "" ? Hypercube.Motd : motd,
+                Motd = motd == "" ? ServerCore.Motd : motd,
+                Usertype = (byte) (CS.Op ? 100 : 0),
             };
-
-            hs.Usertype = (byte)(CS.Op ? 100 : 0);
 
             SendQueue.Enqueue(hs);
         }
@@ -151,21 +149,23 @@ namespace Hypercube.Client {
                 BaseSocket.Close();
 
             if (CS.LoggedIn && log) {
-                Hypercube.Logger.Log("Client", CS.LoginName + " has been kicked. (" + reason + ")", LogType.Info);
-                Hypercube.Luahandler.RunFunction("E_PlayerKicked", CS.LoginName, reason);
-                Chat.SendGlobalChat(CS.FormattedName + Hypercube.TextFormats.SystemMessage + " has been kicked. (" + reason + ")");
+                ServerCore.Logger.Log("Client", CS.LoginName + " has been kicked. (" + reason + ")", LogType.Info);
+                ServerCore.Luahandler.RunFunction("E_PlayerKicked", CS.LoginName, reason);
+                Chat.SendGlobalChat(CS.FormattedName + ServerCore.TextFormats.SystemMessage + " has been kicked. (" + reason + ")");
 
                 var values = new Dictionary<string, string>
                 {
                     {
                         "KickCounter",
-                        (Hypercube.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString()
+                        (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "KickCounter") + 1).ToString()
                     },
                     {"KickMessage", reason}
                 };
 
-                Hypercube.DB.Update("PlayerDB", values, "Name='" + CS.LoginName + "'");
+                ServerCore.DB.Update("PlayerDB", values, "Name='" + CS.LoginName + "'");
             }
+
+            ServerCore.Nh.HandleDisconnect(this);
         }
 
         public void HandleBlockChange(short x, short y, short z, byte mode, byte block) {
@@ -178,7 +178,7 @@ namespace Hypercube.Client {
             if ((0 > x || CS.CurrentMap.CWMap.SizeX <= x) || (0 > z || CS.CurrentMap.CWMap.SizeY <= z) || (0 > y || CS.CurrentMap.CWMap.SizeZ <= y)) // -- Out of bounds check.
                 return;
 
-            var myBlock = Hypercube.Blockholder.GetBlock(block);
+            var myBlock = ServerCore.Blockholder.GetBlock(block);
 
             if (myBlock == CS.MyEntity.Boundblock && CS.MyEntity.BuildMaterial.Name != "Unknown") // -- If there is a bound block, change the material.
                 myBlock = CS.MyEntity.BuildMaterial;
@@ -188,14 +188,14 @@ namespace Hypercube.Client {
             if (CS.MyEntity.BuildMode.Name != "") {
                 CS.MyEntity.ClientState.AddBlock(x, y, z);
 
-                if (!Hypercube.BmContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
+                if (!ServerCore.BmContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
                     Chat.SendClientChat(this, "§EBuild mode '" + CS.MyEntity.BuildMode + "' not found.");
                     CS.MyEntity.BuildMode = new BmStruct {Name = ""};
                     CS.MyEntity.ClientState.ResendBlocks(this);
                     return;
                 }
 
-                Hypercube.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
+                ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
             } else 
                 CS.CurrentMap.ClientChangeBlock(this, x, y, z, mode, myBlock);
             
@@ -233,7 +233,7 @@ namespace Hypercube.Client {
         public void ChangeMap(HypercubeMap newMap) {
             Chat.SendMapChat(newMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".", 0, true);
             Chat.SendMapChat(CS.CurrentMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".");
-            Hypercube.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
+            ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
             lock (CS.CurrentMap.ClientLock) {
                 CS.CurrentMap.Clients.Remove(CS.Id);
@@ -286,6 +286,7 @@ namespace Hypercube.Client {
                     // -- Delete the entity.
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
+                    ServerCore.Logger.Log("Client", "Entity Delete(diff map):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
@@ -293,12 +294,14 @@ namespace Hypercube.Client {
                     // -- Delete yourself
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
+                    ServerCore.Logger.Log("Client", "Entity Delete(self):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
                 if (!CS.CurrentMap.Entities.ContainsKey(e.Id)) { // -- Delete old entities.
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
+                    ServerCore.Logger.Log("Client", "Entity Delete(no contain):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
@@ -323,8 +326,10 @@ namespace Hypercube.Client {
 
             foreach (var e in CS.CurrentMap.EntitysList) {
                 if (!CS.Entities.ContainsKey(e.Id)) {
-                    if (e.Id != CS.MyEntity.Id)
-                        CS.Entities.Add(e.Id, CS.CurrentMap.Entities[e.Id].CreateStub()); // -- If we do not have them yet, add them!
+                    if (e.Id != CS.MyEntity.Id) {
+                        ServerCore.Logger.Log("Client", "Entity Add:" + CS.LoginName + "+" + e.Name + "(" + e.Id + ")", LogType.Debug);
+                        CS.Entities.Add(e.Id, e.CreateStub()); // -- If we do not have them yet, add them!
+                    }
                 } else {
                     var csEnt = CS.Entities[e.Id];
 
@@ -414,14 +419,20 @@ namespace Hypercube.Client {
                 {19, () => new CustomBlockSupportLevel()}
             };
         }
+
         void DataHandler() {
             while (BaseSocket.Connected) {
+                if (BaseStream == null) {
+                    ServerCore.Nh.HandleDisconnect(this);
+                    return;
+                }
+
                 if (BaseStream.DataAvailable) {
                     var opCode = WSock.ReadByte();
 
                     if (!_packets.ContainsKey(opCode)) {
                         KickPlayer("Invalid packet received.");
-                        Hypercube.Logger.Log("Client", "Invalid packet received: " + opCode, LogType.Warning);
+                        ServerCore.Logger.Log("Client", "Invalid packet received: " + opCode, LogType.Warning);
                     }
 
                     CS.LastActive = DateTime.UtcNow;
@@ -432,8 +443,8 @@ namespace Hypercube.Client {
                     try {
                         incoming.Handle(this);
                     } catch (Exception e) {
-                        Hypercube.Logger.Log("Client", e.Message, LogType.Error);
-                        Hypercube.Logger.Log("Client", e.StackTrace, LogType.Debug);
+                        ServerCore.Logger.Log("Client", e.Message, LogType.Error);
+                        ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
                     }
                 }
 
@@ -443,11 +454,11 @@ namespace Hypercube.Client {
                     myPacket.Write(this);
                 }
 
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 500 && (DateTime.UtcNow - CS.LastActive).Seconds < 1000) {
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
                     var myPing = new Ping();
                     myPing.Write(this);
-                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 1000) {
-                    Hypercube.Logger.Log("Timeout", "Player " + CS.Ip + " timed out.", LogType.Info);
+                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
+                    ServerCore.Logger.Log("Timeout", "Player " + CS.Ip + " timed out.", LogType.Info);
                     KickPlayer("Timed out");
                     return;
                 }
@@ -458,7 +469,7 @@ namespace Hypercube.Client {
                 Thread.Sleep(1);
             }
 
-            Hypercube.Nh.HandleDisconnect(this);
+            ServerCore.Nh.HandleDisconnect(this);
         }
         #endregion
     }

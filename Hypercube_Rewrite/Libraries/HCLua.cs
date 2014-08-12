@@ -32,11 +32,11 @@ namespace Hypercube.Libraries {
                 try {
                     LuaHandler.DoFile(file);
                 } catch (LuaScriptException e) {
-                    Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                    ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                 }
             }
 
-            Hypercube.Logger.Log("Lua", "Lua scripts loaded.", LogType.Info);
+            ServerCore.Logger.Log("Lua", "Lua scripts loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -46,29 +46,29 @@ namespace Hypercube.Libraries {
             var luaChat = new Chat();
 
             // -- Functions
-            LuaHandler.RegisterFunction("Log", Hypercube.Logger, Hypercube.Logger.GetType().GetMethod("Log"));
+            LuaHandler.RegisterFunction("Log", ServerCore.Logger, ServerCore.Logger.GetType().GetMethod("Log"));
             // -- Command creation functions
-            LuaHandler.RegisterFunction("RegCmd", Hypercube.Commandholder, Hypercube.Commandholder.GetType().GetMethod("RegisterCommand"));
-            LuaHandler.RegisterFunction("GetCmdAlias", Hypercube.Commandholder, Hypercube.Commandholder.GetType().GetMethod("GetAlias"));
+            LuaHandler.RegisterFunction("RegCmd", ServerCore.Commandholder, ServerCore.Commandholder.GetType().GetMethod("RegisterCommand"));
+            LuaHandler.RegisterFunction("GetCmdAlias", ServerCore.Commandholder, ServerCore.Commandholder.GetType().GetMethod("GetAlias"));
             // -- DB functions
-            LuaHandler.RegisterFunction("DBPlayerExists", Hypercube.DB, Hypercube.DB.GetType().GetMethod("ContainsPlayer"));
-            LuaHandler.RegisterFunction("DBGetPlayerName", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetPlayerName"));
-            LuaHandler.RegisterFunction("DBBanPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("BanPlayer"));
-            LuaHandler.RegisterFunction("DBUnbanPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("UnbanPlayer"));
-            LuaHandler.RegisterFunction("DBStopPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("StopPlayer"));
-            LuaHandler.RegisterFunction("DBUnstopPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("UnstopPlayer"));
-            LuaHandler.RegisterFunction("GetDBInt", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetDatabaseInt"));
-            LuaHandler.RegisterFunction("GetDBString", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetDatabaseString"));
+            LuaHandler.RegisterFunction("DBPlayerExists", ServerCore.DB, ServerCore.DB.GetType().GetMethod("ContainsPlayer"));
+            LuaHandler.RegisterFunction("DBGetPlayerName", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetPlayerName"));
+            LuaHandler.RegisterFunction("DBBanPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("BanPlayer"));
+            LuaHandler.RegisterFunction("DBUnbanPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("UnbanPlayer"));
+            LuaHandler.RegisterFunction("DBStopPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("StopPlayer"));
+            LuaHandler.RegisterFunction("DBUnstopPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("UnstopPlayer"));
+            LuaHandler.RegisterFunction("GetDBInt", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetDatabaseInt"));
+            LuaHandler.RegisterFunction("GetDBString", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetDatabaseString"));
             //LuaHandler.RegisterFunction("SetDB", Servercore.DB, Servercore.DB.GetType().GetMethod("SetDatabase"));
             LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
             LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
             
             // -- Variables
-            LuaHandler["G_ServerName"] = Hypercube.ServerName;
-            LuaHandler["G_MOTD"] = Hypercube.Motd;
-            LuaHandler["G_Welcome"] = Hypercube.WelcomeMessage;
-            LuaHandler["G_MainMap"] = Hypercube.MapMain;
+            LuaHandler["G_ServerName"] = ServerCore.ServerName;
+            LuaHandler["G_MOTD"] = ServerCore.Motd;
+            LuaHandler["G_Welcome"] = ServerCore.WelcomeMessage;
+            LuaHandler["G_MainMap"] = ServerCore.MapMain;
             LuaHandler["LogType_Info"] = LogType.Info;
         }
 
@@ -81,12 +81,12 @@ namespace Hypercube.Libraries {
                 else if (luaF != null)
                     luaF.Call();
             } catch (LuaScriptException e) {
-                Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
             }
         }
 
         public void Main() {
-            while (Hypercube.Running) {
+            while (ServerCore.Running) {
                 var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
                 foreach (var file in files) {
@@ -96,7 +96,7 @@ namespace Hypercube.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                            ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         continue;
@@ -106,7 +106,7 @@ namespace Hypercube.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                            ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         _scripts[file] = File.GetLastWriteTime(file);

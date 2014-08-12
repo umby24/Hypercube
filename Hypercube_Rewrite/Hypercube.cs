@@ -12,7 +12,7 @@ using Hypercube.Mapfills;
 
 namespace Hypercube
 {
-    // -- Hypercube Classic Minecraft Software by Umby24
+    // -- ServerCore Classic Minecraft Software by Umby24
     // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
     // -- 
     // -- TODO: Add physics on mapload
@@ -26,7 +26,7 @@ namespace Hypercube
     // -- TODO: Finite water physics
     // -- BUG: text '@_@' kicks client (index error)
 
-    public static class Hypercube {
+    public static class ServerCore {
         #region Variables
         public static bool Running = false;
         public static int OnlinePlayers = 0;
@@ -192,10 +192,10 @@ namespace Hypercube
 
         #region Main SettingsDictionary Loading
         public static void ReadSystemSettings() {
-            ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
-            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
+            ServerName = Settings.ReadSetting(SysSettings, "Name", "ServerCore Server");
+            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to ServerCore!");
             MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
-            WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
+            WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to ServerCore!");
             //DefaultRank = Rankholder.GetRank(SettingsDictionary.ReadSetting(SysSettings, "Default Rank", "Guest"));
 
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
@@ -234,7 +234,7 @@ namespace Hypercube
 
             Rules.Clear();
 
-            using (var sr = new StreamReader("SettingsDictionary/Rules.txt")) {
+            using (var sr = new StreamReader("Settings/Rules.txt")) {
                 while (!sr.EndOfStream)
                     Rules.Add(sr.ReadLine());
             }
@@ -242,7 +242,7 @@ namespace Hypercube
             if (Rules.Count == 0) {
                 Rules.Add("&cYou do not have any rules defined. Please edit Rules.txt");
                 Rules.Add("&cto add your own rules here.");
-                File.WriteAllText("SettingsDictionary/Rules.txt", "&cYou do not have any rules defined. Please edit Rules.txt\n&cto add your own rules here.");
+                File.WriteAllText("Settings/Rules.txt", "&cYou do not have any rules defined. Please edit Rules.txt\n&cto add your own rules here.");
                 return;
             }
 

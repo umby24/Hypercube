@@ -25,8 +25,8 @@ namespace Hypercube.Libraries {
         public PbSettingsLoader() {
             SettingsFiles = new List<Settings>();
 
-            if (!Directory.Exists("SettingsDictionary"))
-                Directory.CreateDirectory("SettingsDictionary");
+            if (!Directory.Exists("Settings"))
+                Directory.CreateDirectory("Settings");
         }
 
         /// <summary>
@@ -35,11 +35,11 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <param name="settingsfile"></param>
         public void ReadSettings(Settings settingsfile) {
-            if (!File.Exists("SettingsDictionary/" + settingsfile.Filename))
-                File.WriteAllText("SettingsDictionary/" + settingsfile.Filename, "");
+            if (!File.Exists("Settings/" + settingsfile.Filename))
+                File.WriteAllText("Settings/" + settingsfile.Filename, "");
 
             PreLoad(settingsfile);
-            settingsfile.LastModified = File.GetLastWriteTime("SettingsDictionary/" + settingsfile.Filename);
+            settingsfile.LastModified = File.GetLastWriteTime("Settings/" + settingsfile.Filename);
 
             var myDele = (LoadSettings)settingsfile.LoadSettings;
 
@@ -55,7 +55,7 @@ namespace Hypercube.Libraries {
             if (!settingsFile.Save)
                 return;
 
-            using (var fileWriter = new StreamWriter("SettingsDictionary/" + settingsFile.Filename)) {
+            using (var fileWriter = new StreamWriter("Settings/" + settingsFile.Filename)) {
                 foreach (var pair in settingsFile.SettingsDictionary) {
                     if (pair.Key != "")
                         fileWriter.WriteLine("[" + pair.Key + "]");
@@ -65,7 +65,7 @@ namespace Hypercube.Libraries {
                 }
             }
 
-            settingsFile.LastModified = File.GetLastWriteTime("SettingsDictionary/" + settingsFile.Filename);
+            settingsFile.LastModified = File.GetLastWriteTime("Settings/" + settingsFile.Filename);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Hypercube.Libraries {
         void PreLoad(Settings settingsFile) {
             settingsFile.CurrentGroup = "";
 
-            using (var sr = new StreamReader("SettingsDictionary/" + settingsFile.Filename)) {
+            using (var sr = new StreamReader("Settings/" + settingsFile.Filename)) {
                 while (!sr.EndOfStream) {
                     var thisLine = sr.ReadLine();
 
@@ -193,12 +193,13 @@ namespace Hypercube.Libraries {
         /// This should be run in a thread.
         /// </summary>
         public void SettingsMain() {
-            while (Hypercube.Running) {
+            while (ServerCore.Running) {
                 foreach (Settings t in SettingsFiles) {
-                    if (File.GetLastWriteTime("SettingsDictionary/" + t.Filename) ==
-                        t.LastModified) continue;
+                    if (File.GetLastWriteTime("Settings/" + t.Filename) == t.LastModified) 
+                        continue;
+
                     ReadSettings(t);
-                    t.LastModified = File.GetLastWriteTime("SettingsDictionary/" + t.Filename);
+                    t.LastModified = File.GetLastWriteTime("Settings/" + t.Filename);
                 }
 
                 Thread.Sleep(1000);

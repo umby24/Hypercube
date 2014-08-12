@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using Hypercube.Client;
@@ -60,7 +58,7 @@ namespace Hypercube.Command {
 
         public void Call(NetworkClient client, string[] args, string text1, string text2) {
             if (!string.IsNullOrEmpty(Plugin))
-                Hypercube.Luahandler.RunFunction(Plugin, client, args, text1, text2); // -- Run lua plugin for this command.
+                ServerCore.Luahandler.RunFunction(Plugin, client, args, text1, text2); // -- Run lua plugin for this command.
             else 
                 Handler(client, args, text1, text2);
         }
@@ -78,8 +76,8 @@ namespace Hypercube.Command {
             Populate();
             RegisterGroups();
 
-            AliasLoader = Hypercube.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
-            Hypercube.Settings.ReadSettings(AliasLoader);
+            AliasLoader = ServerCore.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
+            ServerCore.Settings.ReadSettings(AliasLoader);
         }
 
         public void Populate() {
@@ -142,53 +140,48 @@ namespace Hypercube.Command {
                 if (Groups.ContainsKey(CommandDict[command].Group)) 
                     Groups[CommandDict[command].Group].Add(command.Replace("/", ""));
                  else 
-                    Groups.Add(CommandDict[command].Group, new List<string>() { command.Replace("/", "") });
+                    Groups.Add(CommandDict[command].Group, new List<string> { command.Replace("/", "") });
             }
         }
 
-        public void HandleCommand(NetworkClient Client, string Message) {
-            if (!Message.Contains(" "))
-                Message += " ";
+        public void HandleCommand(NetworkClient client, string message) {
+            if (!message.Contains(" "))
+                message += " ";
 
             // -- Split the message into its subsections.
             // -- The command (ex. /help)
-            var command = Message.Substring(0, Message.IndexOf(" "));
+            var command = message.Substring(0, message.IndexOf(" "));
             // -- An array of arguments provided to the command.
-            var splits = Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1)).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            var splits = message.Substring(message.IndexOf(" ") + 1, message.Length - (message.IndexOf(" ") + 1)).Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
             // -- All text after the actual command
-            var text = Message.Substring(Message.IndexOf(" ") + 1, Message.Length - (Message.IndexOf(" ") + 1));
+            var text = message.Substring(message.IndexOf(" ") + 1, message.Length - (message.IndexOf(" ") + 1));
             // -- All text starting after the first argument of a command.
             var text2 = text.Substring(text.IndexOf(" ") + 1, text.Length - (text.IndexOf(" ") + 1));
 
             // -- Log the command usage
-            if (!Hypercube.LogArguments)
-                Hypercube.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command, LogType.Command);
+            if (!ServerCore.LogArguments)
+                ServerCore.Logger.Log("Commands", "Player '" + client.CS.LoginName + "' used command " + command, LogType.Command);
             else
-                Hypercube.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"", splits) + "\" }", LogType.Command);
+                ServerCore.Logger.Log("Commands", "Player '" + client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"", splits) + "\" }", LogType.Command);
 
             var alias = GetAlias(command); // -- Determine if this is an alias of a command.
 
             if (!CommandDict.ContainsKey(command) && alias == "false") // -- Command is not an alias, and is not in our list (It doesn't exist)
-                Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
+                Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
             else {
-                Command thisCommand = null;
+                var thisCommand = alias == "false" ? CommandDict[command.ToLower()] : CommandDict[alias.ToLower()];
 
-                if (alias == "false") // -- If an alias, get the proper command for it.
-                    thisCommand = CommandDict[command.ToLower()];
-                else
-                    thisCommand = CommandDict[alias.ToLower()];
-
-                if (!thisCommand.CanBeSeen(Client)) { // -- If it cannot be seen by this user, then it doesn't exist.
-                    Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
+                if (!thisCommand.CanBeSeen(client)) { // -- If it cannot be seen by this user, then it doesn't exist.
+                    Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
                     return;
                 }
 
-                if (!thisCommand.CanBeCalled(Client)) { // -- If it cannot be called by this user, tell them.
-                    Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "You do not have permission to use this command.");
+                if (!thisCommand.CanBeCalled(client)) { // -- If it cannot be called by this user, tell them.
+                    Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "You do not have permission to use this command.");
                     return;
                 }
 
-                thisCommand.Call(Client, splits, text, text2); // -- All is good! run the command.
+                thisCommand.Call(client, splits, text, text2); // -- All is good! run the command.
             }
         }
 
@@ -201,19 +194,22 @@ namespace Hypercube.Command {
             foreach (var c in CommandDict.Keys) // -- Create an entry for every command, and a list for its aliases.
                 Aliases.Add(c, new List<string>());
 
-            using (var SR = new StreamReader("SettingsDictionary/Aliases.txt")) {
-                while (!SR.EndOfStream) {
-                    var Myline = SR.ReadLine();
+            using (var sr = new StreamReader("Settings/Aliases.txt")) {
+                while (!sr.EndOfStream) {
+                    var myline = sr.ReadLine();
 
-                    if (Myline.StartsWith(";")) // -- Comment
+                    if (myline != null && myline.StartsWith(";")) // -- Comment
                         continue;
 
-                    if (!Myline.Contains("=")) // -- Incorrect formatting
+                    if (myline != null && !myline.Contains("=")) // -- Incorrect formatting
                         continue;
 
                     // -- Command = Alias
-                    var command = Myline.Substring(0, Myline.IndexOf("=")).Replace(" ", "").ToLower();
-                    var alias = Myline.Substring(Myline.IndexOf("=") + 1, Myline.Length - (Myline.IndexOf("=") + 1)).Replace(" ", "").ToLower();
+                    if (myline == null) 
+                        continue;
+
+                    var command = myline.Substring(0, myline.IndexOf("=")).Replace(" ", "").ToLower();
+                    var alias = myline.Substring(myline.IndexOf("=") + 1, myline.Length - (myline.IndexOf("=") + 1)).Replace(" ", "").ToLower();
 
                     if (!command.StartsWith("/")) // -- Just a check incase the user didn't include a /.
                         command = "/" + command;
@@ -231,7 +227,7 @@ namespace Hypercube.Command {
                 }
             }
 
-            Hypercube.Logger.Log("Commands", "Command aliases loaded.", LogType.Info);
+            ServerCore.Logger.Log("Commands", "Command aliases loaded.", LogType.Info);
         }
 
         public string GetAlias(string command) {

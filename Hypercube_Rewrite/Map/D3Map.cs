@@ -17,29 +17,29 @@ namespace Hypercube.Map {
         public void LoadMap(string directory, string mapName) {
             if (!File.Exists(directory + "/Data-Layer.gz") || !File.Exists(directory + "/Config.txt"))
                 return; // -- Not a valid map.
-            File.Copy(directory + "/Config.txt", "SettingsDictionary/TempD3Config.txt");
+            File.Copy(directory + "/Config.txt", "Settings/TempD3Config.txt");
 
             // -- Load the Config data first..
-            var configfile = Hypercube.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
-            Hypercube.Settings.ReadSettings(configfile);
+            var configfile = ServerCore.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
+            ServerCore.Settings.ReadSettings(configfile);
 
             Mapsize = new Vector3S {
-                X = (short) Hypercube.Settings.ReadSetting(configfile, "Size_X", 128),
-                Y = (short) Hypercube.Settings.ReadSetting(configfile, "Size_Y", 128),
-                Z = (short) Hypercube.Settings.ReadSetting(configfile, "Size_Z", 128)
+                X = (short) ServerCore.Settings.ReadSetting(configfile, "Size_X", 128),
+                Y = (short) ServerCore.Settings.ReadSetting(configfile, "Size_Y", 128),
+                Z = (short) ServerCore.Settings.ReadSetting(configfile, "Size_Z", 128)
             };
 
             Spawn = new Vector3S {
-                X = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_X", "1.0")),
-                Y = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_Y", "1.0")),
-                Z = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_Z", "1.0"))
+                X = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_X", "1.0")),
+                Y = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_Y", "1.0")),
+                Z = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_Z", "1.0"))
             };
 
-            SpawnRot = (byte)Hypercube.Settings.ReadSetting(configfile, "Spawn_Rot", 0);
-            SpawnLook = (byte)Hypercube.Settings.ReadSetting(configfile, "Spawn_Look", 0);
+            SpawnRot = (byte)ServerCore.Settings.ReadSetting(configfile, "Spawn_Rot", 0);
+            SpawnLook = (byte)ServerCore.Settings.ReadSetting(configfile, "Spawn_Look", 0);
 
-            Motd = Hypercube.Settings.ReadSetting(configfile, "MOTD_Override", "");
-            PhysicsStopped = Convert.ToBoolean(Hypercube.Settings.ReadSetting(configfile, "Physic_Stopped", 0));
+            Motd = ServerCore.Settings.ReadSetting(configfile, "MOTD_Override", "");
+            PhysicsStopped = Convert.ToBoolean(ServerCore.Settings.ReadSetting(configfile, "Physic_Stopped", 0));
 
             // -- Load the block data
             GZip.DecompressFile(directory + "/Data-Layer.gz");
@@ -84,7 +84,7 @@ namespace Hypercube.Map {
             cwMap = null;
             GC.Collect();
             // -- Conversion Complete.
-            File.Delete("SettingsDictionary/TempD3Config.txt");
+            File.Delete("Settings/TempD3Config.txt");
         }
 
         /// <summary>

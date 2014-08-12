@@ -46,14 +46,14 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Hypercube.DB.GetPlayerName(args[0]);
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(Client, "§ECould not find player.");
                 return;
             }
 
-            var newRank = Hypercube.Rankholder.GetRank(args[1]);
+            var newRank = ServerCore.Rankholder.GetRank(args[1]);
 
             if (newRank == null) {
                 Chat.SendClientChat(Client, "§ECould not find the rank you specified.");
@@ -62,8 +62,8 @@ namespace Hypercube.Command {
 
             //TODO: Add permissions
 
-            var ranks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
-            var steps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
             ranks.Add(newRank);
             steps.Add(0);
 
@@ -74,15 +74,15 @@ namespace Hypercube.Command {
 
             rankString = rankString.Substring(0, rankString.Length - 1);
 
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "Rank", rankString);
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "Rank", rankString);
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) {
-                Hypercube.Nh.LoggedClients[args[0]].CS.PlayerRanks = ranks;
-                Hypercube.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
-                Chat.SendClientChat(Hypercube.Nh.LoggedClients[args[0]], "§SYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
-                Hypercube.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Hypercube.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
-                Network.CPE.UpdateExtPlayerList(Hypercube.Nh.LoggedClients[args[0]]);
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                ServerCore.Nh.LoggedClients[args[0]].CS.PlayerRanks = ranks;
+                ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
+                Chat.SendClientChat(ServerCore.Nh.LoggedClients[args[0]], "§SYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
+                ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
+                Network.CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
             }
 
             Chat.SendClientChat(Client, "§S" + args[0] + "'s Rank was updated.");
@@ -113,7 +113,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(Client, "§ECould not find a user called '" + args[0] + "'.");
                 return;
             }
@@ -126,10 +126,10 @@ namespace Hypercube.Command {
                 Reason = Text2;
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + " was banned by " + Client.CS.FormattedName + "§S. (&f" + Reason + "§S).", 0, true);
-            Hypercube.DB.BanPlayer(Hypercube.DB.GetPlayerName(args[0]), Reason, Client.CS.LoginName);
+            ServerCore.DB.BanPlayer(ServerCore.DB.GetPlayerName(args[0]), Reason, Client.CS.LoginName);
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) 
-                Hypercube.Nh.LoggedClients[args[0]].KickPlayer("Banned: " + Reason);
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) 
+                ServerCore.Nh.LoggedClients[args[0]].KickPlayer("Banned: " + Reason);
             
         }
         #endregion
@@ -158,14 +158,14 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Hypercube.DB.GetPlayerName(args[0]);
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(Client, "§ECould not find player.");
                 return;
             }
 
-            var newRank = Hypercube.Rankholder.GetRank(args[1]);
+            var newRank = ServerCore.Rankholder.GetRank(args[1]);
 
             if (newRank == null) {
                 Chat.SendClientChat(Client, "§ECould not find the rank you specified.");
@@ -174,8 +174,8 @@ namespace Hypercube.Command {
 
             //TODO: Add permissions
 
-            var ranks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
-            var steps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
             steps.RemoveAt(ranks.IndexOf(newRank));
             ranks.Remove(newRank);
 
@@ -186,15 +186,15 @@ namespace Hypercube.Command {
 
             rankString = rankString.Substring(0, rankString.Length - 1);
 
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "Rank", rankString);
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "Rank", rankString);
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) {
-                Hypercube.Nh.LoggedClients[args[0]].CS.PlayerRanks = ranks;
-                Hypercube.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
-                Chat.SendClientChat(Hypercube.Nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "§S has been removed.");
-                Hypercube.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Hypercube.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
-                Network.CPE.UpdateExtPlayerList(Hypercube.Nh.LoggedClients[args[0]]);
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                ServerCore.Nh.LoggedClients[args[0]].CS.PlayerRanks = ranks;
+                ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
+                Chat.SendClientChat(ServerCore.Nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "§S has been removed.");
+                ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
+                Network.CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
             }
 
             Chat.SendClientChat(Client, "§S" + args[0] + "'s Ranks were updated.");
@@ -232,9 +232,9 @@ namespace Hypercube.Command {
             else
                 Reason = Text2;
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) {
-                Hypercube.Logger.Log("Command", "Player " + args[0] + " was kicked by " + Client.CS.LoginName + ". (" + Reason + ")", LogType.Info);
-                Hypercube.Nh.LoggedClients[args[0]].KickPlayer(Reason, true);
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                ServerCore.Logger.Log("Command", "Player " + args[0] + " was kicked by " + Client.CS.LoginName + ". (" + Reason + ")", LogType.Info);
+                ServerCore.Nh.LoggedClients[args[0]].KickPlayer(Reason, true);
             } else
                 Chat.SendClientChat(Client, "§ECould not find a user with the name '" + args[0] + "'.");
         }
@@ -264,7 +264,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(client, "§ECould not find a player called '" + args[0] + "'.");
                 return;
             }
@@ -276,12 +276,12 @@ namespace Hypercube.Command {
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was muted for " + muteDuration.ToString() + " minutes.", 0, true);
 
-            var mutedUntil = DateTime.UtcNow.AddMinutes((double)muteDuration) - Hypercube.UnixEpoch;
+            var mutedUntil = DateTime.UtcNow.AddMinutes((double)muteDuration) - ServerCore.UnixEpoch;
 
-            Hypercube.DB.MutePlayer(args[0], (int)mutedUntil.TotalSeconds, "You are muted");
+            ServerCore.DB.MutePlayer(args[0], (int)mutedUntil.TotalSeconds, "You are muted");
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0]))
-                Hypercube.Nh.LoggedClients[args[0]].CS.MuteTime = (int)mutedUntil.TotalSeconds;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0]))
+                ServerCore.Nh.LoggedClients[args[0]].CS.MuteTime = (int)mutedUntil.TotalSeconds;
         }
         #endregion
         #region PInfo
@@ -309,7 +309,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Hypercube.DB.GetPlayerName(args[0]);
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(client, "§ECould not find player.");
@@ -318,11 +318,11 @@ namespace Hypercube.Command {
 
             var playerInfo = "§SPlayerinfo:<br>";
 
-            //Hypercube.DB.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + args[0] + "' LIMIT 1");
-            playerInfo += "§SNumber: " + Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "Number").ToString() + "<br>";
+            //ServerCore.DB.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + args[0] + "' LIMIT 1");
+            playerInfo += "§SNumber: " + ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Number").ToString() + "<br>";
             playerInfo += "§SName: " + args[0] + "<br>";
 
-            var playerRanks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var playerRanks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
             playerInfo += "§SRank(s): ";
 
             foreach (var r in playerRanks)
@@ -330,18 +330,18 @@ namespace Hypercube.Command {
 
             playerInfo = playerInfo.Substring(0, playerInfo.Length - 1); // -- Remove the final comma.
             playerInfo += "<br>";
-            playerInfo += "§SIP: " + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "IP") + "<br>";
-            playerInfo += "§SLogins: " + Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "LoginCounter").ToString() + "<br>";
-            playerInfo += "§SKicks: " + Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "KickCounter").ToString() + "( " + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "KickMessage") + ")<br>";
+            playerInfo += "§SIP: " + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "IP") + "<br>";
+            playerInfo += "§SLogins: " + ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "LoginCounter").ToString() + "<br>";
+            playerInfo += "§SKicks: " + ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "KickCounter").ToString() + "( " + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "KickMessage") + ")<br>";
 
-            if (Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "Banned") > 0)
-                playerInfo += "§SBanned: " + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "BanMessage") + " (" + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "BannedBy") + ")<br>";
+            if (ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Banned") > 0)
+                playerInfo += "§SBanned: " + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "BanMessage") + " (" + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "BannedBy") + ")<br>";
 
-            if (Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "Stopped") > 0)
-                playerInfo += "§SStopped: " + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "StopMessage") + " (" + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "StoppedBy") + ")<br>";
+            if (ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Stopped") > 0)
+                playerInfo += "§SStopped: " + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "StopMessage") + " (" + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "StoppedBy") + ")<br>";
 
-            if (Hypercube.DB.GetDatabaseInt(args[0], "PlayerDB", "Time_Muted") > Hypercube.GetCurrentUnixTime())
-                playerInfo += "§SMuted: " + Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "MuteMessage") + "<br>";
+            if (ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Time_Muted") > ServerCore.GetCurrentUnixTime())
+                playerInfo += "§SMuted: " + ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "MuteMessage") + "<br>";
 
             Chat.SendClientChat(client, playerInfo);
         }
@@ -371,14 +371,14 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Hypercube.DB.GetPlayerName(args[0]);
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(Client, "§ECould not find player.");
                 return;
             }
 
-            var newRank = Hypercube.Rankholder.GetRank(args[1]);
+            var newRank = ServerCore.Rankholder.GetRank(args[1]);
 
             if (newRank == null) {
                 Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
@@ -386,14 +386,14 @@ namespace Hypercube.Command {
             }
             //TODO: Add permissions
 
-            var Ranks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var Ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
 
             if (!Ranks.Contains(newRank)) {
                 Chat.SendClientChat(Client, "&4Error: &fPlayer '" + args[0] + "' does not have rank '" + args[1] + "'.");
                 return;
             }
 
-            var Steps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var Steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
             var TempInt = Steps[Ranks.IndexOf(newRank)];
             Steps.RemoveAt(Ranks.IndexOf(newRank));
             Ranks.Remove(newRank);
@@ -407,14 +407,14 @@ namespace Hypercube.Command {
 
             RankString = RankString.Substring(0, RankString.Length - 1);
 
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "Rank", RankString);
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", Steps.ToArray()));
 
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) {
-                Hypercube.Nh.LoggedClients[args[0]].CS.PlayerRanks = Ranks;
-                Hypercube.Nh.LoggedClients[args[0]].CS.RankSteps = Steps;
-                Hypercube.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Hypercube.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                ServerCore.Nh.LoggedClients[args[0]].CS.PlayerRanks = Ranks;
+                ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = Steps;
+                ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
             }
 
             Chat.SendClientChat(Client, "§S" + args[0] + "'s Rank was updated.");
@@ -446,37 +446,37 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Hypercube.DB.GetPlayerName(args[0]);
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(Client, "§ECould not find player.");
                 return;
             }
 
-            var newRank = Hypercube.Rankholder.GetRank(args[1]);
+            var newRank = ServerCore.Rankholder.GetRank(args[1]);
 
             if (newRank == null) {
                 Chat.SendClientChat(Client, "&4Error: &fCould not find the rank you specified.");
                 return;
             }
             //TODO: Add permissions
-            var ranks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
 
             if (!ranks.Contains(newRank)) {
                 Chat.SendClientChat(Client, "&4Error: &fPlayer '" + args[0] + "' does not have rank '" + args[1] + "'.");
                 return;
             }
 
-            var steps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
             steps[ranks.IndexOf(newRank)] = int.Parse(args[2]);
 
-            Hypercube.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
+            ServerCore.DB.SetDatabase(args[0], "PlayerDB", "RankStep", string.Join(",", steps.ToArray()));
 
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) {
-                Hypercube.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
-                Chat.SendClientChat(Hypercube.Nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + " has been updated.");
-                Hypercube.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + Hypercube.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
+                Chat.SendClientChat(ServerCore.Nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + " has been updated.");
+                ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
             }
 
             Chat.SendClientChat(Client, "§S" + args[0] + "'s Rank was updated.");
@@ -508,7 +508,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(Client, "§ECould not find a user with the name '" + args[0] + "'.");
                 return;
             }
@@ -520,10 +520,10 @@ namespace Hypercube.Command {
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was stopped by " + Client.CS.FormattedName + "§S. (&f" + stopReason + "§S)", 0, true);
 
-            Hypercube.DB.StopPlayer(args[0], stopReason, Client.CS.LoginName);
+            ServerCore.DB.StopPlayer(args[0], stopReason, Client.CS.LoginName);
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) 
-                Hypercube.Nh.LoggedClients[args[0]].CS.Stopped = true;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) 
+                ServerCore.Nh.LoggedClients[args[0]].CS.Stopped = true;
                     
         }
         #endregion
@@ -552,14 +552,14 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(Client, "§ECould not find a user with the name '" + args[0] + "'.");
                 return;
             }
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was unbanned by " + Client.CS.FormattedName + "§S.", 0, true);
 
-            Hypercube.DB.UnbanPlayer(args[0]);
+            ServerCore.DB.UnbanPlayer(args[0]);
         }
         #endregion
         #region Unmute
@@ -587,18 +587,18 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(Client, "§ECould not find a user with the name '" + args[0] + "'.");
                 return;
             }
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was unmuted.", 0, true);
 
-            Hypercube.DB.UnmutePlayer(args[0]);
+            ServerCore.DB.UnmutePlayer(args[0]);
 
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0])) 
-                Hypercube.Nh.LoggedClients[args[0]].CS.MuteTime = 0;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) 
+                ServerCore.Nh.LoggedClients[args[0]].CS.MuteTime = 0;
         }
         #endregion
         #region Unstop
@@ -626,17 +626,17 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.DB.ContainsPlayer(args[0])) {
+            if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(Client, "§ECould not find a user with the name '" + args[0] + "'.");
                 return;
             }
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was unstopped by " + Client.CS.FormattedName + "§S.");
 
-            Hypercube.DB.UnstopPlayer(args[0]);
+            ServerCore.DB.UnstopPlayer(args[0]);
 
-            if (Hypercube.Nh.LoggedClients.ContainsKey(args[0]))
-                Hypercube.Nh.LoggedClients[args[0]].CS.Stopped = false;
+            if (ServerCore.Nh.LoggedClients.ContainsKey(args[0]))
+                ServerCore.Nh.LoggedClients[args[0]].CS.Stopped = false;
         }
         #endregion
     }

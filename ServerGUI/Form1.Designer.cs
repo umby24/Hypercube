@@ -1158,7 +1158,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "mainForm";
-            this.Text = "Hypercube";
+            this.Text = "ServerCore";
             this.Load += new System.EventHandler(this.mainForm_Load);
             this.mainTabs.ResumeLayout(false);
             this.consoleTab.ResumeLayout(false);

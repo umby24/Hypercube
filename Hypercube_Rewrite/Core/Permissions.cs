@@ -10,14 +10,14 @@ namespace Hypercube.Core {
         public Settings PermFile;
         
         public PermissionContainer() {
-            PermFile = Hypercube.Settings.RegisterFile("Permissions.txt", false, LoadPermissions);
-            Hypercube.Settings.ReadSettings(PermFile);
+            PermFile = ServerCore.Settings.RegisterFile("Permissions.txt", false, LoadPermissions);
+            ServerCore.Settings.ReadSettings(PermFile);
         }
 
         public void LoadPermissions() {
             Permissions.Clear();
 
-            using (var sr = new StreamReader("SettingsDictionary/Permissions.txt")) {
+            using (var sr = new StreamReader("Settings/Permissions.txt")) {
                 while (!sr.EndOfStream) {
                     var line = sr.ReadLine();
 
@@ -45,18 +45,18 @@ namespace Hypercube.Core {
                 LoadPermissions();
             }
 
-            Hypercube.Logger.Log("PermContainer", "Permissions loaded", LogType.Info);
+            ServerCore.Logger.Log("PermContainer", "Permissions loaded", LogType.Info);
         }
 
         public void SavePermissions() {
-            using (var sw = new StreamWriter("SettingsDictionary/Permissions.txt")) {
+            using (var sw = new StreamWriter("Settings/Permissions.txt")) {
                 foreach (var p in Permissions.Values)
                     sw.WriteLine(p.Fullname);
             }
         }
 
         public void CreatePermissions() {
-            using (var sw = new StreamWriter("SettingsDictionary/Permissions.txt")) {
+            using (var sw = new StreamWriter("Settings/Permissions.txt")) {
                 sw.WriteLine("map.addmap");
                 sw.WriteLine("map.joinmap");
                 sw.WriteLine("map.fillmap");
@@ -71,7 +71,7 @@ namespace Hypercube.Core {
                 sw.WriteLine("chat.useemotes");
             }
 
-            Hypercube.Logger.Log("PermContainer", "Permissions created", LogType.Info);
+            ServerCore.Logger.Log("PermContainer", "Permissions created", LogType.Info);
         }
 
         public Permission GetPermission(string name) {
@@ -87,7 +87,7 @@ namespace Hypercube.Core {
             var mySplit = perms.Split(',');
 
             foreach (var s in mySplit) {
-                var perm = Hypercube.Permholder.GetPermission(s);
+                var perm = ServerCore.Permholder.GetPermission(s);
 
                 if (perm != null)
                     result.Add(perm.Fullname, perm);

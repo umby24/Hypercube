@@ -21,9 +21,9 @@ namespace Hypercube.Mapfills {
 
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var grassBlock = Hypercube.Blockholder.GetBlock(2);
-            var dirtBlock = Hypercube.Blockholder.GetBlock(3);
-            var airBlock = Hypercube.Blockholder.GetBlock(0);
+            var grassBlock = ServerCore.Blockholder.GetBlock(2);
+            var dirtBlock = ServerCore.Blockholder.GetBlock(3);
+            var airBlock = ServerCore.Blockholder.GetBlock(0);
 
             for (var x = 0; x < map.CWMap.SizeX; x++) {
                 for (var y = 0; y < map.CWMap.SizeZ; y++) {
@@ -44,8 +44,8 @@ namespace Hypercube.Mapfills {
         static void WhiteHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = Hypercube.Blockholder.GetBlock(0);
-            var whiteBlock = Hypercube.Blockholder.GetBlock(36);
+            var airBlock = ServerCore.Blockholder.GetBlock(0);
+            var whiteBlock = ServerCore.Blockholder.GetBlock(36);
 
             for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
                 for (var iy = 0; iy < map.CWMap.SizeY; iy++)
@@ -75,8 +75,8 @@ namespace Hypercube.Mapfills {
         static void BedrockHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = Hypercube.Blockholder.GetBlock(0);
-            var bedrock = Hypercube.Blockholder.GetBlock(7);
+            var airBlock = ServerCore.Blockholder.GetBlock(0);
+            var bedrock = ServerCore.Blockholder.GetBlock(7);
 
             for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
                 for (var iy = 0; iy < map.CWMap.SizeY; iy++)
@@ -106,8 +106,8 @@ namespace Hypercube.Mapfills {
         static void WireworldHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = Hypercube.Blockholder.GetBlock(0);
-            var blackBlock = Hypercube.Blockholder.GetBlock(34);
+            var airBlock = ServerCore.Blockholder.GetBlock(0);
+            var blackBlock = ServerCore.Blockholder.GetBlock(34);
 
             for (var x = 0; x < map.CWMap.SizeX; x++) {
                 for (var y = 0; y < map.CWMap.SizeY; y++)

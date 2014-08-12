@@ -49,19 +49,23 @@ namespace Hypercube.Core {
             Look = look;
             Map = map;
             
-            Id = Hypercube.EFree;
-            BuildMaterial = Hypercube.Blockholder.GetBlock("");
-            Lastmaterial = Hypercube.Blockholder.GetBlock(1);
+            Id = ServerCore.EFree;
+            ServerCore.Logger.Log("Entity", "ID Consume: " + name + ":" + Id, LogType.Debug);
+
+            BuildMaterial = ServerCore.Blockholder.GetBlock("");
+            Lastmaterial = ServerCore.Blockholder.GetBlock(1);
             ClientState = new BuildState();
             BuildMode = new BmStruct {Name = ""};
 
             // -- Move entity free IDs.
-            if (Hypercube.EFree != Hypercube.ENext)
-                Hypercube.EFree = Hypercube.ENext;
+            if (ServerCore.EFree != ServerCore.ENext)
+                ServerCore.EFree = ServerCore.ENext;
             else {
-                Hypercube.EFree += 1;
-                Hypercube.ENext = Hypercube.EFree;
+                ServerCore.EFree += 1;
+                ServerCore.ENext = ServerCore.EFree;
             }
+
+            ServerCore.Logger.Log("Entity", "Next:" + ServerCore.EFree, LogType.Debug);
 
             if (Map.FreeId != 128) {
                 ClientId = (byte)Map.FreeId;
@@ -78,7 +82,7 @@ namespace Hypercube.Core {
 
         public void SetBuildmode(string mode)
         {
-            BuildMode = Hypercube.BmContainer.Modes.ContainsKey(mode) ? Hypercube.BmContainer.Modes[mode] : new BmStruct {Name = ""};
+            BuildMode = ServerCore.BmContainer.Modes.ContainsKey(mode) ? ServerCore.BmContainer.Modes[mode] : new BmStruct {Name = ""};
             ClientState.ResendBlocks(MyClient);
         }
 

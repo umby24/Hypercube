@@ -15,7 +15,7 @@ using Hypercube.Map;
 
 namespace ServerGUI {
     public partial class mainForm : Form {
-        public Hypercube.Hypercube ServerCore;
+        public Hypercube.ServerCore ServerCore;
         bool Saved = true;
 
         public mainForm() {
@@ -25,120 +25,120 @@ namespace ServerGUI {
         private void mainForm_Load(object sender, EventArgs e) {
             Console.SetOut(new ControlWriter(txtAllConsole));
 
-            ServerCore = new Hypercube.Hypercube();
+            ServerCore = new Hypercube.ServerCore();
 
             #region Text Events
-            ServerCore.Logger.ChatMessage += (message) => {
+            this.ServerCore.Logger.ChatMessage += (message) => {
                 txtChatbox.Invoke(new MethodInvoker(() => txtChatbox.AppendText(message + Environment.NewLine)));
                 txtChatbox.Invoke(new MethodInvoker(() => txtChatbox.Select(txtChatbox.Text.Length, 1)));
                 txtChatbox.Invoke(new MethodInvoker(() => txtChatbox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.CommandMessage += (message) => {
+            this.ServerCore.Logger.CommandMessage += (message) => {
                 txtCommandbox.Invoke(new MethodInvoker(() => txtCommandbox.AppendText(message + Environment.NewLine)));
                 txtCommandbox.Invoke(new MethodInvoker(() => txtCommandbox.Select(txtCommandbox.Text.Length, 1)));
                 txtCommandbox.Invoke(new MethodInvoker(() => txtCommandbox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.CriticalMessage += (message) => {
+            this.ServerCore.Logger.CriticalMessage += (message) => {
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.AppendText(message + Environment.NewLine)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.Select(txtErrorbox.Text.Length, 1)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.DebugMessage += (message) => {
+            this.ServerCore.Logger.DebugMessage += (message) => {
                 txtDebugBox.Invoke(new MethodInvoker(() => txtDebugBox.AppendText(message + Environment.NewLine)));
                 txtDebugBox.Invoke(new MethodInvoker(() => txtDebugBox.Select(txtDebugBox.Text.Length, 1)));
                 txtDebugBox.Invoke(new MethodInvoker(() => txtDebugBox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.ErrorMessage += (message) => {
+            this.ServerCore.Logger.ErrorMessage += (message) => {
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.AppendText(message + Environment.NewLine)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.Select(txtErrorbox.Text.Length, 1)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.InfoMessage += (message) => {
+            this.ServerCore.Logger.InfoMessage += (message) => {
                 txtInfobox.Invoke(new MethodInvoker(() => txtInfobox.AppendText(message + Environment.NewLine)));
                 txtInfobox.Invoke(new MethodInvoker(() => txtInfobox.Select(txtInfobox.Text.Length, 1)));
                 txtInfobox.Invoke(new MethodInvoker(() => txtInfobox.ScrollToCaret()));
             };
 
-            ServerCore.Logger.WarningMessage += (message) => {
+            this.ServerCore.Logger.WarningMessage += (message) => {
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.AppendText(message + Environment.NewLine)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.Select(txtErrorbox.Text.Length, 1)));
                 txtErrorbox.Invoke(new MethodInvoker(() => txtErrorbox.ScrollToCaret()));
             };
             #endregion
 
-            foreach (var m in ServerCore.Maps) 
+            foreach (var m in this.ServerCore.Maps) 
                 lstMaps.Items.Add(m.CWMap.MapName);
             
         }
 
         private void LoadSettingsMenu() {
-            txtSrvName.Text = ServerCore.ServerName;
-            txtSrvMotd.Text = ServerCore.Motd;
-            txtWelcomeMess.Text = ServerCore.WelcomeMessage;
+            txtSrvName.Text = this.ServerCore.ServerName;
+            txtSrvMotd.Text = this.ServerCore.Motd;
+            txtWelcomeMess.Text = this.ServerCore.WelcomeMessage;
 
-            chkRotLogs.Checked = ServerCore.RotateLogs;
-            chkLogs.Checked = ServerCore.LogOutput;
-            chkComArgs.Checked = ServerCore.LogArguments;
-            chkMaphistory.Checked = ServerCore.CompressHistory;
+            chkRotLogs.Checked = this.ServerCore.RotateLogs;
+            chkLogs.Checked = this.ServerCore.LogOutput;
+            chkComArgs.Checked = this.ServerCore.LogArguments;
+            chkMaphistory.Checked = this.ServerCore.CompressHistory;
 
-            numMaxBlocks.Value = ServerCore.MaxBlockChanges;
-            numHistory.Value = ServerCore.MaxHistoryEntries;
+            numMaxBlocks.Value = this.ServerCore.MaxBlockChanges;
+            numHistory.Value = this.ServerCore.MaxHistoryEntries;
 
             // -- Network
-            numPort.Value = ServerCore.Nh.Port;
-            numMaxPlayers.Value = ServerCore.Nh.MaxPlayers;
+            numPort.Value = this.ServerCore.Nh.Port;
+            numMaxPlayers.Value = this.ServerCore.Nh.MaxPlayers;
 
-            chkVerifyNames.Checked = ServerCore.Nh.VerifyNames;
-            chkPub.Checked = ServerCore.Nh.Public;
+            chkVerifyNames.Checked = this.ServerCore.Nh.VerifyNames;
+            chkPub.Checked = this.ServerCore.Nh.Public;
 
             // -- Chat
-            txtChatError.Text = ServerCore.TextFormats.ErrorMessage;
-            txtChatDivider.Text = ServerCore.TextFormats.Divider;
-            txtChatSystem.Text = ServerCore.TextFormats.SystemMessage;
-            txtPlayerlist.Text = ServerCore.TextFormats.ExtPlayerList;
+            txtChatError.Text = this.ServerCore.TextFormats.ErrorMessage;
+            txtChatDivider.Text = this.ServerCore.TextFormats.Divider;
+            txtChatSystem.Text = this.ServerCore.TextFormats.SystemMessage;
+            txtPlayerlist.Text = this.ServerCore.TextFormats.ExtPlayerList;
         }
 
         private void SaveSettingsMenu() {
-            ServerCore.ServerName = txtSrvName.Text;
-            ServerCore.Motd = txtSrvMotd.Text;
-            ServerCore.WelcomeMessage = txtWelcomeMess.Text;
+            this.ServerCore.ServerName = txtSrvName.Text;
+            this.ServerCore.Motd = txtSrvMotd.Text;
+            this.ServerCore.WelcomeMessage = txtWelcomeMess.Text;
 
-            ServerCore.RotateLogs = chkRotLogs.Checked;
-            ServerCore.LogOutput = chkLogs.Checked;
-            ServerCore.LogArguments = chkComArgs.Checked;
-            ServerCore.CompressHistory = chkMaphistory.Checked;
+            this.ServerCore.RotateLogs = chkRotLogs.Checked;
+            this.ServerCore.LogOutput = chkLogs.Checked;
+            this.ServerCore.LogArguments = chkComArgs.Checked;
+            this.ServerCore.CompressHistory = chkMaphistory.Checked;
 
-            ServerCore.MaxBlockChanges = (int)numMaxBlocks.Value;
-            ServerCore.MaxHistoryEntries = (int)numHistory.Value;
-            ServerCore.SaveSystemSettings();
+            this.ServerCore.MaxBlockChanges = (int)numMaxBlocks.Value;
+            this.ServerCore.MaxHistoryEntries = (int)numHistory.Value;
+            this.ServerCore.SaveSystemSettings();
 
             // -- Network
-            ServerCore.Nh.Port = (int)numPort.Value;
-            ServerCore.Nh.MaxPlayers = (int)numMaxPlayers.Value;
-            ServerCore.Nh.VerifyNames = chkVerifyNames.Checked;
-            ServerCore.Nh.Public = chkPub.Checked;
-            ServerCore.Nh.SaveSettings();
+            this.ServerCore.Nh.Port = (int)numPort.Value;
+            this.ServerCore.Nh.MaxPlayers = (int)numMaxPlayers.Value;
+            this.ServerCore.Nh.VerifyNames = chkVerifyNames.Checked;
+            this.ServerCore.Nh.Public = chkPub.Checked;
+            this.ServerCore.Nh.SaveSettings();
 
             // -- Chat
-            ServerCore.TextFormats.ErrorMessage = txtChatError.Text;
-            ServerCore.TextFormats.Divider = txtChatDivider.Text;
-            ServerCore.TextFormats.SystemMessage = txtChatSystem.Text;
-            ServerCore.TextFormats.ExtPlayerList = txtPlayerlist.Text;
-            ServerCore.TextFormats.SaveTextSettings();
+            this.ServerCore.TextFormats.ErrorMessage = txtChatError.Text;
+            this.ServerCore.TextFormats.Divider = txtChatDivider.Text;
+            this.ServerCore.TextFormats.SystemMessage = txtChatSystem.Text;
+            this.ServerCore.TextFormats.ExtPlayerList = txtPlayerlist.Text;
+            this.ServerCore.TextFormats.SaveTextSettings();
             Saved = true;
         }
 
         private void startServerToolStripMenuItem_Click(object sender, EventArgs e) {
-            ServerCore.Start();
+            this.ServerCore.Start();
         }
 
         private void stopServerToolStripMenuItem_Click(object sender, EventArgs e) {
-            ServerCore.Stop();
+            this.ServerCore.Stop();
         }
 
         private void mainTabs_SelectedIndexChanged(object sender, EventArgs e) {

@@ -40,13 +40,13 @@ namespace Hypercube.Map
                     GC.Collect();
                 }
 
-                if (map.Loaded == false && Hypercube.CompressHistory)
+                if (map.Loaded == false && ServerCore.CompressHistory)
                     GZip.CompressFile(_baseName + ".hch");
             }
 
-            if (map.Loaded && Hypercube.CompressHistory && FileCompressed())
+            if (map.Loaded && ServerCore.CompressHistory && FileCompressed())
                 GZip.DecompressFile(_baseName + ".hch");
-            else if (!Hypercube.CompressHistory)
+            else if (!ServerCore.CompressHistory)
             {
                 // -- If the user recently disabled compression, we should decompress it first anyway.
 
@@ -78,9 +78,9 @@ namespace Hypercube.Map
         /// </summary>
         public void ReloadHistory()
         {
-            Hypercube.Logger.Log("MapHistory", "Reloaded history", LogType.Debug);
+            ServerCore.Logger.Log("MapHistory", "Reloaded history", LogType.Debug);
 
-            if (Hypercube.CompressHistory && _thisMap.Loaded == false && FileCompressed())
+            if (ServerCore.CompressHistory && _thisMap.Loaded == false && FileCompressed())
                 GZip.DecompressFile(_baseName + ".hch");
         }
 
@@ -90,9 +90,9 @@ namespace Hypercube.Map
         public void UnloadHistory()
         {
             SaveEntries();
-            Hypercube.Logger.Log("MapHistory", "Unloaded history", LogType.Debug);
+            ServerCore.Logger.Log("MapHistory", "Unloaded history", LogType.Debug);
 
-            if (Hypercube.CompressHistory && _thisMap.Loaded && !FileCompressed())
+            if (ServerCore.CompressHistory && _thisMap.Loaded && !FileCompressed())
                 GZip.CompressFile(_baseName + ".hch");
         }
 
@@ -101,7 +101,7 @@ namespace Hypercube.Map
         /// </summary>
         public void SaveEntries()
         {
-            Hypercube.Logger.Log("MapHistory", "Saving Entries", LogType.Debug);
+            ServerCore.Logger.Log("MapHistory", "Saving Entries", LogType.Debug);
             int indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
 
             using (var fs = new FileStream(_baseName + ".hch", FileMode.Open))
@@ -176,7 +176,7 @@ namespace Hypercube.Map
 
                     // -- Now We'll handle the easy case first, if we've already reached the maximum.
 
-                    if (numEntries == Hypercube.MaxHistoryEntries)
+                    if (numEntries == ServerCore.MaxHistoryEntries)
                     {
                         tempArray[0] = h; // -- Overwrite the old entry with the newest one.
                         tempArray = tempArray.OrderBy(o => o.Timestamp).ToArray();
@@ -229,7 +229,7 @@ namespace Hypercube.Map
                 return null;
 
             int indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
-            var result = new HistoryEntry[Hypercube.MaxHistoryEntries];
+            var result = new HistoryEntry[ServerCore.MaxHistoryEntries];
 
             using (var fs = new FileStream(_baseName + ".hch", FileMode.Open))
             {
@@ -297,11 +297,11 @@ namespace Hypercube.Map
             myList.Clear();
 
             // -- Sort the list by time..
-            if (tempList.Count > Hypercube.MaxHistoryEntries)
+            if (tempList.Count > ServerCore.MaxHistoryEntries)
             {
                 tempList = tempList.OrderByDescending(o => o.Timestamp).ToList();
-                tempList.RemoveRange(Hypercube.MaxHistoryEntries,
-                    tempList.Count - Hypercube.MaxHistoryEntries);
+                tempList.RemoveRange(ServerCore.MaxHistoryEntries,
+                    tempList.Count - ServerCore.MaxHistoryEntries);
                 tempList = tempList.OrderBy(o => o.Timestamp).ToList();
                 result = tempList.ToArray();
             }
@@ -371,7 +371,7 @@ namespace Hypercube.Map
                 X = x,
                 Y = y,
                 Z = z,
-                Timestamp = (int) Hypercube.GetCurrentUnixTime()
+                Timestamp = (int) ServerCore.GetCurrentUnixTime()
             };
 
             Entries.Add(he);

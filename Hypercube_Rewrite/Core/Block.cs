@@ -13,8 +13,8 @@ namespace Hypercube.Core {
         public BlockContainer() {
             NumberList = new Block[255];
             NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
-            _blocksfile = Hypercube.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
-            Hypercube.Settings.ReadSettings(_blocksfile);
+            _blocksfile = ServerCore.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
+            ServerCore.Settings.ReadSettings(_blocksfile);
         }
 
         /// <summary>
@@ -26,26 +26,26 @@ namespace Hypercube.Core {
             NameList.Clear();
 
             foreach (var id in _blocksfile.SettingsDictionary.Keys) {
-                Hypercube.Settings.SelectGroup(_blocksfile, id);
+                ServerCore.Settings.SelectGroup(_blocksfile, id);
 
                 var newblock = new Block {
                     Id = int.Parse(id),
-                    Name = Hypercube.Settings.ReadSetting(_blocksfile, "Name", ""),
-                    OnClient = (byte) Hypercube.Settings.ReadSetting(_blocksfile, "OnClient", 46),
-                    Physics = Hypercube.Settings.ReadSetting(_blocksfile, "Physics", 0),
-                    PhysicsDelay = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsDelay", 0),
-                    PhysicsRandom = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsRandom", 0),
-                    PhysicsPlugin = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsPlugin", ""),
-                    Kills = bool.Parse(Hypercube.Settings.ReadSetting(_blocksfile, "Kills", "false")),
-                    Color = Hypercube.Settings.ReadSetting(_blocksfile, "Color", 0),
-                    CPELevel = Hypercube.Settings.ReadSetting(_blocksfile, "CPELevel", 0),
-                    CPEReplace = Hypercube.Settings.ReadSetting(_blocksfile, "CPEReplace", 0),
-                    Special = bool.Parse(Hypercube.Settings.ReadSetting(_blocksfile, "Special", "false")),
-                    ReplaceOnLoad = Hypercube.Settings.ReadSetting(_blocksfile, "ReplaceOnLoad", -1),
+                    Name = ServerCore.Settings.ReadSetting(_blocksfile, "Name", ""),
+                    OnClient = (byte) ServerCore.Settings.ReadSetting(_blocksfile, "OnClient", 46),
+                    Physics = ServerCore.Settings.ReadSetting(_blocksfile, "Physics", 0),
+                    PhysicsDelay = ServerCore.Settings.ReadSetting(_blocksfile, "PhysicsDelay", 0),
+                    PhysicsRandom = ServerCore.Settings.ReadSetting(_blocksfile, "PhysicsRandom", 0),
+                    PhysicsPlugin = ServerCore.Settings.ReadSetting(_blocksfile, "PhysicsPlugin", ""),
+                    Kills = bool.Parse(ServerCore.Settings.ReadSetting(_blocksfile, "Kills", "false")),
+                    Color = ServerCore.Settings.ReadSetting(_blocksfile, "Color", 0),
+                    CPELevel = ServerCore.Settings.ReadSetting(_blocksfile, "CPELevel", 0),
+                    CPEReplace = ServerCore.Settings.ReadSetting(_blocksfile, "CPEReplace", 0),
+                    Special = bool.Parse(ServerCore.Settings.ReadSetting(_blocksfile, "Special", "false")),
+                    ReplaceOnLoad = ServerCore.Settings.ReadSetting(_blocksfile, "ReplaceOnLoad", -1),
                     RanksPlace =
-                        RankContainer.SplitRanks(Hypercube.Settings.ReadSetting(_blocksfile, "PlaceRank", "0,1,2,3")),
+                        RankContainer.SplitRanks(ServerCore.Settings.ReadSetting(_blocksfile, "PlaceRank", "0,1,2,3")),
                     RanksDelete =
-                        RankContainer.SplitRanks(Hypercube.Settings.ReadSetting(_blocksfile, "DeleteRank", "0,1,2,3"))
+                        RankContainer.SplitRanks(ServerCore.Settings.ReadSetting(_blocksfile, "DeleteRank", "0,1,2,3"))
                 };
                 //Blocks.Add(Newblock);
                 NumberList[newblock.Id] = newblock;
@@ -55,7 +55,7 @@ namespace Hypercube.Core {
             if (NameList.Count == 0)
                 CreateBlocks();
 
-            Hypercube.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
+            ServerCore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Hypercube.Core {
         /// </summary>
         /// <param name="toUpdate">The block to be updated on file.</param>
         public void UpdateBlock(Block toUpdate) {
-            Hypercube.Settings.SelectGroup(_blocksfile, toUpdate.Id.ToString());
+            ServerCore.Settings.SelectGroup(_blocksfile, toUpdate.Id.ToString());
 
             _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Name"] = toUpdate.Name;
             _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["OnClient"] = toUpdate.OnClient.ToString();
@@ -152,7 +152,7 @@ namespace Hypercube.Core {
             _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Special"] = toUpdate.Special.ToString();
             _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["ReplaceOnLoad"] = toUpdate.ReplaceOnLoad.ToString();
 
-            Hypercube.Settings.SaveSettings(_blocksfile);
+            ServerCore.Settings.SaveSettings(_blocksfile);
         }
 
         /// <summary>
@@ -252,19 +252,19 @@ namespace Hypercube.Core {
             NameList.Add(newBlock.Name, newBlock);
             //Blocks.Add(newBlock);
 
-            Hypercube.Settings.SelectGroup(_blocksfile, newBlock.Id.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "Name", newBlock.Name);
-            Hypercube.Settings.SaveSetting(_blocksfile, "OnClient", newBlock.OnClient.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "Physics", newBlock.Physics.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsDelay", newBlock.PhysicsDelay.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsRandom", newBlock.PhysicsRandom.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsPlugin", newBlock.PhysicsPlugin);
-            Hypercube.Settings.SaveSetting(_blocksfile, "Kills", newBlock.Kills.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "Color", newBlock.Color.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "CPELevel", newBlock.CPELevel.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "CPEReplace", newBlock.CPEReplace.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "Special", newBlock.Special.ToString());
-            Hypercube.Settings.SaveSetting(_blocksfile, "ReplaceOnLoad", newBlock.ReplaceOnLoad.ToString());
+            ServerCore.Settings.SelectGroup(_blocksfile, newBlock.Id.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "Name", newBlock.Name);
+            ServerCore.Settings.SaveSetting(_blocksfile, "OnClient", newBlock.OnClient.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "Physics", newBlock.Physics.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "PhysicsDelay", newBlock.PhysicsDelay.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "PhysicsRandom", newBlock.PhysicsRandom.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "PhysicsPlugin", newBlock.PhysicsPlugin);
+            ServerCore.Settings.SaveSetting(_blocksfile, "Kills", newBlock.Kills.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "Color", newBlock.Color.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "CPELevel", newBlock.CPELevel.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "CPEReplace", newBlock.CPEReplace.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "Special", newBlock.Special.ToString());
+            ServerCore.Settings.SaveSetting(_blocksfile, "ReplaceOnLoad", newBlock.ReplaceOnLoad.ToString());
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace Hypercube.Core {
                 NameList.Remove(toDelete.Name);
                 NumberList[toDelete.Id] = null;
                 _blocksfile.SettingsDictionary.Remove(toDelete.Id.ToString());
-                Hypercube.Settings.SaveSettings(_blocksfile);
+                ServerCore.Settings.SaveSettings(_blocksfile);
             }
         }
 
@@ -294,7 +294,7 @@ namespace Hypercube.Core {
                 NameList.Remove(toDelete.Id.ToString());
                 NumberList[toDelete.Id] = null;
                 _blocksfile.SettingsDictionary.Remove(toDelete.Id.ToString());
-                Hypercube.Settings.SaveSettings(_blocksfile);
+                ServerCore.Settings.SaveSettings(_blocksfile);
             }
         }
     }

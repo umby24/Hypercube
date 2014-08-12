@@ -20,7 +20,7 @@ namespace Hypercube.Core {
             message = Text.CleanseString(message);
 
             if (log)
-                Hypercube.Logger.Log("Global", message, LogType.Chat);
+                ServerCore.Logger.Log("Global", message, LogType.Chat);
 
             message = EmoteReplace(message);
 
@@ -29,7 +29,7 @@ namespace Hypercube.Core {
 
             var sending = SplitLines(message);
 
-            foreach (var c in Hypercube.Nh.ClientList) {
+            foreach (var c in ServerCore.Nh.ClientList) {
                 foreach (var b in sending) {
                     chat.Text = b;
                     c.SendQueue.Enqueue(chat);
@@ -47,7 +47,7 @@ namespace Hypercube.Core {
             message = Text.CleanseString(message);
 
             if (log)
-                Hypercube.Logger.Log(map.CWMap.MapName, message, LogType.Chat);
+                ServerCore.Logger.Log(map.CWMap.MapName, message, LogType.Chat);
 
             message = EmoteReplace(message);
 
@@ -112,15 +112,15 @@ namespace Hypercube.Core {
         public static void HandleIncomingChat(NetworkClient incomingClient, string message) {
             message = FilterIncomingChat(message);
 
-            if (incomingClient.CS.MuteTime > Hypercube.GetCurrentUnixTime()) {
+            if (incomingClient.CS.MuteTime > ServerCore.GetCurrentUnixTime()) {
                 SendClientChat(incomingClient, "§EYou are muted.");
                 return;
             }
 
-            Hypercube.Luahandler.RunFunction("E_ChatMessage", incomingClient, message);
+            ServerCore.Luahandler.RunFunction("E_ChatMessage", incomingClient, message);
 
             if (message.StartsWith("/") && !message.StartsWith("//"))
-                Hypercube.Commandholder.HandleCommand(incomingClient, message);
+                ServerCore.Commandholder.HandleCommand(incomingClient, message);
             else if (message.StartsWith("@")) {
                 string client;
 
@@ -132,8 +132,8 @@ namespace Hypercube.Core {
 
                 NetworkClient tosend;
 
-                if (Hypercube.Nh.LoggedClients.ContainsKey(client)) {
-                    tosend = Hypercube.Nh.LoggedClients[client];
+                if (ServerCore.Nh.LoggedClients.ContainsKey(client)) {
+                    tosend = ServerCore.Nh.LoggedClients[client];
                 } else {
                     SendClientChat(incomingClient, "§EPlayer '" + client + "' not found.");
                     return;
@@ -146,18 +146,18 @@ namespace Hypercube.Core {
 
                 if (incomingClient.CS.Global) {
                     SendMapChat(incomingClient.CS.CurrentMap, incomingClient.CS.FormattedName + "&f: " + message);
-                    Hypercube.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
                     SendGlobalChat("&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
-                    Hypercube.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             } else {
                 if (incomingClient.CS.Global) {
                     SendGlobalChat("&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
-                    Hypercube.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
                     SendMapChat(incomingClient.CS.CurrentMap, incomingClient.CS.FormattedName + "&f: " + message);
-                    Hypercube.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             }
         }

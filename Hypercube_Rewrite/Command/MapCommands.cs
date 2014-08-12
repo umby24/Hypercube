@@ -64,7 +64,7 @@ namespace Hypercube.Command {
             }
 
             var NewMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
-            Hypercube.Maps.Add(NewMap);
+            ServerCore.Maps.Add(NewMap);
 
             Chat.SendClientChat(Client, "§SMap added successfully.");
         }
@@ -100,13 +100,13 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Hypercube.Fillholder.Mapfills.ContainsKey(args[0])) {
+            if (!ServerCore.Fillholder.Mapfills.ContainsKey(args[0])) {
                 Chat.SendClientChat(Client, "§EMapfill '" + args[0] + "' not found. See /mapfills.");
                 return;
             }
 
             Chat.SendClientChat(Client, "§SFill added to queue...");
-            Hypercube.Fillholder.FillMap(Client.CS.CurrentMap, args[0]);
+            ServerCore.Fillholder.FillMap(Client.CS.CurrentMap, args[0]);
         }
         #endregion
         #region MapFills
@@ -137,7 +137,7 @@ namespace Hypercube.Command {
         static void MapfillsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             var MapFillString = "§D";
 
-            foreach (var value in Hypercube.Fillholder.Mapfills)
+            foreach (var value in ServerCore.Fillholder.Mapfills)
                 MapFillString += " §S" + value.Key + " §D";
 
             Chat.SendClientChat(Client, "§SMapFills:");
