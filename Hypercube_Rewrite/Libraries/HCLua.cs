@@ -12,11 +12,9 @@ namespace Hypercube.Libraries {
         public Lua LuaHandler;
         public Thread LuaThread;
 
-        readonly Hypercube _servercore;
         Dictionary<string, DateTime> _scripts;
 
-        public HCLua(Hypercube core) {
-            _servercore = core;
+        public HCLua() {
             LuaHandler = new Lua();
         }
 
@@ -34,11 +32,11 @@ namespace Hypercube.Libraries {
                 try {
                     LuaHandler.DoFile(file);
                 } catch (LuaScriptException e) {
-                    _servercore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                    Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                 }
             }
 
-            _servercore.Logger.Log("Lua", "Lua scripts loaded.", LogType.Info);
+            Hypercube.Logger.Log("Lua", "Lua scripts loaded.", LogType.Info);
         }
 
         /// <summary>
@@ -48,30 +46,29 @@ namespace Hypercube.Libraries {
             var luaChat = new Chat();
 
             // -- Functions
-            LuaHandler.RegisterFunction("Log", _servercore.Logger, _servercore.Logger.GetType().GetMethod("Log"));
+            LuaHandler.RegisterFunction("Log", Hypercube.Logger, Hypercube.Logger.GetType().GetMethod("Log"));
             // -- Command creation functions
-            LuaHandler.RegisterFunction("RegCmd", _servercore.Commandholder, _servercore.Commandholder.GetType().GetMethod("RegisterCommand"));
-            LuaHandler.RegisterFunction("GetCmdAlias", _servercore.Commandholder, _servercore.Commandholder.GetType().GetMethod("GetAlias"));
+            LuaHandler.RegisterFunction("RegCmd", Hypercube.Commandholder, Hypercube.Commandholder.GetType().GetMethod("RegisterCommand"));
+            LuaHandler.RegisterFunction("GetCmdAlias", Hypercube.Commandholder, Hypercube.Commandholder.GetType().GetMethod("GetAlias"));
             // -- DB functions
-            LuaHandler.RegisterFunction("DBPlayerExists", _servercore.DB, _servercore.DB.GetType().GetMethod("ContainsPlayer"));
-            LuaHandler.RegisterFunction("DBGetPlayerName", _servercore.DB, _servercore.DB.GetType().GetMethod("GetPlayerName"));
-            LuaHandler.RegisterFunction("DBBanPlayer", _servercore.DB, _servercore.DB.GetType().GetMethod("BanPlayer"));
-            LuaHandler.RegisterFunction("DBUnbanPlayer", _servercore.DB, _servercore.DB.GetType().GetMethod("UnbanPlayer"));
-            LuaHandler.RegisterFunction("DBStopPlayer", _servercore.DB, _servercore.DB.GetType().GetMethod("StopPlayer"));
-            LuaHandler.RegisterFunction("DBUnstopPlayer", _servercore.DB, _servercore.DB.GetType().GetMethod("UnstopPlayer"));
-            LuaHandler.RegisterFunction("GetDBInt", _servercore.DB, _servercore.DB.GetType().GetMethod("GetDatabaseInt"));
-            LuaHandler.RegisterFunction("GetDBString", _servercore.DB, _servercore.DB.GetType().GetMethod("GetDatabaseString"));
+            LuaHandler.RegisterFunction("DBPlayerExists", Hypercube.DB, Hypercube.DB.GetType().GetMethod("ContainsPlayer"));
+            LuaHandler.RegisterFunction("DBGetPlayerName", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetPlayerName"));
+            LuaHandler.RegisterFunction("DBBanPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("BanPlayer"));
+            LuaHandler.RegisterFunction("DBUnbanPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("UnbanPlayer"));
+            LuaHandler.RegisterFunction("DBStopPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("StopPlayer"));
+            LuaHandler.RegisterFunction("DBUnstopPlayer", Hypercube.DB, Hypercube.DB.GetType().GetMethod("UnstopPlayer"));
+            LuaHandler.RegisterFunction("GetDBInt", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetDatabaseInt"));
+            LuaHandler.RegisterFunction("GetDBString", Hypercube.DB, Hypercube.DB.GetType().GetMethod("GetDatabaseString"));
             //LuaHandler.RegisterFunction("SetDB", Servercore.DB, Servercore.DB.GetType().GetMethod("SetDatabase"));
             LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
             LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
             
             // -- Variables
-            LuaHandler["G_ServerName"] = _servercore.ServerName;
-            LuaHandler["G_MOTD"] = _servercore.Motd;
-            LuaHandler["G_Welcome"] = _servercore.WelcomeMessage;
-            LuaHandler["G_MainMap"] = _servercore.MapMain;
-            LuaHandler["G_Core"] = _servercore;
+            LuaHandler["G_ServerName"] = Hypercube.ServerName;
+            LuaHandler["G_MOTD"] = Hypercube.Motd;
+            LuaHandler["G_Welcome"] = Hypercube.WelcomeMessage;
+            LuaHandler["G_MainMap"] = Hypercube.MapMain;
             LuaHandler["LogType_Info"] = LogType.Info;
         }
 
@@ -84,12 +81,12 @@ namespace Hypercube.Libraries {
                 else if (luaF != null)
                     luaF.Call();
             } catch (LuaScriptException e) {
-                _servercore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
             }
         }
 
         public void Main() {
-            while (_servercore.Running) {
+            while (Hypercube.Running) {
                 var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
                 foreach (var file in files) {
@@ -99,7 +96,7 @@ namespace Hypercube.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            _servercore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                            Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         continue;
@@ -109,7 +106,7 @@ namespace Hypercube.Libraries {
                         try {
                             LuaHandler.DoFile(file);
                         } catch (LuaScriptException e) {
-                            _servercore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                            Hypercube.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                         }
 
                         _scripts[file] = File.GetLastWriteTime(file);

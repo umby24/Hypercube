@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Hypercube.Client;
 using Hypercube.Map;
@@ -20,9 +17,9 @@ namespace Hypercube.Core {
     }
 
     public struct Undo {
-        public short x;
-        public short y;
-        public short z;
+        public short X;
+        public short Y;
+        public short Z;
         public Block OldBlock;
         public Block NewBlock;
     }
@@ -33,21 +30,21 @@ namespace Hypercube.Core {
         public short Z;
     }
 
-    public struct BMStruct {
+    public struct BmStruct {
         public string Name;
         public string Plugin;
     }
 
     public struct QueueComparator : IEqualityComparer<QueueItem> {
-        public bool Equals(QueueItem Item1, QueueItem Item2) {
-            if (Item1.X == Item2.X && Item1.Y == Item2.Y && Item1.Z == Item2.Z)
+        public bool Equals(QueueItem item1, QueueItem item2) {
+            if (item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z)
                 return true;
-            else
-                return false;
+            
+            return false;
         }
 
-        public int GetHashCode(QueueItem Item) {
-            var hCode = Item.X ^ Item.Y ^ Item.Z;
+        public int GetHashCode(QueueItem item) {
+            var hCode = item.X ^ item.Y ^ item.Z;
             return hCode.GetHashCode();
         }
     }
@@ -56,28 +53,28 @@ namespace Hypercube.Core {
         public short X, Y, Z, Priority;
         public DateTime DoneTime;
 
-        public QueueItem(short _X, short _Y, short _Z, short _Priority) {
-            X = _X;
-            Y = _Y;
-            Z = _Z;
-            Priority = _Priority;
+        public QueueItem(short x, short y, short z, short priority) {
+            X = x;
+            Y = y;
+            Z = z;
+            Priority = priority;
         }
-        public QueueItem(short _X, short _Y, short _Z, DateTime _DoneTime) {
-            X = _X;
-            Y = _Y;
-            Z = _Z;
-            DoneTime = _DoneTime;
+        public QueueItem(short x, short y, short z, DateTime doneTime) {
+            X = x;
+            Y = y;
+            Z = z;
+            DoneTime = doneTime;
         }
     }
 
-    public delegate void CommandInvoker(NetworkClient Client, string[] args, string Text1, string Text2);
+    public delegate void CommandInvoker(NetworkClient client, string[] args, string text1, string text2);
     public delegate void FillInvoker(HypercubeMap map, string[] args);
 
     public struct HistoryEntry {
         public int Timestamp { get; set; }
-        public short x { get; set; }
-        public short y { get; set; }
-        public short z { get; set; }
+        public short X { get; set; }
+        public short Y { get; set; }
+        public short Z { get; set; }
         public ushort Player { get; set; }
         public ushort LastPlayer { get; set; }
         public byte NewBlock { get; set; }
@@ -86,20 +83,23 @@ namespace Hypercube.Core {
         /// <summary>
         /// Loads a HistoryEntry from a byte array.
         /// </summary>
-        /// <param name="Array"></param>
-        public void FromByteArray(byte[] Array, short _x, short _y, short _z) {
-            if (Array.Length != 10)
+        /// <param name="array"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        public void FromByteArray(byte[] array, short x, short y, short z) {
+            if (array.Length != 10)
                 throw new FormatException("The provided byte array is not 10 bytes long.");
 
-            x = _x;
-            y = _y;
-            z = _z;
+            X = x;
+            Y = y;
+            Z = z;
 
-            Timestamp = BitConverter.ToInt32(Array, 0);
-            Player = BitConverter.ToUInt16(Array, 4);
-            LastPlayer = BitConverter.ToUInt16(Array, 6);
-            NewBlock = Array[8];
-            LastBlock = Array[9];
+            Timestamp = BitConverter.ToInt32(array, 0);
+            Player = BitConverter.ToUInt16(array, 4);
+            LastPlayer = BitConverter.ToUInt16(array, 6);
+            NewBlock = array[8];
+            LastBlock = array[9];
         }
 
         /// <summary>
@@ -107,29 +107,29 @@ namespace Hypercube.Core {
         /// </summary>
         /// <returns></returns>
         public byte[] ToByteArray() {
-            var Result = new byte[10];
+            var result = new byte[10];
 
-            Buffer.BlockCopy(BitConverter.GetBytes(Timestamp), 0, Result, 0, 4);
-            Buffer.BlockCopy(BitConverter.GetBytes(Player), 0, Result, 4, 2);
-            Buffer.BlockCopy(BitConverter.GetBytes(LastPlayer), 0, Result, 6, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(Timestamp), 0, result, 0, 4);
+            Buffer.BlockCopy(BitConverter.GetBytes(Player), 0, result, 4, 2);
+            Buffer.BlockCopy(BitConverter.GetBytes(LastPlayer), 0, result, 6, 2);
 
-            Result[8] = NewBlock;
-            Result[9] = LastBlock;
+            result[8] = NewBlock;
+            result[9] = LastBlock;
 
-            return Result;
+            return result;
         }
     }
 
     public struct HistoryComparator : IEqualityComparer<HistoryEntry> {
-        public bool Equals(HistoryEntry Item1, HistoryEntry Item2) {
-            if (Item1.x == Item2.x && Item1.y == Item2.y && Item1.z == Item2.z)
+        public bool Equals(HistoryEntry item1, HistoryEntry item2) {
+            if (item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z)
                 return true;
-            else
-                return false;
+            
+            return false;
         }
 
-        public int GetHashCode(HistoryEntry Item) {
-            var hCode = Item.x ^ Item.y ^ Item.z;
+        public int GetHashCode(HistoryEntry item) {
+            var hCode = item.X ^ item.Y ^ item.Z;
             return hCode.GetHashCode();
         }
     }

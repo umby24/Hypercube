@@ -26,55 +26,56 @@ namespace Hypercube
     // -- TODO: Finite water physics
     // -- BUG: text '@_@' kicks client (index error)
 
-    public class Hypercube {
+    public static class Hypercube {
         #region Variables
-        public bool Running = false;
-        public int OnlinePlayers = 0;
+        public static bool Running = false;
+        public static int OnlinePlayers = 0;
 
-        #region Server Settings
-        public string ServerName, Motd, WelcomeMessage, MapMain;
-        public bool CompressHistory, ColoredConsole;
-        public int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
-        public List<string> Rules;
-        public Rank DefaultRank;
+        #region Server SettingsDictionary
+        public static string ServerName, Motd, WelcomeMessage, MapMain;
+        public static bool CompressHistory, ColoredConsole;
+        public static int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
+        public static List<string> Rules;
+        public static Rank DefaultRank;
 
         // -- Log settings
-        public string Logfile = "Log";
-        public bool RotateLogs = true, LogArguments, LogOutput = false;
+        public static string Logfile = "Log";
+        public static bool RotateLogs = true, LogArguments, LogOutput = false;
         #endregion
 
         #region Containers
-        public PBSettingsLoader Settings;
-        public ISettings SysSettings, Rulesfile;
-        public Database DB;
+        public static PbSettingsLoader Settings;
+        public static Settings SysSettings, Rulesfile;
+        public static Database DB;
 
-        public Heartbeat Hb;
-        public Logging Logger;
-        public Text TextFormats;
+        public static Heartbeat Hb;
+        public static Logging Logger;
+        public static Text TextFormats;
 
-        public BuildMode BmContainer;
-        public BlockContainer Blockholder;
-        public PermissionContainer Permholder;
-        public RankContainer Rankholder;
-        public CommandHandler Commandholder;
-        public FillContainer Fillholder;
-        public HCLua Luahandler;
+        public static BuildMode BmContainer;
+        public static BlockContainer Blockholder;
+        public static PermissionContainer Permholder;
+        public static RankContainer Rankholder;
+        public static CommandHandler Commandholder;
+        public static FillContainer Fillholder;
+        public static HCLua Luahandler;
         #endregion
 
         #region Ids
-        public short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
-        public int MapIndex;
+        public static short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
+        public static int MapIndex;
         #endregion
 
-        public NetworkHandler Nh;
-        public List<HypercubeMap> Maps;
+        public static NetworkHandler Nh;
+        public static List<HypercubeMap> Maps;
         #endregion
 
-        public Hypercube() {
-            Settings = new PBSettingsLoader(this);
+        public static void Setup()
+        {
+            Settings = new PbSettingsLoader();
 
-            Logger = new Logging(this);
-            TextFormats = new Text(this);
+            Logger = new Logging();
+            TextFormats = new Text();
 
             SysSettings = Settings.RegisterFile("System.txt", true, ReadSystemSettings);
             Settings.ReadSettings(SysSettings);
@@ -84,23 +85,23 @@ namespace Hypercube
 
             if (RotateLogs)
                 Logger.RotateLogs();
-            
-            Permholder = new PermissionContainer(this);
-            Rankholder = new RankContainer(this);
-            Blockholder = new BlockContainer(this);
-            BmContainer = new BuildMode(this);
+
+            Permholder = new PermissionContainer();
+            Rankholder = new RankContainer();
+            Blockholder = new BlockContainer();
+            BmContainer = new BuildMode();
 
             DefaultRank = Rankholder.GetRank(DefaultRank.Name);
 
             DB = new Database();
             Logger.Log("Database", "Database loaded.", LogType.Info);
 
-            Nh = new NetworkHandler(this);
+            Nh = new NetworkHandler();
 
             Logger.Log("", "Core Initialized.", LogType.Info);
 
             Maps = new List<HypercubeMap>();
-            HypercubeMap.LoadMaps(this);
+            HypercubeMap.LoadMaps();
 
             var found = false;
 
@@ -113,16 +114,16 @@ namespace Hypercube
             }
 
             if (!found) {
-                var mainMap = new HypercubeMap(this, "Maps/world.cw", "world", 128, 128, 128);
+                var mainMap = new HypercubeMap("Maps/world.cw", "world", 128, 128, 128);
                 Maps.Add(mainMap);
                 MapIndex = Maps.Count - 1;
                 Logger.Log("Core", "Main world not found, a new one has been created.", LogType.Warning);
             }
 
-            Commandholder = new CommandHandler(this);
-            Fillholder = new FillContainer(this);
+            Commandholder = new CommandHandler();
+            Fillholder = new FillContainer();
 
-            Luahandler = new HCLua(this);
+            Luahandler = new HCLua();
             Luahandler.RegisterFunctions();
             Luahandler.LoadScripts();
 
@@ -131,15 +132,14 @@ namespace Hypercube
                     Settings.SaveSettings(i);
             }
         }
-
         /// <summary>
         /// Starts the server.
         /// </summary>
-        public void Start() {
+        public static void Start() {
             Nh.Start();
             Running = true;
 
-            Hb = new Heartbeat(this);
+            Hb = new Heartbeat();
             Settings.ReadingThead = new Thread(Settings.SettingsMain);
             Settings.ReadingThead.Start();
 
@@ -158,16 +158,12 @@ namespace Hypercube
             }
 
             Logger.Log("Core", "Server started.", LogType.Info);
-
-            // -- kk..
-            //var TestConverter = new D3Map(this);
-            //TestConverter.LoadMap("D:\\Documents\\Visual Studio 2013\\Projects\\Hypercube_Rewrite\\ServerCLI\\bin\\x86\\Debug\\Maps\\Hub", "ConverTest");
         }
 
         /// <summary>
         /// Stops the server and prepares it to be started again.
         /// </summary>
-        public void Stop() {
+        public static void Stop() {
             OnlinePlayers = 0;
 
             if (Hb != null) {
@@ -194,13 +190,13 @@ namespace Hypercube
             DB.DBConnection.Close();
         }
 
-        #region Main Settings Loading
-        public void ReadSystemSettings() {
+        #region Main SettingsDictionary Loading
+        public static void ReadSystemSettings() {
             ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
             Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
             MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
             WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
-            //DefaultRank = Rankholder.GetRank(Settings.ReadSetting(SysSettings, "Default Rank", "Guest"));
+            //DefaultRank = Rankholder.GetRank(SettingsDictionary.ReadSetting(SysSettings, "Default Rank", "Guest"));
 
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
@@ -217,7 +213,7 @@ namespace Hypercube
                 Logger.Log("Core", "System settings loaded.", LogType.Info);
         }
 
-        public void SaveSystemSettings() {
+        public static void SaveSystemSettings() {
             Settings.SaveSetting(SysSettings, "Name", ServerName);
             Settings.SaveSetting(SysSettings, "MOTD", Motd);
             Settings.SaveSetting(SysSettings, "MainMap", MapMain);
@@ -232,21 +228,21 @@ namespace Hypercube
             Settings.SaveSetting(SysSettings, "DefaultRank", DefaultRank.Name);
          }
 
-        public void ReadRules() {
+        public static void ReadRules() {
             if (Rules == null)
                 Rules = new List<string>();
 
             Rules.Clear();
 
-            using (var SR = new StreamReader("Settings/Rules.txt")) {
-                while (!SR.EndOfStream)
-                    Rules.Add(SR.ReadLine());
+            using (var sr = new StreamReader("SettingsDictionary/Rules.txt")) {
+                while (!sr.EndOfStream)
+                    Rules.Add(sr.ReadLine());
             }
 
             if (Rules.Count == 0) {
                 Rules.Add("&cYou do not have any rules defined. Please edit Rules.txt");
                 Rules.Add("&cto add your own rules here.");
-                File.WriteAllText("Settings/Rules.txt", "&cYou do not have any rules defined. Please edit Rules.txt\n&cto add your own rules here.");
+                File.WriteAllText("SettingsDictionary/Rules.txt", "&cYou do not have any rules defined. Please edit Rules.txt\n&cto add your own rules here.");
                 return;
             }
 

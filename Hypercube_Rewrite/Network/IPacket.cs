@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Hypercube.Client;
 
 namespace Hypercube.Network {
     /// <summary>
@@ -9,8 +6,8 @@ namespace Hypercube.Network {
     /// </summary>
     public interface IPacket {
         byte Id { get; }
-        void Read(Client.NetworkClient client);
-        void Write(Client.NetworkClient client);
-        void Handle(Client.NetworkClient client, Hypercube core);
+        void Read(NetworkClient client);
+        void Write(NetworkClient client);
+        void Handle(NetworkClient client);
     }
 }

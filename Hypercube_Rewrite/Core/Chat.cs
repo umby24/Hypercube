@@ -11,17 +11,16 @@ namespace Hypercube.Core {
         /// <summary>
         /// Sends a chat message to all players across all maps.
         /// </summary>
-        /// <param name="core"></param>
         /// <param name="message"></param>
         /// <param name="messageType"></param>
         /// <param name="log"></param>
-        public static void SendGlobalChat(Hypercube core, string message, sbyte messageType = 0, bool log = false) {
+        public static void SendGlobalChat(string message, sbyte messageType = 0, bool log = false) {
             var chat = new Message {PlayerId = messageType};
 
-            message = Text.CleanseString(message, core);
+            message = Text.CleanseString(message);
 
             if (log)
-                core.Logger.Log("Global", message, LogType.Chat);
+                Hypercube.Logger.Log("Global", message, LogType.Chat);
 
             message = EmoteReplace(message);
 
@@ -30,7 +29,7 @@ namespace Hypercube.Core {
 
             var sending = SplitLines(message);
 
-            foreach (var c in core.Nh.ClientList) {
+            foreach (var c in Hypercube.Nh.ClientList) {
                 foreach (var b in sending) {
                     chat.Text = b;
                     c.SendQueue.Enqueue(chat);
@@ -42,13 +41,13 @@ namespace Hypercube.Core {
         /// <summary>
         /// Sends a message to all clients on a certain map.
         /// </summary>
-        public static void SendMapChat(HypercubeMap map, Hypercube core, string message, sbyte messageType = 0, bool log = false) {
+        public static void SendMapChat(HypercubeMap map, string message, sbyte messageType = 0, bool log = false) {
             var chat = new Message {PlayerId = messageType};
 
-            message = Text.CleanseString(message, core);
+            message = Text.CleanseString(message);
 
             if (log)
-                core.Logger.Log(map.CWMap.MapName, message, LogType.Chat);
+                Hypercube.Logger.Log(map.CWMap.MapName, message, LogType.Chat);
 
             message = EmoteReplace(message);
 
@@ -70,7 +69,7 @@ namespace Hypercube.Core {
         /// Sends chat to an individual client
         /// </summary>
         public static void SendClientChat(NetworkClient client, string message, sbyte messageType = 0) {
-            message = Text.CleanseString(message, client.ServerCore);
+            message = Text.CleanseString(message);
             message = EmoteReplace(message);
 
             if (!client.CS.CPEExtensions.ContainsKey("EmoteFix") && Text.StringMatches(message.Substring(message.Length - 1)))
@@ -118,12 +117,12 @@ namespace Hypercube.Core {
                 return;
             }
 
-            incomingClient.ServerCore.Luahandler.RunFunction("E_ChatMessage", incomingClient, message);
+            Hypercube.Luahandler.RunFunction("E_ChatMessage", incomingClient, message);
 
             if (message.StartsWith("/") && !message.StartsWith("//"))
-                incomingClient.ServerCore.Commandholder.HandleCommand(incomingClient, message);
+                Hypercube.Commandholder.HandleCommand(incomingClient, message);
             else if (message.StartsWith("@")) {
-                var client = "";
+                string client;
 
                 try {
                     client = message.Substring(1, message.IndexOf(" ") - 1);
@@ -133,8 +132,8 @@ namespace Hypercube.Core {
 
                 NetworkClient tosend;
 
-                if (incomingClient.ServerCore.Nh.LoggedClients.ContainsKey(client)) {
-                    tosend = incomingClient.ServerCore.Nh.LoggedClients[client];
+                if (Hypercube.Nh.LoggedClients.ContainsKey(client)) {
+                    tosend = Hypercube.Nh.LoggedClients[client];
                 } else {
                     SendClientChat(incomingClient, "§EPlayer '" + client + "' not found.");
                     return;
@@ -146,19 +145,19 @@ namespace Hypercube.Core {
                 message = message.Substring(1, message.Length - 1);
 
                 if (incomingClient.CS.Global) {
-                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.ServerCore, incomingClient.CS.FormattedName + "&f: " + message);
-                    incomingClient.ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.CS.FormattedName + "&f: " + message);
+                    Hypercube.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
-                    SendGlobalChat(incomingClient.ServerCore, "&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
-                    incomingClient.ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    SendGlobalChat("&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
+                    Hypercube.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             } else {
                 if (incomingClient.CS.Global) {
-                    SendGlobalChat(incomingClient.ServerCore, "&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
-                    incomingClient.ServerCore.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    SendGlobalChat("&c#&f " + incomingClient.CS.FormattedName + "&f: " + message);
+                    Hypercube.Logger.Log("Global", incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 } else {
-                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.ServerCore, incomingClient.CS.FormattedName + "&f: " + message);
-                    incomingClient.ServerCore.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
+                    SendMapChat(incomingClient.CS.CurrentMap, incomingClient.CS.FormattedName + "&f: " + message);
+                    Hypercube.Logger.Log(incomingClient.CS.CurrentMap.CWMap.MapName, incomingClient.CS.LoginName + ": " + message, LogType.Chat);
                 }
             }
         }
@@ -317,7 +316,7 @@ namespace Hypercube.Core {
 
             // -- The string is longer than 64 characters, or contains '<br>'.
             builder.AddRange(SplitBrs(input));
-            var temp = "";
+            string temp;
 
             // -- First, going to insert our own <br>'s wherever the string is too long.
             for (var i = 0; i < builder.Count; i++) {

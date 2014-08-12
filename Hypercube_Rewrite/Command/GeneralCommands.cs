@@ -69,11 +69,11 @@ namespace Hypercube.Command {
                 Chat.SendClientChat(Client, "§SCommand groups:");
                 Chat.SendClientChat(Client, "&a    All");
 
-                foreach (var a in Client.ServerCore.Commandholder.Groups.Keys)
+                foreach (var a in Hypercube.Commandholder.Groups.Keys)
                     Chat.SendClientChat(Client, "&a    " + a);
 
             } else if (args.Length == 1) { // -- list a group.
-                if (!Client.ServerCore.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
+                if (!Hypercube.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
                     Chat.SendClientChat(Client, "§EGroup '" + args[0] + "' not found.");
                     return;
                 }
@@ -82,8 +82,8 @@ namespace Hypercube.Command {
                 var currentLen = 5;
 
                 if (args[0].ToLower() == "all") {
-                    foreach (var b in Client.ServerCore.Commandholder.CommandDict.Keys) {
-                        if (!Client.ServerCore.Commandholder.CommandDict[b].CanBeSeen(Client))
+                    foreach (var b in Hypercube.Commandholder.CommandDict.Keys) {
+                        if (!Hypercube.Commandholder.CommandDict[b].CanBeSeen(Client))
                             continue;
 
                         if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
@@ -99,8 +99,8 @@ namespace Hypercube.Command {
                     return;
                 }
 
-                foreach (var b in Client.ServerCore.Commandholder.Groups[args[0]]) {
-                    if (!Client.ServerCore.Commandholder.CommandDict["/" + b].CanBeSeen(Client))
+                foreach (var b in Hypercube.Commandholder.Groups[args[0]]) {
+                    if (!Hypercube.Commandholder.CommandDict["/" + b].CanBeSeen(Client))
                         continue;
 
                     if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
@@ -146,17 +146,17 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (Client.ServerCore.Commandholder.CommandDict.ContainsKey("/" + args[0].ToLower()) == false) {
+            if (Hypercube.Commandholder.CommandDict.ContainsKey("/" + args[0].ToLower()) == false) {
                 Chat.SendClientChat(Client, "§E&fCommand not found.");
                 return;
             }
 
-            if (!Client.ServerCore.Commandholder.CommandDict["/" + args[0]].CanBeSeen(Client)) {
+            if (!Hypercube.Commandholder.CommandDict["/" + args[0]].CanBeSeen(Client)) {
                 Chat.SendClientChat(Client, "§E&fCommand not found.");
                 return;
             }
 
-            var thisCommand = Client.ServerCore.Commandholder.CommandDict["/" + args[0].ToLower()];
+            var thisCommand = Hypercube.Commandholder.CommandDict["/" + args[0].ToLower()];
             Chat.SendClientChat(Client, "§S/" + args[0]);
             Chat.SendClientChat(Client, thisCommand.Help);
         }
@@ -186,7 +186,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            args[0] = Client.ServerCore.DB.GetPlayerName(args[0]);
+            args[0] = Hypercube.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
                 Chat.SendClientChat(Client, "§ECould not find the player.");
@@ -194,8 +194,8 @@ namespace Hypercube.Command {
             }
 
 
-            var playerRanks = RankContainer.SplitRanks(Client.ServerCore, Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
-            var playerSteps = RankContainer.SplitSteps(Client.ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+            var playerRanks = RankContainer.SplitRanks(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var playerSteps = RankContainer.SplitSteps(Hypercube.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
             var playerInfo = "§SRank(s) for " + args[0] + ": ";
 
             foreach (var r in playerRanks)
@@ -229,24 +229,24 @@ namespace Hypercube.Command {
         static void GlobalHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             if (args.Length == 0) {
                 // -- Toggle.
-                if (Client.ServerCore.DB.GetDatabaseInt(Client.CS.LoginName, "PlayerDB", "Global") == 1) {
+                if (Hypercube.DB.GetDatabaseInt(Client.CS.LoginName, "PlayerDB", "Global") == 1) {
                     Client.CS.Global = false;
                     Chat.SendClientChat(Client, "§SGlobal chat is now off by default.");
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
                 } else {
                     Client.CS.Global = true;
                     Chat.SendClientChat(Client, "§SGlobal chat is now on by default.");
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "on" || args[0].ToLower() == "true") {
                     Client.CS.Global = true;
                     Chat.SendClientChat(Client, "§SGlobal chat is now on by default.");
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
                 } else if (args[0].ToLower() == "off" || args[0].ToLower() == "false") {
                     Client.CS.Global = false;
                     Chat.SendClientChat(Client, "§SGlobal chat is now off by default.");
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
                 }
             } else
                 Chat.SendClientChat(Client, "§EIncorrect number of arguments, see /cmdhelp global.");
@@ -272,9 +272,9 @@ namespace Hypercube.Command {
         };
 
         static void PlayersHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            var onlineString = "§SOnline Players: " + Client.ServerCore.Nh.Clients.Count + "<br>";
+            var onlineString = "§SOnline Players: " + Hypercube.Nh.Clients.Count + "<br>";
 
-            foreach (var hm in Client.ServerCore.Maps) {
+            foreach (var hm in Hypercube.Maps) {
                 onlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
                 foreach(var c in hm.ClientsList)
@@ -309,7 +309,7 @@ namespace Hypercube.Command {
             Chat.SendClientChat(Client, "§SGroups&f:");
             var groupDict = new Dictionary<string, string>();
 
-            foreach (var r in Client.ServerCore.Rankholder.NameList.Values) {
+            foreach (var r in Hypercube.Rankholder.NameList.Values) {
                 if (groupDict.Keys.Contains(r.Group))
                     groupDict[r.Group] += "§S| " + r.Prefix + r.Name + r.Suffix + " ";
                 else
@@ -342,8 +342,8 @@ namespace Hypercube.Command {
         static void RulesHandler(NetworkClient client, string[] args, string text1, string text2) {
             Chat.SendClientChat(client, "&6Server Rules:");
 
-            for (var i = 0; i < client.ServerCore.Rules.Count; i++)
-                Chat.SendClientChat(client, "&6" + (i + 1) + ": " + client.ServerCore.Rules[i]);
+            for (var i = 0; i < Hypercube.Rules.Count; i++)
+                Chat.SendClientChat(client, "&6" + (i + 1) + ": " + Hypercube.Rules[i]);
         }
         #endregion
         #region Maps
@@ -368,7 +368,7 @@ namespace Hypercube.Command {
         static void MapsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             var MapString = "§SMaps:<br>";
 
-            foreach (var m in Client.ServerCore.Maps) {
+            foreach (var m in Hypercube.Maps) {
                 var Cansee = false;
 
                 foreach (var r in Client.CS.PlayerRanks) {
@@ -412,7 +412,7 @@ namespace Hypercube.Command {
 
             var found = false;
 
-            foreach (var m in Client.ServerCore.Maps) {
+            foreach (var m in Hypercube.Maps) {
                 if (m.CWMap.MapName.ToLower() == args[0].ToLower()) {
                     var canSee = false;
                     var canJoin = false;

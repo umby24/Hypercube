@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Threading;
 
@@ -9,43 +7,41 @@ namespace Hypercube.Libraries {
     /// <summary>
     /// Public interface for easy settings management. This allows settings to be reloaded as they are changed.
     /// </summary>
-    public class ISettings {
+    public class Settings {
         public string Filename { get; set; }
         public string CurrentGroup { get; set; }
         public DateTime LastModified { get; set; }
-        public Dictionary<string, Dictionary<string, string>> Settings { get; set; }
+        public Dictionary<string, Dictionary<string, string>> SettingsDictionary { get; set; }
         public object LoadSettings { get; set; }
         public bool Save { get; set; }
     }
 
-    public class PBSettingsLoader {
-        public List<ISettings> SettingsFiles;
+    public class PbSettingsLoader {
+        public List<Settings> SettingsFiles;
         public Thread ReadingThead;
-        Hypercube ServerCore;
 
         public delegate void LoadSettings();
 
-        public PBSettingsLoader(Hypercube Core) {
-            ServerCore = Core;
-            SettingsFiles = new List<ISettings>();
+        public PbSettingsLoader() {
+            SettingsFiles = new List<Settings>();
 
-            if (!Directory.Exists("Settings"))
-                Directory.CreateDirectory("Settings");
+            if (!Directory.Exists("SettingsDictionary"))
+                Directory.CreateDirectory("SettingsDictionary");
         }
 
         /// <summary>
         /// Clears all the settings currently loaded, and completely reloads the settings file.
         /// This will also run the "LoadSettings" object once the file is loaded.
         /// </summary>
-        /// <param name="Settingsfile"></param>
-        public void ReadSettings(ISettings Settingsfile) {
-            if (!File.Exists("Settings/" + Settingsfile.Filename))
-                File.WriteAllText("Settings/" + Settingsfile.Filename, "");
+        /// <param name="settingsfile"></param>
+        public void ReadSettings(Settings settingsfile) {
+            if (!File.Exists("SettingsDictionary/" + settingsfile.Filename))
+                File.WriteAllText("SettingsDictionary/" + settingsfile.Filename, "");
 
-            PreLoad(Settingsfile);
-            Settingsfile.LastModified = File.GetLastWriteTime("Settings/" + Settingsfile.Filename);
+            PreLoad(settingsfile);
+            settingsfile.LastModified = File.GetLastWriteTime("SettingsDictionary/" + settingsfile.Filename);
 
-            var myDele = (LoadSettings)Settingsfile.LoadSettings;
+            var myDele = (LoadSettings)settingsfile.LoadSettings;
 
             if (myDele != null)
                 myDele();
@@ -54,13 +50,13 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Saves the settings to file.
         /// </summary>
-        /// <param name="SettingsFile"></param>
-        public void SaveSettings(ISettings SettingsFile) {
-            if (!SettingsFile.Save)
+        /// <param name="settingsFile"></param>
+        public void SaveSettings(Settings settingsFile) {
+            if (!settingsFile.Save)
                 return;
 
-            using (var fileWriter = new StreamWriter("Settings/" + SettingsFile.Filename)) {
-                foreach (var pair in SettingsFile.Settings) {
+            using (var fileWriter = new StreamWriter("SettingsDictionary/" + settingsFile.Filename)) {
+                foreach (var pair in settingsFile.SettingsDictionary) {
                     if (pair.Key != "")
                         fileWriter.WriteLine("[" + pair.Key + "]");
 
@@ -69,40 +65,40 @@ namespace Hypercube.Libraries {
                 }
             }
 
-            SettingsFile.LastModified = File.GetLastWriteTime("Settings/" + SettingsFile.Filename);
+            settingsFile.LastModified = File.GetLastWriteTime("SettingsDictionary/" + settingsFile.Filename);
         }
 
         /// <summary>
         /// Loads all of the groups and related settings for the file.
         /// </summary>
-        /// <param name="SettingsFile"></param>
-        void PreLoad(ISettings SettingsFile) {
-            SettingsFile.CurrentGroup = "";
+        /// <param name="settingsFile"></param>
+        void PreLoad(Settings settingsFile) {
+            settingsFile.CurrentGroup = "";
 
-            using (var SR = new StreamReader("Settings/" + SettingsFile.Filename)) {
-                while (!SR.EndOfStream) {
-                    var thisLine = SR.ReadLine();
+            using (var sr = new StreamReader("SettingsDictionary/" + settingsFile.Filename)) {
+                while (!sr.EndOfStream) {
+                    var thisLine = sr.ReadLine();
 
-                    if (thisLine.StartsWith(";")) // -- Comment
+                    if (thisLine != null && thisLine.StartsWith(";")) // -- Comment
                         continue;
                     
-                    if (thisLine.StartsWith("[") && thisLine.EndsWith("]")) { // -- Group. 
-                        if (SettingsFile.Settings.ContainsKey(thisLine.Substring(1, thisLine.Length - 2)))
+                    if (thisLine != null && (thisLine.StartsWith("[") && thisLine.EndsWith("]"))) { // -- Group. 
+                        if (settingsFile.SettingsDictionary.ContainsKey(thisLine.Substring(1, thisLine.Length - 2)))
                             continue;
 
-                        SettingsFile.Settings.Add(thisLine.Substring(1, thisLine.Length - 2), new Dictionary<string, string>());
-                        SettingsFile.CurrentGroup = thisLine.Substring(1, thisLine.Length - 2);
+                        settingsFile.SettingsDictionary.Add(thisLine.Substring(1, thisLine.Length - 2), new Dictionary<string, string>());
+                        settingsFile.CurrentGroup = thisLine.Substring(1, thisLine.Length - 2);
                         continue;
                     }
 
-                    if (thisLine.Contains("=")) { // -- Setting.
-                        if (SettingsFile.CurrentGroup == "" && !SettingsFile.Settings.ContainsKey(""))
-                            SettingsFile.Settings.Add("", new Dictionary<string, string>());
+                    if (thisLine != null && thisLine.Contains("=")) { // -- Setting.
+                        if (settingsFile.CurrentGroup == "" && !settingsFile.SettingsDictionary.ContainsKey(""))
+                            settingsFile.SettingsDictionary.Add("", new Dictionary<string, string>());
 
-                        if (SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')))
-                            SettingsFile.Settings[SettingsFile.CurrentGroup][thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')] = thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' ');
+                        if (settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')))
+                            settingsFile.SettingsDictionary[settingsFile.CurrentGroup][thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' ')] = thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' ');
                         else
-                            SettingsFile.Settings[SettingsFile.CurrentGroup].Add(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' '), thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' '));
+                            settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(thisLine.Substring(0, thisLine.IndexOf("=")).TrimEnd(' '), thisLine.Substring(thisLine.IndexOf("=") + 1, thisLine.Length - (thisLine.IndexOf("=") + 1)).TrimStart(' '));
 
                     }
                 }
@@ -112,80 +108,83 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// Selects a different group of settings. If the group does not exist, it is created.
         /// </summary>
-        /// <param name="SettingsFile"></param>
-        /// <param name="GroupName"></param>
-        public ISettings SelectGroup(ISettings SettingsFile, string GroupName) {
-            if (SettingsFile.Settings.ContainsKey(GroupName))
-                SettingsFile.CurrentGroup = GroupName;
+        /// <param name="settingsFile"></param>
+        /// <param name="groupName"></param>
+        public Settings SelectGroup(Settings settingsFile, string groupName) {
+            if (settingsFile.SettingsDictionary.ContainsKey(groupName))
+                settingsFile.CurrentGroup = groupName;
             else {
-                SettingsFile.Settings.Add(GroupName, new Dictionary<string, string>());
-                SettingsFile.CurrentGroup = GroupName;
+                settingsFile.SettingsDictionary.Add(groupName, new Dictionary<string, string>());
+                settingsFile.CurrentGroup = groupName;
             }
 
-            return SettingsFile;
+            return settingsFile;
         }
 
         /// <summary>
         /// Reads an individual value from a settings object. If the setting does not exist, an entry is created with the given defaultValue.
         /// </summary>
-        /// <param name="SettingsFile"></param>
-        /// <param name="Key"></param>
+        /// <param name="settingsFile"></param>
+        /// <param name="key"></param>
         /// <param name="def"></param>
         /// <returns>string</returns>
-        public string ReadSetting(ISettings SettingsFile, string Key, string def) {
-            if (!SettingsFile.Settings.ContainsKey(SettingsFile.CurrentGroup)) {
-                SettingsFile.Settings.Add(SettingsFile.CurrentGroup, new Dictionary<string, string>());
-                SettingsFile.CurrentGroup = SettingsFile.CurrentGroup;
-                SettingsFile.Settings[SettingsFile.CurrentGroup].Add(Key, def);
+        public string ReadSetting(Settings settingsFile, string key, string def) {
+            if (!settingsFile.SettingsDictionary.ContainsKey(settingsFile.CurrentGroup)) {
+                settingsFile.SettingsDictionary.Add(settingsFile.CurrentGroup, new Dictionary<string, string>());
+                settingsFile.CurrentGroup = settingsFile.CurrentGroup;
+                settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(key, def);
                 return def;
             }
 
-            if (!SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(Key)) {
-                SettingsFile.Settings[SettingsFile.CurrentGroup].Add(Key, def);
+            if (!settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(key)) {
+                settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(key, def);
                 return def;
-            } else
-                return SettingsFile.Settings[SettingsFile.CurrentGroup][Key];
+            }
+
+            return settingsFile.SettingsDictionary[settingsFile.CurrentGroup][key];
         }
 
         /// <summary>
         /// Reads an individual value from a settings object. If the setting does not exist, an entry is created with the given defaultValue.
         /// </summary>
-        /// <param name="SettingsFile"></param>
-        /// <param name="Key"></param>
+        /// <param name="settingsFile"></param>
+        /// <param name="key"></param>
         /// <param name="def"></param>
         /// <returns>int</returns>
-        public int ReadSetting(ISettings SettingsFile, string Key, int def) {
-            if (!SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(Key)) {
-                SettingsFile.Settings[SettingsFile.CurrentGroup].Add(Key, def.ToString());
+        public int ReadSetting(Settings settingsFile, string key, int def) {
+            if (!settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(key)) {
+                settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(key, def.ToString());
                 return def;
-            } else
-                return int.Parse(SettingsFile.Settings[SettingsFile.CurrentGroup][Key]);
+            }
+
+            return int.Parse(settingsFile.SettingsDictionary[settingsFile.CurrentGroup][key]);
         }
 
         /// <summary>
         /// Saves a setting with the given key and value. 
         /// </summary>
-        /// <param name="SettingsFile">The settings class to save this setting to.</param>
+        /// <param name="settingsFile">The settings class to save this setting to.</param>
         /// <param name="settingsKey">The key for the setting.</param>
         /// <param name="settingsValue">The value of the setting.</param>
-        public void SaveSetting(ISettings SettingsFile, string settingsKey, string settingsValue) {
-            if (SettingsFile.Settings[SettingsFile.CurrentGroup].ContainsKey(settingsKey))
-                SettingsFile.Settings[SettingsFile.CurrentGroup][settingsKey] = settingsValue;
+        public void SaveSetting(Settings settingsFile, string settingsKey, string settingsValue) {
+            if (settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(settingsKey))
+                settingsFile.SettingsDictionary[settingsFile.CurrentGroup][settingsKey] = settingsValue;
             else
-                SettingsFile.Settings[SettingsFile.CurrentGroup].Add(settingsKey, settingsValue);
+                settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(settingsKey, settingsValue);
         }
 
-        public ISettings RegisterFile(string filename, bool save, LoadSettings ReadFunction) {
-            var NewSettings = new ISettings();
-            NewSettings.Filename = filename;
-            NewSettings.CurrentGroup = "";
-            NewSettings.Settings = new Dictionary<string,Dictionary<string,string>>();
-            NewSettings.Save = save;
-            NewSettings.LoadSettings = ReadFunction;
+        public Settings RegisterFile(string filename, bool save, LoadSettings readFunction) {
+            var newSettings = new Settings {
+                Filename = filename,
+                CurrentGroup = "",
+                SettingsDictionary = new Dictionary<string, Dictionary<string, string>>(),
+                Save = save,
+                LoadSettings = readFunction
+            };
 
-            SettingsFiles.Add(NewSettings);
+            SettingsFiles.Add(newSettings);
 
-            return NewSettings;
+            return newSettings;
         }
 
         /// <summary>
@@ -194,12 +193,12 @@ namespace Hypercube.Libraries {
         /// This should be run in a thread.
         /// </summary>
         public void SettingsMain() {
-            while (ServerCore.Running) {
-                for (var i = 0; i < SettingsFiles.Count; i++) {
-                    if (File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename) != SettingsFiles[i].LastModified) {
-                        ReadSettings(SettingsFiles[i]);
-                        SettingsFiles[i].LastModified = File.GetLastWriteTime("Settings/" + SettingsFiles[i].Filename);
-                    }
+            while (Hypercube.Running) {
+                foreach (Settings t in SettingsFiles) {
+                    if (File.GetLastWriteTime("SettingsDictionary/" + t.Filename) ==
+                        t.LastModified) continue;
+                    ReadSettings(t);
+                    t.LastModified = File.GetLastWriteTime("SettingsDictionary/" + t.Filename);
                 }
 
                 Thread.Sleep(1000);

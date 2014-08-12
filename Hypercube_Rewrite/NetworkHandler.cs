@@ -13,7 +13,7 @@ using Hypercube.Network;
 namespace Hypercube {
     public class NetworkHandler {
         #region Variables
-        public ISettings Ns;
+        public Settings Ns;
         public List<NetworkClient> Clients = new List<NetworkClient>();
         public Dictionary<string, NetworkClient> LoggedClients = new Dictionary<string, NetworkClient>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -22,18 +22,16 @@ namespace Hypercube {
         public TcpListener CoreListener;
         public object ClientLock = new object();
 
-        // -- Network Settings
+        // -- Network SettingsDictionary
         public int Port, MaxPlayers, MaxPerIp;
         public bool VerifyNames, Public;
 
-        readonly Hypercube ServerCore;
         Thread _listenThread;
         #endregion
 
-        public NetworkHandler(Hypercube core) {
-            ServerCore = core;
-            Ns = ServerCore.Settings.RegisterFile("Network.txt", true, LoadSettings);
-            ServerCore.Settings.ReadSettings(Ns);
+        public NetworkHandler() {
+            Ns = Hypercube.Settings.RegisterFile("Network.txt", true, LoadSettings);
+            Hypercube.Settings.ReadSettings(Ns);
         }
 
         public void CreateShit() {
@@ -41,28 +39,28 @@ namespace Hypercube {
         }
 
         void LoadSettings() {
-            Port = int.Parse(ServerCore.Settings.ReadSetting(Ns, "Port", "25565"));
-            MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(Ns, "MaxPlayers", "128"));
-            VerifyNames = bool.Parse(ServerCore.Settings.ReadSetting(Ns, "VerifyNames", "true"));
-            Public = bool.Parse(ServerCore.Settings.ReadSetting(Ns, "Public", "true"));
-            MaxPerIp = int.Parse(ServerCore.Settings.ReadSetting(Ns, "MaxPerIP", "5"));
+            Port = int.Parse(Hypercube.Settings.ReadSetting(Ns, "Port", "25565"));
+            MaxPlayers = int.Parse(Hypercube.Settings.ReadSetting(Ns, "MaxPlayers", "128"));
+            VerifyNames = bool.Parse(Hypercube.Settings.ReadSetting(Ns, "VerifyNames", "true"));
+            Public = bool.Parse(Hypercube.Settings.ReadSetting(Ns, "Public", "true"));
+            MaxPerIp = int.Parse(Hypercube.Settings.ReadSetting(Ns, "MaxPerIP", "5"));
 
-            ServerCore.Logger.Log("Network", "Network settings loaded.", LogType.Info);
+            Hypercube.Logger.Log("Network", "Network settings loaded.", LogType.Info);
         }
 
         public void SaveSettings() {
-            ServerCore.Settings.SaveSetting(Ns, "Port", Port.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "MaxPlayers", MaxPlayers.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "VerifyNames", VerifyNames.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "Public", Public.ToString());
+            Hypercube.Settings.SaveSetting(Ns, "Port", Port.ToString());
+            Hypercube.Settings.SaveSetting(Ns, "MaxPlayers", MaxPlayers.ToString());
+            Hypercube.Settings.SaveSetting(Ns, "VerifyNames", VerifyNames.ToString());
+            Hypercube.Settings.SaveSetting(Ns, "Public", Public.ToString());
         }
 
         public void Start() {
-            if (ServerCore.Running)
+            if (Hypercube.Running)
                 Stop();
 
             CoreListener = new TcpListener(IPAddress.Any, Port);
-            ServerCore.Running = true;
+            Hypercube.Running = true;
             CoreListener.Start();
 
             _listenThread = new Thread(Listen);
@@ -70,20 +68,20 @@ namespace Hypercube {
 
             CreateShit();
 
-            ServerCore.Logger.Log("Network", "Server started on port " + Port, LogType.Info);
+            Hypercube.Logger.Log("Network", "Server started on port " + Port, LogType.Info);
         }
 
         public void Stop() {
-            if (ServerCore.Running == false)
+            if (Hypercube.Running == false)
                 return;
 
             CoreListener.Stop();
-            ServerCore.Running = false;
+            Hypercube.Running = false;
             _listenThread.Abort();
 
             lock (ClientLock) {
-                for (var i = 0; i < Clients.Count; i++)
-                    Clients[i].KickPlayer("Server closing.");
+                foreach (NetworkClient client in Clients)
+                    client.KickPlayer("Server closing.");
             }
         }
 
@@ -102,12 +100,11 @@ namespace Hypercube {
 
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
-                ServerCore.OnlinePlayers -= 1;
-                ServerCore.FreeId = client.CS.NameId;
-                ServerCore.EFree = (short)client.CS.MyEntity.Id;
+                Hypercube.OnlinePlayers -= 1;
+                Hypercube.FreeId = client.CS.NameId;
+                Hypercube.EFree = (short)client.CS.MyEntity.Id;
 
-                var remove = new ExtRemovePlayerName();
-                remove.NameId = client.CS.NameId;
+                var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
 
                 lock (ClientLock) {
                     foreach (var c in Clients) {
@@ -117,9 +114,9 @@ namespace Hypercube {
                     }
                 }
 
-                ServerCore.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
-                ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
-                Chat.SendGlobalChat(ServerCore, ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
+                Hypercube.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
+                Hypercube.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
+                Chat.SendGlobalChat(Hypercube.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + Hypercube.TextFormats.SystemMessage + " left.");
                 client.CS.LoggedIn = false;
                 CreateShit();
             }
@@ -147,7 +144,7 @@ namespace Hypercube {
         }
 
         public void Listen() {
-            while (ServerCore.Running) {
+            while (Hypercube.Running) {
                 TcpClient tempClient;
 
                 try {
@@ -158,34 +155,34 @@ namespace Hypercube {
 
                 var ip = tempClient.Client.RemoteEndPoint.ToString().Substring(0, tempClient.Client.RemoteEndPoint.ToString().IndexOf(":")); // -- Strips the port the user is connecting from.
 
-                if (ServerCore.DB.IsIpBanned(ip)) {
-                    ServerCore.Logger.Log("Network", "Disconnecting client " + ip + ": IP banned.", LogType.Info);
+                if (Hypercube.DB.IsIpBanned(ip)) {
+                    Hypercube.Logger.Log("Network", "Disconnecting client " + ip + ": IP banned.", LogType.Info);
                     RawKick("IP Banned", tempClient);
                     tempClient.Close();
                     continue;
                 }
 
                 if (ip != "127.0.0.1" && Clients.Count(p => p.CS.Ip.Equals(ip)) > MaxPerIp) {
-                    ServerCore.Logger.Log("Network", "Disconnecting client " + ip + ": Connection limit reached.", LogType.Info);
+                    Hypercube.Logger.Log("Network", "Disconnecting client " + ip + ": Connection limit reached.", LogType.Info);
                     RawKick("Connection limit reached for this IP!", tempClient);
                     tempClient.Close();
                     continue;
                 }
 
-                if (ServerCore.OnlinePlayers >= MaxPlayers) {
-                    ServerCore.Logger.Log("Network", "Disconnecting client " + ip + ": Server is full.", LogType.Info);
+                if (Hypercube.OnlinePlayers >= MaxPlayers) {
+                    Hypercube.Logger.Log("Network", "Disconnecting client " + ip + ": Server is full.", LogType.Info);
                     RawKick("Server is full.", tempClient);
                     tempClient.Close();
                     continue;
                 }
 
-                var newClient = new NetworkClient(tempClient, ServerCore, ip); // -- Creates a new network client, which will begin waiting for and parsing packets.
+                var newClient = new NetworkClient(tempClient, ip); // -- Creates a new network client, which will begin waiting for and parsing packets.
                 
                 lock (ClientLock) {
                     Clients.Add(newClient);
                 }
 
-                ServerCore.Logger.Log("Network", "Client created (IP = " + newClient.CS.Ip + ")", LogType.Info);
+                Hypercube.Logger.Log("Network", "Client created (IP = " + newClient.CS.Ip + ")", LogType.Info);
             }
         }
     }

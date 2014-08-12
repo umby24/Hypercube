@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
@@ -18,13 +16,13 @@ namespace Hypercube.Libraries {
         readonly object _dbLock = new object();
 
         public Database() {
-            if (!File.Exists("Settings/" + DatabaseName)) {
+            if (!File.Exists("SettingsDictionary/" + DatabaseName)) {
                 // -- We need to create the PlayerDB.
-                SQLiteConnection.CreateFile(Path.GetFullPath("Settings/" + DatabaseName));
+                SQLiteConnection.CreateFile(Path.GetFullPath("SettingsDictionary/" + DatabaseName));
 
                 // -- Now we need to connect and create the table.
                 lock (_dbLock) {
-                    var connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                    var connection = new SQLiteConnection("Data Source=" + Path.GetFullPath("SettingsDictionary/" + DatabaseName));
                     connection.Open();
 
                     var command = new SQLiteCommand("CREATE TABLE PlayerDB (Number INTEGER PRIMARY KEY, Name TEXT UNIQUE, Rank TEXT, RankStep TEXT, BoundBlock INTEGER, RankChangedBy TEXT, LoginCounter INTEGER, KickCounter INTEGER, Ontime INTEGER, LastOnline INTEGER, IP TEXT, Stopped INTEGER, StoppedBy TEXT, Banned INTEGER, Vanished INTEGER, BannedBy STRING, BannedUntil INTEGER, Global INTEGER, Time_Muted INTEGER, BanMessage TEXT, KickMessage TEXT, MuteMessage TEXT, RankMessage TEXT, StopMessage TEXT)", connection);
@@ -39,7 +37,7 @@ namespace Hypercube.Libraries {
                     DBConnection = connection; // -- All done.
                 }
             } else {
-                DBConnection = new SQLiteConnection("Data Source=" + Path.GetFullPath("Settings/" + DatabaseName));
+                DBConnection = new SQLiteConnection("Data Source=" + Path.GetFullPath("SettingsDictionary/" + DatabaseName));
                 DBConnection.Open();
             }
         }
@@ -49,13 +47,12 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <param name="name"></param>
         /// <param name="ip"></param>
-        /// <param name="core"></param>
-        public void CreatePlayer(string name, string ip, Hypercube core) {
+        public void CreatePlayer(string name, string ip) {
             var myValues = new Dictionary<string, string>
             {
                 {"Name", name},
                 {"IP", ip},
-                {"Rank", core.DefaultRank.ID.ToString()},
+                {"Rank", Hypercube.DefaultRank.Id.ToString()},
                 {"RankStep", "0"},
                 {"Global", "1"},
                 {"Banned", "0"},

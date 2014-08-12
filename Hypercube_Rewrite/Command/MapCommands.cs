@@ -63,8 +63,8 @@ namespace Hypercube.Command {
                 return;
             }
 
-            var NewMap = new HypercubeMap(Client.ServerCore, "Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
-            Client.ServerCore.Maps.Add(NewMap);
+            var NewMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
+            Hypercube.Maps.Add(NewMap);
 
             Chat.SendClientChat(Client, "§SMap added successfully.");
         }
@@ -100,13 +100,13 @@ namespace Hypercube.Command {
                 return;
             }
 
-            if (!Client.ServerCore.Fillholder.Mapfills.ContainsKey(args[0])) {
+            if (!Hypercube.Fillholder.Mapfills.ContainsKey(args[0])) {
                 Chat.SendClientChat(Client, "§EMapfill '" + args[0] + "' not found. See /mapfills.");
                 return;
             }
 
             Chat.SendClientChat(Client, "§SFill added to queue...");
-            Client.ServerCore.Fillholder.FillMap(Client.CS.CurrentMap, args[0]);
+            Hypercube.Fillholder.FillMap(Client.CS.CurrentMap, args[0]);
         }
         #endregion
         #region MapFills
@@ -137,7 +137,7 @@ namespace Hypercube.Command {
         static void MapfillsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             var MapFillString = "§D";
 
-            foreach (var value in Client.ServerCore.Fillholder.Mapfills)
+            foreach (var value in Hypercube.Fillholder.Mapfills)
                 MapFillString += " §S" + value.Key + " §D";
 
             Chat.SendClientChat(Client, "§SMapFills:");
@@ -311,13 +311,13 @@ namespace Hypercube.Command {
             if (args.Length == 0) {
                 // -- Toggle
                 if (Client.CS.CurrentMap.HCSettings.History) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBlock history Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.History = false;
 
                     if (Client.CS.CurrentMap.History != null)
                         Client.CS.CurrentMap.History.UnloadHistory();
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBlock history Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.History = true;
 
                     if (Client.CS.CurrentMap.History != null)
@@ -328,7 +328,7 @@ namespace Hypercube.Command {
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBlock history Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.History = true;
 
                     if (Client.CS.CurrentMap.History != null)
@@ -337,7 +337,7 @@ namespace Hypercube.Command {
                         Client.CS.CurrentMap.History = new MapHistory(Client.CS.CurrentMap);
                     
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBlock history Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.History = false;
 
                     if (Client.CS.CurrentMap.History != null)
@@ -445,18 +445,18 @@ namespace Hypercube.Command {
             if (args.Length == 0) {
                 // -- Toggle
                 if (Client.CS.CurrentMap.HCSettings.Physics) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SPhysics Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Physics = false;
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SPhysics Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Physics = true;
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SPhysics Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Physics = true;
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SPhysics Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Physics = false;
                 } else {
                     Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp physics.");
@@ -492,18 +492,18 @@ namespace Hypercube.Command {
             if (args.Length == 0) {
                 // -- Toggle
                 if (Client.CS.CurrentMap.HCSettings.Physics) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBuilding Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Building = false;
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBuilding Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap,  "§SBuilding Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Building = true;
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBuilding Enabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Enabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Building = true;
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, Client.ServerCore, "§SBuilding Disabled.", 0, true);
+                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
                     Client.CS.CurrentMap.HCSettings.Building = false;
                 } else {
                     Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp building.");

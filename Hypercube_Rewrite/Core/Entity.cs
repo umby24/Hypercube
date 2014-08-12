@@ -33,15 +33,14 @@ namespace Hypercube.Core {
         public short X, Y, Z;
         public int Id, BuildState;
         public string Name, Model;
-        public BMStruct BuildMode;
+        public BmStruct BuildMode;
         public BuildState ClientState;
         public Dictionary<string, string> BuildVariables = new Dictionary<string, string>();
         public NetworkClient MyClient;
-        public Hypercube Servercore;
         public HypercubeMap Map;
         public Block Lastmaterial, Boundblock, BuildMaterial;
 
-        public Entity(Hypercube core, HypercubeMap map, string name, short x, short y, short z, byte rot, byte look) {
+        public Entity(HypercubeMap map, string name, short x, short y, short z, byte rot, byte look) {
             Name = name;
             X = x;
             Y = y;
@@ -49,20 +48,19 @@ namespace Hypercube.Core {
             Rot = rot;
             Look = look;
             Map = map;
-            Servercore = core;
             
-            Id = core.EFree;
-            BuildMaterial = core.Blockholder.GetBlock("");
-            Lastmaterial = core.Blockholder.GetBlock(1);
+            Id = Hypercube.EFree;
+            BuildMaterial = Hypercube.Blockholder.GetBlock("");
+            Lastmaterial = Hypercube.Blockholder.GetBlock(1);
             ClientState = new BuildState();
-            BuildMode = new BMStruct {Name = ""};
+            BuildMode = new BmStruct {Name = ""};
 
             // -- Move entity free IDs.
-            if (core.EFree != core.ENext)
-                core.EFree = core.ENext;
+            if (Hypercube.EFree != Hypercube.ENext)
+                Hypercube.EFree = Hypercube.ENext;
             else {
-                core.EFree += 1;
-                core.ENext = core.EFree;
+                Hypercube.EFree += 1;
+                Hypercube.ENext = Hypercube.EFree;
             }
 
             if (Map.FreeId != 128) {
@@ -80,7 +78,7 @@ namespace Hypercube.Core {
 
         public void SetBuildmode(string mode)
         {
-            BuildMode = Servercore.BmContainer.Modes.ContainsKey(mode) ? Servercore.BmContainer.Modes[mode] : new BMStruct {Name = ""};
+            BuildMode = Hypercube.BmContainer.Modes.ContainsKey(mode) ? Hypercube.BmContainer.Modes[mode] : new BmStruct {Name = ""};
             ClientState.ResendBlocks(MyClient);
         }
 

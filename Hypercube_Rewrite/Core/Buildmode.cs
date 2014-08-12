@@ -10,28 +10,26 @@ namespace Hypercube.Core {
     /// Holds and manages server build modes
     /// </summary>
     public class BuildMode {
-        public Dictionary<string, BMStruct> Modes;
-        public ISettings BuildModeLoader;
-        Hypercube ServerCore;
+        public Dictionary<string, BmStruct> Modes;
+        public Settings BuildModeLoader;
 
-        public BuildMode(Hypercube core) {
-            ServerCore = core;
-            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", true, Load);
-            ServerCore.Settings.ReadSettings(BuildModeLoader);
+        public BuildMode() {
+            BuildModeLoader = Hypercube.Settings.RegisterFile("Buildmodes.txt", true, Load);
+            Hypercube.Settings.ReadSettings(BuildModeLoader);
         }
 
         public void Load() {
-            Modes = new Dictionary<string, BMStruct>(StringComparer.InvariantCultureIgnoreCase);
+            Modes = new Dictionary<string, BmStruct>(StringComparer.InvariantCultureIgnoreCase);
 
-            foreach (var bm in BuildModeLoader.Settings.Keys) {
-                var myStruct = new BMStruct();
-                BuildModeLoader = ServerCore.Settings.SelectGroup(BuildModeLoader, bm);
-                myStruct.Name = ServerCore.Settings.ReadSetting(BuildModeLoader, "Name", "");
-                myStruct.Plugin = ServerCore.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
+            foreach (var bm in BuildModeLoader.SettingsDictionary.Keys) {
+                var myStruct = new BmStruct();
+                BuildModeLoader = Hypercube.Settings.SelectGroup(BuildModeLoader, bm);
+                myStruct.Name = Hypercube.Settings.ReadSetting(BuildModeLoader, "Name", "");
+                myStruct.Plugin = Hypercube.Settings.ReadSetting(BuildModeLoader, "Plugin", "");
                 Modes.Add(myStruct.Name, myStruct);
             }
 
-            ServerCore.Logger.Log("Buildmode", "Buildmodes loaded.", LogType.Info);
+            Hypercube.Logger.Log("Buildmode", "Buildmodes loaded.", LogType.Info);
         }
     }
 

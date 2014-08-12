@@ -30,38 +30,38 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             client.CS.LoginName = Name;
             client.CS.MpPass = Motd;
 
             if (ProtocolVersion != 7) {
-                core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion + ")", LogType.Info);
+                Hypercube.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion + ")", LogType.Info);
                 client.KickPlayer("Unsupported protocol version.");
             }
 
-            if (!core.Hb.VerifyClientName(client)) {
-                core.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", LogType.Info);
+            if (!Hypercube.Hb.VerifyClientName(client)) {
+                Hypercube.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", LogType.Info);
                 client.KickPlayer("Name verification incorrect.");
             }
 
             if (Text.StringMatches(Name)) {
-                core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", LogType.Info);
+                Hypercube.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", LogType.Info);
                 client.KickPlayer("Invalid characters in name.");
             }
 
             if (Name == "") {
-                core.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid name.", LogType.Info);
+                Hypercube.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid name.", LogType.Info);
                 client.KickPlayer("Invalid name.");
             }
 
-            if (core.OnlinePlayers > core.Nh.MaxPlayers) 
+            if (Hypercube.OnlinePlayers > Hypercube.Nh.MaxPlayers) 
                 client.KickPlayer("The server is full.");
 
             client.CS.MpPass = Motd;
 
             if (Usertype == 66) {
                 // -- CPE Client
-                core.Logger.Log("Handshake", "CPE Client Detected.", LogType.Info);
+                Hypercube.Logger.Log("Handshake", "CPE Client Detected.", LogType.Info);
                 client.CS.CPE = true;
                 CPE.CPEHandshake(client);
             } else {
@@ -83,7 +83,7 @@ namespace Hypercube.Network {
                 client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -99,7 +99,7 @@ namespace Hypercube.Network {
                 client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -122,7 +122,7 @@ namespace Hypercube.Network {
                 client.WSock.WriteByte(Percent);
                 client.WSock.Purge();
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -147,7 +147,7 @@ namespace Hypercube.Network {
                 client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -179,7 +179,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             client.HandleBlockChange(X, Y, Z, Mode, Block);
         }
     }
@@ -206,7 +206,7 @@ namespace Hypercube.Network {
                 client.WSock.Purge();
             
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -244,7 +244,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -279,7 +279,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             if (Yaw != client.CS.MyEntity.Rot || Pitch != client.CS.MyEntity.Look) {
                 client.CS.MyEntity.Rot = Yaw;
                 client.CS.MyEntity.Look = Pitch;
@@ -293,12 +293,12 @@ namespace Hypercube.Network {
 
             if (client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
                 if (client.CS.HeldBlock == null)
-                    client.CS.HeldBlock = core.Blockholder.GetBlock(0);
+                    client.CS.HeldBlock = Hypercube.Blockholder.GetBlock(0);
 
                 if (client.CS.HeldBlock.Id == PlayerId)
                     return;
                 //TODO: Held Block changed event
-                client.CS.HeldBlock = core.Blockholder.GetBlock(PlayerId);
+                client.CS.HeldBlock = Hypercube.Blockholder.GetBlock(PlayerId);
             }
             
         }
@@ -334,7 +334,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -356,7 +356,7 @@ namespace Hypercube.Network {
         public void Write(NetworkClient client) {
 
         }
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -381,7 +381,7 @@ namespace Hypercube.Network {
             client.WSock.Purge();
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -399,7 +399,7 @@ namespace Hypercube.Network {
                 client.WSock.WriteSByte(PlayerId);
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -421,7 +421,7 @@ namespace Hypercube.Network {
                 client.WSock.Purge();
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             Chat.HandleIncomingChat(client, Text);
         }
     }
@@ -441,7 +441,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -461,7 +461,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -484,8 +484,8 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
-            core.Logger.Log("CPE", "Client " + client.CS.Ip + " is running on " + AppName + ", which supports " + ExtensionCount + " extensions.", LogType.Info);
+        public void Handle(NetworkClient client) {
+            Hypercube.Logger.Log("CPE", "Client " + client.CS.Ip + " is running on " + AppName + ", which supports " + ExtensionCount + " extensions.", LogType.Info);
             client.CS.Appname = AppName;
             client.CS.Extensions = ExtensionCount;
 
@@ -512,7 +512,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             client.CS.CPEExtensions.Add(ExtName, Version);
 
             if (client.CS.CPEExtensions.Keys.Count == client.CS.Extensions)
@@ -535,7 +535,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -555,7 +555,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
             client.CS.CustomBlocksLevel = SupportLevel;
             client.Login();
         }
@@ -579,7 +579,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -605,7 +605,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -633,7 +633,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -656,7 +656,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -675,7 +675,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -701,7 +701,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -743,7 +743,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -763,7 +763,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -787,7 +787,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -809,7 +809,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -834,7 +834,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -853,7 +853,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }
@@ -882,7 +882,7 @@ namespace Hypercube.Network {
             
         }
 
-        public void Handle(NetworkClient client, Hypercube core) {
+        public void Handle(NetworkClient client) {
 
         }
     }

@@ -78,7 +78,7 @@ namespace ServerGUI {
 
         private void LoadSettingsMenu() {
             txtSrvName.Text = ServerCore.ServerName;
-            txtSrvMotd.Text = ServerCore.MOTD;
+            txtSrvMotd.Text = ServerCore.Motd;
             txtWelcomeMess.Text = ServerCore.WelcomeMessage;
 
             chkRotLogs.Checked = ServerCore.RotateLogs;
@@ -90,11 +90,11 @@ namespace ServerGUI {
             numHistory.Value = ServerCore.MaxHistoryEntries;
 
             // -- Network
-            numPort.Value = ServerCore.nh.Port;
-            numMaxPlayers.Value = ServerCore.nh.MaxPlayers;
+            numPort.Value = ServerCore.Nh.Port;
+            numMaxPlayers.Value = ServerCore.Nh.MaxPlayers;
 
-            chkVerifyNames.Checked = ServerCore.nh.VerifyNames;
-            chkPub.Checked = ServerCore.nh.Public;
+            chkVerifyNames.Checked = ServerCore.Nh.VerifyNames;
+            chkPub.Checked = ServerCore.Nh.Public;
 
             // -- Chat
             txtChatError.Text = ServerCore.TextFormats.ErrorMessage;
@@ -105,7 +105,7 @@ namespace ServerGUI {
 
         private void SaveSettingsMenu() {
             ServerCore.ServerName = txtSrvName.Text;
-            ServerCore.MOTD = txtSrvMotd.Text;
+            ServerCore.Motd = txtSrvMotd.Text;
             ServerCore.WelcomeMessage = txtWelcomeMess.Text;
 
             ServerCore.RotateLogs = chkRotLogs.Checked;
@@ -118,11 +118,11 @@ namespace ServerGUI {
             ServerCore.SaveSystemSettings();
 
             // -- Network
-            ServerCore.nh.Port = (int)numPort.Value;
-            ServerCore.nh.MaxPlayers = (int)numMaxPlayers.Value;
-            ServerCore.nh.VerifyNames = chkVerifyNames.Checked;
-            ServerCore.nh.Public = chkPub.Checked;
-            ServerCore.nh.SaveSettings();
+            ServerCore.Nh.Port = (int)numPort.Value;
+            ServerCore.Nh.MaxPlayers = (int)numMaxPlayers.Value;
+            ServerCore.Nh.VerifyNames = chkVerifyNames.Checked;
+            ServerCore.Nh.Public = chkPub.Checked;
+            ServerCore.Nh.SaveSettings();
 
             // -- Chat
             ServerCore.TextFormats.ErrorMessage = txtChatError.Text;

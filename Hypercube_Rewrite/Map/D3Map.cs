@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using Hypercube.Core;
@@ -15,52 +11,48 @@ namespace Hypercube.Map {
         public Vector3S Mapsize, Spawn;
         public byte SpawnRot, SpawnLook;
         public bool PhysicsStopped;
-        public string MOTD;
-
-        Hypercube Servercore;
+        public string Motd;
         #endregion
 
-        public D3Map(Hypercube Core) {
-            Servercore = Core;
-        }
-
-        public void LoadMap(string Directory, string MapName) {
-            if (!File.Exists(Directory + "/Data-Layer.gz") || !File.Exists(Directory + "/Config.txt"))
+        public void LoadMap(string directory, string mapName) {
+            if (!File.Exists(directory + "/Data-Layer.gz") || !File.Exists(directory + "/Config.txt"))
                 return; // -- Not a valid map.
-            File.Copy(Directory + "/Config.txt", "Settings/TempD3Config.txt");
+            File.Copy(directory + "/Config.txt", "SettingsDictionary/TempD3Config.txt");
 
             // -- Load the Config data first..
-            var Configfile = Servercore.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
-            Servercore.Settings.ReadSettings(Configfile);
+            var configfile = Hypercube.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
+            Hypercube.Settings.ReadSettings(configfile);
 
-            Mapsize = new Vector3S();
-            Mapsize.X = (short)Servercore.Settings.ReadSetting(Configfile, "Size_X", 128);
-            Mapsize.Y = (short)Servercore.Settings.ReadSetting(Configfile, "Size_Y", 128);
-            Mapsize.Z = (short)Servercore.Settings.ReadSetting(Configfile, "Size_Z", 128);
+            Mapsize = new Vector3S {
+                X = (short) Hypercube.Settings.ReadSetting(configfile, "Size_X", 128),
+                Y = (short) Hypercube.Settings.ReadSetting(configfile, "Size_Y", 128),
+                Z = (short) Hypercube.Settings.ReadSetting(configfile, "Size_Z", 128)
+            };
 
-            Spawn = new Vector3S();
-            Spawn.X = (short)float.Parse(Servercore.Settings.ReadSetting(Configfile, "Spawn_X", "1.0"));
-            Spawn.Y = (short)float.Parse(Servercore.Settings.ReadSetting(Configfile, "Spawn_Y", "1.0"));
-            Spawn.Z = (short)float.Parse(Servercore.Settings.ReadSetting(Configfile, "Spawn_Z", "1.0"));
+            Spawn = new Vector3S {
+                X = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_X", "1.0")),
+                Y = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_Y", "1.0")),
+                Z = (short) float.Parse(Hypercube.Settings.ReadSetting(configfile, "Spawn_Z", "1.0"))
+            };
 
-            SpawnRot = (byte)Servercore.Settings.ReadSetting(Configfile, "Spawn_Rot", 0);
-            SpawnLook = (byte)Servercore.Settings.ReadSetting(Configfile, "Spawn_Look", 0);
+            SpawnRot = (byte)Hypercube.Settings.ReadSetting(configfile, "Spawn_Rot", 0);
+            SpawnLook = (byte)Hypercube.Settings.ReadSetting(configfile, "Spawn_Look", 0);
 
-            MOTD = Servercore.Settings.ReadSetting(Configfile, "MOTD_Override", "");
-            PhysicsStopped = Convert.ToBoolean(Servercore.Settings.ReadSetting(Configfile, "Physic_Stopped", 0));
+            Motd = Hypercube.Settings.ReadSetting(configfile, "MOTD_Override", "");
+            PhysicsStopped = Convert.ToBoolean(Hypercube.Settings.ReadSetting(configfile, "Physic_Stopped", 0));
 
             // -- Load the block data
-            GZip.DecompressFile(Directory + "/Data-Layer.gz");
-            byte[] AllData;
+            GZip.DecompressFile(directory + "/Data-Layer.gz");
+            byte[] allData;
 
-            using (var BR = new BinaryReader(new FileStream(Directory + "/Data-Layer.gz", FileMode.Open))) 
-                AllData = BR.ReadBytes((int)BR.BaseStream.Length);
+            using (var br = new BinaryReader(new FileStream(directory + "/Data-Layer.gz", FileMode.Open))) 
+                allData = br.ReadBytes((int)br.BaseStream.Length);
 
-            GZip.CompressFile(Directory + "/Data-Layer.gz");
+            GZip.CompressFile(directory + "/Data-Layer.gz");
 
-            if (AllData.Length != (Mapsize.X * Mapsize.Y * Mapsize.Z) * 4) {
+            if (allData.Length != (Mapsize.X * Mapsize.Y * Mapsize.Z) * 4) {
                 // -- Size error..
-                AllData = null;
+                allData = null;
                 return;
             }
 
@@ -69,51 +61,53 @@ namespace Hypercube.Map {
             for (var x = 0; x < Mapsize.X; x++) {
                 for (var y = 0; y < Mapsize.Y; y++) {
                     for (var z = 0; z < Mapsize.Z; z++) 
-                        Blockdata[GetIndex(x, y, z)] = AllData[GetBlock(x, y, z)];
+                        Blockdata[GetIndex(x, y, z)] = allData[GetBlock(x, y, z)];
                 }
             }
 
-            AllData = null;
+            allData = null;
             // -- Now, Block data will be properly oriented for use in ClassicWorld maps, and we have all the data we need to create a classicworld map.
 
-            var CWMap = new ClassicWorld_NET.ClassicWorld(Mapsize.X, Mapsize.Z, Mapsize.Y); // -- Classicworld is in notchian Coordinates.
-            CWMap.BlockData = Blockdata;
-            CWMap.SpawnX = Spawn.X;
-            CWMap.SpawnY = Spawn.Z;
-            CWMap.SpawnZ = Spawn.Y;
-            CWMap.SpawnRotation = SpawnRot;
-            CWMap.SpawnLook = SpawnLook;
-            CWMap.MapName = MapName;
-            CWMap.Save("Maps/" + MapName + ".cw");
+            var cwMap = new ClassicWorld_NET.ClassicWorld(Mapsize.X, Mapsize.Z, Mapsize.Y) {
+                BlockData = Blockdata,
+                SpawnX = Spawn.X,
+                SpawnY = Spawn.Z,
+                SpawnZ = Spawn.Y,
+                SpawnRotation = SpawnRot,
+                SpawnLook = SpawnLook,
+                MapName = mapName
+            }; // -- Classicworld is in notchian Coordinates.
+
+            cwMap.Save("Maps/" + mapName + ".cw");
             Blockdata = null;
-            CWMap.BlockData = null;
-            CWMap = null;
+            cwMap.BlockData = null;
+            cwMap = null;
             GC.Collect();
             // -- Conversion Complete.
-            File.Delete("Settings/TempD3Config.txt");
+            File.Delete("SettingsDictionary/TempD3Config.txt");
         }
 
         /// <summary>
         /// Retreives the index of block ID in a D3 v1+ array.
         /// </summary>
-        /// <param name="X"></param>
-        /// <param name="Y"></param>
-        /// <param name="Z"></param>
-        public int GetBlock(int X, int Y, int Z) {
-            if ((X >= 0 && Y >= 0 && Z >= 0) && (Mapsize.X > X && Mapsize.Y > Y && Mapsize.Z > Z)) 
-                return ((Z * Mapsize.Y + Y) * Mapsize.X + X) * 4;
-             else 
-                return 1;
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        public int GetBlock(int x, int y, int z) {
+            if ((x >= 0 && y >= 0 && z >= 0) && (Mapsize.X > x && Mapsize.Y > y && Mapsize.Z > z)) 
+                return ((z * Mapsize.Y + y) * Mapsize.X + x) * 4;
+             
+            return 1;
         }
 
         /// <summary>
         /// Retreives the index for a notcian array.
         /// </summary>
-        /// <param name="X"></param>
-        /// <param name="Y"></param>
-        /// <param name="Z"></param>
-        public int GetIndex(int X, int Z, int Y) {
-            return (Y * Mapsize.Y + Z) * Mapsize.X + X;
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        public int GetIndex(int x, int z, int y) {
+            return (y * Mapsize.Y + z) * Mapsize.X + x;
         }
 
         public void LoadConfig() {

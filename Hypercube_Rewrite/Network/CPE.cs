@@ -93,8 +93,7 @@ namespace Hypercube.Network {
         /// <param name="client"></param>
         public static void CPEPackets(NetworkClient client) {
             if (client.CS.CPEExtensions.ContainsKey("CustomBlocks")) {
-                var cbsl = new CustomBlockSupportLevel();
-                cbsl.SupportLevel = CustomBlocksSupportLevel;
+                var cbsl = new CustomBlockSupportLevel {SupportLevel = CustomBlocksSupportLevel};
                 client.SendQueue.Enqueue(cbsl);
                 //CBSL.Write(Client);
             } else {
@@ -103,28 +102,28 @@ namespace Hypercube.Network {
         }
 
         public static void SetupExtPlayerList(NetworkClient client) {
-            client.CS.NameId = client.ServerCore.FreeId;
+            client.CS.NameId = Hypercube.FreeId;
 
-            if (client.ServerCore.FreeId != client.ServerCore.NextId)
-                client.ServerCore.FreeId = client.ServerCore.NextId;
+            if (Hypercube.FreeId != Hypercube.NextId)
+                Hypercube.FreeId = Hypercube.NextId;
             else {
-                client.ServerCore.FreeId += 1;
-                client.ServerCore.NextId = client.ServerCore.FreeId;
+                Hypercube.FreeId += 1;
+                Hypercube.NextId = Hypercube.FreeId;
             }
 
-            client.ServerCore.Logger.Log("CPE", client.ServerCore.FreeId.ToString(), Core.LogType.Debug);
-            client.ServerCore.Logger.Log("CPE", client.ServerCore.NextId.ToString(), Core.LogType.Debug);
+            Hypercube.Logger.Log("CPE", Hypercube.FreeId.ToString(), Core.LogType.Debug);
+            Hypercube.Logger.Log("CPE", Hypercube.NextId.ToString(), Core.LogType.Debug);
 
             var extPlayerListPacket = new ExtAddPlayerName {GroupRank = 0};
 
-            lock (client.ServerCore.Nh.ClientLock) {
-                foreach (var c in client.ServerCore.Nh.Clients) {
+            lock (Hypercube.Nh.ClientLock) {
+                foreach (var c in Hypercube.Nh.Clients) {
                     if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
                         if (c != client) {
                             extPlayerListPacket.NameId = client.CS.NameId;
                             extPlayerListPacket.ListName = client.CS.FormattedName;
                             extPlayerListPacket.PlayerName = client.CS.LoginName;
-                            extPlayerListPacket.GroupName = client.ServerCore.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName;
+                            extPlayerListPacket.GroupName = Hypercube.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName;
 
                             client.SendQueue.Enqueue(extPlayerListPacket);
                             //ExtPlayerListPacket.Write(c);
@@ -133,14 +132,14 @@ namespace Hypercube.Network {
                                 extPlayerListPacket.NameId = c.CS.NameId;
                                 extPlayerListPacket.ListName = c.CS.FormattedName;
                                 extPlayerListPacket.PlayerName = c.CS.LoginName;
-                                extPlayerListPacket.GroupName = client.ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
+                                extPlayerListPacket.GroupName = Hypercube.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
                                 client.SendQueue.Enqueue(extPlayerListPacket);
                             }
                         } else {
                             extPlayerListPacket.NameId = client.CS.NameId;
                             extPlayerListPacket.ListName = client.CS.FormattedName;
                             extPlayerListPacket.PlayerName = client.CS.LoginName;
-                            extPlayerListPacket.GroupName = client.ServerCore.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName;
+                            extPlayerListPacket.GroupName = Hypercube.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName;
                             client.SendQueue.Enqueue(extPlayerListPacket);
                         }
                     }
@@ -157,15 +156,15 @@ namespace Hypercube.Network {
                 NameId = client.CS.NameId,
                 ListName = client.CS.FormattedName,
                 PlayerName = client.CS.LoginName,
-                GroupName = client.ServerCore.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName,
+                GroupName = Hypercube.TextFormats.ExtPlayerList + client.CS.CurrentMap.CWMap.MapName,
                 GroupRank = 0
             };
 
-            client.ServerCore.Logger.Log("CPEU", client.ServerCore.FreeId.ToString(), Core.LogType.Debug);
-            client.ServerCore.Logger.Log("CPEU", client.ServerCore.NextId.ToString(), Core.LogType.Debug);
+            Hypercube.Logger.Log("CPEU", Hypercube.FreeId.ToString(), Core.LogType.Debug);
+            Hypercube.Logger.Log("CPEU", Hypercube.NextId.ToString(), Core.LogType.Debug);
 
-            lock (client.ServerCore.Nh.ClientLock) {
-                foreach (var c in client.ServerCore.Nh.Clients) {
+            lock (Hypercube.Nh.ClientLock) {
+                foreach (var c in Hypercube.Nh.Clients) {
                     if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
                         c.SendQueue.Enqueue(toRemove);
                         c.SendQueue.Enqueue(toUpdate);

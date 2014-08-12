@@ -8,15 +8,13 @@ namespace Hypercube.Core {
         //public SortedDictionary<int, Block> numberList;
         public SortedDictionary<string, Block> NameList;
 
-        Hypercube Servercore;
-        ISettings Blocksfile;
+        readonly Settings _blocksfile;
 
-        public BlockContainer(Hypercube core) {
-            Servercore = core;
+        public BlockContainer() {
             NumberList = new Block[255];
             NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
-            Blocksfile = core.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
-            Servercore.Settings.ReadSettings(Blocksfile);
+            _blocksfile = Hypercube.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
+            Hypercube.Settings.ReadSettings(_blocksfile);
         }
 
         /// <summary>
@@ -27,25 +25,28 @@ namespace Hypercube.Core {
             //numberList.Clear();
             NameList.Clear();
 
-            foreach (var id in Blocksfile.Settings.Keys) {
-                Servercore.Settings.SelectGroup(Blocksfile, id);
+            foreach (var id in _blocksfile.SettingsDictionary.Keys) {
+                Hypercube.Settings.SelectGroup(_blocksfile, id);
 
-                var newblock = new Block();
-                newblock.Id = int.Parse(id);
-                newblock.Name = Servercore.Settings.ReadSetting(Blocksfile, "Name", "");
-                newblock.OnClient = (byte)Servercore.Settings.ReadSetting(Blocksfile, "OnClient", 46);
-                newblock.Physics = Servercore.Settings.ReadSetting(Blocksfile, "Physics", 0);
-                newblock.PhysicsDelay = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsDelay", 0);
-                newblock.PhysicsRandom = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsRandom", 0);
-                newblock.PhysicsPlugin = Servercore.Settings.ReadSetting(Blocksfile, "PhysicsPlugin", "");
-                newblock.Kills = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Kills", "false"));
-                newblock.Color = Servercore.Settings.ReadSetting(Blocksfile, "Color", 0);
-                newblock.CPELevel = Servercore.Settings.ReadSetting(Blocksfile, "CPELevel", 0);
-                newblock.CPEReplace = Servercore.Settings.ReadSetting(Blocksfile, "CPEReplace", 0);
-                newblock.Special = bool.Parse(Servercore.Settings.ReadSetting(Blocksfile, "Special", "false"));
-                newblock.ReplaceOnLoad = Servercore.Settings.ReadSetting(Blocksfile, "ReplaceOnLoad", -1);
-                newblock.RanksPlace = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "PlaceRank", "0,1,2,3"));
-                newblock.RanksDelete = RankContainer.SplitRanks(Servercore, Servercore.Settings.ReadSetting(Blocksfile, "DeleteRank", "0,1,2,3"));
+                var newblock = new Block {
+                    Id = int.Parse(id),
+                    Name = Hypercube.Settings.ReadSetting(_blocksfile, "Name", ""),
+                    OnClient = (byte) Hypercube.Settings.ReadSetting(_blocksfile, "OnClient", 46),
+                    Physics = Hypercube.Settings.ReadSetting(_blocksfile, "Physics", 0),
+                    PhysicsDelay = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsDelay", 0),
+                    PhysicsRandom = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsRandom", 0),
+                    PhysicsPlugin = Hypercube.Settings.ReadSetting(_blocksfile, "PhysicsPlugin", ""),
+                    Kills = bool.Parse(Hypercube.Settings.ReadSetting(_blocksfile, "Kills", "false")),
+                    Color = Hypercube.Settings.ReadSetting(_blocksfile, "Color", 0),
+                    CPELevel = Hypercube.Settings.ReadSetting(_blocksfile, "CPELevel", 0),
+                    CPEReplace = Hypercube.Settings.ReadSetting(_blocksfile, "CPEReplace", 0),
+                    Special = bool.Parse(Hypercube.Settings.ReadSetting(_blocksfile, "Special", "false")),
+                    ReplaceOnLoad = Hypercube.Settings.ReadSetting(_blocksfile, "ReplaceOnLoad", -1),
+                    RanksPlace =
+                        RankContainer.SplitRanks(Hypercube.Settings.ReadSetting(_blocksfile, "PlaceRank", "0,1,2,3")),
+                    RanksDelete =
+                        RankContainer.SplitRanks(Hypercube.Settings.ReadSetting(_blocksfile, "DeleteRank", "0,1,2,3"))
+                };
                 //Blocks.Add(Newblock);
                 NumberList[newblock.Id] = newblock;
                 NameList.Add(newblock.Name, newblock);
@@ -54,7 +55,7 @@ namespace Hypercube.Core {
             if (NameList.Count == 0)
                 CreateBlocks();
 
-            Servercore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
+            Hypercube.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
         }
 
         /// <summary>
@@ -136,22 +137,22 @@ namespace Hypercube.Core {
         /// </summary>
         /// <param name="toUpdate">The block to be updated on file.</param>
         public void UpdateBlock(Block toUpdate) {
-            Servercore.Settings.SelectGroup(Blocksfile, toUpdate.Id.ToString());
+            Hypercube.Settings.SelectGroup(_blocksfile, toUpdate.Id.ToString());
 
-            Blocksfile.Settings[toUpdate.Id.ToString()]["Name"] = toUpdate.Name;
-            Blocksfile.Settings[toUpdate.Id.ToString()]["OnClient"] = toUpdate.OnClient.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["Physics"] = toUpdate.Physics.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsDelay"] = toUpdate.PhysicsDelay.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsRandom"] = toUpdate.PhysicsRandom.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["PhysicsPlugin"] = toUpdate.PhysicsPlugin;
-            Blocksfile.Settings[toUpdate.Id.ToString()]["Kills"] = toUpdate.Kills.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["Color"] = toUpdate.Color.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["CPELevel"] = toUpdate.CPELevel.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["CPEReplace"] = toUpdate.CPEReplace.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["Special"] = toUpdate.Special.ToString();
-            Blocksfile.Settings[toUpdate.Id.ToString()]["ReplaceOnLoad"] = toUpdate.ReplaceOnLoad.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Name"] = toUpdate.Name;
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["OnClient"] = toUpdate.OnClient.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Physics"] = toUpdate.Physics.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["PhysicsDelay"] = toUpdate.PhysicsDelay.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["PhysicsRandom"] = toUpdate.PhysicsRandom.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["PhysicsPlugin"] = toUpdate.PhysicsPlugin;
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Kills"] = toUpdate.Kills.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Color"] = toUpdate.Color.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["CPELevel"] = toUpdate.CPELevel.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["CPEReplace"] = toUpdate.CPEReplace.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["Special"] = toUpdate.Special.ToString();
+            _blocksfile.SettingsDictionary[toUpdate.Id.ToString()]["ReplaceOnLoad"] = toUpdate.ReplaceOnLoad.ToString();
 
-            Servercore.Settings.SaveSettings(Blocksfile);
+            Hypercube.Settings.SaveSettings(_blocksfile);
         }
 
         /// <summary>
@@ -168,7 +169,7 @@ namespace Hypercube.Core {
                     OnClient = 46,
                     CPELevel = 0,
                     CPEReplace = 46,
-                    RanksDelete = RankContainer.SplitRanks(Servercore, "2,3")
+                    RanksDelete = RankContainer.SplitRanks("2,3")
                 };
                 return myBlock;
             }
@@ -183,13 +184,14 @@ namespace Hypercube.Core {
         /// <returns>The block object that was found. The name will be "Unknown" if the block could not be found.</returns>
         public Block GetBlock(string name) {
             if (!NameList.ContainsKey(name)) {
-                var myBlock = new Block();
-                myBlock.Id = 99;
-                myBlock.Name = "Unknown";
-                myBlock.OnClient = 46;
-                myBlock.CPELevel = 0;
-                myBlock.CPEReplace = 46;
-                myBlock.RanksDelete = RankContainer.SplitRanks(Servercore, "2,3");
+                var myBlock = new Block {
+                    Id = 99,
+                    Name = "Unknown",
+                    OnClient = 46,
+                    CPELevel = 0,
+                    CPEReplace = 46,
+                    RanksDelete = RankContainer.SplitRanks("2,3")
+                };
                 return myBlock;
             }
 
@@ -230,38 +232,39 @@ namespace Hypercube.Core {
             if (GetBlock(name).Name != "Unknown") // -- Block already exists, do not overwrite.
                 return;
 
-            var newBlock = new Block();
-            newBlock.Id = GetNextId();
-            newBlock.Name = name;
-            newBlock.OnClient = onClient;
-            newBlock.Physics = physics;
-            newBlock.PhysicsDelay = physicsDelay;
-            newBlock.PhysicsRandom = physicsRandom;
-            newBlock.PhysicsPlugin = physicsPlugin;
-            newBlock.Kills = kills;
-            newBlock.Color = color;
-            newBlock.CPELevel = cpeLevel;
-            newBlock.CPEReplace = cpeReplace;
-            newBlock.Special = special;
-            newBlock.ReplaceOnLoad = replaceOnLoad;
+            var newBlock = new Block {
+                Id = GetNextId(),
+                Name = name,
+                OnClient = onClient,
+                Physics = physics,
+                PhysicsDelay = physicsDelay,
+                PhysicsRandom = physicsRandom,
+                PhysicsPlugin = physicsPlugin,
+                Kills = kills,
+                Color = color,
+                CPELevel = cpeLevel,
+                CPEReplace = cpeReplace,
+                Special = special,
+                ReplaceOnLoad = replaceOnLoad
+            };
 
             NumberList[newBlock.Id] = newBlock;
             NameList.Add(newBlock.Name, newBlock);
             //Blocks.Add(newBlock);
 
-            Servercore.Settings.SelectGroup(Blocksfile, newBlock.Id.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "Name", newBlock.Name);
-            Servercore.Settings.SaveSetting(Blocksfile, "OnClient", newBlock.OnClient.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "Physics", newBlock.Physics.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "PhysicsDelay", newBlock.PhysicsDelay.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "PhysicsRandom", newBlock.PhysicsRandom.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "PhysicsPlugin", newBlock.PhysicsPlugin);
-            Servercore.Settings.SaveSetting(Blocksfile, "Kills", newBlock.Kills.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "Color", newBlock.Color.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "CPELevel", newBlock.CPELevel.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "CPEReplace", newBlock.CPEReplace.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "Special", newBlock.Special.ToString());
-            Servercore.Settings.SaveSetting(Blocksfile, "ReplaceOnLoad", newBlock.ReplaceOnLoad.ToString());
+            Hypercube.Settings.SelectGroup(_blocksfile, newBlock.Id.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "Name", newBlock.Name);
+            Hypercube.Settings.SaveSetting(_blocksfile, "OnClient", newBlock.OnClient.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "Physics", newBlock.Physics.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsDelay", newBlock.PhysicsDelay.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsRandom", newBlock.PhysicsRandom.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "PhysicsPlugin", newBlock.PhysicsPlugin);
+            Hypercube.Settings.SaveSetting(_blocksfile, "Kills", newBlock.Kills.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "Color", newBlock.Color.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "CPELevel", newBlock.CPELevel.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "CPEReplace", newBlock.CPEReplace.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "Special", newBlock.Special.ToString());
+            Hypercube.Settings.SaveSetting(_blocksfile, "ReplaceOnLoad", newBlock.ReplaceOnLoad.ToString());
         }
 
         /// <summary>
@@ -274,8 +277,8 @@ namespace Hypercube.Core {
             if (toDelete != null) {
                 NameList.Remove(toDelete.Name);
                 NumberList[toDelete.Id] = null;
-                Blocksfile.Settings.Remove(toDelete.Id.ToString());
-                Servercore.Settings.SaveSettings(Blocksfile);
+                _blocksfile.SettingsDictionary.Remove(toDelete.Id.ToString());
+                Hypercube.Settings.SaveSettings(_blocksfile);
             }
         }
 
@@ -290,8 +293,8 @@ namespace Hypercube.Core {
                 NameList.Remove(toDelete.Name);
                 NameList.Remove(toDelete.Id.ToString());
                 NumberList[toDelete.Id] = null;
-                Blocksfile.Settings.Remove(toDelete.Id.ToString());
-                Servercore.Settings.SaveSettings(Blocksfile);
+                _blocksfile.SettingsDictionary.Remove(toDelete.Id.ToString());
+                Hypercube.Settings.SaveSettings(_blocksfile);
             }
         }
     }

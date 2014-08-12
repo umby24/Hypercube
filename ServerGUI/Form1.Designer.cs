@@ -341,7 +341,7 @@
             this.settingsTab.Padding = new System.Windows.Forms.Padding(3);
             this.settingsTab.Size = new System.Drawing.Size(981, 278);
             this.settingsTab.TabIndex = 1;
-            this.settingsTab.Text = "Settings";
+            this.settingsTab.Text = "SettingsDictionary";
             this.settingsTab.UseVisualStyleBackColor = true;
             // 
             // btnRuleEdit

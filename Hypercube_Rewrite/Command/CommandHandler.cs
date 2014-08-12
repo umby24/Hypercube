@@ -58,11 +58,11 @@ namespace Hypercube.Command {
             Chat.SendClientChat(client, Help);
         }
 
-        public void Call(NetworkClient client, string[] args, string Text1, string Text2) {
-            if (Plugin != null && Plugin != "")
-                client.ServerCore.Luahandler.RunFunction(Plugin, client, args, Text1, Text2); // -- Run lua plugin for this command.
+        public void Call(NetworkClient client, string[] args, string text1, string text2) {
+            if (!string.IsNullOrEmpty(Plugin))
+                Hypercube.Luahandler.RunFunction(Plugin, client, args, text1, text2); // -- Run lua plugin for this command.
             else 
-                Handler(client, args, Text1, Text2);
+                Handler(client, args, text1, text2);
         }
     }
 
@@ -70,18 +70,16 @@ namespace Hypercube.Command {
         public Dictionary<string, Command> CommandDict;
         public Dictionary<string, List<string>> Groups;
         public Dictionary<string, List<string>> Aliases;
-        public ISettings AliasLoader;
-        public Hypercube ServerCore;
+        public Settings AliasLoader;
 
-        public CommandHandler(Hypercube Core) {
-            ServerCore = Core;
+        public CommandHandler() {
             CommandDict = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
 
             Populate();
             RegisterGroups();
 
-            AliasLoader = Core.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
-            ServerCore.Settings.ReadSettings(AliasLoader);
+            AliasLoader = Hypercube.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
+            Hypercube.Settings.ReadSettings(AliasLoader);
         }
 
         public void Populate() {
@@ -113,7 +111,7 @@ namespace Hypercube.Command {
         /// <param name="showPermissions"></param>
         /// <param name="usePermissions"></param>
         /// <param name="allPerms"></param>
-        /// <param name="handler"></param>
+        /// <param name="console"></param>
         public void RegisterCommand(string command, string plugin, string group, string help, string showPermissions, string usePermissions, bool allPerms, bool console) {
             var newCommand = new Command {
                 Plugin = plugin,
@@ -122,8 +120,8 @@ namespace Hypercube.Command {
                 AllPerms = allPerms,
                 Console = console,
 
-                UsePermissions = PermissionContainer.SplitPermissions(ServerCore, usePermissions).Values.ToList(),
-                ShowPermissions = PermissionContainer.SplitPermissions(ServerCore, showPermissions).Values.ToList()
+                UsePermissions = PermissionContainer.SplitPermissions(usePermissions).Values.ToList(),
+                ShowPermissions = PermissionContainer.SplitPermissions(showPermissions).Values.ToList()
 
             };
 
@@ -163,15 +161,15 @@ namespace Hypercube.Command {
             var text2 = text.Substring(text.IndexOf(" ") + 1, text.Length - (text.IndexOf(" ") + 1));
 
             // -- Log the command usage
-            if (!Client.ServerCore.LogArguments)
-                Client.ServerCore.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command, LogType.Command);
+            if (!Hypercube.LogArguments)
+                Hypercube.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command, LogType.Command);
             else
-                Client.ServerCore.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"", splits) + "\" }", LogType.Command);
+                Hypercube.Logger.Log("Commands", "Player '" + Client.CS.LoginName + "' used command " + command + " { \"" + string.Join("\", \"", splits) + "\" }", LogType.Command);
 
             var alias = GetAlias(command); // -- Determine if this is an alias of a command.
 
             if (!CommandDict.ContainsKey(command) && alias == "false") // -- Command is not an alias, and is not in our list (It doesn't exist)
-                Chat.SendClientChat(Client, Client.ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
+                Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
             else {
                 Command thisCommand = null;
 
@@ -181,12 +179,12 @@ namespace Hypercube.Command {
                     thisCommand = CommandDict[alias.ToLower()];
 
                 if (!thisCommand.CanBeSeen(Client)) { // -- If it cannot be seen by this user, then it doesn't exist.
-                    Chat.SendClientChat(Client, Client.ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
+                    Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
                     return;
                 }
 
                 if (!thisCommand.CanBeCalled(Client)) { // -- If it cannot be called by this user, tell them.
-                    Chat.SendClientChat(Client, Client.ServerCore.TextFormats.ErrorMessage + "You do not have permission to use this command.");
+                    Chat.SendClientChat(Client, Hypercube.TextFormats.ErrorMessage + "You do not have permission to use this command.");
                     return;
                 }
 
@@ -203,7 +201,7 @@ namespace Hypercube.Command {
             foreach (var c in CommandDict.Keys) // -- Create an entry for every command, and a list for its aliases.
                 Aliases.Add(c, new List<string>());
 
-            using (var SR = new StreamReader("Settings/Aliases.txt")) {
+            using (var SR = new StreamReader("SettingsDictionary/Aliases.txt")) {
                 while (!SR.EndOfStream) {
                     var Myline = SR.ReadLine();
 
@@ -233,7 +231,7 @@ namespace Hypercube.Command {
                 }
             }
 
-            ServerCore.Logger.Log("Commands", "Command aliases loaded.", LogType.Info);
+            Hypercube.Logger.Log("Commands", "Command aliases loaded.", LogType.Info);
         }
 
         public string GetAlias(string command) {

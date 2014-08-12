@@ -21,23 +21,21 @@ namespace Hypercube.Mapfills {
 
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var grassBlock = map.Servercore.Blockholder.GetBlock(2);
-            var dirtBlock = map.Servercore.Blockholder.GetBlock(3);
-            var airBlock = map.Servercore.Blockholder.GetBlock(0);
+            var grassBlock = Hypercube.Blockholder.GetBlock(2);
+            var dirtBlock = Hypercube.Blockholder.GetBlock(3);
+            var airBlock = Hypercube.Blockholder.GetBlock(0);
 
             for (var x = 0; x < map.CWMap.SizeX; x++) {
                 for (var y = 0; y < map.CWMap.SizeZ; y++) {
                     for (var z = 0; z < (map.CWMap.SizeY / 2); z++) {
-                        if (z == (map.CWMap.SizeY / 2) - 1)
-                            map.BlockChange(-1, (short)x, (short)y, (short)z, grassBlock, airBlock, false, false, false, 1);
-                        else
-                            map.BlockChange(-1, (short)x, (short)y, (short)z, dirtBlock, airBlock, false, false, false, 1);
+                        map.BlockChange(-1, (short) x, (short) y, (short) z,
+                            z == (map.CWMap.SizeY/2) - 1 ? grassBlock : dirtBlock, airBlock, false, false, false, 1);
                     }
                 }
             }
 
             sw.Stop();
-            Chat.SendMapChat(map, map.Servercore, "&cMap created in " + ((sw.ElapsedMilliseconds / 1000F)) + "s.");
+            Chat.SendMapChat(map, "&cMap created in " + ((sw.ElapsedMilliseconds / 1000F)) + "s.");
         }
         #endregion
         #region White
@@ -46,8 +44,8 @@ namespace Hypercube.Mapfills {
         static void WhiteHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = map.Servercore.Blockholder.GetBlock(0);
-            var whiteBlock = map.Servercore.Blockholder.GetBlock(36);
+            var airBlock = Hypercube.Blockholder.GetBlock(0);
+            var whiteBlock = Hypercube.Blockholder.GetBlock(36);
 
             for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
                 for (var iy = 0; iy < map.CWMap.SizeY; iy++)
@@ -68,7 +66,7 @@ namespace Hypercube.Mapfills {
                 }
             }
 
-            Chat.SendMapChat(map, map.Servercore, "&cMap done.");
+            Chat.SendMapChat(map, "&cMap done.");
         }
         #endregion
         #region Bedrock
@@ -77,8 +75,8 @@ namespace Hypercube.Mapfills {
         static void BedrockHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = map.Servercore.Blockholder.GetBlock(0);
-            var bedrock = map.Servercore.Blockholder.GetBlock(7);
+            var airBlock = Hypercube.Blockholder.GetBlock(0);
+            var bedrock = Hypercube.Blockholder.GetBlock(7);
 
             for (var ix = 0; ix < map.CWMap.SizeX; ix++) {
                 for (var iy = 0; iy < map.CWMap.SizeY; iy++)
@@ -99,7 +97,7 @@ namespace Hypercube.Mapfills {
                 }
             }
 
-            Chat.SendMapChat(map, map.Servercore, "&cMap done.");
+            Chat.SendMapChat(map, "&cMap done.");
         }
         #endregion
         #region Wireworld
@@ -108,15 +106,15 @@ namespace Hypercube.Mapfills {
         static void WireworldHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
 
-            var airBlock = map.Servercore.Blockholder.GetBlock(0);
-            var blackBlock = map.Servercore.Blockholder.GetBlock(34);
+            var airBlock = Hypercube.Blockholder.GetBlock(0);
+            var blackBlock = Hypercube.Blockholder.GetBlock(34);
 
             for (var x = 0; x < map.CWMap.SizeX; x++) {
                 for (var y = 0; y < map.CWMap.SizeY; y++)
                     map.BlockChange(-1, (short)x, (short)y, 0, blackBlock, airBlock, false, false, false, 1);
             }
 
-            Chat.SendMapChat(map, map.Servercore, "&cMap done.");
+            Chat.SendMapChat(map, "&cMap done.");
         }
         #endregion
     }

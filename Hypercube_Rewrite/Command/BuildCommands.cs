@@ -47,7 +47,7 @@ namespace Hypercube.Command {
                     break;
                 case 1:
                     // -- Change the Bound block only.
-                    var newBlock = Client.ServerCore.Blockholder.GetBlock(args[0]);
+                    var newBlock = Hypercube.Blockholder.GetBlock(args[0]);
 
                     if (newBlock == null) {
                         Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
@@ -55,18 +55,18 @@ namespace Hypercube.Command {
                     }
 
                     Client.CS.MyEntity.Boundblock = newBlock;
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.Id);
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.Id);
                     Chat.SendClientChat(Client, "§SYour bound block is now " + newBlock.Name);
                     break;
                 case 2:
-                    var newBlocka = Client.ServerCore.Blockholder.GetBlock(args[0]);
+                    var newBlocka = Hypercube.Blockholder.GetBlock(args[0]);
 
                     if (newBlocka == null) {
                         Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
                         return;
                     }
 
-                    var materialBlock = Client.ServerCore.Blockholder.GetBlock(args[1]);
+                    var materialBlock = Hypercube.Blockholder.GetBlock(args[1]);
 
                     if (materialBlock == null) {
                         Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[1] + "'.");
@@ -74,7 +74,7 @@ namespace Hypercube.Command {
                     }
 
                     Client.CS.MyEntity.Boundblock = newBlocka;
-                    Client.ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.Id);
+                    Hypercube.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.Id);
                     Chat.SendClientChat(Client, "§SYour bound block is now " + newBlocka.Name);
 
                     Client.CS.MyEntity.BuildMaterial = materialBlock;
@@ -137,11 +137,11 @@ namespace Hypercube.Command {
         static void MaterialHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
             if (args.Length == 0) {
                 Chat.SendClientChat(Client, "§SYour build material has been reset.");
-                Client.CS.MyEntity.BuildMaterial = Client.ServerCore.Blockholder.GetBlock("");
+                Client.CS.MyEntity.BuildMaterial = Hypercube.Blockholder.GetBlock("");
                 return;
             }
 
-            var newBlock = Client.ServerCore.Blockholder.GetBlock(args[0]);
+            var newBlock = Hypercube.Blockholder.GetBlock(args[0]);
 
             if (newBlock == null) {
                 Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
@@ -176,7 +176,7 @@ namespace Hypercube.Command {
                 Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 2), 1, Client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(Client, "§SBlock placed.");
             } else if (args.Length == 1) {
-                var newBlock = Client.ServerCore.Blockholder.GetBlock(args[0]);
+                var newBlock = Hypercube.Blockholder.GetBlock(args[0]);
 
                 if (newBlock == null) {
                     Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");

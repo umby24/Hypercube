@@ -13,15 +13,12 @@ using Hypercube.Core;
 namespace Hypercube.Network {
     public class Heartbeat {
         public string Salt;
-        readonly Hypercube _serverCore;
         readonly Thread _heartbeatThread;
 
         /// <summary>
         /// Generates a new salt and starts heartbeating.
         /// </summary>
-        /// <param name="core"></param>
-        public Heartbeat(Hypercube core) {
-            _serverCore = core;
+        public Heartbeat() {
             CreateSalt();
 
             _heartbeatThread = new Thread(DoHeartbeatClassicube);
@@ -63,19 +60,19 @@ namespace Hypercube.Network {
             try {
                 request.Proxy = new WebProxy("http://" + GetIPv4Address("classicube.net") + ":80/"); // -- Makes sure we're using an IPv4 Address and not IPv6.
             } catch {
-                _serverCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
+                Hypercube.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
                 return;
             }
 
-            while (_serverCore.Running) {
+            while (Hypercube.Running) {
                 try {
-                    var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + _serverCore.Nh.Port + "&users=" + _serverCore.OnlinePlayers + "&max=" + _serverCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(_serverCore.ServerName) + "&public=" + _serverCore.Nh.Public + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
-                    _serverCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
-                    _serverCore.Luahandler.RunFunction("E_Heartbeat");
+                    var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + Hypercube.Nh.Port + "&users=" + Hypercube.OnlinePlayers + "&max=" + Hypercube.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(Hypercube.ServerName) + "&public=" + Hypercube.Nh.Public + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
+                    Hypercube.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
+                    Hypercube.Luahandler.RunFunction("E_Heartbeat");
                     File.WriteAllText("ServerURL.txt", response);
                 } catch (Exception e) {
-                    _serverCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
-                    _serverCore.Logger.Log("Classicube", e.Message, LogType.Error);
+                    Hypercube.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
+                    Hypercube.Logger.Log("Classicube", e.Message, LogType.Error);
                 }
 
                 Thread.Sleep(45000);
@@ -88,7 +85,7 @@ namespace Hypercube.Network {
         /// <param name="client"></param>
         /// <returns></returns>
         public bool VerifyClientName(NetworkClient client) {
-            if (client.CS.Ip == "127.0.0.1" || client.CS.Ip.Substring(0, 7) == "192.168" || _serverCore.Nh.VerifyNames == false)
+            if (client.CS.Ip == "127.0.0.1" || client.CS.Ip.Substring(0, 7) == "192.168" || Hypercube.Nh.VerifyNames == false)
                 return true;
 
             var md5Creator = MD5.Create();
@@ -97,7 +94,7 @@ namespace Hypercube.Network {
             if (correct.Trim().ToLower() == client.CS.MpPass.Trim().ToLower()) 
                 return true;
 
-            _serverCore.Logger.Log("Heartbeat", correct.Trim() + " != " + client.CS.MpPass.Trim(), LogType.Warning);
+            Hypercube.Logger.Log("Heartbeat", correct.Trim() + " != " + client.CS.MpPass.Trim(), LogType.Warning);
             return false;
         }
     }
