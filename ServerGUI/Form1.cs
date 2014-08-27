@@ -15,7 +15,6 @@ using Hypercube.Map;
 
 namespace ServerGUI {
     public partial class mainForm : Form {
-        public Hypercube.ServerCore ServerCore;
         bool Saved = true;
 
         public mainForm() {

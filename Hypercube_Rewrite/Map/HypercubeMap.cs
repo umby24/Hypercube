@@ -72,7 +72,7 @@ namespace Hypercube.Map {
         public DateTime Lastclient;
         public ClassicWorld CWMap;
         public HypercubeMetadata HCSettings;
-        public Thread ClientThread, BlockThread, PhysicsThread;
+        public Thread BlockThread, PhysicsThread;
         public MapHistory History;
 
         public string Path;
@@ -94,7 +94,7 @@ namespace Hypercube.Map {
         public List<QueueItem> PhysicsQueue = new List<QueueItem>(); //TODO: Update this to something faster
         #endregion
         #region IDs
-        public short FreeId = 0, NextId = 0;
+        public readonly Stack<sbyte> FreeIds = new Stack<sbyte>(127);
         #endregion
         #endregion
 
@@ -147,6 +147,10 @@ namespace Hypercube.Map {
             Path = filename;
             Save(Path);
             History = new MapHistory(this);
+
+            for (sbyte i = 0; i < 127; i++) {
+                FreeIds.Push(i);
+            }
         }
 
         /// <summary>
@@ -215,6 +219,10 @@ namespace Hypercube.Map {
 
             if (HCSettings.History)
                 History = new MapHistory(this);
+
+            for (sbyte i = 0; i < 127; i++) {
+                FreeIds.Push(i);
+            }
         }
 
         public static void LoadMaps() {
@@ -423,14 +431,11 @@ namespace Hypercube.Map {
         /// Checks for clients. If clients have not been active for more than 30 seconds, the map will be unloaded.
         /// </summary>
         public void MapMain() {
-            while (ServerCore.Running) {
-                if ((DateTime.UtcNow - Lastclient).TotalSeconds > 5 && Clients.Count == 0 && Loaded)
-                    Unload();
-                else if (Clients.Count > 0)
-                    Lastclient = DateTime.UtcNow;
-
-                Thread.Sleep(30000);
-            }
+            if ((DateTime.UtcNow - Lastclient).TotalSeconds > 5 && Clients.Count == 0 && Loaded)
+                Unload();
+            else if (Clients.Count > 0)
+                Lastclient = DateTime.UtcNow;
+            
         }
 
         public void Resend() {
@@ -517,9 +522,6 @@ namespace Hypercube.Map {
         }
 
         public void Shutdown() {
-            if (ClientThread != null)
-                ClientThread.Abort();
-
             if (BlockThread != null)
                 BlockThread.Abort();
 
@@ -558,7 +560,7 @@ namespace Hypercube.Map {
                 }
             }
 
-            FreeId = toSpawn.ClientId;
+            FreeIds.Push((sbyte)toSpawn.ClientId);
             ServerCore.Luahandler.RunFunction("E_EntityDeleted", this, toSpawn);
         }
         #endregion

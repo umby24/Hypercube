@@ -4,33 +4,29 @@ using System.Text;
 using System.Net;
 using System.Web;
 using System.IO;
-using System.Threading;
 using System.Security.Cryptography;
 
 using Hypercube.Client;
 using Hypercube.Core;
+using Hypercube.Libraries;
 
 namespace Hypercube.Network {
     public class Heartbeat {
         public string Salt;
-        readonly Thread _heartbeatThread;
-
+        public string ServerURL;
         /// <summary>
         /// Generates a new salt and starts heartbeating.
         /// </summary>
         public Heartbeat() {
             CreateSalt();
 
-            _heartbeatThread = new Thread(DoHeartbeatClassicube);
-            _heartbeatThread.Start();
+            TaskScheduler.CreateTask("Heartbeat", new TimeSpan(0, 0, 45), DoHeartbeatClassicube);
         }
 
         /// <summary>
         /// Aborts the heartbeat thread.
         /// </summary>
         public void Shutdown() {
-            if (_heartbeatThread != null)
-                _heartbeatThread.Abort();
         }
 
         /// <summary>
@@ -64,18 +60,15 @@ namespace Hypercube.Network {
                 return;
             }
 
-            while (ServerCore.Running) {
-                try {
-                    var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.Nh.Port + "&users=" + ServerCore.OnlinePlayers + "&max=" + ServerCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.Nh.Public + "&software=ServerCore&salt=" + HttpUtility.UrlEncode(Salt));
-                    ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
-                    ServerCore.Luahandler.RunFunction("E_Heartbeat");
-                    File.WriteAllText("ServerURL.txt", response);
-                } catch (Exception e) {
-                    ServerCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
-                    ServerCore.Logger.Log("Classicube", e.Message, LogType.Error);
-                }
-
-                Thread.Sleep(45000);
+            try {
+                var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.Nh.Port + "&users=" + ServerCore.OnlinePlayers + "&max=" + ServerCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.Nh.Public + "&software=ServerCore&salt=" + HttpUtility.UrlEncode(Salt));
+                ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
+                ServerCore.Luahandler.RunFunction("E_Heartbeat");
+                ServerURL = response;
+                File.WriteAllText("ServerURL.txt", response);
+            } catch (Exception e) {
+                ServerCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);
+                ServerCore.Logger.Log("Classicube", e.Message, LogType.Error);
             }
         }
 

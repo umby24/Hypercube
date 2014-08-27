@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -23,7 +24,6 @@ namespace Hypercube
     // -- TODO: Add auto-map saving
     // -- TODO: Fix map history
     // -- TODO: Make mapfills queued and threaded.
-    // -- TODO: Finite water physics
     // -- BUG: text '@_@' kicks client (index error)
 
     public static class ServerCore {
@@ -62,7 +62,9 @@ namespace Hypercube
         #endregion
 
         #region Ids
-        public static short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
+        public readonly static Stack<short> FreeEids = new Stack<short>(1000); 
+        public readonly static Stack<short> FreeIds = new Stack<short>(1000); 
+        //public static short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
         public static int MapIndex;
         #endregion
 
@@ -97,7 +99,6 @@ namespace Hypercube
             Logger.Log("Database", "Database loaded.", LogType.Info);
 
             Nh = new NetworkHandler();
-
             Logger.Log("", "Core Initialized.", LogType.Info);
 
             Maps = new List<HypercubeMap>();
@@ -131,6 +132,16 @@ namespace Hypercube
                 if (i.Save)
                     Settings.SaveSettings(i);
             }
+
+            FillStacks();
+            TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
+        }
+
+        public static void FillStacks() {
+            for (int i = 0; i < 1000; i++) {
+                FreeEids.Push((short)i);
+                FreeIds.Push((short)i);
+            }
         }
         /// <summary>
         /// Starts the server.
@@ -138,17 +149,14 @@ namespace Hypercube
         public static void Start() {
             Nh.Start();
             Running = true;
+            TaskScheduler.TaskThread.Start();
 
             Hb = new Heartbeat();
-            Settings.ReadingThead = new Thread(Settings.SettingsMain);
-            Settings.ReadingThead.Start();
-
-            Luahandler.LuaThread = new Thread(Luahandler.Main);
-            Luahandler.LuaThread.Start();
+            TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 3), Settings.SettingsMain);
+            TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 3), Luahandler.Main);
 
             foreach (var m in Maps) {
-                m.ClientThread = new Thread(m.MapMain);
-                m.ClientThread.Start();
+                TaskScheduler.CreateTask("Memory Conservation (" + m.CWMap.MapName + ")", new TimeSpan(0, 0, 30), m.MapMain);
 
                 m.BlockThread = new Thread(m.BlockQueueLoop);
                 m.BlockThread.Start();
@@ -156,7 +164,7 @@ namespace Hypercube
                 m.PhysicsThread = new Thread(m.PhysicsQueueLoop);
                 m.PhysicsThread.Start();
             }
-
+            TaskScheduler.CreateTask("Watchdog", new TimeSpan(0, 0, 30), Watchdog.GenHtml);
             Logger.Log("Core", "Server started.", LogType.Info);
         }
 
@@ -166,10 +174,10 @@ namespace Hypercube
         public static void Stop() {
             OnlinePlayers = 0;
 
-            if (Hb != null) {
-                Hb.Shutdown();
-                Hb = null;
-            }
+            TaskScheduler.TaskThread.Abort();
+            TaskScheduler.ScheduledTasks.Clear();
+
+            Hb = null;
 
             Nh.Stop();
 
@@ -178,16 +186,11 @@ namespace Hypercube
                     Settings.SaveSettings(i);
             }
 
-            if (Settings.ReadingThead != null)
-                Settings.ReadingThead.Abort();
-
-            if (Luahandler.LuaThread != null)
-                Luahandler.LuaThread.Abort();
-
             foreach (var m in Maps)
                 m.Shutdown();
 
             DB.DBConnection.Close();
+
         }
 
         #region Main SettingsDictionary Loading

@@ -101,8 +101,8 @@ namespace Hypercube {
                 client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
                 ServerCore.OnlinePlayers -= 1;
-                ServerCore.FreeId = client.CS.NameId;
-                ServerCore.EFree = (short)client.CS.MyEntity.Id;
+                ServerCore.FreeIds.Push(client.CS.NameId);
+                ServerCore.FreeEids.Push((short)client.CS.MyEntity.Id);
 
                 var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
 

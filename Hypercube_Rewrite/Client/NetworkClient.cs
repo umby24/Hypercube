@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Threading;
 using System.Net.Sockets;
 using Hypercube.Core;
@@ -231,6 +232,11 @@ namespace Hypercube.Client {
         }
 
         public void ChangeMap(HypercubeMap newMap) {
+            if (newMap.FreeIds.Count == 0) {
+                Chat.SendClientChat(this, "§EYou cannot join this map (It is full).");
+                return;
+            }
+
             Chat.SendMapChat(newMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".", 0, true);
             Chat.SendMapChat(CS.CurrentMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".");
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
@@ -256,17 +262,7 @@ namespace Hypercube.Client {
             CS.MyEntity.Rot = newMap.CWMap.SpawnRotation;
             CS.MyEntity.Look = newMap.CWMap.SpawnLook;
             CS.MyEntity.Map = newMap;
-
-            if (newMap.FreeId != 128) {
-                CS.MyEntity.ClientId = (byte)newMap.FreeId;
-
-                if (newMap.FreeId != newMap.NextId)
-                    newMap.FreeId = newMap.NextId;
-                else {
-                    newMap.FreeId += 1;
-                    newMap.NextId = newMap.FreeId;
-                }
-            }
+            CS.MyEntity.ClientId = (byte)newMap.FreeIds.Pop();
 
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
@@ -440,18 +436,23 @@ namespace Hypercube.Client {
                     var incoming = _packets[opCode]();
                     incoming.Read(this);
 
-                    try {
+                    //try {
                         incoming.Handle(this);
-                    } catch (Exception e) {
-                        ServerCore.Logger.Log("Client", e.Message, LogType.Error);
-                        ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
-                    }
+                    //} catch (IOException e) {
+                    //    ServerCore.Logger.Log("Client", e.Message, LogType.Error);
+                    //    ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
+                    //}
                 }
 
                 IPacket myPacket;
-
-                while (SendQueue.TryDequeue(out myPacket)) {
-                    myPacket.Write(this);
+                try {
+                    while (SendQueue.TryDequeue(out myPacket)) {
+                        myPacket.Write(this);
+                    }
+                }
+                catch (IOException e) {
+                    ServerCore.Nh.HandleDisconnect(this);
+                    break;
                 }
 
                 if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {

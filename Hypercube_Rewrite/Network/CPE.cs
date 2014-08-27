@@ -102,17 +102,7 @@ namespace Hypercube.Network {
         }
 
         public static void SetupExtPlayerList(NetworkClient client) {
-            client.CS.NameId = ServerCore.FreeId;
-
-            if (ServerCore.FreeId != ServerCore.NextId)
-                ServerCore.FreeId = ServerCore.NextId;
-            else {
-                ServerCore.FreeId += 1;
-                ServerCore.NextId = ServerCore.FreeId;
-            }
-
-            ServerCore.Logger.Log("CPE", ServerCore.FreeId.ToString(), Core.LogType.Debug);
-            ServerCore.Logger.Log("CPE", ServerCore.NextId.ToString(), Core.LogType.Debug);
+            client.CS.NameId = ServerCore.FreeIds.Pop();
 
             var extPlayerListPacket = new ExtAddPlayerName {GroupRank = 0};
 
@@ -165,16 +155,11 @@ namespace Hypercube.Network {
                 GroupRank = 0
             };
 
-            ServerCore.Logger.Log("CPEU", ServerCore.FreeId.ToString(), Core.LogType.Debug);
-            ServerCore.Logger.Log("CPEU", ServerCore.NextId.ToString(), Core.LogType.Debug);
-
             lock (ServerCore.Nh.ClientLock) {
                 foreach (var c in ServerCore.Nh.Clients) {
                     if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
                         c.SendQueue.Enqueue(toRemove);
                         c.SendQueue.Enqueue(toUpdate);
-                        //ToRemove.Write(c);
-                        //ToUpdate.Write(c);
                     }
                 }
             }

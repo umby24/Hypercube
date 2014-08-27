@@ -48,8 +48,8 @@ namespace Hypercube.Core {
             Rot = rot;
             Look = look;
             Map = map;
-            
-            Id = ServerCore.EFree;
+
+            Id = ServerCore.FreeEids.Pop();
             ServerCore.Logger.Log("Entity", "ID Consume: " + name + ":" + Id, LogType.Debug);
 
             BuildMaterial = ServerCore.Blockholder.GetBlock("");
@@ -57,27 +57,7 @@ namespace Hypercube.Core {
             ClientState = new BuildState();
             BuildMode = new BmStruct {Name = ""};
 
-            // -- Move entity free IDs.
-            if (ServerCore.EFree != ServerCore.ENext)
-                ServerCore.EFree = ServerCore.ENext;
-            else {
-                ServerCore.EFree += 1;
-                ServerCore.ENext = ServerCore.EFree;
-            }
-
-            ServerCore.Logger.Log("Entity", "Next:" + ServerCore.EFree, LogType.Debug);
-
-            if (Map.FreeId != 128) {
-                ClientId = (byte)Map.FreeId;
-
-                if (Map.FreeId != Map.NextId)
-                    Map.FreeId = Map.NextId;
-                else {
-                    Map.FreeId += 1;
-                    Map.NextId = Map.FreeId;
-                }
-            }
-
+            ClientId = (byte)Map.FreeIds.Pop();
         }
 
         public void SetBuildmode(string mode)

@@ -110,7 +110,9 @@
     <Compile Include="Libraries\HCLua.cs" />
     <Compile Include="Libraries\Logging.cs" />
     <Compile Include="Libraries\PBSettingsLoader.cs" />
+    <Compile Include="Libraries\TaskScheduler.cs" />
     <Compile Include="Libraries\Text.cs" />
+    <Compile Include="Libraries\Watchdog.cs" />
     <Compile Include="Mapfills\DefaultFills.cs" />
     <Compile Include="Mapfills\FillContainer.cs" />
     <Compile Include="Map\D3Map.cs" />

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 
 using NLua;
 using NLua.Exceptions;
@@ -10,7 +9,6 @@ using Hypercube.Core;
 namespace Hypercube.Libraries {
     public class HCLua {
         public Lua LuaHandler;
-        public Thread LuaThread;
 
         Dictionary<string, DateTime> _scripts;
 
@@ -86,35 +84,32 @@ namespace Hypercube.Libraries {
         }
 
         public void Main() {
-            while (ServerCore.Running) {
-                var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
+            var files = Directory.GetFiles("Lua", "*.lua", SearchOption.AllDirectories);
 
-                foreach (var file in files) {
-                    if (!_scripts.ContainsKey(file)) { // -- New file, add it and load it.
-                        _scripts.Add(file, File.GetLastWriteTime(file));
+            foreach (var file in files) {
+                if (!_scripts.ContainsKey(file)) { // -- New file, add it and load it.
+                    _scripts.Add(file, File.GetLastWriteTime(file));
 
-                        try {
-                            LuaHandler.DoFile(file);
-                        } catch (LuaScriptException e) {
-                            ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
-                        }
-
-                        continue;
+                    try {
+                        LuaHandler.DoFile(file);
+                    } catch (LuaScriptException e) {
+                        ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                     }
 
-                    if (File.GetLastWriteTime(file) != _scripts[file]) {
-                        try {
-                            LuaHandler.DoFile(file);
-                        } catch (LuaScriptException e) {
-                            ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
-                        }
-
-                        _scripts[file] = File.GetLastWriteTime(file);
-                    }
+                    continue;
                 }
 
-                Thread.Sleep(1000);
+                if (File.GetLastWriteTime(file) != _scripts[file]) {
+                    try {
+                        LuaHandler.DoFile(file);
+                    } catch (LuaScriptException e) {
+                        ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                    }
+
+                    _scripts[file] = File.GetLastWriteTime(file);
+                }
             }
+            
         }
     }
 }

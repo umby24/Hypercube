@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 
 namespace Hypercube.Libraries {
     /// <summary>
@@ -18,7 +17,6 @@ namespace Hypercube.Libraries {
 
     public class PbSettingsLoader {
         public List<Settings> SettingsFiles;
-        public Thread ReadingThead;
 
         public delegate void LoadSettings();
 
@@ -193,17 +191,14 @@ namespace Hypercube.Libraries {
         /// This should be run in a thread.
         /// </summary>
         public void SettingsMain() {
-            while (ServerCore.Running) {
-                foreach (Settings t in SettingsFiles) {
-                    if (File.GetLastWriteTime("Settings/" + t.Filename) == t.LastModified) 
-                        continue;
+            foreach (Settings t in SettingsFiles) {
+                if (File.GetLastWriteTime("Settings/" + t.Filename) == t.LastModified) 
+                    continue;
 
-                    ReadSettings(t);
-                    t.LastModified = File.GetLastWriteTime("Settings/" + t.Filename);
-                }
-
-                Thread.Sleep(1000);
+                ReadSettings(t);
+                t.LastModified = File.GetLastWriteTime("Settings/" + t.Filename);
             }
+            
         }
     }
 }
