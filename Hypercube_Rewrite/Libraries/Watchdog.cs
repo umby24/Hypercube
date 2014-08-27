@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
 
 namespace Hypercube.Libraries {
     public class WatchdogModule {
@@ -13,7 +7,7 @@ namespace Hypercube.Libraries {
         public int CallsSecond;
     }
     public static class Watchdog {
-        private const string htmlHeaders = @"<html>
+        private const string HtmlHeaders = @"<html>
     <head>
         <title>Hypercube Watchdog</title>
         <style type=""text/css"">
@@ -64,7 +58,7 @@ namespace Hypercube.Libraries {
 
         public static void GenHtml() {
             
-            string page = htmlHeaders;
+            var page = HtmlHeaders;
             page += "\t\t<p>Generated at " + DateTime.UtcNow.ToLongTimeString() + " (All times are UTC +0)</p>\n";
 
             // -- Scheduled Tasks
@@ -114,7 +108,7 @@ namespace Hypercube.Libraries {
             page += "\t\tPort: " + ServerCore.Nh.Port + "<br>\n";
             page += "\t\tPublic: " + ServerCore.Nh.Public + "<br>\n";
             page += "\t\tVerify Names?: " + ServerCore.Nh.VerifyNames + "<br>\n";
-            page += "\t\tServer URL: " + ServerCore.Hb.ServerURL + "<br>\n";
+            page += "\t\tServer URL: " + ServerCore.Hb.ServerUrl + "<br>\n";
             page += "\t\tClients (Logged): " + ServerCore.Nh.LoggedClients.Count + "<br>\n\n";
 
             page += "\t\t<h4>Clients:</h4>\n";

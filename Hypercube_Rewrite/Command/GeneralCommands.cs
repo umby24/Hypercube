@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Hypercube.Core;
@@ -7,20 +8,20 @@ using Hypercube.Client;
 namespace Hypercube.Command {
     internal static class GeneralCommands {
         public static void Init(CommandHandler holder) {
-            holder.AddCommand("/about", cAbout);
-            holder.AddCommand("/global", cGlobal);
-            holder.AddCommand("/getrank", cGetrank);
-            holder.AddCommand("/players", cPlayers);
-            holder.AddCommand("/ranks", cRanks);
-            holder.AddCommand("/rules", cRules);
-            holder.AddCommand("/commands", cCommands);
-            holder.AddCommand("/cmdhelp", cCmdHelp);
-            holder.AddCommand("/maps", cMaps);
-            holder.AddCommand("/map", cMap);
+            holder.AddCommand("/about", CAbout);
+            holder.AddCommand("/global", CGlobal);
+            holder.AddCommand("/getrank", CGetrank);
+            holder.AddCommand("/players", CPlayers);
+            holder.AddCommand("/ranks", CRanks);
+            holder.AddCommand("/rules", CRules);
+            holder.AddCommand("/commands", CCommands);
+            holder.AddCommand("/cmdhelp", CCmdHelp);
+            holder.AddCommand("/maps", CMaps);
+            holder.AddCommand("/map", CMap);
         }
 
         #region About
-        static readonly Command cAbout = new Command {
+        static readonly Command CAbout = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SLists information about this server.",
@@ -46,7 +47,7 @@ namespace Hypercube.Command {
         }
         #endregion
         #region Commands
-        static readonly Command cCommands = new Command {
+        static readonly Command CCommands = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SLists all availiable commands.<br>§SUsage: /commands [group (optional)]",
@@ -64,17 +65,17 @@ namespace Hypercube.Command {
             Handler = CommandsHandler,
         };
 
-        static void CommandsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void CommandsHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) { // -- List command groups
-                Chat.SendClientChat(Client, "§SCommand groups:");
-                Chat.SendClientChat(Client, "&a    All");
+                Chat.SendClientChat(client, "§SCommand groups:");
+                Chat.SendClientChat(client, "&a    All");
 
                 foreach (var a in ServerCore.Commandholder.Groups.Keys)
-                    Chat.SendClientChat(Client, "&a    " + a);
+                    Chat.SendClientChat(client, "&a    " + a);
 
             } else if (args.Length == 1) { // -- list a group.
                 if (!ServerCore.Commandholder.Groups.ContainsKey(args[0]) && args[0].ToLower() != "all") {
-                    Chat.SendClientChat(Client, "§EGroup '" + args[0] + "' not found.");
+                    Chat.SendClientChat(client, "§EGroup '" + args[0] + "' not found.");
                     return;
                 }
 
@@ -83,7 +84,7 @@ namespace Hypercube.Command {
 
                 if (args[0].ToLower() == "all") {
                     foreach (var b in ServerCore.Commandholder.CommandDict.Keys) {
-                        if (!ServerCore.Commandholder.CommandDict[b].CanBeSeen(Client))
+                        if (!ServerCore.Commandholder.CommandDict[b].CanBeSeen(client))
                             continue;
 
                         if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
@@ -95,12 +96,12 @@ namespace Hypercube.Command {
                         }
                     }
 
-                    Chat.SendClientChat(Client, "&aAll Commands:<br>" + commandString);
+                    Chat.SendClientChat(client, "&aAll Commands:<br>" + commandString);
                     return;
                 }
 
                 foreach (var b in ServerCore.Commandholder.Groups[args[0]]) {
-                    if (!ServerCore.Commandholder.CommandDict["/" + b].CanBeSeen(Client))
+                    if (!ServerCore.Commandholder.CommandDict["/" + b].CanBeSeen(client))
                         continue;
 
                     if ((b.Substring(1, b.Length - 1) + " §D&f ").Length + currentLen >= 59) {
@@ -112,17 +113,16 @@ namespace Hypercube.Command {
                     }
                 }
 
-                Chat.SendClientChat(Client, "&aGroup " + args[0]);
-                Chat.SendClientChat(Client, commandString);
+                Chat.SendClientChat(client, "&aGroup " + args[0]);
+                Chat.SendClientChat(client, commandString);
             } else {
-                Chat.SendClientChat(Client, "§EWrong number of arguments supplied. See /cmdhelp commands");
-                return;
+                Chat.SendClientChat(client, "§EWrong number of arguments supplied. See /cmdhelp commands");
             }
         }
 
         #endregion
         #region CommandHelp
-        static readonly Command cCmdHelp = new Command {
+        static readonly Command CCmdHelp = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SShows help for a command.<br>§SUsage: /cmdhelp [command]",
@@ -140,29 +140,29 @@ namespace Hypercube.Command {
             Handler = CmdhelpHandler,
         };
 
-        static void CmdhelpHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void CmdhelpHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "§E&fUsage of this command: /cmdhelp [command].");
+                Chat.SendClientChat(client, "§E&fUsage of this command: /cmdhelp [command].");
                 return;
             }
 
             if (ServerCore.Commandholder.CommandDict.ContainsKey("/" + args[0].ToLower()) == false) {
-                Chat.SendClientChat(Client, "§E&fCommand not found.");
+                Chat.SendClientChat(client, "§E&fCommand not found.");
                 return;
             }
 
-            if (!ServerCore.Commandholder.CommandDict["/" + args[0]].CanBeSeen(Client)) {
-                Chat.SendClientChat(Client, "§E&fCommand not found.");
+            if (!ServerCore.Commandholder.CommandDict["/" + args[0]].CanBeSeen(client)) {
+                Chat.SendClientChat(client, "§E&fCommand not found.");
                 return;
             }
 
             var thisCommand = ServerCore.Commandholder.CommandDict["/" + args[0].ToLower()];
-            Chat.SendClientChat(Client, "§S/" + args[0]);
-            Chat.SendClientChat(Client, thisCommand.Help);
+            Chat.SendClientChat(client, "§S/" + args[0]);
+            Chat.SendClientChat(client, thisCommand.Help);
         }
         #endregion
         #region Getrank
-        static readonly Command cGetrank = new Command {
+        static readonly Command CGetrank = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SGives the rank(s) of a player.<br>§SUsage: /getrank [Name]",
@@ -180,16 +180,16 @@ namespace Hypercube.Command {
             Handler = Getrankhandler,
         };
 
-        static void Getrankhandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void Getrankhandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length != 1) {
-                Chat.SendClientChat(Client, "§EIncorrect usage. See /cmdhelp getrank.");
+                Chat.SendClientChat(client, "§EIncorrect usage. See /cmdhelp getrank.");
                 return;
             }
 
             args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
-                Chat.SendClientChat(Client, "§ECould not find the player.");
+                Chat.SendClientChat(client, "§ECould not find the player.");
                 return;
             }
 
@@ -204,11 +204,11 @@ namespace Hypercube.Command {
             playerInfo = playerInfo.Substring(0, playerInfo.Length - 1); // -- Remove the final comma.
             playerInfo += "<br>";
 
-            Chat.SendClientChat(Client, playerInfo);
+            Chat.SendClientChat(client, playerInfo);
         }
         #endregion
         #region Global
-        static readonly Command cGlobal = new Command {
+        static readonly Command CGlobal = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SAllows you to switch between chat modes.<br>§SUsage: /global (optional)[on/off]",
@@ -226,34 +226,34 @@ namespace Hypercube.Command {
             Handler = GlobalHandler,
         };
 
-        static void GlobalHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void GlobalHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 // -- Toggle.
-                if (ServerCore.DB.GetDatabaseInt(Client.CS.LoginName, "PlayerDB", "Global") == 1) {
-                    Client.CS.Global = false;
-                    Chat.SendClientChat(Client, "§SGlobal chat is now off by default.");
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
+                if (ServerCore.DB.GetDatabaseInt(client.CS.LoginName, "PlayerDB", "Global") == 1) {
+                    client.CS.Global = false;
+                    Chat.SendClientChat(client, "§SGlobal chat is now off by default.");
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "Global", "0");
                 } else {
-                    Client.CS.Global = true;
-                    Chat.SendClientChat(Client, "§SGlobal chat is now on by default.");
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
+                    client.CS.Global = true;
+                    Chat.SendClientChat(client, "§SGlobal chat is now on by default.");
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "Global", "1");
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "on" || args[0].ToLower() == "true") {
-                    Client.CS.Global = true;
-                    Chat.SendClientChat(Client, "§SGlobal chat is now on by default.");
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "1");
+                    client.CS.Global = true;
+                    Chat.SendClientChat(client, "§SGlobal chat is now on by default.");
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "Global", "1");
                 } else if (args[0].ToLower() == "off" || args[0].ToLower() == "false") {
-                    Client.CS.Global = false;
-                    Chat.SendClientChat(Client, "§SGlobal chat is now off by default.");
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "Global", "0");
+                    client.CS.Global = false;
+                    Chat.SendClientChat(client, "§SGlobal chat is now off by default.");
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "Global", "0");
                 }
             } else
-                Chat.SendClientChat(Client, "§EIncorrect number of arguments, see /cmdhelp global.");
+                Chat.SendClientChat(client, "§EIncorrect number of arguments, see /cmdhelp global.");
         }
         #endregion
         #region Players
-        static readonly Command cPlayers = new Command {
+        static readonly Command CPlayers = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SDisplays a list of players on the server and the map they are on.",
@@ -271,7 +271,7 @@ namespace Hypercube.Command {
             Handler = PlayersHandler,
         };
 
-        static void PlayersHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void PlayersHandler(NetworkClient client, string[] args, string text1, string text2) {
             var onlineString = "§SOnline Players: " + ServerCore.Nh.Clients.Count + "<br>";
 
             foreach (var hm in ServerCore.Maps) {
@@ -283,11 +283,11 @@ namespace Hypercube.Command {
                 onlineString += "<br>";
             }
 
-            Chat.SendClientChat(Client, onlineString);
+            Chat.SendClientChat(client, onlineString);
         }
         #endregion
         #region Ranks
-        static readonly Command cRanks = new Command {
+        static readonly Command CRanks = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SShows a list of all possible ranks in the server.",
@@ -305,8 +305,8 @@ namespace Hypercube.Command {
             Handler = RanksHandler,
         };
 
-        static void RanksHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Chat.SendClientChat(Client, "§SGroups&f:");
+        static void RanksHandler(NetworkClient client, string[] args, string text1, string text2) {
+            Chat.SendClientChat(client, "§SGroups&f:");
             var groupDict = new Dictionary<string, string>();
 
             foreach (var r in ServerCore.Rankholder.NameList.Values) {
@@ -317,11 +317,11 @@ namespace Hypercube.Command {
             }
 
             foreach (var b in groupDict.Keys)
-                Chat.SendClientChat(Client, groupDict[b]);
+                Chat.SendClientChat(client, groupDict[b]);
         }
         #endregion
         #region Rules
-        static readonly Command cRules = new Command {
+        static readonly Command CRules = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SShows the server rules.<br>§SUsage: /rules",
@@ -347,7 +347,7 @@ namespace Hypercube.Command {
         }
         #endregion
         #region Maps
-        static readonly Command cMaps = new Command {
+        static readonly Command CMaps = new Command {
             Plugin = "",
             Group = "General",
             Help = "§SGives a list of available maps.",
@@ -365,28 +365,27 @@ namespace Hypercube.Command {
             Handler = MapsHandler,
         };
 
-        static void MapsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            var MapString = "§SMaps:<br>";
+        static void MapsHandler(NetworkClient client, string[] args, string text1, string text2) {
+            var mapString = "§SMaps:<br>";
 
             foreach (var m in ServerCore.Maps) {
-                var Cansee = false;
+                var cansee = false;
 
-                foreach (var r in Client.CS.PlayerRanks) {
-                    if (PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true)) {
-                        Cansee = true;
-                        break;
-                    }
+                foreach (var r in client.CS.PlayerRanks) {
+                    if (!PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true)) continue;
+                    cansee = true;
+                    break;
                 }
 
-                if (Cansee) 
-                    MapString += "§S" + m.CWMap.MapName + " §D ";
+                if (cansee) 
+                    mapString += "§S" + m.CWMap.MapName + " §D ";
             }
 
-            Chat.SendClientChat(Client, MapString);
+            Chat.SendClientChat(client, mapString);
         }
         #endregion
         #region Map
-        static readonly Command cMap = new Command {
+        static readonly Command CMap = new Command {
             Plugin = "",
             Group = "General",
             Help = "§STeleports you in the selected map.<br>§SUsage: /map [Name]",
@@ -404,20 +403,20 @@ namespace Hypercube.Command {
             Handler = MapHandler,
         };
 
-        static void MapHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MapHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "§EInvalid number of arguments. See /cmdhelp map");
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp map");
                 return;
             }
 
             var found = false;
 
             foreach (var m in ServerCore.Maps) {
-                if (m.CWMap.MapName.ToLower() == args[0].ToLower()) {
+                if (String.Equals(m.CWMap.MapName, args[0], StringComparison.CurrentCultureIgnoreCase)) {
                     var canSee = false;
                     var canJoin = false;
 
-                    foreach (var r in Client.CS.PlayerRanks) {
+                    foreach (var r in client.CS.PlayerRanks) {
                         if (PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true))
                             canSee = true;
 
@@ -429,21 +428,20 @@ namespace Hypercube.Command {
 
                     if (canJoin) {
                         found = true;
-                        Client.ChangeMap(m);
+                        client.ChangeMap(m);
                     } else {
                         if (canSee) {
-                            Chat.SendClientChat(Client, "§EYou are not allowed to join this map.");
-                            return;
-                        } else {
-                            Chat.SendClientChat(Client, "§EMap '" + args[0] + "' not found.");
+                            Chat.SendClientChat(client, "§EYou are not allowed to join this map.");
                             return;
                         }
+                        Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
+                        return;
                     }
                 }
             }
 
             if (!found)
-                Chat.SendClientChat(Client, "§EMap '" + args[0] + "' not found.");
+                Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
         }
         #endregion
     }

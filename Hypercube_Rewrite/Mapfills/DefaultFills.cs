@@ -6,14 +6,14 @@ using Hypercube.Map;
 namespace Hypercube.Mapfills {
     static internal class DefaultFills {
         public static void Init(FillContainer container) {
-            container.RegisterFill("Flatgrass", fFlatgrass);
-            container.RegisterFill("White", fWhite);
-            container.RegisterFill("Bedrock", fBedrock);
-            container.RegisterFill("Wireworld", fWireworld);
+            container.RegisterFill("Flatgrass", FFlatgrass);
+            container.RegisterFill("White", FWhite);
+            container.RegisterFill("Bedrock", FBedrock);
+            container.RegisterFill("Wireworld", FWireworld);
         }
 
         #region Flatgrass
-        static readonly Fill fFlatgrass = new Fill { Plugin = "", Run = FlatgrassHandler };
+        static readonly Fill FFlatgrass = new Fill { Plugin = "", Run = FlatgrassHandler };
 
         static void FlatgrassHandler(HypercubeMap map, string[] args) {
             var sw = new Stopwatch();
@@ -39,7 +39,7 @@ namespace Hypercube.Mapfills {
         }
         #endregion
         #region White
-        static readonly Fill fWhite = new Fill { Plugin = "", Run = WhiteHandler };
+        static readonly Fill FWhite = new Fill { Plugin = "", Run = WhiteHandler };
 
         static void WhiteHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
@@ -70,7 +70,7 @@ namespace Hypercube.Mapfills {
         }
         #endregion
         #region Bedrock
-        static readonly Fill fBedrock = new Fill { Plugin = "", Run = BedrockHandler };
+        static readonly Fill FBedrock = new Fill { Plugin = "", Run = BedrockHandler };
 
         static void BedrockHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];
@@ -101,7 +101,7 @@ namespace Hypercube.Mapfills {
         }
         #endregion
         #region Wireworld
-        static readonly Fill fWireworld = new Fill { Plugin = "", Run = WireworldHandler };
+        static readonly Fill FWireworld = new Fill { Plugin = "", Run = WireworldHandler };
 
         static void WireworldHandler(HypercubeMap map, string[] args) {
             map.CWMap.BlockData = new byte[map.CWMap.BlockData.Length];

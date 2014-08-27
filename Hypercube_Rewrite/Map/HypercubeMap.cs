@@ -29,7 +29,7 @@ namespace Hypercube.Map {
             var hcData = metadata.Get<NbtCompound>("ServerCore");
 
             if (hcData != null) {
-                try {
+                //try {
                     BuildPerms = hcData["BuildPerms"].StringValue;
                     ShowPerms = hcData["ShowPerms"].StringValue;
                     JoinPerms = hcData["JoinPerms"].StringValue;
@@ -39,9 +39,9 @@ namespace Hypercube.Map {
 
                     if (hcData["MOTD"] != null)
                         Motd = hcData["MOTD"].StringValue;
-                } catch (Exception) {
+                //} catch (Exception) {
 
-                }
+                //}
 
                 metadata.Remove(hcData);
             }

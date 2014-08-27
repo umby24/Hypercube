@@ -1,34 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Hypercube.Client;
 using Hypercube.Core;
-using Hypercube.Mapfills;
 using Hypercube.Map;
 
 namespace Hypercube.Command {
     internal static class MapCommands {
         public static void Init(CommandHandler holder) {
-            holder.AddCommand("/building", cBuilding);
-            holder.AddCommand("/mapadd", cMapadd);
-            holder.AddCommand("/mapfill", cMapfill);
-            holder.AddCommand("/mapfills", cMapfills);
-            holder.AddCommand("/mapinfo", cMapinfo);
-            holder.AddCommand("/mapload", cMapload);
-            holder.AddCommand("/mapresend", cMapresend);
-            holder.AddCommand("/mapresize", cMapresize);
-            holder.AddCommand("/history", cMaphistory);
-            holder.AddCommand("/mapsave", cMapsave);
-            holder.AddCommand("/setspawn", cSetSpawn);
-            holder.AddCommand("/physics", cPhysics);
+            holder.AddCommand("/building", CBuilding);
+            holder.AddCommand("/mapadd", CMapadd);
+            holder.AddCommand("/mapfill", CMapfill);
+            holder.AddCommand("/mapfills", CMapfills);
+            holder.AddCommand("/mapinfo", CMapinfo);
+            holder.AddCommand("/mapload", CMapload);
+            holder.AddCommand("/mapresend", CMapresend);
+            holder.AddCommand("/mapresize", CMapresize);
+            holder.AddCommand("/history", CMaphistory);
+            holder.AddCommand("/mapsave", CMapsave);
+            holder.AddCommand("/setspawn", CSetSpawn);
+            holder.AddCommand("/physics", CPhysics);
         }
 
         #region Mapadd
-        static readonly Command cMapadd = new Command {
+        static readonly Command CMapadd = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SAdds a new map.<br>§SUsage: /mapadd [Name]",
@@ -52,25 +47,25 @@ namespace Hypercube.Command {
             Handler = MapaddHandler,
         };
 
-        static void MapaddHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MapaddHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "§EThis command requires 1 argument. See /cmdhelp mapadd for usage.");
+                Chat.SendClientChat(client, "§EThis command requires 1 argument. See /cmdhelp mapadd for usage.");
                 return;
             }
 
             if (File.Exists("Maps/" + args[0] + ".cw") || File.Exists("Maps/" + args[0] + ".cwu")) {
-                Chat.SendClientChat(Client, "§EA file with the name " + args[0] + " already exists.");
+                Chat.SendClientChat(client, "§EA file with the name " + args[0] + " already exists.");
                 return;
             }
 
-            var NewMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
-            ServerCore.Maps.Add(NewMap);
+            var newMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
+            ServerCore.Maps.Add(newMap);
 
-            Chat.SendClientChat(Client, "§SMap added successfully.");
+            Chat.SendClientChat(client, "§SMap added successfully.");
         }
         #endregion
         #region Mapfill
-        static readonly Command cMapfill = new Command {
+        static readonly Command CMapfill = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SFills the map you are in.<br>§SUsage: /mapfill [Script] <Arguments>",
@@ -94,23 +89,23 @@ namespace Hypercube.Command {
             Handler = MapfillHandler,
         };
 
-        static void MapfillHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MapfillHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "§EThis command requires 1 or more arguments.<br>See /cmdhelp mapfill.");
+                Chat.SendClientChat(client, "§EThis command requires 1 or more arguments.<br>See /cmdhelp mapfill.");
                 return;
             }
 
             if (!ServerCore.Fillholder.Mapfills.ContainsKey(args[0])) {
-                Chat.SendClientChat(Client, "§EMapfill '" + args[0] + "' not found. See /mapfills.");
+                Chat.SendClientChat(client, "§EMapfill '" + args[0] + "' not found. See /mapfills.");
                 return;
             }
 
-            Chat.SendClientChat(Client, "§SFill added to queue...");
-            ServerCore.Fillholder.FillMap(Client.CS.CurrentMap, args[0]);
+            Chat.SendClientChat(client, "§SFill added to queue...");
+            ServerCore.Fillholder.FillMap(client.CS.CurrentMap, args[0]);
         }
         #endregion
         #region MapFills
-        static readonly Command cMapfills = new Command {
+        static readonly Command CMapfills = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SShow available mapfills. Use them with /Mapfill.",
@@ -134,18 +129,18 @@ namespace Hypercube.Command {
             Handler = MapfillsHandler,
         };
 
-        static void MapfillsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            var MapFillString = "§D";
+        static void MapfillsHandler(NetworkClient client, string[] args, string text1, string text2) {
+            var mapFillString = "§D";
 
             foreach (var value in ServerCore.Fillholder.Mapfills)
-                MapFillString += " §S" + value.Key + " §D";
+                mapFillString += " §S" + value.Key + " §D";
 
-            Chat.SendClientChat(Client, "§SMapFills:");
-            Chat.SendClientChat(Client, MapFillString);
+            Chat.SendClientChat(client, "§SMapFills:");
+            Chat.SendClientChat(client, mapFillString);
         }
         #endregion
         #region Mapinfo
-        static readonly Command cMapinfo = new Command {
+        static readonly Command CMapinfo = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SGives some information about a map.",
@@ -163,19 +158,19 @@ namespace Hypercube.Command {
             Handler = MapinfoHandler,
         };
 
-        static void MapinfoHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Chat.SendClientChat(Client, "§SMap Name: &f" + Client.CS.CurrentMap.CWMap.MapName);
-            Chat.SendClientChat(Client, "§SSize:&f" + Client.CS.CurrentMap.CWMap.SizeX.ToString() + " x " + Client.CS.CurrentMap.CWMap.SizeZ.ToString() + " x " + Client.CS.CurrentMap.CWMap.SizeY.ToString());
-            Chat.SendClientChat(Client, "§SMemory Usage (Rough): &f" + ((Client.CS.CurrentMap.CWMap.SizeX * Client.CS.CurrentMap.CWMap.SizeY * Client.CS.CurrentMap.CWMap.SizeZ) / 2048).ToString() + " MB");
-            Chat.SendClientChat(Client, "§SPhysics Enabled: &f" + Client.CS.CurrentMap.HCSettings.Physics.ToString());
-            Chat.SendClientChat(Client, "§SBuilding Enabled: &f" + Client.CS.CurrentMap.HCSettings.Building.ToString());
-            Chat.SendClientChat(Client, "§SMapHistory Enabled: &f" + Client.CS.CurrentMap.HCSettings.History.ToString());
-            Chat.SendClientChat(Client, "§SBlocksend-Queue: &f" + Client.CS.CurrentMap.BlockchangeQueue.Count.ToString());
-            Chat.SendClientChat(Client, "§SPhysics-Queue: &f" + Client.CS.CurrentMap.PhysicsQueue.Count.ToString());
+        static void MapinfoHandler(NetworkClient client, string[] args, string text1, string text2) {
+            Chat.SendClientChat(client, "§SMap Name: &f" + client.CS.CurrentMap.CWMap.MapName);
+            Chat.SendClientChat(client, "§SSize:&f" + client.CS.CurrentMap.CWMap.SizeX + " x " + client.CS.CurrentMap.CWMap.SizeZ + " x " + client.CS.CurrentMap.CWMap.SizeY);
+            Chat.SendClientChat(client, "§SMemory Usage (Rough): &f" + ((client.CS.CurrentMap.CWMap.SizeX * client.CS.CurrentMap.CWMap.SizeY * client.CS.CurrentMap.CWMap.SizeZ) / 2048) + " MB");
+            Chat.SendClientChat(client, "§SPhysics Enabled: &f" + client.CS.CurrentMap.HCSettings.Physics);
+            Chat.SendClientChat(client, "§SBuilding Enabled: &f" + client.CS.CurrentMap.HCSettings.Building);
+            Chat.SendClientChat(client, "§SMapHistory Enabled: &f" + client.CS.CurrentMap.HCSettings.History);
+            Chat.SendClientChat(client, "§SBlocksend-Queue: &f" + client.CS.CurrentMap.BlockchangeQueue.Count);
+            Chat.SendClientChat(client, "§SPhysics-Queue: &f" + client.CS.CurrentMap.PhysicsQueue.Count);
         }
         #endregion
         #region Mapload
-        static readonly Command cMapload = new Command {
+        static readonly Command CMapload = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SLoads a different map file to the map you are in.<br>§SUsage: /mapload <Name>",
@@ -199,24 +194,24 @@ namespace Hypercube.Command {
             Handler = MaploadHandler,
         };
 
-        static void MaploadHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MaploadHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0 || args.Length > 1) {
-                Chat.SendClientChat(Client, "§EIncorrect usage. Please see /cmdhelp mapload.");
+                Chat.SendClientChat(client, "§EIncorrect usage. Please see /cmdhelp mapload.");
                 return;
             }
 
             if (!File.Exists("Maps/" + args[0] + ".cw") && !File.Exists("Maps/" + args[0] + ".cwu")) {
-                Chat.SendClientChat(Client, "§EFile '" + args[0] + "' not found.");
+                Chat.SendClientChat(client, "§EFile '" + args[0] + "' not found.");
                 return;
             }
 
-            Chat.SendClientChat(Client, "§SLoading map...");
-            Client.CS.CurrentMap.Load("Maps/" + args[0] + ".cw");
-            Client.CS.CurrentMap.Resend();
+            Chat.SendClientChat(client, "§SLoading map...");
+            client.CS.CurrentMap.Load("Maps/" + args[0] + ".cw");
+            client.CS.CurrentMap.Resend();
         }
         #endregion
         #region Mapresend
-        static readonly Command cMapresend = new Command {
+        static readonly Command CMapresend = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SResends the map you are in to everyone on it.",
@@ -238,14 +233,14 @@ namespace Hypercube.Command {
             Handler = MapresendHandler,
         };
 
-        static void MapresendHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Client.CS.CurrentMap.BlockchangeQueue = new System.Collections.Concurrent.ConcurrentQueue<QueueItem>();
-            Client.CS.CurrentMap.Resend();
+        static void MapresendHandler(NetworkClient client, string[] args, string text1, string text2) {
+            client.CS.CurrentMap.BlockchangeQueue = new System.Collections.Concurrent.ConcurrentQueue<QueueItem>();
+            client.CS.CurrentMap.Resend();
         }
 
         #endregion
         #region Mapresize
-        static readonly Command cMapresize = new Command {
+        static readonly Command CMapresize = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SResizes the map you are in.<br>§SUsage: /mapresize [X] [Y] [Z]<br>&cDont make smaller maps than 16x16x16, the client can crash!",
@@ -269,23 +264,23 @@ namespace Hypercube.Command {
             Handler = MapresizeHandler,
         };
 
-        static void MapresizeHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MapresizeHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length != 3) {
-                Chat.SendClientChat(Client, "§EIncorrect usage. Please see /cmdhelp mapresize.");
+                Chat.SendClientChat(client, "§EIncorrect usage. Please see /cmdhelp mapresize.");
                 return;
             }
 
-            short x = 16, y = 16, z = 16;
+            short x, y, z;
             short.TryParse(args[0], out x);
             short.TryParse(args[1], out y);
             short.TryParse(args[2], out z);
 
-            Client.CS.CurrentMap.Resize(x, y, z);
-            Chat.SendClientChat(Client, "§SMap resized.");
+            client.CS.CurrentMap.Resize(x, y, z);
+            Chat.SendClientChat(client, "§SMap resized.");
         }
         #endregion
         #region Maphistory
-        static readonly Command cMaphistory = new Command {
+        static readonly Command CMaphistory = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SEnables or disables block history on the map you are on.<br>§SUsage: /history [on/off]",
@@ -307,49 +302,49 @@ namespace Hypercube.Command {
             Handler = HistoryHandler,
         };
 
-        static void HistoryHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void HistoryHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 // -- Toggle
-                if (Client.CS.CurrentMap.HCSettings.History) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.History = false;
+                if (client.CS.CurrentMap.HCSettings.History) {
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.History = false;
 
-                    if (Client.CS.CurrentMap.History != null)
-                        Client.CS.CurrentMap.History.UnloadHistory();
+                    if (client.CS.CurrentMap.History != null)
+                        client.CS.CurrentMap.History.UnloadHistory();
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.History = true;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.History = true;
 
-                    if (Client.CS.CurrentMap.History != null)
-                        Client.CS.CurrentMap.History.ReloadHistory();
+                    if (client.CS.CurrentMap.History != null)
+                        client.CS.CurrentMap.History.ReloadHistory();
                     else 
-                        Client.CS.CurrentMap.History = new MapHistory(Client.CS.CurrentMap);
+                        client.CS.CurrentMap.History = new MapHistory(client.CS.CurrentMap);
                     
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.History = true;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBlock history Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.History = true;
 
-                    if (Client.CS.CurrentMap.History != null)
-                        Client.CS.CurrentMap.History.ReloadHistory();
+                    if (client.CS.CurrentMap.History != null)
+                        client.CS.CurrentMap.History.ReloadHistory();
                     else 
-                        Client.CS.CurrentMap.History = new MapHistory(Client.CS.CurrentMap);
+                        client.CS.CurrentMap.History = new MapHistory(client.CS.CurrentMap);
                     
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.History = false;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBlock history Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.History = false;
 
-                    if (Client.CS.CurrentMap.History != null)
-                        Client.CS.CurrentMap.History.UnloadHistory();
+                    if (client.CS.CurrentMap.History != null)
+                        client.CS.CurrentMap.History.UnloadHistory();
                 } else
-                    Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp history.");
+                    Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp history.");
             } else
-                Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp history.");
+                Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp history.");
         }
         #endregion
         #region Mapsave
-        static readonly Command cMapsave = new Command {
+        static readonly Command CMapsave = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SSaves the map you are in.<br>§SUsage: /mapsave <Name><br>§SName is optional.",
@@ -371,21 +366,21 @@ namespace Hypercube.Command {
             Handler = MapsaveHandler,
         };
 
-        static void MapsaveHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MapsaveHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0)
-                Client.CS.CurrentMap.Save();
+                client.CS.CurrentMap.Save();
             else if (args.Length == 1)
-                Client.CS.CurrentMap.Save("Maps/" + args[0] + ".cw");
+                client.CS.CurrentMap.Save("Maps/" + args[0] + ".cw");
             else {
-                Chat.SendClientChat(Client, "§EIncorrect number of arguments. See /cmdhelp mapsave.");
+                Chat.SendClientChat(client, "§EIncorrect number of arguments. See /cmdhelp mapsave.");
                 return;
             }
 
-            Chat.SendClientChat(Client, "§SMap saved.");
+            Chat.SendClientChat(client, "§SMap saved.");
         }
         #endregion
         #region Setspawn
-        static readonly Command cSetSpawn = new Command {
+        static readonly Command CSetSpawn = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SChanges the spawnpoint of the map to where you are standing.",
@@ -407,19 +402,19 @@ namespace Hypercube.Command {
             Handler = SetspawnHandler,
         };
 
-        static void SetspawnHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Client.CS.CurrentMap.CWMap.SpawnX = (short)(Client.CS.MyEntity.X / 32);
-            Client.CS.CurrentMap.CWMap.SpawnY = (short)(Client.CS.MyEntity.Z / 32);
-            Client.CS.CurrentMap.CWMap.SpawnZ = (short)(Client.CS.MyEntity.Y / 32);
-            Client.CS.CurrentMap.CWMap.SpawnLook = Client.CS.MyEntity.Look;
-            Client.CS.CurrentMap.CWMap.SpawnRotation = Client.CS.MyEntity.Rot;
-            Client.CS.CurrentMap.Save();
+        static void SetspawnHandler(NetworkClient client, string[] args, string text1, string text2) {
+            client.CS.CurrentMap.CWMap.SpawnX = (short)(client.CS.MyEntity.X / 32);
+            client.CS.CurrentMap.CWMap.SpawnY = (short)(client.CS.MyEntity.Z / 32);
+            client.CS.CurrentMap.CWMap.SpawnZ = (short)(client.CS.MyEntity.Y / 32);
+            client.CS.CurrentMap.CWMap.SpawnLook = client.CS.MyEntity.Look;
+            client.CS.CurrentMap.CWMap.SpawnRotation = client.CS.MyEntity.Rot;
+            client.CS.CurrentMap.Save();
 
-            Chat.SendClientChat(Client, "§SSpawnpoint set.");
+            Chat.SendClientChat(client, "§SSpawnpoint set.");
         }
         #endregion
         #region Physics
-        static readonly Command cPhysics = new Command {
+        static readonly Command CPhysics = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SEnables or disables physics on the map you are on.<br>§SUsage: /physics [on/off]",
@@ -441,32 +436,32 @@ namespace Hypercube.Command {
             Handler = PhysicsHandler,
         };
 
-        static void PhysicsHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void PhysicsHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 // -- Toggle
-                if (Client.CS.CurrentMap.HCSettings.Physics) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Physics = false;
+                if (client.CS.CurrentMap.HCSettings.Physics) {
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Physics = false;
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Physics = true;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Physics = true;
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Physics = true;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SPhysics Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Physics = true;
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Physics = false;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SPhysics Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Physics = false;
                 } else {
-                    Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp physics.");
+                    Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp physics.");
                 }
             } else 
-                Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp physics.");
+                Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp physics.");
         }
         #endregion
         #region Building
-        static readonly Command cBuilding = new Command {
+        static readonly Command CBuilding = new Command {
             Plugin = "",
             Group = "Map",
             Help = "§SEnables or disables building on the map you are on.<br>§SUsage: /building [on/off]",
@@ -488,28 +483,28 @@ namespace Hypercube.Command {
             Handler = BuildingHandler,
         };
 
-        static void BuildingHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void BuildingHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 // -- Toggle
-                if (Client.CS.CurrentMap.HCSettings.Physics) {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Building = false;
+                if (client.CS.CurrentMap.HCSettings.Physics) {
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Building = false;
                 } else {
-                    Chat.SendMapChat(Client.CS.CurrentMap,  "§SBuilding Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Building = true;
+                    Chat.SendMapChat(client.CS.CurrentMap,  "§SBuilding Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Building = true;
                 }
             } else if (args.Length == 1) {
                 if (args[0].ToLower() == "true" || args[0].ToLower() == "on") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Enabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Building = true;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBuilding Enabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Building = true;
                 } else if (args[0].ToLower() == "false" || args[0].ToLower() == "off") {
-                    Chat.SendMapChat(Client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
-                    Client.CS.CurrentMap.HCSettings.Building = false;
+                    Chat.SendMapChat(client.CS.CurrentMap, "§SBuilding Disabled.", 0, true);
+                    client.CS.CurrentMap.HCSettings.Building = false;
                 } else {
-                    Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp building.");
+                    Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp building.");
                 }
             } else
-                Chat.SendClientChat(Client, "§EIncorrect command usage. See /cmdhelp building.");
+                Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp building.");
         }
         #endregion
     }

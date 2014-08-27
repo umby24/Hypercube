@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -138,7 +137,7 @@ namespace Hypercube
         }
 
         public static void FillStacks() {
-            for (int i = 0; i < 1000; i++) {
+            for (var i = 0; i < 1000; i++) {
                 FreeEids.Push((short)i);
                 FreeIds.Push((short)i);
             }

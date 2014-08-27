@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.IO.Compression;
 
@@ -10,86 +7,82 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// GZip Compresses (Deflate method) the given data.
         /// </summary>
-        /// <param name="Data"></param>
+        /// <param name="data"></param>
         /// <returns>Compressed version of the input data array.</returns>
-        public static byte[] Compress(byte[] Data) {
-            byte[] CompressedData;
+        public static byte[] Compress(byte[] data) {
+            byte[] compressedData;
 
             using (var mem = new MemoryStream()) {
                 using (var zip = new GZipStream(mem, CompressionMode.Compress)) {
-                    zip.Write(Data, 0, Data.Length);
+                    zip.Write(data, 0, data.Length);
                 }
-                CompressedData = mem.ToArray();
+                compressedData = mem.ToArray();
             }
 
-            return CompressedData;
+            return compressedData;
         }
 
         /// <summary>
         /// GZip Compresses a file at the given file path.
         /// </summary>
-        /// <param name="Filepath">The path to the file to compress with gzip.</param>
-        public static void CompressFile(string Filepath) {
-            if (!File.Exists(Filepath))
+        /// <param name="filepath">The path to the file to compress with gzip.</param>
+        public static void CompressFile(string filepath) {
+            if (!File.Exists(filepath))
                 return;
 
-            const int ChunkSize = 65536;
+            const int chunkSize = 65536;
 
             try {
-                using (var FS = new FileStream(Filepath, FileMode.Open)) {
-                    using (var GS = new GZipStream(new FileStream("Temp.gz", FileMode.Create), CompressionMode.Compress)) {
-                        var Buffer = new byte[ChunkSize];
+                using (var fs = new FileStream(filepath, FileMode.Open)) {
+                    using (var gs = new GZipStream(new FileStream("Temp.gz", FileMode.Create), CompressionMode.Compress)) {
+                        var buffer = new byte[chunkSize];
 
                         while (true) {
-                            var BytesRead = FS.Read(Buffer, 0, ChunkSize);
+                            var bytesRead = fs.Read(buffer, 0, chunkSize);
 
-                            if (BytesRead == 0) break;
+                            if (bytesRead == 0) break;
 
-                            GS.Write(Buffer, 0, BytesRead);
+                            gs.Write(buffer, 0, bytesRead);
                         }
-                        Buffer = null;
                     }
                 }
 
-                File.Delete(Filepath);
-                File.Move("Temp.gz", Filepath);
+                File.Delete(filepath);
+                File.Move("Temp.gz", filepath);
             } catch {
                 GC.Collect();
-                return;
             }
         }
 
         /// <summary>
         /// GZip Decompresses a file at the given file path.
         /// </summary>
-        /// <param name="Filepath">The path to the file to decompress</param>
-        public static void DecompressFile(string Filepath) {
-            if (!File.Exists(Filepath))
+        /// <param name="filepath">The path to the file to decompress</param>
+        public static void DecompressFile(string filepath) {
+            if (!File.Exists(filepath))
                 return;
 
-            const int ChunkSize = 65536;
+            const int chunkSize = 65536;
 
             try {
-                using (var FS = new FileStream("Temp.hch", FileMode.Create)) {
-                    using (var GS = new GZipStream(new FileStream(Filepath, FileMode.Open), CompressionMode.Decompress)) {
-                        var Buffer = new byte[ChunkSize];
+                using (var fs = new FileStream("Temp.hch", FileMode.Create)) {
+                    using (var gs = new GZipStream(new FileStream(filepath, FileMode.Open), CompressionMode.Decompress)) {
+                        var buffer = new byte[chunkSize];
 
                         while (true) {
-                            var BytesRead = GS.Read(Buffer, 0, ChunkSize);
+                            var bytesRead = gs.Read(buffer, 0, chunkSize);
 
-                            if (BytesRead == 0) break;
+                            if (bytesRead == 0) break;
 
-                            FS.Write(Buffer, 0, BytesRead);
+                            fs.Write(buffer, 0, bytesRead);
                         }
-                        Buffer = null;
                     }
                 }
 
-                File.Delete(Filepath);
-                File.Move("Temp.hch", Filepath);
+                File.Delete(filepath);
+                File.Move("Temp.hch", filepath);
             } catch {
                 GC.Collect();
-                return;
             }
         }
     }

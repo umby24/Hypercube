@@ -10,7 +10,7 @@ namespace Hypercube.Libraries {
     /// Class for interaction with a SQLite Database holding critical user information. Some of this information (Such as IP) is used for logging purposes,
     /// and may be used for looking up bans.
     /// </summary>
-    public class Database {
+    public class Database : IDisposable {
         const string DatabaseName = "Database.s3db";
         public SQLiteConnection DBConnection;
         readonly object _dbLock = new object();
@@ -319,10 +319,8 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <returns>A boolean true or false to signify success or failure.</returns>
         public bool ClearDB() {
-            DataTable tables;
-
             try {
-                tables = GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
+                var tables = GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
 
                 foreach (DataRow table in tables.Rows) 
                     ClearTable(table["NAME"].ToString());
@@ -343,5 +341,10 @@ namespace Hypercube.Libraries {
         }
 
         #endregion
+
+        public void Dispose() {
+            DBConnection.Close();
+            DBConnection.Dispose();
+        }
     }
 }

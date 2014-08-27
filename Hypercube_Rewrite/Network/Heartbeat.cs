@@ -13,7 +13,7 @@ using Hypercube.Libraries;
 namespace Hypercube.Network {
     public class Heartbeat {
         public string Salt;
-        public string ServerURL;
+        public string ServerUrl;
         /// <summary>
         /// Generates a new salt and starts heartbeating.
         /// </summary>
@@ -64,7 +64,7 @@ namespace Hypercube.Network {
                 var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.Nh.Port + "&users=" + ServerCore.OnlinePlayers + "&max=" + ServerCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.Nh.Public + "&software=ServerCore&salt=" + HttpUtility.UrlEncode(Salt));
                 ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
                 ServerCore.Luahandler.RunFunction("E_Heartbeat");
-                ServerURL = response;
+                ServerUrl = response;
                 File.WriteAllText("ServerURL.txt", response);
             } catch (Exception e) {
                 ServerCore.Logger.Log("Heartbeat", "Failed to send heartbeat.", LogType.Error);

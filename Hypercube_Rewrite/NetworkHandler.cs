@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -80,7 +81,7 @@ namespace Hypercube {
             _listenThread.Abort();
 
             lock (ClientLock) {
-                foreach (NetworkClient client in Clients)
+                foreach (var client in Clients)
                     client.KickPlayer("Server closing.");
             }
         }
@@ -122,8 +123,7 @@ namespace Hypercube {
 
             try {
                 client.BaseSocket.Close();
-            } catch {
-
+            } catch (IOException) {
             }
         }
 

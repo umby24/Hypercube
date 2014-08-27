@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hypercube.Libraries {
     class ColoredConsole {
@@ -99,12 +95,7 @@ namespace Hypercube.Libraries {
                 }
                 var colorCode = message[lastInsert - 1];
                 Console.ForegroundColor = MinecraftToConsoleColor(colorCode);
-                if (Console.ForegroundColor == ConsoleColor.Black) {
-                    // Make sure that black-on-black remains visible
-                    Console.BackgroundColor = ConsoleColor.DarkGray;
-                } else {
-                    Console.BackgroundColor = ConsoleColor.Black;
-                }
+                Console.BackgroundColor = Console.ForegroundColor == ConsoleColor.Black ? ConsoleColor.DarkGray : ConsoleColor.Black;
             }
 
 

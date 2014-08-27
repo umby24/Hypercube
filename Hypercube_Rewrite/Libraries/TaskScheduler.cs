@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Hypercube.Core;
 
 namespace Hypercube.Libraries {
     public class Task {
@@ -34,7 +35,7 @@ namespace Hypercube.Libraries {
         public static void RunTasks() {
             while (ServerCore.Running) {
                 lock (TaskLock) {
-                    for (int i = 0; i < ScheduledTasks.Count; i++) {
+                    for (var i = 0; i < ScheduledTasks.Count; i++) {
                         try {
                             var task = ScheduledTasks.ElementAt(i);
                             if ((DateTime.UtcNow - task.Value.LastRun) >= task.Value.RunInterval) {
@@ -42,8 +43,9 @@ namespace Hypercube.Libraries {
                                 ScheduledTasks[task.Key].LastRun = DateTime.UtcNow;
                             }
                         }
-                        catch {
-                            
+                        catch (Exception e) {
+                            ServerCore.Logger.Log("Tasks", "Error occured: " + e.Message, LogType.Error);
+                            ServerCore.Logger.Log("Tasks", e.StackTrace, LogType.Debug);
                         }
                     }
                 }

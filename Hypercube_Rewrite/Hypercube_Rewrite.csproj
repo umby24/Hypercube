@@ -103,6 +103,7 @@
     <Compile Include="Core\Permissions.cs" />
     <Compile Include="Core\Rank.cs" />
     <Compile Include="Core\Types.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Hypercube.cs" />
     <Compile Include="Libraries\ColoredConsole.cs" />
     <Compile Include="Libraries\Database.cs" />

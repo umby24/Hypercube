@@ -444,13 +444,13 @@ namespace Hypercube.Client {
                     //}
                 }
 
-                IPacket myPacket;
                 try {
+                    IPacket myPacket;
                     while (SendQueue.TryDequeue(out myPacket)) {
                         myPacket.Write(this);
                     }
                 }
-                catch (IOException e) {
+                catch (IOException) {
                     ServerCore.Nh.HandleDisconnect(this);
                     break;
                 }

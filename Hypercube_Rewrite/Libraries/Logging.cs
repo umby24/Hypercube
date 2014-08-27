@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using Hypercube.Core;
@@ -12,10 +8,10 @@ namespace Hypercube.Libraries {
 
     public class Logging {
         #region Variables
-        readonly object LogLock = new object();
+        readonly object _logLock = new object();
         #endregion
         #region Events
-        public delegate void MessageEventHandler(string Message);
+        public delegate void MessageEventHandler(string message);
         public event MessageEventHandler DebugMessage;
         public event MessageEventHandler InfoMessage;
         public event MessageEventHandler WarningMessage;
@@ -35,7 +31,7 @@ namespace Hypercube.Libraries {
 
         public void Log(string module, string message, LogType type = LogType.NotSet) {
             if (!ServerCore.ColoredConsole)
-                Console.WriteLine(DateTime.Now.ToShortTimeString() + "> [" + type.ToString() + "] [" + module + "] " + Text.RemoveColors(message));
+                Console.WriteLine(DateTime.Now.ToShortTimeString() + "> [" + type + "] [" + module + "] " + Text.RemoveColors(message));
             else {
                 switch (type) {
                     case LogType.Debug:
@@ -113,7 +109,7 @@ namespace Hypercube.Libraries {
             }
 
             if (ServerCore.LogOutput) {
-                lock (LogLock) {
+                lock (_logLock) {
                     LogWrite(DateTime.Now.ToShortTimeString() + "> [" + type + "] [" + module + "] " + message);
                 }
             }

@@ -52,7 +52,6 @@ namespace Hypercube.Map {
 
             if (allData.Length != (Mapsize.X * Mapsize.Y * Mapsize.Z) * 4) {
                 // -- Size error..
-                allData = null;
                 return;
             }
 
@@ -65,7 +64,6 @@ namespace Hypercube.Map {
                 }
             }
 
-            allData = null;
             // -- Now, Block data will be properly oriented for use in ClassicWorld maps, and we have all the data we need to create a classicworld map.
 
             var cwMap = new ClassicWorld_NET.ClassicWorld(Mapsize.X, Mapsize.Z, Mapsize.Y) {
@@ -81,7 +79,6 @@ namespace Hypercube.Map {
             cwMap.Save("Maps/" + mapName + ".cw");
             Blockdata = null;
             cwMap.BlockData = null;
-            cwMap = null;
             GC.Collect();
             // -- Conversion Complete.
             File.Delete("Settings/TempD3Config.txt");

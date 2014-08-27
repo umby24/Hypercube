@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using Hypercube.Client;
 using Hypercube.Core;
@@ -10,16 +6,16 @@ using Hypercube.Core;
 namespace Hypercube.Command {
     internal static class BuildCommands {
         public static void Init(CommandHandler holder) {
-            holder.AddCommand("/bind", cBind);
-            holder.AddCommand("/cancel", cCancel);
-            holder.AddCommand("/material", cMaterial);
-            holder.AddCommand("/place", cPlace);
-            holder.AddCommand("/redo", cRedo);
-            holder.AddCommand("/undo", cUndo);
+            holder.AddCommand("/bind", CBind);
+            holder.AddCommand("/cancel", CCancel);
+            holder.AddCommand("/material", CMaterial);
+            holder.AddCommand("/place", CPlace);
+            holder.AddCommand("/redo", CRedo);
+            holder.AddCommand("/undo", CUndo);
         }
 
         #region Bind
-        static readonly Command cBind = new Command {
+        static readonly Command CBind = new Command {
             Plugin = "",
             Group = "Build",
             Help = "§SChanges the block you have bound for using /material.<br>§SUsage: /bind [material] [build material]<br>§SEx. /bind Stone, or /bind Stone Fire",
@@ -39,55 +35,55 @@ namespace Hypercube.Command {
             Handler = BindHandler,
         };
 
-        static void BindHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void BindHandler(NetworkClient client, string[] args, string text1, string text2) {
             switch (args.Length) {
                 case 0:
-                    Chat.SendClientChat(Client, "§SYour currently bound block is &f" + Client.CS.MyEntity.Boundblock.Name + "§S.");
-                    Chat.SendClientChat(Client, "§SLooking for fCraft style bind? See /cmdhelp bind and /cmdhelp material.");
+                    Chat.SendClientChat(client, "§SYour currently bound block is &f" + client.CS.MyEntity.Boundblock.Name + "§S.");
+                    Chat.SendClientChat(client, "§SLooking for fCraft style bind? See /cmdhelp bind and /cmdhelp material.");
                     break;
                 case 1:
                     // -- Change the Bound block only.
                     var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
 
                     if (newBlock == null) {
-                        Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
+                        Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
                         return;
                     }
 
-                    Client.CS.MyEntity.Boundblock = newBlock;
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.Id);
-                    Chat.SendClientChat(Client, "§SYour bound block is now " + newBlock.Name);
+                    client.CS.MyEntity.Boundblock = newBlock;
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "BoundBlock", newBlock.Id);
+                    Chat.SendClientChat(client, "§SYour bound block is now " + newBlock.Name);
                     break;
                 case 2:
                     var newBlocka = ServerCore.Blockholder.GetBlock(args[0]);
 
                     if (newBlocka == null) {
-                        Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
+                        Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
                         return;
                     }
 
                     var materialBlock = ServerCore.Blockholder.GetBlock(args[1]);
 
                     if (materialBlock == null) {
-                        Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[1] + "'.");
+                        Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[1] + "'.");
                         return;
                     }
 
-                    Client.CS.MyEntity.Boundblock = newBlocka;
-                    ServerCore.DB.SetDatabase(Client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.Id);
-                    Chat.SendClientChat(Client, "§SYour bound block is now " + newBlocka.Name);
+                    client.CS.MyEntity.Boundblock = newBlocka;
+                    ServerCore.DB.SetDatabase(client.CS.LoginName, "PlayerDB", "BoundBlock", newBlocka.Id);
+                    Chat.SendClientChat(client, "§SYour bound block is now " + newBlocka.Name);
 
-                    Client.CS.MyEntity.BuildMaterial = materialBlock;
-                    Chat.SendClientChat(Client, "§SYour build material is now " + materialBlock.Name);
+                    client.CS.MyEntity.BuildMaterial = materialBlock;
+                    Chat.SendClientChat(client, "§SYour build material is now " + materialBlock.Name);
                     break;
                 default:
-                    Chat.SendClientChat(Client, "§EWrong number of arguments supplied. See /cmdhelp bind");
+                    Chat.SendClientChat(client, "§EWrong number of arguments supplied. See /cmdhelp bind");
                     break;
             }
         }
         #endregion
         #region Cancel
-        static readonly Command cCancel = new Command {
+        static readonly Command CCancel = new Command {
             Plugin = "",
             Group = "Build",
             Help = "&eCancel any mode. You build normal after it.",
@@ -107,14 +103,14 @@ namespace Hypercube.Command {
             Handler = CancelHandler,
         };
 
-        static void CancelHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
-            Client.CS.MyEntity.SetBuildmode("");
-            Chat.SendClientChat(Client, "§SBuildmodes canceled.");
+        static void CancelHandler(NetworkClient client, string[] args, string text1, string text2) {
+            client.CS.MyEntity.SetBuildmode("");
+            Chat.SendClientChat(client, "§SBuildmodes canceled.");
         }
 
         #endregion
         #region Material
-        static readonly Command cMaterial = new Command {
+        static readonly Command CMaterial = new Command {
             Plugin = "",
             Group = "Build",
             Help = "§SChanges your building material. Build it with your bound block.<br>§SYou get a list of materials with /materials<br>§SUsage: /material [material]",
@@ -134,26 +130,26 @@ namespace Hypercube.Command {
             Handler = MaterialHandler,
         };
 
-        static void MaterialHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void MaterialHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Chat.SendClientChat(Client, "§SYour build material has been reset.");
-                Client.CS.MyEntity.BuildMaterial = ServerCore.Blockholder.GetBlock("");
+                Chat.SendClientChat(client, "§SYour build material has been reset.");
+                client.CS.MyEntity.BuildMaterial = ServerCore.Blockholder.GetBlock("");
                 return;
             }
 
             var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
 
             if (newBlock == null) {
-                Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
+                Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
                 return;
             }
 
-            Client.CS.MyEntity.BuildMaterial = newBlock;
-            Chat.SendClientChat(Client, "§SYour build material is now " + newBlock.Name);
+            client.CS.MyEntity.BuildMaterial = newBlock;
+            Chat.SendClientChat(client, "§SYour build material is now " + newBlock.Name);
         }
         #endregion
         #region Place
-        static readonly Command cPlace = new Command {
+        static readonly Command CPlace = new Command {
             Plugin = "",
             Group = "Build",
             Help = "§SPlaces a block under you. The material is your last built<br>§SUsage: /place <material>",
@@ -171,26 +167,26 @@ namespace Hypercube.Command {
             Handler = PlaceHandler,
         };
 
-        static void PlaceHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void PlaceHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 2), 1, Client.CS.MyEntity.Lastmaterial);
-                Chat.SendClientChat(Client, "§SBlock placed.");
+                client.CS.CurrentMap.ClientChangeBlock(client, (short)(client.CS.MyEntity.X / 32), (short)(client.CS.MyEntity.Y / 32), (short)((client.CS.MyEntity.Z / 32) - 2), 1, client.CS.MyEntity.Lastmaterial);
+                Chat.SendClientChat(client, "§SBlock placed.");
             } else if (args.Length == 1) {
                 var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
 
                 if (newBlock == null) {
-                    Chat.SendClientChat(Client, "§ECouldn't find a block called '" + args[0] + "'.");
+                    Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
                     return;
                 }
 
-                Client.CS.MyEntity.Lastmaterial = newBlock;
-                Client.CS.CurrentMap.ClientChangeBlock(Client, (short)(Client.CS.MyEntity.X / 32), (short)(Client.CS.MyEntity.Y / 32), (short)((Client.CS.MyEntity.Z / 32) - 2), 1, Client.CS.MyEntity.Lastmaterial);
-                Chat.SendClientChat(Client, "§SBlock placed.");
+                client.CS.MyEntity.Lastmaterial = newBlock;
+                client.CS.CurrentMap.ClientChangeBlock(client, (short)(client.CS.MyEntity.X / 32), (short)(client.CS.MyEntity.Y / 32), (short)((client.CS.MyEntity.Z / 32) - 2), 1, client.CS.MyEntity.Lastmaterial);
+                Chat.SendClientChat(client, "§SBlock placed.");
             }
         }
         #endregion
         #region Redo
-        static readonly Command cRedo = new Command {
+        static readonly Command CRedo = new Command {
             Plugin = "",
             Group = "Build",
             Help = "§SRedoes changes you have undone with /undo.<br>§SUsage: /redo [steps <optional>]",
@@ -210,20 +206,20 @@ namespace Hypercube.Command {
             Handler = RedoHandler,
         };
 
-        static void RedoHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void RedoHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Client.Redo(30000);
+                client.Redo(30000);
                 return;
             }
 
-            var myInt = 30000;
+            int myInt;
             int.TryParse(args[0], out myInt);
 
-            Client.Redo(myInt);
+            client.Redo(myInt);
         }
         #endregion
         #region Undo
-        static readonly Command cUndo = new Command {
+        static readonly Command CUndo = new Command {
             Plugin = "",
             Group = "Build",
             Help = "§SUndoes changes you have made.<br>§SUsage: /undo [steps <optional>]",
@@ -243,16 +239,16 @@ namespace Hypercube.Command {
             Handler = UndoHandler,
         };
 
-        static void UndoHandler(NetworkClient Client, string[] args, string Text1, string Text2) {
+        static void UndoHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
-                Client.Undo(30000);
+                client.Undo(30000);
                 return;
             }
 
-            var myInt = 30000;
+            int myInt;
             int.TryParse(args[0], out myInt);
 
-            Client.Undo(myInt);
+            client.Undo(myInt);
         }
         #endregion
     }
