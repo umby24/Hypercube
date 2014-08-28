@@ -329,10 +329,10 @@ namespace Hypercube.Core {
                         if (thisIndex == -1) // -- Just incase it's one spaceless string.
                             thisIndex = 60;
 
-                        temp += builder[i].Substring(0, thisIndex) + "&3>><br>"; // -- Put the string before, with the seperator, and our break.
+                        temp += builder[i].Substring(0, thisIndex) + "<br>"; // -- Put the string before, with the seperator, and our break.
 
                         // -- Finally, Remove this part of the string from the original Builder[i], and add our newline seperators.
-                        builder[i] = "&3>>&f" + builder[i].Substring(thisIndex + 1, builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
+                        builder[i] = builder[i].Substring(thisIndex + 1, builder[i].Length - (thisIndex + 1)); // -- It will now loop again for any subsequent breaks.
                     } else {
                         // -- Since Builder[i] is not (or is no longer) greater than 64 characters long, we can simply remove the whole thing :)
                         temp += builder[i];

@@ -282,7 +282,6 @@ namespace Hypercube.Client {
                     // -- Delete the entity.
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
-                    ServerCore.Logger.Log("Client", "Entity Delete(diff map):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
@@ -290,14 +289,12 @@ namespace Hypercube.Client {
                     // -- Delete yourself
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
-                    ServerCore.Logger.Log("Client", "Entity Delete(self):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
                 if (!CS.CurrentMap.Entities.ContainsKey(e.Id)) { // -- Delete old entities.
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
-                    ServerCore.Logger.Log("Client", "Entity Delete(no contain):" + CS.LoginName + "+(" + e.Id + ")", LogType.Debug);
                     continue;
                 }
 
@@ -323,7 +320,6 @@ namespace Hypercube.Client {
             foreach (var e in CS.CurrentMap.EntitysList) {
                 if (!CS.Entities.ContainsKey(e.Id)) {
                     if (e.Id != CS.MyEntity.Id) {
-                        ServerCore.Logger.Log("Client", "Entity Add:" + CS.LoginName + "+" + e.Name + "(" + e.Id + ")", LogType.Debug);
                         CS.Entities.Add(e.Id, e.CreateStub()); // -- If we do not have them yet, add them!
                     }
                 } else {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Hypercube.Libraries;
 
 namespace Hypercube.Core {
@@ -161,7 +162,7 @@ namespace Hypercube.Core {
         /// <param name="id">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
         public Block GetBlock(int id) {
-            if (NumberList[id] == null) {
+            if (id > NumberList.Count() || NumberList[id] == null) {
                 var myBlock = new Block
                 {
                     Id = 99,

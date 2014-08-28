@@ -256,6 +256,9 @@ namespace Hypercube.Map {
             }
         }
 
+        #region Map Action
+
+        #endregion
         #region Map Functions
         public void Save(string filename = "") {
             if (!Loaded)

@@ -50,7 +50,6 @@ namespace Hypercube.Core {
             Map = map;
 
             Id = ServerCore.FreeEids.Pop();
-            ServerCore.Logger.Log("Entity", "ID Consume: " + name + ":" + Id, LogType.Debug);
 
             BuildMaterial = ServerCore.Blockholder.GetBlock("");
             Lastmaterial = ServerCore.Blockholder.GetBlock(1);

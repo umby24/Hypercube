@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
+using Hypercube.Map;
 using NLua;
 using NLua.Exceptions;
 using Hypercube.Core;
@@ -61,7 +61,9 @@ namespace Hypercube.Libraries {
             LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
             LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
-            
+            LuaHandler.RegisterFunction("CreateFill", ServerCore.Fillholder, ServerCore.Fillholder.GetType().GetMethod("CreateFill"));
+            LuaHandler.RegisterFunction("Setblock", ServerCore.Luahandler,
+                ServerCore.Luahandler.GetType().GetMethod("Setblock"));
             // -- Variables
             LuaHandler["G_ServerName"] = ServerCore.ServerName;
             LuaHandler["G_MOTD"] = ServerCore.Motd;
@@ -70,6 +72,14 @@ namespace Hypercube.Libraries {
             LuaHandler["LogType_Info"] = LogType.Info;
         }
 
+        #region Functions
+        // -- These functions will provide Lua scripts an interface with the server
+        // -- Allowing them to have a great deal on control over the server itself.
+        public void Setblock(short clientId, HypercubeMap map, short x, short y, short z, byte type, bool undo, bool physics, bool send, short priority) {
+            map.BlockChange(clientId, x, y, z, ServerCore.Blockholder.GetBlock(type), map.GetBlock(x, y, z), undo, physics, send, priority);
+            
+        }
+        #endregion
         public void RunFunction(string function, params object[] args) {
             var luaF = LuaHandler.GetFunction(function);
 
@@ -80,6 +90,7 @@ namespace Hypercube.Libraries {
                     luaF.Call();
             } catch (LuaScriptException e) {
                 ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
+                ServerCore.Logger.Log("Lua", e.StackTrace, LogType.Debug);
             }
         }
 

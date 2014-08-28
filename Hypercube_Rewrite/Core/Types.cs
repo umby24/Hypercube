@@ -133,4 +133,17 @@ namespace Hypercube.Core {
             return hCode.GetHashCode();
         }
     }
+
+    public enum MapActions {
+        Fill,
+        Delete,
+        Resize,
+        Save,
+        Load
+    }
+    public struct MapAction {
+        public HypercubeMap Map;
+        public MapActions Action;
+        public string[] Arguments;
+    }
 }

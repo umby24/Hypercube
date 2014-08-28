@@ -101,7 +101,8 @@ namespace Hypercube.Command {
             }
 
             Chat.SendClientChat(client, "§SFill added to queue...");
-            ServerCore.Fillholder.FillMap(client.CS.CurrentMap, args[0]);
+            ServerCore.ActionQueue.Enqueue(new MapAction {Action = MapActions.Fill, Arguments = args, Map = client.CS.CurrentMap});
+            //ServerCore.Fillholder.FillMap(client.CS.CurrentMap, args[0]);
         }
         #endregion
         #region MapFills
@@ -206,7 +207,8 @@ namespace Hypercube.Command {
             }
 
             Chat.SendClientChat(client, "§SLoading map...");
-            client.CS.CurrentMap.Load("Maps/" + args[0] + ".cw");
+            ServerCore.ActionQueue.Enqueue(new MapAction { Action = MapActions.Load, Arguments = args, Map = client.CS.CurrentMap });
+            //client.CS.CurrentMap.Load("Maps/" + args[0] + ".cw");
             client.CS.CurrentMap.Resend();
         }
         #endregion
@@ -275,8 +277,9 @@ namespace Hypercube.Command {
             short.TryParse(args[1], out y);
             short.TryParse(args[2], out z);
 
-            client.CS.CurrentMap.Resize(x, y, z);
-            Chat.SendClientChat(client, "§SMap resized.");
+            //client.CS.CurrentMap.Resize(x, y, z);
+            ServerCore.ActionQueue.Enqueue(new MapAction { Action = MapActions.Resize, Arguments = args, Map = client.CS.CurrentMap });
+            Chat.SendClientChat(client, "§SResize added to queue.");
         }
         #endregion
         #region Maphistory
@@ -367,16 +370,14 @@ namespace Hypercube.Command {
         };
 
         static void MapsaveHandler(NetworkClient client, string[] args, string text1, string text2) {
-            if (args.Length == 0)
-                client.CS.CurrentMap.Save();
-            else if (args.Length == 1)
-                client.CS.CurrentMap.Save("Maps/" + args[0] + ".cw");
+            if (args.Length == 0 || args.Length == 1)
+                ServerCore.ActionQueue.Enqueue(new MapAction { Action = MapActions.Save, Arguments = args, Map = client.CS.CurrentMap });
             else {
                 Chat.SendClientChat(client, "§EIncorrect number of arguments. See /cmdhelp mapsave.");
                 return;
             }
 
-            Chat.SendClientChat(client, "§SMap saved.");
+            Chat.SendClientChat(client, "§SSave added to queue.");
         }
         #endregion
         #region Setspawn

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 using Hypercube.Network;
@@ -29,7 +31,8 @@ namespace Hypercube
         #region Variables
         public static bool Running = false;
         public static int OnlinePlayers = 0;
-
+        public static ConcurrentQueue<MapAction> ActionQueue;
+        private static Thread actionThread;
         #region Server SettingsDictionary
         public static string ServerName, Motd, WelcomeMessage, MapMain;
         public static bool CompressHistory, ColoredConsole;
@@ -134,6 +137,7 @@ namespace Hypercube
 
             FillStacks();
             TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
+            ActionQueue = new ConcurrentQueue<MapAction>();
         }
 
         public static void FillStacks() {
@@ -163,7 +167,12 @@ namespace Hypercube
                 m.PhysicsThread = new Thread(m.PhysicsQueueLoop);
                 m.PhysicsThread.Start();
             }
+
             TaskScheduler.CreateTask("Watchdog", new TimeSpan(0, 0, 30), Watchdog.GenHtml);
+
+            actionThread = new Thread(ProcessActions);
+            actionThread.Start();
+
             Logger.Log("Core", "Server started.", LogType.Info);
         }
 
@@ -187,6 +196,8 @@ namespace Hypercube
 
             foreach (var m in Maps)
                 m.Shutdown();
+
+            actionThread.Abort();
 
             DB.DBConnection.Close();
 
@@ -251,7 +262,52 @@ namespace Hypercube
             Logger.Log("Rules", "Rules loaded.", LogType.Info);
         }
         #endregion
+        #region Map Actions
 
+        public static void ProcessActions() {
+            while (Running) {
+                MapAction action;
+
+                if (ActionQueue.TryDequeue(out action)) {
+                    switch (action.Action) {
+                        case MapActions.Delete:
+                            if (action.Map.Clients.Any()) {
+                                foreach (var c in action.Map.ClientsList) {
+                                    c.ChangeMap(Maps[MapIndex]);
+                                }
+                                action.Map.Shutdown();
+                                TaskScheduler.ScheduledTasks.Remove("Memory Conservation (" + action.Map.CWMap.MapName +
+                                                                    ")");
+                                Maps.Remove(action.Map);
+                                action.Map = null;
+                            }
+                            break;
+                        case MapActions.Fill:
+                            var temp = action.Arguments.ToList();
+                            temp.RemoveAt(0);
+                            Fillholder.FillMap(action.Map, action.Arguments[0], temp.ToArray());
+                            break;
+                        case MapActions.Load:
+                            action.Map.Load(action.Arguments[0]);
+                            break;
+                        case MapActions.Resize:
+                            action.Map.Resize(short.Parse(action.Arguments[0]), short.Parse(action.Arguments[1]), short.Parse(action.Arguments[2]));
+                            break;
+                        case MapActions.Save:
+                            if (action.Arguments.Any())
+                                action.Map.Save(action.Arguments[0]);
+                            else
+                                action.Map.Save();
+                            break;
+                        default:
+                            Logger.Log("MapAction", "Unknown action type: " + action.Action, LogType.Warning);
+                            break;
+                    }
+                }
+                Thread.Sleep(1);
+            }
+        }
+        #endregion
         public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static long GetCurrentUnixTime() {
