@@ -72,6 +72,7 @@ namespace Hypercube.Libraries {
         /// <param name="settingsFile"></param>
         void PreLoad(Settings settingsFile) {
             settingsFile.CurrentGroup = "";
+            settingsFile.SettingsDictionary.Clear();
 
             using (var sr = new StreamReader("Settings/" + settingsFile.Filename)) {
                 while (!sr.EndOfStream) {

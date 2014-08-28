@@ -267,7 +267,7 @@ namespace Hypercube.Client {
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (newMap.EntityLock) {
-                newMap.Entities.Add(CS.Id, CS.MyEntity);
+                newMap.Entities.Add(CS.MyEntity.Id, CS.MyEntity);
                 newMap.CreateEntityList();
             }
 

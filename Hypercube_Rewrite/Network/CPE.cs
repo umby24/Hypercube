@@ -143,9 +143,6 @@ namespace Hypercube.Network {
         }
 
         public static void UpdateExtPlayerList(NetworkClient client) {
-            // -- ExtPlayerList
-            var toRemove = new ExtRemovePlayerName {NameId = client.CS.NameId}; // -- This is needed due to a client bug that doesn't update entries properly. I submitted a PR that fixes this issue, but it hasn't been pushed yet.
-
             var toUpdate = new ExtAddPlayerName
             {
                 NameId = client.CS.NameId,
@@ -158,7 +155,6 @@ namespace Hypercube.Network {
             lock (ServerCore.Nh.ClientLock) {
                 foreach (var c in ServerCore.Nh.Clients) {
                     if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
-                        c.SendQueue.Enqueue(toRemove);
                         c.SendQueue.Enqueue(toUpdate);
                     }
                 }
