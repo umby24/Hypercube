@@ -231,7 +231,7 @@ namespace Hypercube.Libraries {
                     dt.Load(reader);
                     reader.Close();
                 }
-            } catch (Exception e) {
+            } catch (SQLiteException e) {
                 throw new Exception(e.Message);
             }
 

@@ -24,7 +24,6 @@ namespace Hypercube
     // -- TODO: Make line, box, sphere threaded.
     // -- TODO: Add auto-map saving
     // -- TODO: Fix map history
-    // -- TODO: Make mapfills queued and threaded.
     // -- BUG: text '@_@' kicks client (index error)
 
     public static class ServerCore {

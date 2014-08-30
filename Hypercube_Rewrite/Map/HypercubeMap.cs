@@ -551,6 +551,7 @@ namespace Hypercube.Map {
         public void DeleteEntity(ref Entity toSpawn) {
             if (Entities.ContainsKey(toSpawn.Id)) {
                 lock (EntityLock) {
+                    ServerCore.Logger.Log("Client", "Remove Entity: " + toSpawn.Id, LogType.Debug);
                     Entities.Remove(toSpawn.Id);
                     CreateEntityList();
                 }

@@ -17,7 +17,7 @@ namespace Hypercube.Client {
         public ClassicWrapped.ClassicWrapped WSock;
         public TcpClient BaseSocket;
         public NetworkStream BaseStream;
-        public Thread DataRunner, TimeoutThread;
+        public Thread DataRunner;
         public ConcurrentQueue<IPacket> SendQueue;
 
         [NotNull] Dictionary<byte, Func<IPacket>> _packets;
@@ -84,12 +84,23 @@ namespace Hypercube.Client {
             LoadDB(); // -- Load the user's profile
 
             if (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
-                //TODO: This
+                ServerCore.Nh.LoggedClients[CS.LoginName].KickNow("Logged in from another location");
+
+                while (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
+                    Thread.Sleep(1);
+                }
             }
+
+            // -- Set the user as logged in.
+            CS.LoggedIn = true;
+            ServerCore.OnlinePlayers += 1;
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.CreateShit();
 
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
             CS.CurrentMap.Send(this);
+
 
             lock (CS.CurrentMap.ClientLock) {
                 CS.CurrentMap.Clients.Add(CS.Id, this);
@@ -115,18 +126,13 @@ namespace Hypercube.Client {
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (CS.CurrentMap.EntityLock) {
+                ServerCore.Logger.Log("Client", "Add Entity: " + CS.MyEntity.Id, LogType.Debug);
                 CS.CurrentMap.Entities.Add(CS.MyEntity.Id, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
                 CS.CurrentMap.CreateEntityList();
             }
 
             // -- CPE stuff
             CPE.SetupExtPlayerList(this);
-
-            // -- Set the user as logged in.
-            CS.LoggedIn = true;
-            ServerCore.OnlinePlayers += 1;
-            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
-            ServerCore.Nh.CreateShit();
         }
 
         public void SendHandshake(string motd = "") {
@@ -167,6 +173,53 @@ namespace Hypercube.Client {
             }
 
             ServerCore.Nh.HandleDisconnect(this);
+        }
+
+        public void KickNow(string reason) {
+            var dc = new Disconnect { Reason = reason };
+            dc.Write(this);
+
+            Thread.Sleep(100);
+
+            if (DataRunner.IsAlive)
+                DataRunner.Abort();
+
+            if (BaseSocket.Connected)
+                BaseSocket.Close();
+
+            if (!CS.LoggedIn) 
+                return;
+
+            lock (CS.CurrentMap.ClientLock) {
+                CS.CurrentMap.Clients.Remove(CS.Id);
+                CS.CurrentMap.CreateClientList();
+            }
+
+            if (CS.MyEntity != null) {
+                CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
+                ServerCore.FreeEids.Push((short)CS.MyEntity.Id);
+            }
+
+            ServerCore.OnlinePlayers --;
+            ServerCore.FreeIds.Push(CS.NameId);
+            ServerCore.Nh.LoggedClients.Remove((CS.LoginName));
+            ServerCore.Nh.CreateShit();
+
+            var remove = new ExtRemovePlayerName { NameId = CS.NameId };
+                
+            foreach (var c in ServerCore.Nh.ClientList) {
+                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                    c.SendQueue.Enqueue(remove);
+            }
+
+            ServerCore.Logger.Log("Network", "Player " + CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
+            ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", CS.LoginName);
+            Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
+            CS.LoggedIn = false;
+
+            lock (ServerCore.Nh.ClientLock) {
+                ServerCore.Nh.Clients.Remove(this);
+            }
         }
 
         public void HandleBlockChange(short x, short y, short z, byte mode, byte block) {

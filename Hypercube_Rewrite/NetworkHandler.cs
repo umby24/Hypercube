@@ -97,13 +97,18 @@ namespace Hypercube {
                     client.CS.CurrentMap.CreateClientList();
                 }
 
-                LoggedClients.Remove(client.CS.LoginName);
-
-                client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
+                if (client.CS.MyEntity != null)
+                    client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
 
                 ServerCore.OnlinePlayers -= 1;
                 ServerCore.FreeIds.Push(client.CS.NameId);
-                ServerCore.FreeEids.Push((short)client.CS.MyEntity.Id);
+
+                if (client.CS.MyEntity != null) {
+                    ServerCore.Logger.Log("Client", "Push ID: " + client.CS.MyEntity.Id, LogType.Debug);
+                    ServerCore.FreeEids.Push((short) client.CS.MyEntity.Id);
+                }
+
+                LoggedClients.Remove(client.CS.LoginName);
 
                 var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
 

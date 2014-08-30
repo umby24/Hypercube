@@ -162,7 +162,7 @@ namespace Hypercube.Core {
         /// <param name="id">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
         public Block GetBlock(int id) {
-            if (id > NumberList.Count() || NumberList[id] == null) {
+            if (id > NumberList.Count() || NumberList[id] == null) { //TODO: Make this faster.
                 var myBlock = new Block
                 {
                     Id = 99,
