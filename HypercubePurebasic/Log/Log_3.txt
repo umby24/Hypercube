@@ -1,0 +1,23 @@
+[INFO] [LoadRanks] 26| Ranks loaded.
+[INFO] [LoadBlocks] 30| Blocks loaded.
+[INFO] [] 0| Network settings loaded.
+[INFO] [Network_Init] 33| Server started on port 25565
+[INFO] [MapInit] 738| Main map file not found, Creating new 128x128x128 map.
+[INFO] [] 0| Map saved. world.cw
+[INFO] [] 0| Map Cannonwars.cwu loaded. (X=64 Y=64 Z=64)
+[INFO] [] 0| Map Guest.cw loaded. (X=512 Y=256 Z=512)
+[INFO] [] 0| Map Public.cwu loaded. (X=256 Y=256 Z=256)
+[INFO] [] 0| Map Wireworld.cwu loaded. (X=128 Y=64 Z=128)
+[INFO] [] 0| Map world.cw loaded. (X=128 Y=128 Z=128)
+[INFO] [] 0| Server Loaded.
+[INFO] [LoadRanks] 26| Ranks loaded.
+[INFO] [] 0| Map saved. world.cw
+[INFO] [] 0| Map saved. Guest.cw
+[INFO] [] 0| Map saved. world.cw
+[INFO] [DoHeartbeatClassicube] 30| Heartbeat sent.
+[INFO] [] 0| Map saved. world.cw
+[INFO] [] 0| Map world.cw conserved.
+[INFO] [] 0| Map saved. Guest.cw
+[INFO] [] 0| Map Guest.cw conserved.
+[INFO] [] 0| Map saved. world.cw
+[INFO] [] 0| Map world.cw conserved.
