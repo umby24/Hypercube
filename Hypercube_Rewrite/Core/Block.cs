@@ -9,6 +9,8 @@ namespace Hypercube.Core {
         //public SortedDictionary<int, Block> numberList;
         public SortedDictionary<string, Block> NameList;
 
+        public Block UnknownBlock;
+
         readonly Settings _blocksfile;
 
         public BlockContainer() {
@@ -16,6 +18,15 @@ namespace Hypercube.Core {
             NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
             _blocksfile = ServerCore.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
             ServerCore.Settings.ReadSettings(_blocksfile);
+            UnknownBlock = new Block
+                {
+                    Id = 99,
+                    Name = "Unknown",
+                    OnClient = 46,
+                    CPELevel = 0,
+                    CPEReplace = 46,
+                    RanksDelete = RankContainer.SplitRanks("2,3")
+                };
         }
 
         /// <summary>
@@ -55,6 +66,8 @@ namespace Hypercube.Core {
 
             if (NameList.Count == 0)
                 CreateBlocks();
+
+            FillBlocks();
 
             ServerCore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
         }
@@ -133,6 +146,12 @@ namespace Hypercube.Core {
             CreateBlock("Stone Brick", 65, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 12632256, 1, 1, false, -1);
         }
 
+        public void FillBlocks() {
+            for (var i = 0; i < 255; i++) {
+                if (NumberList[i] == null)
+                    NumberList[i] = UnknownBlock;
+            }
+        }
         /// <summary>
         /// Updates the settings for a certain block, and saves it to file.
         /// </summary>
@@ -162,20 +181,7 @@ namespace Hypercube.Core {
         /// <param name="id">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
         public Block GetBlock(int id) {
-            if (id > NumberList.Count() || NumberList[id] == null) { //TODO: Make this faster.
-                var myBlock = new Block
-                {
-                    Id = 99,
-                    Name = "Unknown",
-                    OnClient = 46,
-                    CPELevel = 0,
-                    CPEReplace = 46,
-                    RanksDelete = RankContainer.SplitRanks("2,3")
-                };
-                return myBlock;
-            }
-
-            return NumberList[id];
+            return id > 254 ? UnknownBlock : NumberList[id];
         }
 
         /// <summary>
@@ -185,15 +191,7 @@ namespace Hypercube.Core {
         /// <returns>The block object that was found. The name will be "Unknown" if the block could not be found.</returns>
         public Block GetBlock(string name) {
             if (!NameList.ContainsKey(name)) {
-                var myBlock = new Block {
-                    Id = 99,
-                    Name = "Unknown",
-                    OnClient = 46,
-                    CPELevel = 0,
-                    CPEReplace = 46,
-                    RanksDelete = RankContainer.SplitRanks("2,3")
-                };
-                return myBlock;
+                return UnknownBlock;
             }
 
             return NameList[name];

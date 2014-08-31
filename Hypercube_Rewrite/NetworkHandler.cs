@@ -80,9 +80,10 @@ namespace Hypercube {
             ServerCore.Running = false;
             _listenThread.Abort();
 
-            lock (ClientLock) {
-                foreach (var client in Clients)
-                    client.KickPlayer("Server closing.");
+            var myCopy = ClientList;
+
+            foreach (var networkClient in myCopy) {
+                networkClient.KickNow("Server closing.");
             }
         }
 

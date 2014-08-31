@@ -345,7 +345,8 @@ namespace Hypercube.Client {
                     continue;
                 }
 
-                if (!CS.CurrentMap.Entities.ContainsKey(e.Id)) { // -- Delete old entities.
+                Entity p;
+                if (!CS.CurrentMap.Entities.TryGetValue(e.Id, out p)) {
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
                     continue;
@@ -371,10 +372,11 @@ namespace Hypercube.Client {
                 CS.Entities.Remove(i); // -- If anyone needs to be removed, remove them. (Avoids collection modification)
 
             foreach (var e in CS.CurrentMap.EntitysList) {
-                if (!CS.Entities.ContainsKey(e.Id)) {
-                    if (e.Id != CS.MyEntity.Id) {
+                EntityStub p;
+                if (!CS.Entities.TryGetValue(e.Id, out p)) {
+                    if (e.Id != CS.MyEntity.Id)
                         CS.Entities.Add(e.Id, e.CreateStub()); // -- If we do not have them yet, add them!
-                    }
+                    
                 } else {
                     var csEnt = CS.Entities[e.Id];
 
