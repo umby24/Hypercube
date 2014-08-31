@@ -102,7 +102,6 @@ namespace Hypercube.Network {
         }
 
         public static void SetupExtPlayerList(NetworkClient client) {
-            client.CS.NameId = ServerCore.FreeIds.Pop();
 
             var extPlayerListPacket = new ExtAddPlayerName {GroupRank = 0};
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.IO;
 
-using ClassicWorld_NET;
+using ClassicWorld.NET;
 using fNbt;
 
 using Hypercube.Client;
@@ -70,7 +70,7 @@ namespace Hypercube.Map {
     public class HypercubeMap {
         #region Variables
         public DateTime Lastclient;
-        public ClassicWorld CWMap;
+        public Classicworld CWMap;
         public HypercubeMetadata HCSettings;
         public Thread BlockThread, PhysicsThread;
         public MapHistory History;
@@ -107,7 +107,7 @@ namespace Hypercube.Map {
         /// <param name="sizeY">Map's Y size</param>
         /// <param name="sizeZ">Map's Z size</param>
         public HypercubeMap(string filename, string mapName, short sizeX, short sizeY, short sizeZ) {
-            CWMap = new ClassicWorld(sizeX, sizeZ, sizeY);
+            CWMap = new Classicworld(sizeX, sizeZ, sizeY);
 
             HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true}; // -- ServerCore specific settings, woo.
 
@@ -160,7 +160,7 @@ namespace Hypercube.Map {
         public HypercubeMap(string filename) {
             Path = filename;
 
-            CWMap = new ClassicWorld(filename);
+            CWMap = new Classicworld(filename);
             HCSettings = new HypercubeMetadata();
             CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();
@@ -281,7 +281,7 @@ namespace Hypercube.Map {
             if (Loaded)
                 return;
 
-            CWMap = new ClassicWorld(Path);
+            CWMap = new Classicworld(Path);
             HCSettings = new HypercubeMetadata();
             CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();
@@ -310,7 +310,7 @@ namespace Hypercube.Map {
             }
 
             Path = filename;
-            CWMap = new ClassicWorld(filename);
+            CWMap = new Classicworld(filename);
             HCSettings = new HypercubeMetadata();
             CWMap.MetadataParsers.Add("ServerCore", HCSettings);
             CWMap.Load();

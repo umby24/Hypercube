@@ -33,8 +33,6 @@ namespace Hypercube.Core {
         /// Parses the blocks ISettings object to load the blocks for the server.
         /// </summary>
         public void LoadBlocks() {
-            //Blocks.Clear();
-            //numberList.Clear();
             NameList.Clear();
 
             foreach (var id in _blocksfile.SettingsDictionary.Keys) {
@@ -59,7 +57,6 @@ namespace Hypercube.Core {
                     RanksDelete =
                         RankContainer.SplitRanks(ServerCore.Settings.ReadSetting(_blocksfile, "DeleteRank", "0,1,2,3"))
                 };
-                //Blocks.Add(Newblock);
                 NumberList[newblock.Id] = newblock;
                 NameList.Add(newblock.Name, newblock);
             }
@@ -146,12 +143,16 @@ namespace Hypercube.Core {
             CreateBlock("Stone Brick", 65, "0,1,2,3", "0,1,2,3", 0, 0, 0, "", false, 12632256, 1, 1, false, -1);
         }
 
+        /// <summary>
+        /// Fills unused IDs in the number list with the unknown block type.
+        /// </summary>
         public void FillBlocks() {
             for (var i = 0; i < 255; i++) {
                 if (NumberList[i] == null)
                     NumberList[i] = UnknownBlock;
             }
         }
+        
         /// <summary>
         /// Updates the settings for a certain block, and saves it to file.
         /// </summary>
@@ -181,7 +182,10 @@ namespace Hypercube.Core {
         /// <param name="id">The block ID for the block you want.</param>
         /// <returns>Block object</returns>
         public Block GetBlock(int id) {
-            return id > 254 ? UnknownBlock : NumberList[id];
+            if (id > 254)
+                return UnknownBlock;
+
+            return NumberList[id];
         }
 
         /// <summary>

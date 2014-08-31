@@ -35,7 +35,7 @@ namespace Hypercube {
             ServerCore.Settings.ReadSettings(Ns);
         }
 
-        public void CreateShit() {
+        public void CreateLists() {
             ClientList = LoggedClients.Values.ToArray();
         }
 
@@ -67,7 +67,7 @@ namespace Hypercube {
             _listenThread = new Thread(Listen);
             _listenThread.Start();
 
-            CreateShit();
+            CreateLists();
 
             ServerCore.Logger.Log("Network", "Server started on port " + Port, LogType.Info);
         }
@@ -98,18 +98,15 @@ namespace Hypercube {
                     client.CS.CurrentMap.CreateClientList();
                 }
 
-                if (client.CS.MyEntity != null)
+                if (client.CS.MyEntity != null) {
                     client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
+                    ServerCore.FreeEids.Push((short)client.CS.MyEntity.Id);
+                }
 
                 ServerCore.OnlinePlayers -= 1;
                 ServerCore.FreeIds.Push(client.CS.NameId);
-
-                if (client.CS.MyEntity != null) {
-                    ServerCore.Logger.Log("Client", "Push ID: " + client.CS.MyEntity.Id, LogType.Debug);
-                    ServerCore.FreeEids.Push((short) client.CS.MyEntity.Id);
-                }
-
                 LoggedClients.Remove(client.CS.LoginName);
+                CreateLists();
 
                 var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
 
@@ -124,7 +121,7 @@ namespace Hypercube {
                 ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
                 Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
                 client.CS.LoggedIn = false;
-                CreateShit();
+                
             }
 
             try {

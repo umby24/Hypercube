@@ -93,9 +93,10 @@ namespace Hypercube.Client {
 
             // -- Set the user as logged in.
             CS.LoggedIn = true;
+            CS.NameId = ServerCore.FreeIds.Pop();
             ServerCore.OnlinePlayers += 1;
             ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
-            ServerCore.Nh.CreateShit();
+            ServerCore.Nh.CreateLists();
 
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
@@ -126,7 +127,6 @@ namespace Hypercube.Client {
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (CS.CurrentMap.EntityLock) {
-                ServerCore.Logger.Log("Client", "Add Entity: " + CS.MyEntity.Id, LogType.Debug);
                 CS.CurrentMap.Entities.Add(CS.MyEntity.Id, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
                 CS.CurrentMap.CreateEntityList();
             }
@@ -176,6 +176,7 @@ namespace Hypercube.Client {
         }
 
         public void KickNow(string reason) {
+            ServerCore.Logger.Log("Client", "Played kicked: " + reason);
             var dc = new Disconnect { Reason = reason };
             dc.Write(this);
 
@@ -203,7 +204,7 @@ namespace Hypercube.Client {
             ServerCore.OnlinePlayers --;
             ServerCore.FreeIds.Push(CS.NameId);
             ServerCore.Nh.LoggedClients.Remove((CS.LoginName));
-            ServerCore.Nh.CreateShit();
+            ServerCore.Nh.CreateLists();
 
             var remove = new ExtRemovePlayerName { NameId = CS.NameId };
                 
@@ -387,13 +388,13 @@ namespace Hypercube.Client {
                         csEnt.Changed = true;
                     }
 
-                    if (e.Rot != csEnt.Rot || e.Look != csEnt.Look) {
-                        csEnt.Rot = e.Rot;
-                        csEnt.Look = e.Look;
+                    if (e.Rot == csEnt.Rot && e.Look == csEnt.Look) 
+                        continue;
+                    csEnt.Rot = e.Rot;
+                    csEnt.Look = e.Look;
 
-                        if (!csEnt.Changed)
-                            csEnt.Looked = true;
-                    }
+                    if (!csEnt.Changed)
+                        csEnt.Looked = true;
                 }
             }
 
