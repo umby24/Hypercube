@@ -24,6 +24,7 @@ namespace Hypercube
     // -- TODO: Make line, box, sphere threaded.
     // -- TODO: Add auto-map saving
     // -- TODO: Fix map history
+    // -- TODO: Make permissions work right
     // -- BUG: text '@_@' kicks client (index error)
 
     public static class ServerCore {
@@ -31,7 +32,7 @@ namespace Hypercube
         public static bool Running = false;
         public static int OnlinePlayers = 0;
         public static ConcurrentQueue<MapAction> ActionQueue;
-        private static Thread actionThread;
+        private static Thread _actionThread;
         #region Server SettingsDictionary
         public static string ServerName, Motd, WelcomeMessage, MapMain;
         public static bool CompressHistory, ColoredConsole;
@@ -169,8 +170,8 @@ namespace Hypercube
 
             TaskScheduler.CreateTask("Watchdog", new TimeSpan(0, 0, 30), Watchdog.GenHtml);
 
-            actionThread = new Thread(ProcessActions);
-            actionThread.Start();
+            _actionThread = new Thread(ProcessActions);
+            _actionThread.Start();
 
             Logger.Log("Core", "Server started.", LogType.Info);
         }
@@ -196,7 +197,7 @@ namespace Hypercube
             foreach (var m in Maps)
                 m.Shutdown();
 
-            actionThread.Abort();
+            _actionThread.Abort();
 
             DB.DBConnection.Close();
 

@@ -96,6 +96,7 @@ namespace Hypercube.Client {
             CS.NameId = ServerCore.FreeIds.Pop();
             ServerCore.OnlinePlayers += 1;
             ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.IntLoggeClients.Add(CS.Id, this);
             ServerCore.Nh.CreateLists();
 
             // -- Get the user logged in to the main map.
@@ -204,6 +205,7 @@ namespace Hypercube.Client {
             ServerCore.OnlinePlayers --;
             ServerCore.FreeIds.Push(CS.NameId);
             ServerCore.Nh.LoggedClients.Remove((CS.LoginName));
+            ServerCore.Nh.IntLoggeClients.Remove(CS.Id);
             ServerCore.Nh.CreateLists();
 
             var remove = new ExtRemovePlayerName { NameId = CS.NameId };

@@ -91,7 +91,7 @@ namespace Hypercube.Map {
         public object EntityLock = new object();
 
         public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
-        public List<QueueItem> PhysicsQueue = new List<QueueItem>(); //TODO: Update this to something faster
+        public ConcurrentQueue<QueueItem> PhysicsQueue = new ConcurrentQueue<QueueItem>();
         #endregion
         #region IDs
         public readonly Stack<sbyte> FreeIds = new Stack<sbyte>(127);
@@ -255,10 +255,6 @@ namespace Hypercube.Map {
                 }
             }
         }
-
-        #region Map Action
-
-        #endregion
         #region Map Functions
         public void Save(string filename = "") {
             if (!Loaded)
@@ -404,11 +400,11 @@ namespace Hypercube.Map {
         }
 
         public byte GetBlockId(short x, short z, short y) {
-            if ((0 > x || CWMap.SizeX <= x) || (0 > z || CWMap.SizeY <= z) || (0 > y || CWMap.SizeZ <= y))
-                return 255;
+            if (!BlockInBounds(x, z, y))
+                return 254;
 
             if (!Loaded)
-                return 255;
+                return 254;
 
             var index = (y * CWMap.SizeZ + z) * CWMap.SizeX + x;
             return CWMap.BlockData[index];
@@ -419,6 +415,9 @@ namespace Hypercube.Map {
         }
 
         public void SetBlockId(short x, short z, short y, byte type, int clientId) {
+            if (!BlockInBounds(x, z, y))
+                return;
+
             if (!Loaded)
                 return;
 
@@ -430,6 +429,9 @@ namespace Hypercube.Map {
             CWMap.BlockData[index] = type;
         }
 
+        public bool BlockInBounds(short x, short y, short z) {
+            return (0 < x || CWMap.SizeX >= x) || (0 < z || CWMap.SizeY >= z) || (0 < y || CWMap.SizeZ >= y);
+        }
         /// <summary>
         /// Checks for clients. If clients have not been active for more than 30 seconds, the map will be unloaded.
         /// </summary>
@@ -438,7 +440,6 @@ namespace Hypercube.Map {
                 Unload();
             else if (Clients.Count > 0)
                 Lastclient = DateTime.UtcNow;
-            
         }
 
         public void Resend() {
@@ -533,10 +534,11 @@ namespace Hypercube.Map {
 
             Save();
 
-            if (HCSettings.History && History != null) {
-                History.UnloadHistory();
-                History.DeFragment();
-            }
+            if (!HCSettings.History || History == null) 
+                return;
+
+            History.UnloadHistory();
+            History.DeFragment();
         }
         #endregion
         #region Entity Management
@@ -551,7 +553,6 @@ namespace Hypercube.Map {
         public void DeleteEntity(ref Entity toSpawn) {
             if (Entities.ContainsKey(toSpawn.Id)) {
                 lock (EntityLock) {
-                    ServerCore.Logger.Log("Client", "Remove Entity: " + toSpawn.Id, LogType.Debug);
                     Entities.Remove(toSpawn.Id);
                     CreateEntityList();
                 }
@@ -570,10 +571,8 @@ namespace Hypercube.Map {
         #endregion
         #region Block Management
         public void ClientChangeBlock(NetworkClient client, short x, short y, short z, byte mode, Block newBlock) {
-            if ((0 > x || CWMap.SizeX <= x) || (0 > z || CWMap.SizeY <= z) || (0 > y || CWMap.SizeZ <= y)) {
-                Chat.SendClientChat(client, "§EThat block is outside the bounds of the map.");
+            if (!BlockInBounds(x, y, z)) 
                 return;
-            }
 
             var mapBlock = GetBlock(x, y, z);
 
@@ -617,55 +616,46 @@ namespace Hypercube.Map {
         public void BlockChange(short clientId, short x, short y, short z, Block type, Block lastType, bool undo, bool physics, bool send, short priority) {
             SetBlockId(x, y, z, (byte)(type.Id), clientId);
 
-            //if (Undo) {
-            //    NetworkClient Client = null;
+            if (undo) {
+                NetworkClient client;
 
-            //    if (ServerCore.Clients.ContainsKey(ClientID))
-            //        Client = Clients[ClientID];
-            //    else
-            //        return;
+                ServerCore.Nh.IntLoggeClients.TryGetValue(clientId, out client);
 
-            //    if (Client != null) {
-            //        if (Client.CS.CurrentIndex == -1)
-            //            Client.CS.CurrentIndex = 0;
+                if (client != null) {
+                    if (client.CS.CurrentIndex == -1)
+                        client.CS.CurrentIndex = 0;
 
-            //        if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
-            //            for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
-            //                Client.CS.UndoObjects.RemoveAt(i);
-            //        }
+                    if (client.CS.CurrentIndex != (client.CS.UndoObjects.Count - 1)) {
+                        for (var i = client.CS.CurrentIndex; i < client.CS.UndoObjects.Count - 1; i++)
+                            client.CS.UndoObjects.RemoveAt(i);
+                    }
 
-            //        if (Client.CS.UndoObjects.Count >= 50000)
-            //            Client.CS.UndoObjects.RemoveAt(0);
+                    if (client.CS.UndoObjects.Count >= 50000)
+                        client.CS.UndoObjects.RemoveAt(0);
 
-            //        var newUndo = new Undo();
-            //        newUndo.x = X;
-            //        newUndo.y = Y;
-            //        newUndo.z = Z;
-            //        newUndo.OldBlock = LastType;
-            //        newUndo.NewBlock = Type;
+                    var newUndo = new Undo {X = x, Y = y, Z = z, OldBlock = lastType, NewBlock = type};
 
-            //        Client.CS.UndoObjects.Add(newUndo);
-            //        Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
-            //    }
-            //}
+                    client.CS.UndoObjects.Add(newUndo);
+                    client.CS.CurrentIndex = client.CS.UndoObjects.Count - 1;
+                }
+            }
 
             if (physics) {
+                var randomGen = new Random();
+
                 for (short ix = -1; ix < 2; ix++) {
                     for (short iy = -1; iy < 2; iy++) {
                         for (short iz = -1; iz < 2; iz++) {
 
-                            if ((0 > (x + ix) || CWMap.SizeX <= (x + ix)) || (0 > (z + iz) || CWMap.SizeY <= (z + iz)) || (0 > (y + iy) || CWMap.SizeZ <= (y + iy)))
+                            if (!BlockInBounds((short)(x + ix), (short)(y + iy), (short)(z + iz)))
                                 continue;
 
                             var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
 
-                            if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), 1), new QueueComparator())) {
-                                    var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(type.PhysicsDelay + randomGen.Next(type.PhysicsRandom))));
-                                }
-                            }
-
+                            if (blockQueue.Physics <= 0 && string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) 
+                                continue;
+                            
+                            PhysicsQueue.Enqueue(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(blockQueue.PhysicsDelay + randomGen.Next(blockQueue.PhysicsRandom))));
                         }
                     }
                 }
@@ -685,83 +675,71 @@ namespace Hypercube.Map {
             SetBlockId(x, y, z, 0, -1);
             SetBlockId(x2, y2, z2, (byte)(block1.Id), History.GetLastPlayer(x, z, y));
 
-            //if (undo) {
-            //    var lastPlayer = History.GetLastPlayer(X, Z, Y);
-            //    NetworkClient Client = null;
+            if (undo) {
+                var lastPlayer = History.GetLastPlayer(x, z, y);
+                NetworkClient client;
 
-            //    lock (ClientLock) {
-            //        Client = Clients[lastPlayer];
-            //    }
+                ServerCore.Nh.IntLoggeClients.TryGetValue(lastPlayer, out client);
 
-            //    if (Client != null) {
-            //        if (Client.CS.CurrentIndex == -1)
-            //            Client.CS.CurrentIndex = 0;
+                if (client != null) {
+                    if (client.CS.CurrentIndex == -1)
+                        client.CS.CurrentIndex = 0;
 
-            //        if (Client.CS.CurrentIndex != (Client.CS.UndoObjects.Count - 1)) {
-            //            for (int i = Client.CS.CurrentIndex; i < Client.CS.UndoObjects.Count - 1; i++)
-            //                Client.CS.UndoObjects.RemoveAt(i);
-            //        }
+                    if (client.CS.CurrentIndex != (client.CS.UndoObjects.Count - 1)) {
+                        for (var i = client.CS.CurrentIndex; i < client.CS.UndoObjects.Count - 1; i++)
+                            client.CS.UndoObjects.RemoveAt(i);
+                    }
 
-            //        if (Client.CS.UndoObjects.Count >= 50000)
-            //            Client.CS.UndoObjects.RemoveAt(0);
+                    if (client.CS.UndoObjects.Count >= 50000)
+                        client.CS.UndoObjects.RemoveAt(0);
 
-            //        var newUndo = new Undo();
-            //        newUndo.x = X;
-            //        newUndo.y = Y;
-            //        newUndo.z = Z;
-            //        newUndo.OldBlock = Block1;
-            //        newUndo.NewBlock = ServerCore.Blockholder.GetBlock(0);
+                    var newUndo = new Undo {
+                        X = x,
+                        Y = y,
+                        Z = z,
+                        OldBlock = block1,
+                        NewBlock = ServerCore.Blockholder.GetBlock(0)
+                    };
+                    var newUndo2 = new Undo {X = x2, Y = y2, Z = z2, OldBlock = block2, NewBlock = block1};
 
-            //        Client.CS.UndoObjects.Add(newUndo);
-
-            //        var newUndo2 = new Undo();
-            //        newUndo2.x = X2;
-            //        newUndo2.y = Y2;
-            //        newUndo2.z = Z2;
-            //        newUndo2.OldBlock = Block2;
-            //        newUndo2.NewBlock = Block1;
-
-            //        Client.CS.UndoObjects.Add(newUndo2);
-
-            //        Client.CS.CurrentIndex = Client.CS.UndoObjects.Count - 1;
-            //    }
-            //}
+                    client.CS.UndoObjects.Add(newUndo);
+                    client.CS.UndoObjects.Add(newUndo2);
+                    client.CS.CurrentIndex = client.CS.UndoObjects.Count - 1;
+                }
+            }
 
             BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
             BlockchangeQueue.Enqueue(new QueueItem(x2, y2, z2, priority));
 
-            if (physics) {
-                for (short ix = -1; ix < 2; ix++) {
-                    for (short iy = -1; iy < 2; iy++) {
-                        for (short iz = -1; iz < 2; iz++) {
+            if (!physics) 
+                return;
 
-                            if ((0 > (x + ix) || CWMap.SizeX <= (x + ix)) || (0 > (z + iz) || CWMap.SizeY <= (z + iz)) || (0 > (y + iy) || CWMap.SizeZ <= (y + iy)))
-                                continue;
+            var randomGen = new Random();
 
-                            if ((0 > (x2 + ix) || CWMap.SizeX <= (x2 + ix)) || (0 > (z2 + iz) || CWMap.SizeY <= (z2 + iz)) || (0 > (y2 + iy) || CWMap.SizeZ <= (y2 + iy)))
-                                continue;
+            for (short ix = -1; ix < 2; ix++) {
+                for (short iy = -1; iy < 2; iy++) {
+                    for (short iz = -1; iz < 2; iz++) {
 
-                            var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
-                            var blockQueue2 = GetBlock((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz));
+                        if (!BlockInBounds((short)(x + ix), (short)(y + iy), (short)(z + iz)))
+                            continue;
 
-                            if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), 1), new QueueComparator())) {
-                                    var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(block1.PhysicsDelay + randomGen.Next(block1.PhysicsRandom))));
-                                }
-                            }
+                        if (!BlockInBounds((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz)))
+                            continue;
 
-                            if (blockQueue2.Physics > 0 || !string.IsNullOrEmpty(blockQueue2.PhysicsPlugin)) {
-                                if (!PhysicsQueue.Contains(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), 250), new QueueComparator())) {
-                                    var randomGen = new Random();
-                                    PhysicsQueue.Add(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), DateTime.UtcNow.AddMilliseconds(block2.PhysicsDelay + randomGen.Next(block2.PhysicsRandom))));
-                                }
-                            }
-                        }
+                        var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
+                        var blockQueue2 = GetBlock((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz));
+
+                        if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) 
+                            PhysicsQueue.Enqueue(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(blockQueue.PhysicsDelay + randomGen.Next(blockQueue.PhysicsRandom))));
+                            
+
+                        if (blockQueue2.Physics <= 0 && string.IsNullOrEmpty(blockQueue2.PhysicsPlugin)) 
+                            continue;
+
+                        PhysicsQueue.Enqueue(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), DateTime.UtcNow.AddMilliseconds(blockQueue2.PhysicsDelay + randomGen.Next(blockQueue2.PhysicsRandom))));
                     }
                 }
             }
-
         }
 
         public void SendBlock(NetworkClient client, short x, short y, short z, Block type) {
@@ -773,13 +751,11 @@ namespace Hypercube.Map {
                 setblock.Block = type.OnClient;
 
             client.SendQueue.Enqueue(setblock);
-            //Setblock.Write(client);
         }
 
         public void SendBlockToAll(short x, short y, short z, Block type) {
             foreach(var c in ClientsList)
                 SendBlock(c, x, y, z, type);
-            
         }
 
         public void BlockQueueLoop() {
@@ -806,54 +782,52 @@ namespace Hypercube.Map {
                     }
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(1);
             }
         }
 
         public void PhysicsQueueLoop() {
             while (ServerCore.Running) {
-                if (HCSettings.Building && HCSettings.Physics) {
-                    while (PhysicsQueue.Count > 0) {
-                        for (var i = 0; i < PhysicsQueue.Count; i++) {
-                            try {
-                                if ((PhysicsQueue[i].DoneTime - DateTime.UtcNow).Milliseconds > 0)
-                                    continue;
-                            } catch {
-                                continue;
-                            }
+                if (!HCSettings.Building && !HCSettings.Physics) {
+                    Thread.Sleep(1);
+                    continue;
+                }
 
-                            var physicBlock = GetBlock(PhysicsQueue[i].X, PhysicsQueue[i].Y, PhysicsQueue[i].Z);
-                            short x = PhysicsQueue[i].X, y = PhysicsQueue[i].Y, z = PhysicsQueue[i].Z;
+                while (true) {
+                    QueueItem physItem;
 
-                            PhysicsQueue.RemoveAt(i);
+                    if (!PhysicsQueue.TryDequeue(out physItem))
+                        break;
 
-                            if (i != 0)
-                                i -= 1;
+                    if ((physItem.DoneTime - DateTime.UtcNow).Milliseconds > 0) {
+                        PhysicsQueue.Enqueue(physItem);
+                        continue;
+                    }
 
-                            switch (physicBlock.Physics) {
-                                case 10:
-                                    PhysicsOriginalSand(x, y, z);
-                                    break;
-                                case 11:
-                                    PhysicsD3Sand(x, y, z);
-                                    break;
-                                case 20:
-                                    PhysicsInfiniteWater(physicBlock, x, y, z);
-                                    break;
-                                case 21:
-                                    PhysicsFiniteWater(x, y, z);
-                                    break;
-                                case 22:
-                                    PhysicsSnow(x, y, z);
-                                    break;
-                            }
+                    var physicBlock = GetBlock(physItem.X, physItem.Y, physItem.Z);
+                    short x = physItem.X, y = physItem.Y, z = physItem.Z;
 
-                        }
+                    switch (physicBlock.Physics) {
+                        case 10:
+                            PhysicsOriginalSand(x, y, z);
+                            break;
+                        case 11:
+                            PhysicsD3Sand(x, y, z);
+                            break;
+                        case 20:
+                            PhysicsInfiniteWater(physicBlock, x, y, z);
+                            break;
+                        case 21:
+                            PhysicsFiniteWater(x, y, z);
+                            break;
+                        case 22:
+                            PhysicsSnow(x, y, z);
+                            break;
                     }
                 }
-                Thread.Sleep(10);
-            }
+            Thread.Sleep(1);
         }
+    }
 
         #region Physics Functions
         void PhysicsOriginalSand(short x, short y, short z) {
@@ -917,7 +891,7 @@ namespace Hypercube.Map {
                             fill.Enqueue(new QueueItem((short)(working.X + 1), working.Y, working.Z, 1));
                         }
 
-                        if (GetBlockId((short)(working.X - 1), working.Y, working.Z) == 0 && fillArray[working.X - 1, working.Y] == 0) {
+                        if (working.X != 0 && GetBlockId((short)(working.X - 1), working.Y, working.Z) == 0 && fillArray[working.X - 1, working.Y] == 0) {
                             fillArray[working.X * 1, working.Y] = 1;
                             fill.Enqueue(new QueueItem((short)(working.X - 1), working.Y, working.Z, 1));
                         }
@@ -927,7 +901,7 @@ namespace Hypercube.Map {
                             fill.Enqueue(new QueueItem(working.X, (short)(working.Y + 1), working.Z, 1));
                         }
 
-                        if (GetBlockId(working.X, (short)(working.Y - 1), working.Z) == 0 && fillArray[working.X, working.Y - 1] == 0) {
+                        if (working.Y != 0 && GetBlockId(working.X, (short)(working.Y - 1), working.Z) == 0 && fillArray[working.X, working.Y - 1] == 0) {
                             fillArray[working.X, working.Y - 1] = 1;
                             fill.Enqueue(new QueueItem(working.X, (short)(working.Y - 1), working.Z, 1));
                         }

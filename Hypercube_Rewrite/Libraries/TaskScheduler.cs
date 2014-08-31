@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Hypercube.Core;
 
@@ -35,15 +34,14 @@ namespace Hypercube.Libraries {
         public static void RunTasks() {
             while (ServerCore.Running) {
                 lock (TaskLock) {
-                    for (var i = 0; i < ScheduledTasks.Count; i++) {
+                    foreach (var task in ScheduledTasks) {
                         try {
-                            var task = ScheduledTasks.ElementAt(i);
-                            if ((DateTime.UtcNow - task.Value.LastRun) >= task.Value.RunInterval) {
-                                task.Value.Method();
-                                ScheduledTasks[task.Key].LastRun = DateTime.UtcNow;
-                            }
-                        }
-                        catch (Exception e) {
+                            if ((DateTime.UtcNow - task.Value.LastRun) < task.Value.RunInterval) 
+                                continue;
+
+                            task.Value.Method();
+                            ScheduledTasks[task.Key].LastRun = DateTime.UtcNow;
+                        } catch (Exception e) {
                             ServerCore.Logger.Log("Tasks", "Error occured: " + e.Message, LogType.Error);
                             ServerCore.Logger.Log("Tasks", e.StackTrace, LogType.Debug);
                         }

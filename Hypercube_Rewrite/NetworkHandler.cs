@@ -17,7 +17,7 @@ namespace Hypercube {
         public Settings Ns;
         public List<NetworkClient> Clients = new List<NetworkClient>();
         public Dictionary<string, NetworkClient> LoggedClients = new Dictionary<string, NetworkClient>(StringComparer.InvariantCultureIgnoreCase);
-
+        public Dictionary<int, NetworkClient> IntLoggeClients = new Dictionary<int, NetworkClient>(); 
         public NetworkClient[] ClientList;
 
         public TcpListener CoreListener;
@@ -106,22 +106,20 @@ namespace Hypercube {
                 ServerCore.OnlinePlayers -= 1;
                 ServerCore.FreeIds.Push(client.CS.NameId);
                 LoggedClients.Remove(client.CS.LoginName);
+                IntLoggeClients.Remove(client.CS.Id);
                 CreateLists();
 
                 var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
-
-                lock (ClientLock) {
-                    foreach (var c in Clients) {
-                        if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
-                            c.SendQueue.Enqueue(remove);
-                    }
+                
+                foreach (var c in ClientList) {
+                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                        c.SendQueue.Enqueue(remove);
                 }
 
                 ServerCore.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
                 ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
                 Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
                 client.CS.LoggedIn = false;
-                
             }
 
             try {
