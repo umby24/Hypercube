@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-
+using System.Threading;
 using Hypercube.Client;
 using Hypercube.Core;
+using Hypercube.Libraries;
 using Hypercube.Map;
 
 namespace Hypercube.Command {
@@ -41,7 +43,6 @@ namespace Hypercube.Command {
                 new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
                 new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
                 new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.addmap", Group = "map", Perm = "addmap"},
             },
 
             Handler = MapaddHandler,
@@ -60,6 +61,12 @@ namespace Hypercube.Command {
 
             var newMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
             ServerCore.Maps.Add(newMap);
+            newMap.BlockThread = new Thread(newMap.BlockQueueLoop);
+            newMap.PhysicsThread = new Thread(newMap.PhysicsQueueLoop);
+            newMap.BlockThread.Start();
+            newMap.PhysicsThread.Start();
+            TaskScheduler.CreateTask("Memory Conservation (" + newMap.CWMap.MapName + ")", new TimeSpan(0, 0, 30), newMap.MapMain);
+            TaskScheduler.CreateTask("Autosave (" + newMap.CWMap.MapName + ")", new TimeSpan(0, newMap.HCSettings.SaveInterval, 0), newMap.MapSave);
 
             Chat.SendClientChat(client, "§SMap added successfully.");
         }

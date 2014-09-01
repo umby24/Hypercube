@@ -81,25 +81,29 @@ namespace Hypercube.Core {
         public byte LastBlock { get; set; }
 
         /// <summary>
-        /// Loads a HistoryEntry from a byte array.
+        /// Creates a HistoryEntry from a byte array.
         /// </summary>
         /// <param name="array"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
-        public void FromByteArray(byte[] array, short x, short y, short z) {
+        public static HistoryEntry FromByteArray(byte[] array, short x, short y, short z) {
             if (array.Length != 10)
                 throw new FormatException("The provided byte array is not 10 bytes long.");
 
-            X = x;
-            Y = y;
-            Z = z;
+            var myEntry = new HistoryEntry {
+                X = x,
+                Y = y,
+                Z = z,
 
-            Timestamp = BitConverter.ToInt32(array, 0);
-            Player = BitConverter.ToUInt16(array, 4);
-            LastPlayer = BitConverter.ToUInt16(array, 6);
-            NewBlock = array[8];
-            LastBlock = array[9];
+                Timestamp = BitConverter.ToInt32(array, 0),
+                Player = BitConverter.ToUInt16(array, 4),
+                LastPlayer = BitConverter.ToUInt16(array, 6),
+                NewBlock = array[8],
+                LastBlock = array[9],
+            };
+
+            return myEntry;
         }
 
         /// <summary>
@@ -117,6 +121,10 @@ namespace Hypercube.Core {
             result[9] = LastBlock;
 
             return result;
+        }
+
+        public bool Equals(HistoryEntry item) {
+            return X == item.X && Y == item.Y && Z == item.Z;
         }
     }
 

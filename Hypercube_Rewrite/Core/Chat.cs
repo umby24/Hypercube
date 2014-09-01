@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Hypercube.Client;
 using Hypercube.Network;
 using Hypercube.Libraries;
@@ -122,19 +121,16 @@ namespace Hypercube.Core {
             if (message.StartsWith("/") && !message.StartsWith("//"))
                 ServerCore.Commandholder.HandleCommand(incomingClient, message);
             else if (message.StartsWith("@")) {
-                string client;
+                var client = "";
 
-                try {
+                if (message.Length > 3 && message.Contains(" "))
                     client = message.Substring(1, message.IndexOf(" ") - 1);
-                } catch {
-                    return;
-                }
 
                 NetworkClient tosend;
 
-                if (ServerCore.Nh.LoggedClients.ContainsKey(client)) {
-                    tosend = ServerCore.Nh.LoggedClients[client];
-                } else {
+                ServerCore.Nh.LoggedClients.TryGetValue(client, out tosend);
+
+                if (tosend == null) {
                     SendClientChat(incomingClient, "§EPlayer '" + client + "' not found.");
                     return;
                 }

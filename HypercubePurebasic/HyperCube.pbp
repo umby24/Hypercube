@@ -10,7 +10,7 @@
   <section name="data">
     <explorer view="C:\Users\Tommy\Documents\" pattern="0"/>
     <log show="1"/>
-    <lastopen date="2014-02-20 23:11" user="Tommy" host="UNKNOWN"/>
+    <lastopen date="2014-08-31 20:11" user="Tommy" host="UNKNOWN"/>
   </section>
   <section name="files">
     <file name="Hypercube.pb">

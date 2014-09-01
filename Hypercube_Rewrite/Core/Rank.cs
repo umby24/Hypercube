@@ -126,7 +126,7 @@ namespace Hypercube.Core
                     Id = 3,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap")
+                            "map.addmap,map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap")
                 };
 
                 NumberList.Add(0, guestRank);

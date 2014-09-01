@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.IO;
-
+using System.Xml.Linq;
 using ClassicWorld.NET;
 using fNbt;
 
@@ -24,24 +24,22 @@ namespace Hypercube.Map {
         public bool Building;
         public bool History;
         public string Motd;
+        public int SaveInterval;
 
         public NbtCompound Read(NbtCompound metadata) {
-            var hcData = metadata.Get<NbtCompound>("ServerCore");
+            var hcData = metadata.Get<NbtCompound>("Hypercube");
 
             if (hcData != null) {
-                //try {
-                    BuildPerms = hcData["BuildPerms"].StringValue;
-                    ShowPerms = hcData["ShowPerms"].StringValue;
-                    JoinPerms = hcData["JoinPerms"].StringValue;
-                    Physics = Convert.ToBoolean(hcData["Physics"].ByteValue);
-                    Building = Convert.ToBoolean(hcData["Building"].ByteValue);
-                    History = Convert.ToBoolean(hcData["History"].ByteValue);
+                BuildPerms = hcData["BuildPerms"].StringValue;
+                ShowPerms = hcData["ShowPerms"].StringValue;
+                JoinPerms = hcData["JoinPerms"].StringValue;
+                Physics = Convert.ToBoolean(hcData["Physics"].ByteValue);
+                Building = Convert.ToBoolean(hcData["Building"].ByteValue);
+                History = Convert.ToBoolean(hcData["History"].ByteValue);
+                SaveInterval = hcData["SaveInterval"].IntValue;
 
-                    if (hcData["MOTD"] != null)
-                        Motd = hcData["MOTD"].StringValue;
-                //} catch (Exception) {
-
-                //}
+                if (hcData["MOTD"] != null)
+                    Motd = hcData["MOTD"].StringValue;
 
                 metadata.Remove(hcData);
             }
@@ -50,11 +48,12 @@ namespace Hypercube.Map {
         }
 
         public NbtCompound Write() {
-            var hcBase = new NbtCompound("ServerCore")
+            var hcBase = new NbtCompound("Hypercube")
             {
                 new NbtString("BuildPerms", BuildPerms),
                 new NbtString("ShowPerms", ShowPerms),
                 new NbtString("JoinPerms", JoinPerms),
+                new NbtInt("SaveInterval", SaveInterval),
                 new NbtByte("Physics", Convert.ToByte(Physics)),
                 new NbtByte("Building", Convert.ToByte(Building)),
                 new NbtByte("History", Convert.ToByte(History))
@@ -109,7 +108,7 @@ namespace Hypercube.Map {
         public HypercubeMap(string filename, string mapName, short sizeX, short sizeY, short sizeZ) {
             CWMap = new Classicworld(sizeX, sizeZ, sizeY);
 
-            HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true}; // -- ServerCore specific settings, woo.
+            HCSettings = new HypercubeMetadata {Building = true, Physics = true, History = true, SaveInterval = 10}; // -- Hypercube specific settings, woo.
 
             var joinPerm = ServerCore.Permholder.GetPermission("map.joinmap");
 
@@ -117,9 +116,9 @@ namespace Hypercube.Map {
             Showperms.Add("map.joinmap", joinPerm);
             Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
 
-            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
+            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.MapName = mapName;
-            CWMap.GeneratingSoftware = "ServerCore";
+            CWMap.GeneratingSoftware = "Hypercube";
             CWMap.GeneratorName = "Blank";
             CWMap.CreatingService = "Classicube";
             CWMap.CreatingUsername = "[SERVER]";
@@ -162,10 +161,10 @@ namespace Hypercube.Map {
 
             CWMap = new Classicworld(filename);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
+            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
 
             if (HCSettings.BuildPerms == null) {
                 Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
@@ -187,7 +186,9 @@ namespace Hypercube.Map {
                 HCSettings.History = true;
             } else
                 Joinperms = PermissionContainer.SplitPermissions(HCSettings.JoinPerms);
-            
+
+            if (HCSettings.SaveInterval == 0)
+                HCSettings.SaveInterval = 10;
 
             var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
 
@@ -268,7 +269,7 @@ namespace Hypercube.Map {
             HCSettings.JoinPerms = PermissionContainer.PermissionsToString(Joinperms);
             HCSettings.ShowPerms = PermissionContainer.PermissionsToString(Showperms);
 
-            CWMap.MetadataParsers["ServerCore"] = HCSettings;
+            CWMap.MetadataParsers["Hypercube"] = HCSettings;
 
             CWMap.Save(filename != "" ? filename : Path);
         }
@@ -279,20 +280,19 @@ namespace Hypercube.Map {
 
             CWMap = new Classicworld(Path);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
+            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
             Path = Path.Replace(".cwu", ".cw");
-            Loaded = true;
             File.Move(Path + "u", Path);
 
             if (HCSettings.History && History != null)
                 History.ReloadHistory();
             else if (HCSettings.History) 
                 History = new MapHistory(this);
-            
 
+            Loaded = true;
             ServerCore.Logger.Log("Map", CWMap.MapName + " reloaded.", LogType.Info);
             ServerCore.Luahandler.RunFunction("E_MapReloaded", this);
         }
@@ -308,10 +308,10 @@ namespace Hypercube.Map {
             Path = filename;
             CWMap = new Classicworld(filename);
             HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("ServerCore", HCSettings);
+            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["ServerCore"];
+            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
 
             if (HCSettings.BuildPerms == null) {
                 Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
@@ -334,6 +334,8 @@ namespace Hypercube.Map {
             } else
                 Joinperms = PermissionContainer.SplitPermissions(HCSettings.JoinPerms);
 
+            if (HCSettings.SaveInterval == 0)
+                HCSettings.SaveInterval = 10;
 
             var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
 
@@ -440,6 +442,11 @@ namespace Hypercube.Map {
                 Unload();
             else if (Clients.Count > 0)
                 Lastclient = DateTime.UtcNow;
+        }
+
+        public void MapSave() {
+            Save();
+            ServerCore.Logger.Log("Map", "Map saved. (" + CWMap.MapName + ")", LogType.Info);
         }
 
         public void Resend() {

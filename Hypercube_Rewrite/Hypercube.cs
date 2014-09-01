@@ -22,10 +22,7 @@ namespace Hypercube
     // -- TODO: Make gui
     // -- TODO: Add Teleporters
     // -- TODO: Make line, box, sphere threaded.
-    // -- TODO: Add auto-map saving
-    // -- TODO: Fix map history
     // -- TODO: Make permissions work right
-    // -- BUG: text '@_@' kicks client (index error)
 
     public static class ServerCore {
         #region Variables
@@ -65,8 +62,7 @@ namespace Hypercube
 
         #region Ids
         public readonly static Stack<short> FreeEids = new Stack<short>(1000); 
-        public readonly static Stack<short> FreeIds = new Stack<short>(1000); 
-        //public static short NextId = 0, FreeId = 0, ENext = 0, EFree = 0;
+        public readonly static Stack<short> FreeIds = new Stack<short>(1000);
         public static int MapIndex;
         #endregion
 
@@ -155,11 +151,12 @@ namespace Hypercube
             TaskScheduler.TaskThread.Start();
 
             Hb = new Heartbeat();
-            TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 3), Settings.SettingsMain);
-            TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 3), Luahandler.Main);
+            TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 1), Settings.SettingsMain);
+            TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 1), Luahandler.Main);
 
             foreach (var m in Maps) {
                 TaskScheduler.CreateTask("Memory Conservation (" + m.CWMap.MapName + ")", new TimeSpan(0, 0, 30), m.MapMain);
+                TaskScheduler.CreateTask("Autosave (" + m.CWMap.MapName + ")", new TimeSpan(0,m.HCSettings.SaveInterval, 0), m.MapSave);
 
                 m.BlockThread = new Thread(m.BlockQueueLoop);
                 m.BlockThread.Start();

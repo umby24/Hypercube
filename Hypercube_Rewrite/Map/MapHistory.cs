@@ -13,7 +13,7 @@ namespace Hypercube.Map
 
         private readonly string _baseName;
         private readonly HypercubeMap _thisMap;
-        public List<HistoryEntry> Entries; //TODO: Look into possibly changing this..
+        public List<HistoryEntry> Entries;
         private bool _fragmented;
 
         #endregion
@@ -54,6 +54,10 @@ namespace Hypercube.Map
             Entries = new List<HistoryEntry>();
         }
 
+        /// <summary>
+        /// Simple function that checks for the gzip header in a file.
+        /// </summary>
+        /// <returns>true if file is compressed, false if not.</returns>
         public bool FileCompressed()
         {
             var compressed = false;
@@ -98,7 +102,9 @@ namespace Hypercube.Map
         /// </summary>
         public void SaveEntries()
         {
-            ServerCore.Logger.Log("MapHistory", "Saving Entries", LogType.Debug);
+            if (FileCompressed()) // -- Need to make sure the file is decompressed just as a sanity check before editing any data.
+                GZip.DecompressFile(_baseName + ".hch");
+
             var indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
 
             using (var fs = new FileStream(_baseName + ".hch", FileMode.Open))
@@ -106,7 +112,7 @@ namespace Hypercube.Map
                 foreach (var h in Entries)
                 {
                     var temp = new byte[4];
-                    var index = (h.Z*_thisMap.CWMap.SizeZ + h.Y)*_thisMap.CWMap.SizeX + h.X;
+                    var index = (h.Y*_thisMap.CWMap.SizeZ + h.Z)*_thisMap.CWMap.SizeX + h.X;
 
                     fs.Seek(index*4, SeekOrigin.Begin);
                     fs.Read(temp, 0, 4);
@@ -136,13 +142,13 @@ namespace Hypercube.Map
                     var tempArray = new HistoryEntry[numEntries];
                     var shift = false;
 
-                    for (var i = 0; i < numEntries; i++)
+                    for (var i = 0; i < numEntries; i++) // -- Modify the timestamp and block if so..
                     {
                         // -- Load the entries for checking.
                         var thisEntry = new byte[10];
 
                         fs.Read(thisEntry, 0, 10);
-                        tempArray[i].FromByteArray(thisEntry, h.X, h.Y, h.Z);
+                        tempArray[i] = HistoryEntry.FromByteArray(thisEntry, h.X, h.Y, h.Z);
 
                         if (tempArray[i].Player == h.Player)
                         {
@@ -167,6 +173,7 @@ namespace Hypercube.Map
                         continue; // -- Move to the next iteration.
                     }
 
+                    // -- If the user did not have any previous entries...
                     // -- Now We'll handle the easy case first, if we've already reached the maximum.
 
                     if (numEntries == ServerCore.MaxHistoryEntries)
@@ -220,12 +227,12 @@ namespace Hypercube.Map
                 return null;
 
             var indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
-            var result = new HistoryEntry[ServerCore.MaxHistoryEntries];
+            var result = new List<HistoryEntry>();
 
             using (var fs = new FileStream(_baseName + ".hch", FileMode.Open))
             {
                 var temp = new byte[4];
-                var index = (z*_thisMap.CWMap.SizeZ + y)*_thisMap.CWMap.SizeX + x;
+                var index = (y*_thisMap.CWMap.SizeZ + z)*_thisMap.CWMap.SizeX + x;
 
                 fs.Seek(index*4, SeekOrigin.Begin); // -- Seek to the int in the index table
                 fs.Read(temp, 0, 4);
@@ -233,75 +240,50 @@ namespace Hypercube.Map
                 var entryIndex = BitConverter.ToInt32(temp, 0);
                 // -- This will give us the location of our entries (if any).
 
+                if (entryIndex != 0) {
+                    fs.Seek((indexTableSize + entryIndex), SeekOrigin.Begin); // -- Seek to the entries.
+                    var numEntries = fs.ReadByte(); // -- The number of entries to follow (max by design: 255).
 
-                if (entryIndex == 0) // -- No entries.
-                    return null;
-
-                fs.Seek((indexTableSize + entryIndex), SeekOrigin.Begin); // -- Seek to the entries.
-                var numEntries = fs.ReadByte(); // -- The number of entries to follow (max by design: 255).
-
-                for (var i = 0; i < numEntries; i++)
-                {
-                    // -- Load the entries.
-                    var thisEntry = new byte[10];
-
-                    fs.Read(thisEntry, 0, 10);
-                    result[i].FromByteArray(thisEntry, x, y, z);
-
+                    for (var i = 0; i < numEntries; i++) {
+                        // -- Load the entries.
+                        var thisEntry = new byte[10];
+                        fs.Read(thisEntry, 0, 10);
+                        result.Add(HistoryEntry.FromByteArray(thisEntry, x, y, z));
+                    }
                 }
             }
-
-            var myList = new List<HistoryEntry>();
-            var lebroke = false;
 
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
             foreach (var h in Entries)
             {
-                if (!result.Contains(h, new HistoryComparator())) 
+                if (!(h.X == x && h.Y == y && h.Z == z))
                     continue;
+
+                if (!result.Contains(h, new HistoryComparator())) {
+                    result.Add(h);
+                    continue;
+                }
 
                 // -- If the coords for this entry match the results
-                for (var q = 0; q < result.Length; q++)
+                for (var q = 0; q < result.Count; q++)
                 {
-                    if (result[q].Player != h.Player) 
+                    if (result[q].Player != h.Player) // -- If this is not the player we are looking for..
                         continue;
 
-                    result[q].NewBlock = h.NewBlock;
-                    result[q].Timestamp = h.Timestamp;
-                    lebroke = true;
+                    if (!result[q].Equals(h))
+                        continue;
+
+                    var temp = result[q];
+                    temp.NewBlock = h.NewBlock;
+                    temp.Timestamp = h.Timestamp;
+                    result[q] = temp;
                     break;
                 }
-
-                if (lebroke)
-                {
-                    lebroke = false;
-                    continue;
-                }
-
-                myList.Add(h); // -- Add it to the temporary list
             }
-
-            var tempList = result.ToList();
-            tempList.AddRange(myList);
-            myList.Clear();
 
             // -- Sort the list by time..
-            if (tempList.Count > ServerCore.MaxHistoryEntries)
-            {
-                tempList = tempList.OrderByDescending(o => o.Timestamp).ToList();
-                tempList.RemoveRange(ServerCore.MaxHistoryEntries,
-                    tempList.Count - ServerCore.MaxHistoryEntries);
-                tempList = tempList.OrderBy(o => o.Timestamp).ToList();
-                result = tempList.ToArray();
-            }
-            else
-            {
-                tempList = tempList.OrderBy(o => o.Timestamp).ToList();
-                result = tempList.ToArray();
-            }
-
-
-            return result;
+            result = result.OrderBy(o => o.Timestamp).ToList();
+            return result.ToArray();
         }
 
         /// <summary>
@@ -326,6 +308,13 @@ namespace Hypercube.Map
             return result;
         }
 
+        /// <summary>
+        /// Returns the player ID of the last player to modify the given block.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns>Player ID</returns>
         public short GetLastPlayer(short x, short y, short z)
         {
             if (!_thisMap.HCSettings.History)
@@ -333,8 +322,9 @@ namespace Hypercube.Map
 
             var results = Lookup(x, y, z);
 
-            if (results == null)
+            if (results == null || results.Length == 0)
                 return -1;
+
             return (short) results[results.Length - 1].Player;
         }
 
@@ -350,6 +340,7 @@ namespace Hypercube.Map
         /// <param name="lastBlock"></param>
         public void AddEntry(short x, short y, short z, ushort player, ushort lastPlayer, byte newBlock, byte lastBlock)
         {
+
             var he = new HistoryEntry
             {
                 LastBlock = lastBlock,
@@ -396,7 +387,7 @@ namespace Hypercube.Map
                             for (var iz = 0; iz < _thisMap.CWMap.SizeY; iz++)
                             {
                                 var temp = new byte[4];
-                                var index = (iz*_thisMap.CWMap.SizeZ + iy)*_thisMap.CWMap.SizeX + ix;
+                                var index = (iy*_thisMap.CWMap.SizeZ + iz)*_thisMap.CWMap.SizeX + ix;
 
                                 fs.Seek(index*4, SeekOrigin.Begin);
                                 fs.Read(temp, 0, 4);
