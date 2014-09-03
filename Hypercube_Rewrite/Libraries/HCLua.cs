@@ -65,6 +65,7 @@ namespace Hypercube.Libraries {
             LuaHandler.RegisterFunction("Setblock", ServerCore.Luahandler,
                 ServerCore.Luahandler.GetType().GetMethod("Setblock"));
             // -- Variables
+            LuaHandler["G_Blocks"] = ServerCore.Blockholder;
             LuaHandler["G_ServerName"] = ServerCore.ServerName;
             LuaHandler["G_MOTD"] = ServerCore.Motd;
             LuaHandler["G_Welcome"] = ServerCore.WelcomeMessage;

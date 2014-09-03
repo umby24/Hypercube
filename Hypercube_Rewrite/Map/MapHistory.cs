@@ -93,7 +93,7 @@ namespace Hypercube.Map
             SaveEntries();
             ServerCore.Logger.Log("MapHistory", "Unloaded history", LogType.Debug);
 
-            if (ServerCore.CompressHistory && _thisMap.Loaded && !FileCompressed())
+            if (ServerCore.CompressHistory && !FileCompressed())
                 GZip.CompressFile(_baseName + ".hch");
         }
 
