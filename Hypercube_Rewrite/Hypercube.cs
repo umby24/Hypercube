@@ -17,6 +17,7 @@ namespace Hypercube
     // -- ServerCore Classic Minecraft Software by Umby24
     // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
     // -- 
+    // -- TODO: TP Commands
     // -- TODO: Add physics on mapload
     // -- TODO: Add vanish
     // -- TODO: Make gui
@@ -48,7 +49,7 @@ namespace Hypercube
         public static Database DB;
 
         public static Heartbeat Hb;
-        public static Logging Logger;
+        public static Logging Logger = new Logging();
         public static Text TextFormats;
 
         public static BuildMode BmContainer;
@@ -73,8 +74,6 @@ namespace Hypercube
         public static void Setup()
         {
             Settings = new PbSettingsLoader();
-
-            Logger = new Logging();
             TextFormats = new Text();
 
             SysSettings = Settings.RegisterFile("System.txt", true, ReadSystemSettings);
@@ -105,15 +104,15 @@ namespace Hypercube
             var found = false;
 
             for (var i = 0; i < Maps.Count; i++) {
-                if (Maps[i].Path.Contains(MapMain + ".cw")) {
-                    MapIndex = i;
-                    found = true;
-                    break;
-                }
+                if (!Maps[i].Path.Contains(MapMain + ".cw")) 
+                    continue;
+                MapIndex = i;
+                found = true;
+                break;
             }
 
             if (!found) {
-                var mainMap = new HypercubeMap("Maps/world.cw", "world", 128, 128, 128);
+                var mainMap = new HypercubeMap("Maps/" + MapMain + ".cw", MapMain, 128, 128, 128);
                 Maps.Add(mainMap);
                 MapIndex = Maps.Count - 1;
                 Logger.Log("Core", "Main world not found, a new one has been created.", LogType.Warning);

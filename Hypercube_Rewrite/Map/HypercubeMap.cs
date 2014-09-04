@@ -257,6 +257,7 @@ namespace Hypercube.Map {
                 } catch (Exception e) {
                     ServerCore.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
                     ServerCore.Logger.Log("Maps", e.Message, LogType.Error);
+                    ServerCore.Logger.Log("Maps", e.StackTrace, LogType.Debug);
                     GC.Collect();
                 }
             }

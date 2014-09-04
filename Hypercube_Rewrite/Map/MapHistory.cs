@@ -303,7 +303,7 @@ namespace Hypercube.Map
             var result = "";
 
             foreach (var e in entries)
-                result += "§S" + e.Player + " changed " + e.LastBlock + " to " + e.NewBlock + ".<br>";
+                result += "§S" + e.Player + " changed " + ServerCore.Blockholder.GetBlock(e.LastBlock).Name + " to " + ServerCore.Blockholder.GetBlock(e.NewBlock).Name + ".<br>";
 
             return result;
         }

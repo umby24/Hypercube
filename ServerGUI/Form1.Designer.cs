@@ -1,5 +1,5 @@
 ﻿namespace ServerGUI {
-    partial class mainForm {
+    partial class MainForm {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -43,7 +43,7 @@
             this.txtDebugBox = new System.Windows.Forms.RichTextBox();
             this.settingsTab = new System.Windows.Forms.TabPage();
             this.btnRuleEdit = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.grpSettingsChat = new System.Windows.Forms.GroupBox();
             this.txtChatDivider = new System.Windows.Forms.TextBox();
             this.lblDivider = new System.Windows.Forms.Label();
             this.txtPlayerlist = new System.Windows.Forms.TextBox();
@@ -57,7 +57,7 @@
             this.numPort = new System.Windows.Forms.NumericUpDown();
             this.chkPub = new System.Windows.Forms.CheckBox();
             this.chkVerifyNames = new System.Windows.Forms.CheckBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lblMaxPlayers = new System.Windows.Forms.Label();
             this.lblPort = new System.Windows.Forms.Label();
             this.grpSystem = new System.Windows.Forms.GroupBox();
             this.lblHistory = new System.Windows.Forms.Label();
@@ -75,14 +75,14 @@
             this.txtSrvName = new System.Windows.Forms.TextBox();
             this.lblSrvName = new System.Windows.Forms.Label();
             this.mapsTab = new System.Windows.Forms.TabPage();
-            this.label17 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
+            this.lblMapBPerms = new System.Windows.Forms.Label();
+            this.lblMapSPerms = new System.Windows.Forms.Label();
+            this.lblMapJperms = new System.Windows.Forms.Label();
             this.button9 = new System.Windows.Forms.Button();
             this.lstBuildPerms = new System.Windows.Forms.ListBox();
             this.lstShowPerms = new System.Windows.Forms.ListBox();
             this.lstJoinPerms = new System.Windows.Forms.ListBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.grpMapControl = new System.Windows.Forms.GroupBox();
             this.button8 = new System.Windows.Forms.Button();
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
@@ -91,22 +91,22 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txtMapMotd = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblMapPhysqueue = new System.Windows.Forms.Label();
+            this.lblMapSpawn = new System.Windows.Forms.Label();
+            this.lblMapBlockqueue = new System.Windows.Forms.Label();
+            this.lblMapSize = new System.Windows.Forms.Label();
+            this.lblMapGen = new System.Windows.Forms.Label();
+            this.lblMapBuilding = new System.Windows.Forms.Label();
+            this.lblMapHist = new System.Windows.Forms.Label();
+            this.lblLoadStatus = new System.Windows.Forms.Label();
+            this.lblMapPhys = new System.Windows.Forms.Label();
+            this.lblMapClients = new System.Windows.Forms.Label();
+            this.lblMapMotd = new System.Windows.Forms.Label();
+            this.txtMapName = new System.Windows.Forms.TextBox();
+            this.lblMapName = new System.Windows.Forms.Label();
+            this.lblMaps = new System.Windows.Forms.Label();
             this.lstMaps = new System.Windows.Forms.ListBox();
             this.contextMapStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -122,6 +122,24 @@
             this.gUIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendToTrayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miniModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lstBlocks = new System.Windows.Forms.ListBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label25 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label30 = new System.Windows.Forms.Label();
+            this.button10 = new System.Windows.Forms.Button();
+            this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
             this.mainTabs.SuspendLayout();
             this.consoleTab.SuspendLayout();
             this.consoletabs.SuspendLayout();
@@ -132,7 +150,7 @@
             this.ErrorsTab.SuspendLayout();
             this.debugTab.SuspendLayout();
             this.settingsTab.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.grpSettingsChat.SuspendLayout();
             this.grpNetwork.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPlayers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
@@ -140,10 +158,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.numHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxBlocks)).BeginInit();
             this.mapsTab.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.grpMapControl.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMapStrip.SuspendLayout();
+            this.blocksTab.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTabs
@@ -251,13 +271,13 @@
             this.txtChatbox.Location = new System.Drawing.Point(0, 0);
             this.txtChatbox.Name = "txtChatbox";
             this.txtChatbox.ReadOnly = true;
-            this.txtChatbox.Size = new System.Drawing.Size(964, 198);
+            this.txtChatbox.Size = new System.Drawing.Size(964, 214);
             this.txtChatbox.TabIndex = 2;
             this.txtChatbox.Text = "";
             // 
             // btnSendChat
             // 
-            this.btnSendChat.Location = new System.Drawing.Point(883, 201);
+            this.btnSendChat.Location = new System.Drawing.Point(883, 220);
             this.btnSendChat.Name = "btnSendChat";
             this.btnSendChat.Size = new System.Drawing.Size(75, 23);
             this.btnSendChat.TabIndex = 1;
@@ -333,7 +353,7 @@
             // settingsTab
             // 
             this.settingsTab.Controls.Add(this.btnRuleEdit);
-            this.settingsTab.Controls.Add(this.groupBox3);
+            this.settingsTab.Controls.Add(this.grpSettingsChat);
             this.settingsTab.Controls.Add(this.grpNetwork);
             this.settingsTab.Controls.Add(this.grpSystem);
             this.settingsTab.Location = new System.Drawing.Point(4, 22);
@@ -341,7 +361,7 @@
             this.settingsTab.Padding = new System.Windows.Forms.Padding(3);
             this.settingsTab.Size = new System.Drawing.Size(981, 278);
             this.settingsTab.TabIndex = 1;
-            this.settingsTab.Text = "SettingsDictionary";
+            this.settingsTab.Text = "Settings";
             this.settingsTab.UseVisualStyleBackColor = true;
             // 
             // btnRuleEdit
@@ -353,22 +373,22 @@
             this.btnRuleEdit.Text = "Edit rules";
             this.btnRuleEdit.UseVisualStyleBackColor = true;
             // 
-            // groupBox3
+            // grpSettingsChat
             // 
-            this.groupBox3.Controls.Add(this.txtChatDivider);
-            this.groupBox3.Controls.Add(this.lblDivider);
-            this.groupBox3.Controls.Add(this.txtPlayerlist);
-            this.groupBox3.Controls.Add(this.lblPlayerList);
-            this.groupBox3.Controls.Add(this.lblSystem);
-            this.groupBox3.Controls.Add(this.lblError);
-            this.groupBox3.Controls.Add(this.txtChatSystem);
-            this.groupBox3.Controls.Add(this.txtChatError);
-            this.groupBox3.Location = new System.Drawing.Point(241, 123);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(200, 136);
-            this.groupBox3.TabIndex = 2;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Chat";
+            this.grpSettingsChat.Controls.Add(this.txtChatDivider);
+            this.grpSettingsChat.Controls.Add(this.lblDivider);
+            this.grpSettingsChat.Controls.Add(this.txtPlayerlist);
+            this.grpSettingsChat.Controls.Add(this.lblPlayerList);
+            this.grpSettingsChat.Controls.Add(this.lblSystem);
+            this.grpSettingsChat.Controls.Add(this.lblError);
+            this.grpSettingsChat.Controls.Add(this.txtChatSystem);
+            this.grpSettingsChat.Controls.Add(this.txtChatError);
+            this.grpSettingsChat.Location = new System.Drawing.Point(241, 123);
+            this.grpSettingsChat.Name = "grpSettingsChat";
+            this.grpSettingsChat.Size = new System.Drawing.Size(200, 136);
+            this.grpSettingsChat.TabIndex = 2;
+            this.grpSettingsChat.TabStop = false;
+            this.grpSettingsChat.Text = "Chat";
             // 
             // txtChatDivider
             // 
@@ -440,7 +460,7 @@
             this.grpNetwork.Controls.Add(this.numPort);
             this.grpNetwork.Controls.Add(this.chkPub);
             this.grpNetwork.Controls.Add(this.chkVerifyNames);
-            this.grpNetwork.Controls.Add(this.label7);
+            this.grpNetwork.Controls.Add(this.lblMaxPlayers);
             this.grpNetwork.Controls.Add(this.lblPort);
             this.grpNetwork.Location = new System.Drawing.Point(241, 6);
             this.grpNetwork.Name = "grpNetwork";
@@ -513,14 +533,14 @@
             this.chkVerifyNames.Text = "Verify Names";
             this.chkVerifyNames.UseVisualStyleBackColor = true;
             // 
-            // label7
+            // lblMaxPlayers
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 42);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(64, 13);
-            this.label7.TabIndex = 1;
-            this.label7.Text = "Max Players";
+            this.lblMaxPlayers.AutoSize = true;
+            this.lblMaxPlayers.Location = new System.Drawing.Point(6, 42);
+            this.lblMaxPlayers.Name = "lblMaxPlayers";
+            this.lblMaxPlayers.Size = new System.Drawing.Size(64, 13);
+            this.lblMaxPlayers.TabIndex = 1;
+            this.lblMaxPlayers.Text = "Max Players";
             // 
             // lblPort
             // 
@@ -706,20 +726,20 @@
             // 
             // mapsTab
             // 
-            this.mapsTab.Controls.Add(this.label17);
-            this.mapsTab.Controls.Add(this.label16);
-            this.mapsTab.Controls.Add(this.label15);
+            this.mapsTab.Controls.Add(this.lblMapBPerms);
+            this.mapsTab.Controls.Add(this.lblMapSPerms);
+            this.mapsTab.Controls.Add(this.lblMapJperms);
             this.mapsTab.Controls.Add(this.button9);
             this.mapsTab.Controls.Add(this.lstBuildPerms);
             this.mapsTab.Controls.Add(this.lstShowPerms);
             this.mapsTab.Controls.Add(this.lstJoinPerms);
-            this.mapsTab.Controls.Add(this.groupBox2);
-            this.mapsTab.Controls.Add(this.textBox2);
+            this.mapsTab.Controls.Add(this.grpMapControl);
+            this.mapsTab.Controls.Add(this.txtMapMotd);
             this.mapsTab.Controls.Add(this.groupBox1);
-            this.mapsTab.Controls.Add(this.label3);
-            this.mapsTab.Controls.Add(this.textBox1);
-            this.mapsTab.Controls.Add(this.label2);
-            this.mapsTab.Controls.Add(this.label1);
+            this.mapsTab.Controls.Add(this.lblMapMotd);
+            this.mapsTab.Controls.Add(this.txtMapName);
+            this.mapsTab.Controls.Add(this.lblMapName);
+            this.mapsTab.Controls.Add(this.lblMaps);
             this.mapsTab.Controls.Add(this.lstMaps);
             this.mapsTab.Location = new System.Drawing.Point(4, 22);
             this.mapsTab.Name = "mapsTab";
@@ -728,32 +748,32 @@
             this.mapsTab.Text = "Maps";
             this.mapsTab.UseVisualStyleBackColor = true;
             // 
-            // label17
+            // lblMapBPerms
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(398, 51);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(88, 13);
-            this.label17.TabIndex = 17;
-            this.label17.Text = "Build Permissions";
+            this.lblMapBPerms.AutoSize = true;
+            this.lblMapBPerms.Location = new System.Drawing.Point(398, 51);
+            this.lblMapBPerms.Name = "lblMapBPerms";
+            this.lblMapBPerms.Size = new System.Drawing.Size(88, 13);
+            this.lblMapBPerms.TabIndex = 17;
+            this.lblMapBPerms.Text = "Build Permissions";
             // 
-            // label16
+            // lblMapSPerms
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(272, 51);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(92, 13);
-            this.label16.TabIndex = 16;
-            this.label16.Text = "Show Permissions";
+            this.lblMapSPerms.AutoSize = true;
+            this.lblMapSPerms.Location = new System.Drawing.Point(272, 51);
+            this.lblMapSPerms.Name = "lblMapSPerms";
+            this.lblMapSPerms.Size = new System.Drawing.Size(92, 13);
+            this.lblMapSPerms.TabIndex = 16;
+            this.lblMapSPerms.Text = "Show Permissions";
             // 
-            // label15
+            // lblMapJperms
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(143, 51);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(84, 13);
-            this.label15.TabIndex = 15;
-            this.label15.Text = "Join Permissions";
+            this.lblMapJperms.AutoSize = true;
+            this.lblMapJperms.Location = new System.Drawing.Point(143, 51);
+            this.lblMapJperms.Name = "lblMapJperms";
+            this.lblMapJperms.Size = new System.Drawing.Size(84, 13);
+            this.lblMapJperms.TabIndex = 15;
+            this.lblMapJperms.Text = "Join Permissions";
             // 
             // button9
             // 
@@ -788,22 +808,22 @@
             this.lstJoinPerms.Size = new System.Drawing.Size(120, 199);
             this.lstJoinPerms.TabIndex = 11;
             // 
-            // groupBox2
+            // grpMapControl
             // 
-            this.groupBox2.Controls.Add(this.button8);
-            this.groupBox2.Controls.Add(this.button7);
-            this.groupBox2.Controls.Add(this.button6);
-            this.groupBox2.Controls.Add(this.button5);
-            this.groupBox2.Controls.Add(this.button4);
-            this.groupBox2.Controls.Add(this.button3);
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Controls.Add(this.button1);
-            this.groupBox2.Location = new System.Drawing.Point(773, 130);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(200, 145);
-            this.groupBox2.TabIndex = 10;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Control";
+            this.grpMapControl.Controls.Add(this.button8);
+            this.grpMapControl.Controls.Add(this.button7);
+            this.grpMapControl.Controls.Add(this.button6);
+            this.grpMapControl.Controls.Add(this.button5);
+            this.grpMapControl.Controls.Add(this.button4);
+            this.grpMapControl.Controls.Add(this.button3);
+            this.grpMapControl.Controls.Add(this.button2);
+            this.grpMapControl.Controls.Add(this.button1);
+            this.grpMapControl.Location = new System.Drawing.Point(773, 130);
+            this.grpMapControl.Name = "grpMapControl";
+            this.grpMapControl.Size = new System.Drawing.Size(200, 145);
+            this.grpMapControl.TabIndex = 10;
+            this.grpMapControl.TabStop = false;
+            this.grpMapControl.Text = "Control";
             // 
             // button8
             // 
@@ -877,25 +897,25 @@
             this.button1.Text = "Resize";
             this.button1.UseVisualStyleBackColor = true;
             // 
-            // textBox2
+            // txtMapMotd
             // 
-            this.textBox2.Location = new System.Drawing.Point(341, 16);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 20);
-            this.textBox2.TabIndex = 6;
+            this.txtMapMotd.Location = new System.Drawing.Point(341, 16);
+            this.txtMapMotd.Name = "txtMapMotd";
+            this.txtMapMotd.Size = new System.Drawing.Size(100, 20);
+            this.txtMapMotd.TabIndex = 6;
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label11);
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.label12);
-            this.groupBox1.Controls.Add(this.label13);
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.lblMapPhysqueue);
+            this.groupBox1.Controls.Add(this.lblMapSpawn);
+            this.groupBox1.Controls.Add(this.lblMapBlockqueue);
+            this.groupBox1.Controls.Add(this.lblMapSize);
+            this.groupBox1.Controls.Add(this.lblMapGen);
+            this.groupBox1.Controls.Add(this.lblMapBuilding);
+            this.groupBox1.Controls.Add(this.lblMapHist);
+            this.groupBox1.Controls.Add(this.lblLoadStatus);
+            this.groupBox1.Controls.Add(this.lblMapPhys);
+            this.groupBox1.Controls.Add(this.lblMapClients);
             this.groupBox1.Location = new System.Drawing.Point(773, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(200, 121);
@@ -903,130 +923,130 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Status";
             // 
-            // label11
+            // lblMapPhysqueue
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 96);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(90, 13);
-            this.label11.TabIndex = 6;
-            this.label11.Text = "Physics Queue: 0";
+            this.lblMapPhysqueue.AutoSize = true;
+            this.lblMapPhysqueue.Location = new System.Drawing.Point(6, 96);
+            this.lblMapPhysqueue.Name = "lblMapPhysqueue";
+            this.lblMapPhysqueue.Size = new System.Drawing.Size(90, 13);
+            this.lblMapPhysqueue.TabIndex = 6;
+            this.lblMapPhysqueue.Text = "Physics Queue: 0";
             // 
-            // label14
+            // lblMapSpawn
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(113, 64);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(76, 13);
-            this.label14.TabIndex = 9;
-            this.label14.Text = "Spawn: 0, 0, 0";
+            this.lblMapSpawn.AutoSize = true;
+            this.lblMapSpawn.Location = new System.Drawing.Point(113, 64);
+            this.lblMapSpawn.Name = "lblMapSpawn";
+            this.lblMapSpawn.Size = new System.Drawing.Size(76, 13);
+            this.lblMapSpawn.TabIndex = 9;
+            this.lblMapSpawn.Text = "Spawn: 0, 0, 0";
             // 
-            // label10
+            // lblMapBlockqueue
             // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 80);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(104, 13);
-            this.label10.TabIndex = 5;
-            this.label10.Text = "Blocksend Queue: 0";
+            this.lblMapBlockqueue.AutoSize = true;
+            this.lblMapBlockqueue.Location = new System.Drawing.Point(6, 80);
+            this.lblMapBlockqueue.Name = "lblMapBlockqueue";
+            this.lblMapBlockqueue.Size = new System.Drawing.Size(104, 13);
+            this.lblMapBlockqueue.TabIndex = 5;
+            this.lblMapBlockqueue.Text = "Blocksend Queue: 0";
             // 
-            // label12
+            // lblMapSize
             // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(98, 48);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(91, 13);
-            this.label12.TabIndex = 7;
-            this.label12.Text = "Size: 64 x 64 x 64";
+            this.lblMapSize.AutoSize = true;
+            this.lblMapSize.Location = new System.Drawing.Point(98, 48);
+            this.lblMapSize.Name = "lblMapSize";
+            this.lblMapSize.Size = new System.Drawing.Size(91, 13);
+            this.lblMapSize.TabIndex = 7;
+            this.lblMapSize.Text = "Size: 64 x 64 x 64";
             // 
-            // label13
+            // lblMapGen
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(87, 32);
-            this.label13.Name = "label13";
-            this.label13.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.label13.Size = new System.Drawing.Size(102, 13);
-            this.label13.TabIndex = 8;
-            this.label13.Text = "Generator: Flatgrass";
+            this.lblMapGen.AutoSize = true;
+            this.lblMapGen.Location = new System.Drawing.Point(87, 32);
+            this.lblMapGen.Name = "lblMapGen";
+            this.lblMapGen.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.lblMapGen.Size = new System.Drawing.Size(102, 13);
+            this.lblMapGen.TabIndex = 8;
+            this.lblMapGen.Text = "Generator: Flatgrass";
             // 
-            // label9
+            // lblMapBuilding
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 64);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(64, 13);
-            this.label9.TabIndex = 4;
-            this.label9.Text = "Building: On";
+            this.lblMapBuilding.AutoSize = true;
+            this.lblMapBuilding.Location = new System.Drawing.Point(6, 64);
+            this.lblMapBuilding.Name = "lblMapBuilding";
+            this.lblMapBuilding.Size = new System.Drawing.Size(64, 13);
+            this.lblMapBuilding.TabIndex = 4;
+            this.lblMapBuilding.Text = "Building: On";
             // 
-            // label8
+            // lblMapHist
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 48);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(59, 13);
-            this.label8.TabIndex = 3;
-            this.label8.Text = "History: On";
+            this.lblMapHist.AutoSize = true;
+            this.lblMapHist.Location = new System.Drawing.Point(6, 48);
+            this.lblMapHist.Name = "lblMapHist";
+            this.lblMapHist.Size = new System.Drawing.Size(59, 13);
+            this.lblMapHist.TabIndex = 3;
+            this.lblMapHist.Text = "History: On";
             // 
-            // label6
+            // lblLoadStatus
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(110, 16);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "Status: Loaded";
+            this.lblLoadStatus.AutoSize = true;
+            this.lblLoadStatus.Location = new System.Drawing.Point(110, 16);
+            this.lblLoadStatus.Name = "lblLoadStatus";
+            this.lblLoadStatus.Size = new System.Drawing.Size(79, 13);
+            this.lblLoadStatus.TabIndex = 2;
+            this.lblLoadStatus.Text = "Status: Loaded";
             // 
-            // label5
+            // lblMapPhys
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 32);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(63, 13);
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Physics: On";
+            this.lblMapPhys.AutoSize = true;
+            this.lblMapPhys.Location = new System.Drawing.Point(6, 32);
+            this.lblMapPhys.Name = "lblMapPhys";
+            this.lblMapPhys.Size = new System.Drawing.Size(63, 13);
+            this.lblMapPhys.TabIndex = 1;
+            this.lblMapPhys.Text = "Physics: On";
             // 
-            // label4
+            // lblMapClients
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 16);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(50, 13);
-            this.label4.TabIndex = 0;
-            this.label4.Text = "Clients: 0";
+            this.lblMapClients.AutoSize = true;
+            this.lblMapClients.Location = new System.Drawing.Point(6, 16);
+            this.lblMapClients.Name = "lblMapClients";
+            this.lblMapClients.Size = new System.Drawing.Size(50, 13);
+            this.lblMapClients.TabIndex = 0;
+            this.lblMapClients.Text = "Clients: 0";
             // 
-            // label3
+            // lblMapMotd
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(293, 19);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(42, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "MOTD:";
+            this.lblMapMotd.AutoSize = true;
+            this.lblMapMotd.Location = new System.Drawing.Point(293, 19);
+            this.lblMapMotd.Name = "lblMapMotd";
+            this.lblMapMotd.Size = new System.Drawing.Size(42, 13);
+            this.lblMapMotd.TabIndex = 4;
+            this.lblMapMotd.Text = "MOTD:";
             // 
-            // textBox1
+            // txtMapName
             // 
-            this.textBox1.Location = new System.Drawing.Point(187, 16);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 3;
+            this.txtMapName.Location = new System.Drawing.Point(187, 16);
+            this.txtMapName.Name = "txtMapName";
+            this.txtMapName.Size = new System.Drawing.Size(100, 20);
+            this.txtMapName.TabIndex = 3;
             // 
-            // label2
+            // lblMapName
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(143, 19);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Name:";
+            this.lblMapName.AutoSize = true;
+            this.lblMapName.Location = new System.Drawing.Point(143, 19);
+            this.lblMapName.Name = "lblMapName";
+            this.lblMapName.Size = new System.Drawing.Size(38, 13);
+            this.lblMapName.TabIndex = 2;
+            this.lblMapName.Text = "Name:";
             // 
-            // label1
+            // lblMaps
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(36, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Maps:";
+            this.lblMaps.AutoSize = true;
+            this.lblMaps.Location = new System.Drawing.Point(0, 0);
+            this.lblMaps.Name = "lblMaps";
+            this.lblMaps.Size = new System.Drawing.Size(36, 13);
+            this.lblMaps.TabIndex = 1;
+            this.lblMaps.Text = "Maps:";
             // 
             // lstMaps
             // 
@@ -1068,6 +1088,18 @@
             // 
             // blocksTab
             // 
+            this.blocksTab.Controls.Add(this.button12);
+            this.blocksTab.Controls.Add(this.button11);
+            this.blocksTab.Controls.Add(this.button10);
+            this.blocksTab.Controls.Add(this.groupBox4);
+            this.blocksTab.Controls.Add(this.label24);
+            this.blocksTab.Controls.Add(this.label23);
+            this.blocksTab.Controls.Add(this.label22);
+            this.blocksTab.Controls.Add(this.label21);
+            this.blocksTab.Controls.Add(this.label20);
+            this.blocksTab.Controls.Add(this.label19);
+            this.blocksTab.Controls.Add(this.label18);
+            this.blocksTab.Controls.Add(this.lstBlocks);
             this.blocksTab.Location = new System.Drawing.Point(4, 22);
             this.blocksTab.Name = "blocksTab";
             this.blocksTab.Size = new System.Drawing.Size(981, 278);
@@ -1148,6 +1180,173 @@
             this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.miniModeToolStripMenuItem.Text = "&Mini mode";
             // 
+            // lstBlocks
+            // 
+            this.lstBlocks.FormattingEnabled = true;
+            this.lstBlocks.Location = new System.Drawing.Point(3, 3);
+            this.lstBlocks.Name = "lstBlocks";
+            this.lstBlocks.Size = new System.Drawing.Size(120, 251);
+            this.lstBlocks.TabIndex = 0;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(167, 3);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(19, 13);
+            this.label18.TabIndex = 1;
+            this.label18.Text = "Id:";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(148, 29);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(38, 13);
+            this.label19.TabIndex = 2;
+            this.label19.Text = "Name:";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(129, 51);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(65, 13);
+            this.label20.TabIndex = 3;
+            this.label20.Text = "ID on Client:";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(160, 73);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(34, 13);
+            this.label21.TabIndex = 4;
+            this.label21.Text = "Color:";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(166, 86);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(28, 13);
+            this.label22.TabIndex = 5;
+            this.label22.Text = "Kills:";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(148, 99);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(45, 13);
+            this.label23.TabIndex = 6;
+            this.label23.Text = "Special:";
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(149, 132);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(45, 13);
+            this.label24.TabIndex = 7;
+            this.label24.Text = "Special:";
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label30);
+            this.groupBox4.Controls.Add(this.label29);
+            this.groupBox4.Controls.Add(this.label28);
+            this.groupBox4.Controls.Add(this.label27);
+            this.groupBox4.Controls.Add(this.label26);
+            this.groupBox4.Controls.Add(this.label25);
+            this.groupBox4.Location = new System.Drawing.Point(608, 20);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(325, 177);
+            this.groupBox4.TabIndex = 8;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Physics";
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(18, 16);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(46, 13);
+            this.label25.TabIndex = 8;
+            this.label25.Text = "Physics:";
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(18, 41);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(76, 13);
+            this.label26.TabIndex = 9;
+            this.label26.Text = "Physics Delay:";
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(18, 66);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(89, 13);
+            this.label27.TabIndex = 10;
+            this.label27.Text = "Physics Random:";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(18, 90);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(84, 13);
+            this.label28.TabIndex = 11;
+            this.label28.Text = "Repeat Physics:";
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(18, 112);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(76, 13);
+            this.label29.TabIndex = 12;
+            this.label29.Text = "Physics Script:";
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(18, 147);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(107, 13);
+            this.label30.TabIndex = 13;
+            this.label30.Text = "Physics on map load:";
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(132, 231);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(96, 23);
+            this.button10.TabIndex = 9;
+            this.button10.Text = "Create Block";
+            this.button10.UseVisualStyleBackColor = true;
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(234, 231);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(85, 23);
+            this.button11.TabIndex = 10;
+            this.button11.Text = "Delete Block";
+            this.button11.UseVisualStyleBackColor = true;
+            // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(325, 231);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(85, 23);
+            this.button12.TabIndex = 11;
+            this.button12.Text = "Save Blocks";
+            this.button12.UseVisualStyleBackColor = true;
+            // 
             // mainForm
             // 
             this.AcceptButton = this.btnSendChat;
@@ -1157,7 +1356,7 @@
             this.Controls.Add(this.mainTabs);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "mainForm";
+            this.Name = "MainForm";
             this.Text = "ServerCore";
             this.Load += new System.EventHandler(this.mainForm_Load);
             this.mainTabs.ResumeLayout(false);
@@ -1172,8 +1371,8 @@
             this.ErrorsTab.ResumeLayout(false);
             this.debugTab.ResumeLayout(false);
             this.settingsTab.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.grpSettingsChat.ResumeLayout(false);
+            this.grpSettingsChat.PerformLayout();
             this.grpNetwork.ResumeLayout(false);
             this.grpNetwork.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxPlayers)).EndInit();
@@ -1184,12 +1383,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.numMaxBlocks)).EndInit();
             this.mapsTab.ResumeLayout(false);
             this.mapsTab.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
+            this.grpMapControl.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.contextMapStrip.ResumeLayout(false);
+            this.blocksTab.ResumeLayout(false);
+            this.blocksTab.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1228,7 +1431,7 @@
         private System.Windows.Forms.ToolStripMenuItem sendToTrayToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem miniModeToolStripMenuItem;
         private System.Windows.Forms.Button btnRuleEdit;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox grpSettingsChat;
         private System.Windows.Forms.TextBox txtChatDivider;
         private System.Windows.Forms.Label lblDivider;
         private System.Windows.Forms.TextBox txtPlayerlist;
@@ -1242,7 +1445,7 @@
         private System.Windows.Forms.NumericUpDown numPort;
         private System.Windows.Forms.CheckBox chkPub;
         private System.Windows.Forms.CheckBox chkVerifyNames;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lblMaxPlayers;
         private System.Windows.Forms.Label lblPort;
         private System.Windows.Forms.GroupBox grpSystem;
         private System.Windows.Forms.Label lblHistory;
@@ -1259,28 +1462,28 @@
         private System.Windows.Forms.Label lblSrvMotd;
         private System.Windows.Forms.TextBox txtSrvName;
         private System.Windows.Forms.Label lblSrvName;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblMaps;
         private System.Windows.Forms.ListBox lstMaps;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblMapMotd;
+        private System.Windows.Forms.TextBox txtMapName;
+        private System.Windows.Forms.Label lblMapName;
         private System.Windows.Forms.ContextMenuStrip contextMapStrip;
         private System.Windows.Forms.ToolStripMenuItem addMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteMapToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label lblLoadStatus;
+        private System.Windows.Forms.Label lblMapPhys;
+        private System.Windows.Forms.Label lblMapClients;
+        private System.Windows.Forms.Label lblMapPhysqueue;
+        private System.Windows.Forms.Label lblMapBlockqueue;
+        private System.Windows.Forms.Label lblMapBuilding;
+        private System.Windows.Forms.Label lblMapHist;
+        private System.Windows.Forms.TextBox txtMapMotd;
+        private System.Windows.Forms.Label lblMapSize;
         private System.Windows.Forms.ListBox lstBuildPerms;
         private System.Windows.Forms.ListBox lstShowPerms;
         private System.Windows.Forms.ListBox lstJoinPerms;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox grpMapControl;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Button button6;
@@ -1289,12 +1492,30 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label lblMapSpawn;
+        private System.Windows.Forms.Label lblMapGen;
+        private System.Windows.Forms.Label lblMapBPerms;
+        private System.Windows.Forms.Label lblMapSPerms;
+        private System.Windows.Forms.Label lblMapJperms;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.ListBox lstBlocks;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label25;
     }
 }
 

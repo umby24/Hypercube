@@ -43,10 +43,10 @@ namespace Hypercube.Command {
                     break;
                 case 1:
                     // -- Change the Bound block only.
-                    var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
+                    var newBlock = ServerCore.Blockholder.GetBlock(text1);
 
                     if (newBlock == null) {
-                        Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
+                        Chat.SendClientChat(client, "§ECouldn't find a block called '" + text1 + "'.");
                         return;
                     }
 
@@ -62,7 +62,7 @@ namespace Hypercube.Command {
                         return;
                     }
 
-                    var materialBlock = ServerCore.Blockholder.GetBlock(args[1]);
+                    var materialBlock = ServerCore.Blockholder.GetBlock(text2);
 
                     if (materialBlock == null) {
                         Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[1] + "'.");
@@ -137,10 +137,10 @@ namespace Hypercube.Command {
                 return;
             }
 
-            var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
+            var newBlock = ServerCore.Blockholder.GetBlock(text1);
 
             if (newBlock == null) {
-                Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
+                Chat.SendClientChat(client, "§ECouldn't find a block called '" + text1 + "'.");
                 return;
             }
 
@@ -172,10 +172,10 @@ namespace Hypercube.Command {
                 client.CS.CurrentMap.ClientChangeBlock(client, (short)(client.CS.MyEntity.X / 32), (short)(client.CS.MyEntity.Y / 32), (short)((client.CS.MyEntity.Z / 32) - 2), 1, client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(client, "§SBlock placed.");
             } else if (args.Length == 1) {
-                var newBlock = ServerCore.Blockholder.GetBlock(args[0]);
+                var newBlock = ServerCore.Blockholder.GetBlock(text1);
 
                 if (newBlock == null) {
-                    Chat.SendClientChat(client, "§ECouldn't find a block called '" + args[0] + "'.");
+                    Chat.SendClientChat(client, "§ECouldn't find a block called '" + text1 + "'.");
                     return;
                 }
 
