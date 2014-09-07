@@ -14,19 +14,13 @@ namespace Hypercube.Network {
     public class Heartbeat {
         public string Salt;
         public string ServerUrl;
+
         /// <summary>
         /// Generates a new salt and starts heartbeating.
         /// </summary>
         public Heartbeat() {
             CreateSalt();
-
             TaskScheduler.CreateTask("Heartbeat", new TimeSpan(0, 0, 45), DoHeartbeatClassicube);
-        }
-
-        /// <summary>
-        /// Aborts the heartbeat thread.
-        /// </summary>
-        public void Shutdown() {
         }
 
         /// <summary>
@@ -40,6 +34,11 @@ namespace Hypercube.Network {
                 Salt += (char)(65 + random.Next(25));
         }
 
+        /// <summary>
+        /// Returns the IPv4 Address of a site. (For classicube serverlist when on an IPv6 Supported host)
+        /// </summary>
+        /// <param name="site">The site to return the ipv4 address for</param>
+        /// <returns>IPv4 Address of the given site.</returns>
         public string GetIPv4Address(string site) {
             var addresses = Dns.GetHostAddresses(site);
             var v4 = addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
@@ -73,10 +72,10 @@ namespace Hypercube.Network {
         }
 
         /// <summary>
-        /// Verifys the authenticity of this user.
+        /// Verifys the authenticity of someone logging in.
         /// </summary>
-        /// <param name="client"></param>
-        /// <returns></returns>
+        /// <param name="client">The client to verify</param>
+        /// <returns>true if verified, false if not.</returns>
         public bool VerifyClientName(NetworkClient client) {
             if (client.CS.Ip == "127.0.0.1" || client.CS.Ip.Substring(0, 7) == "192.168" || ServerCore.Nh.VerifyNames == false)
                 return true;

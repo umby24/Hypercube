@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Hypercube_Rewrite")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Hypercube")]
+[assembly: AssemblyDescription("Hypercube Classic Minecraft Software")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Hypercube_Rewrite")]
+[assembly: AssemblyCompany("Scripter's Hideout")]
+[assembly: AssemblyProduct("Hypercube")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

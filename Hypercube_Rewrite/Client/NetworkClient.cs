@@ -23,6 +23,11 @@ namespace Hypercube.Client {
         [NotNull] Dictionary<byte, Func<IPacket>> _packets;
         #endregion
 
+        /// <summary>
+        /// Creates a new client, starts reading and parsing packets, and sets up some base settings for the client.
+        /// </summary>
+        /// <param name="baseSock"></param>
+        /// <param name="ip"></param>
         public NetworkClient(TcpClient baseSock, string ip) {
 
             CS = new ClientSettings
@@ -49,6 +54,9 @@ namespace Hypercube.Client {
             DataRunner.Start();
         }
 
+        /// <summary>
+        /// Loads the client's settings from the database.
+        /// </summary>
         public void LoadDB() {
             CS.Id = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
             CS.Stopped = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
@@ -69,11 +77,14 @@ namespace Hypercube.Client {
             ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
         }
 
+        /// <summary>
+        /// Performs functions to set the client as fully logged in.
+        /// </summary>
         public void Login() {
-            if (!ServerCore.DB.ContainsPlayer(CS.LoginName))
-                ServerCore.DB.CreatePlayer(CS.LoginName, CS.Ip);
+            if (!ServerCore.DB.ContainsPlayer(CS.LoginName)) // -- If the client doesn't exist in the database
+                ServerCore.DB.CreatePlayer(CS.LoginName, CS.Ip); // -- They are new! Create an entry.
 
-            CS.LoginName = ServerCore.DB.GetPlayerName(CS.LoginName);
+            CS.LoginName = ServerCore.DB.GetPlayerName(CS.LoginName); // -- Get their case-correct username from the DB
 
             if ((ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) { // -- Check if the player is banned
                 KickPlayer("Banned: " + ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage"));
@@ -83,12 +94,12 @@ namespace Hypercube.Client {
 
             LoadDB(); // -- Load the user's profile
 
+            // -- Check to ensure noone with the same name is already logged in
             if (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
                 ServerCore.Nh.LoggedClients[CS.LoginName].KickNow("Logged in from another location");
 
-                while (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
+                while (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName))
                     Thread.Sleep(1);
-                }
             }
 
             // -- Set the user as logged in.
@@ -103,12 +114,12 @@ namespace Hypercube.Client {
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapMain];
             CS.CurrentMap.Send(this);
 
-
             lock (CS.CurrentMap.ClientLock) {
                 CS.CurrentMap.Clients.Add(CS.Id, this);
                 CS.CurrentMap.CreateClientList();
             }
 
+            // -- Notify everyone of the client's login
             ServerCore.Logger.Log("Client", "Player logged in. (Name = " + CS.LoginName + ")", LogType.Info);
             ServerCore.Luahandler.RunFunction("E_PlayerLogin", this);
 
@@ -125,6 +136,7 @@ namespace Hypercube.Client {
                         "BoundBlock"))
             };
 
+            // -- Send the client the map's spawnpoint.
             ESpawn(CS.MyEntity.Name, CS.MyEntity.CreateStub());
 
             lock (CS.CurrentMap.EntityLock) {
@@ -136,6 +148,10 @@ namespace Hypercube.Client {
             CPE.SetupExtPlayerList(this);
         }
 
+        /// <summary>
+        /// Sends a handshake to the client in preperation for map sending
+        /// </summary>
+        /// <param name="motd">Sets the visible MOTD on the client's screen</param>
         public void SendHandshake(string motd = "") {
             var hs = new Handshake {
                 Name = ServerCore.ServerName,
@@ -147,6 +163,11 @@ namespace Hypercube.Client {
             SendQueue.Enqueue(hs);
         }
 
+        /// <summary>
+        /// Kicks the player from the server.
+        /// </summary>
+        /// <param name="reason">The reason the player is being kicked.</param>
+        /// <param name="log">if true, sends a message notifing everyone of the kick, and adds it to the player's kick counter.</param>
         public void KickPlayer(string reason, bool log = false) {
             var dc = new Disconnect {Reason = reason};
             SendQueue.Enqueue(dc);
@@ -176,6 +197,10 @@ namespace Hypercube.Client {
             ServerCore.Nh.HandleDisconnect(this);
         }
 
+        /// <summary>
+        /// Blocking kick function that also performs all disconnection functions on the client before returning.
+        /// </summary>
+        /// <param name="reason">The reason for the player being kicked.</param>
         public void KickNow(string reason) {
             ServerCore.Logger.Log("Client", "Played kicked: " + reason);
             var dc = new Disconnect { Reason = reason };
@@ -225,6 +250,14 @@ namespace Hypercube.Client {
             }
         }
 
+        /// <summary>
+        /// Handles an incoming block change from this client.
+        /// </summary>
+        /// <param name="x">X location of block change</param>
+        /// <param name="y">Y location of block change</param>
+        /// <param name="z">Z location of block change</param>
+        /// <param name="mode">Breaking, or placing.</param>
+        /// <param name="block">The block being placed</param>
         public void HandleBlockChange(short x, short y, short z, byte mode, byte block) {
             if (CS.Stopped) {
                 Chat.SendClientChat(this, "§EYou are stopped, you cannot build.");
@@ -232,7 +265,7 @@ namespace Hypercube.Client {
                 return;
             }
 
-            if ((0 > x || CS.CurrentMap.CWMap.SizeX <= x) || (0 > z || CS.CurrentMap.CWMap.SizeY <= z) || (0 > y || CS.CurrentMap.CWMap.SizeZ <= y)) // -- Out of bounds check.
+            if (!CS.CurrentMap.BlockInBounds(x, y, z)) // -- Out of bounds check.
                 return;
 
             var myBlock = ServerCore.Blockholder.GetBlock(block);
@@ -258,6 +291,10 @@ namespace Hypercube.Client {
             
         }
 
+        /// <summary>
+        /// Redoes previous block changes.
+        /// </summary>
+        /// <param name="steps">Number of blocks to redo</param>
         public void Redo(int steps) {
             if (CS.UndoObjects.Count == 0)
                 return;
@@ -277,6 +314,10 @@ namespace Hypercube.Client {
             CS.CurrentIndex += (steps - 1);
         }
 
+        /// <summary>
+        /// Undoes previous block changes.
+        /// </summary>
+        /// <param name="steps">Number of blocks to undo</param>
         public void Undo(int steps) {
             if (CS.UndoObjects.Count == 0)
                 return;
@@ -293,6 +334,10 @@ namespace Hypercube.Client {
             CS.CurrentIndex -= (steps - 1);
         }
 
+        /// <summary>
+        /// Changes the map the client is on.
+        /// </summary>
+        /// <param name="newMap">The map to send the client to.</param>
         public void ChangeMap(HypercubeMap newMap) {
             if (newMap.FreeIds.Count == 0) {
                 Chat.SendClientChat(this, "§EYou cannot join this map (It is full).");
@@ -336,6 +381,9 @@ namespace Hypercube.Client {
             CPE.UpdateExtPlayerList(this);
         }
         #region Entity Management
+        /// <summary>
+        /// Updates entity positions on this client.
+        /// </summary>
         void EntityPositions() {
             var delete = new List<int>();
 
@@ -411,7 +459,12 @@ namespace Hypercube.Client {
                 CS.MyEntity.SendOwn = false;
             }
         }
-
+        
+        /// <summary>
+        /// Spawns a new entity on the client.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="entity"></param>
         void ESpawn(string name, EntityStub entity) {
             var spawn = new SpawnPlayer
             {
@@ -432,11 +485,21 @@ namespace Hypercube.Client {
             //Spawn.Write(this);
         }
 
+        /// <summary>
+        /// Deletes an entity that was spawned on the client.
+        /// </summary>
+        /// <param name="id"></param>
         void EDelete(sbyte id) {
             var despawn = new DespawnPlayer {PlayerId = id};
             SendQueue.Enqueue(despawn);
         }
 
+        /// <summary>
+        /// Updates the rotation and pitch of an entity.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="rot"></param>
+        /// <param name="look"></param>
         void ELook(sbyte id, byte rot, byte look) {
             var oUp = new OrientationUpdate {PlayerId = id, Yaw = rot, Pitch = look};
             SendQueue.Enqueue(oUp);

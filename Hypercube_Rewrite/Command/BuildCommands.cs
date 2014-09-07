@@ -9,6 +9,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/bind", CBind);
             holder.AddCommand("/cancel", CCancel);
             holder.AddCommand("/material", CMaterial);
+            holder.AddCommand("/materials", CMaterials);
             holder.AddCommand("/place", CPlace);
             holder.AddCommand("/redo", CRedo);
             holder.AddCommand("/undo", CUndo);
@@ -138,14 +139,50 @@ namespace Hypercube.Command {
             }
 
             var newBlock = ServerCore.Blockholder.GetBlock(text1);
-
-            if (newBlock == null) {
+            
+            if (newBlock == null || newBlock.Name == "Unknown") {
                 Chat.SendClientChat(client, "§ECouldn't find a block called '" + text1 + "'.");
                 return;
             }
 
             client.CS.MyEntity.BuildMaterial = newBlock;
             Chat.SendClientChat(client, "§SYour build material is now " + newBlock.Name);
+        }
+        #endregion
+        #region Materials
+        static readonly Command CMaterials = new Command {
+            Plugin = "",
+            Group = "Build",
+            Help = "§SLists all custom building materials in the server.",
+            Console = false,
+            AllPerms = false,
+
+            UsePermissions = new List<Permission> {
+                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
+                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            },
+
+            ShowPermissions = new List<Permission> {
+                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
+                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            },
+
+            Handler = MaterialsHandler,
+        };
+
+        static void MaterialsHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length > 0)
+                Chat.SendClientChat(client, "§SWarning: This command does not accept arguments.");
+
+            var list = "";
+
+            foreach (var b in ServerCore.Blockholder.NameList.Values) {
+                if (b.Special)
+                    list += b.Name + " §D&f ";
+            }
+
+            Chat.SendClientChat(client, "§SMaterials:");
+            Chat.SendClientChat(client, list);
         }
         #endregion
         #region Place

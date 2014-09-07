@@ -12,6 +12,9 @@ using Hypercube.Client;
 using Hypercube.Network;
 
 namespace Hypercube {
+    /// <summary>
+    /// Handles incoming client connections, client disconnections, and some basic settings relating to the server networking
+    /// </summary>
     public class NetworkHandler {
         #region Variables
         public Settings Ns;
@@ -30,15 +33,24 @@ namespace Hypercube {
         Thread _listenThread;
         #endregion
 
+        /// <summary>
+        /// Creates a new NetworkHandler Instance, and loads network settings.
+        /// </summary>
         public NetworkHandler() {
             Ns = ServerCore.Settings.RegisterFile("Network.txt", true, LoadSettings);
             ServerCore.Settings.ReadSettings(Ns);
         }
 
+        /// <summary>
+        /// Creates the readonly list of currently logged in clients.
+        /// </summary>
         public void CreateLists() {
             ClientList = LoggedClients.Values.ToArray();
         }
 
+        /// <summary>
+        /// Loads network settings from file (port, max players, ect.)
+        /// </summary>
         void LoadSettings() {
             Port = int.Parse(ServerCore.Settings.ReadSetting(Ns, "Port", "25565"));
             MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(Ns, "MaxPlayers", "128"));
@@ -49,6 +61,9 @@ namespace Hypercube {
             ServerCore.Logger.Log("Network", "Network settings loaded.", LogType.Info);
         }
 
+        /// <summary>
+        /// Saves network settings to file.
+        /// </summary>
         public void SaveSettings() {
             ServerCore.Settings.SaveSetting(Ns, "Port", Port.ToString());
             ServerCore.Settings.SaveSetting(Ns, "MaxPlayers", MaxPlayers.ToString());
@@ -56,6 +71,9 @@ namespace Hypercube {
             ServerCore.Settings.SaveSetting(Ns, "Public", Public.ToString());
         }
 
+        /// <summary>
+        /// Starts listening for outside connections.
+        /// </summary>
         public void Start() {
             if (ServerCore.Running)
                 Stop();
@@ -72,6 +90,9 @@ namespace Hypercube {
             ServerCore.Logger.Log("Network", "Server started on port " + Port, LogType.Info);
         }
 
+        /// <summary>
+        /// Stops listening for connections, kicks all clients, and resets in preperation for reuse.
+        /// </summary>
         public void Stop() {
             if (ServerCore.Running == false)
                 return;
@@ -87,6 +108,10 @@ namespace Hypercube {
             }
         }
 
+        /// <summary>
+        /// Handles a client that is disconnecting
+        /// </summary>
+        /// <param name="client">The client that has disconnected.</param>
         public void HandleDisconnect(NetworkClient client) {
             lock (ClientLock) {
                 Clients.Remove(client);
@@ -142,6 +167,9 @@ namespace Hypercube {
             Thread.Sleep(100); // -- Small delay to ensure message delivery
         }
 
+        /// <summary>
+        /// Loop to be run in a thread to listen for new clients, and do initial setup for them.
+        /// </summary>
         public void Listen() {
             while (ServerCore.Running) {
                 TcpClient tempClient;

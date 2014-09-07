@@ -17,7 +17,6 @@ namespace Hypercube
     // -- ServerCore Classic Minecraft Software by Umby24
     // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
     // -- 
-    // -- TODO: TP Commands
     // -- TODO: Add physics on mapload
     // -- TODO: Add vanish
     // -- TODO: Make gui
@@ -27,7 +26,13 @@ namespace Hypercube
 
     public static class ServerCore {
         #region Variables
+        /// <summary>
+        /// Declares if the server is running or not.
+        /// </summary>
         public static bool Running = false;
+        /// <summary>
+        /// The number of officially online players
+        /// </summary>
         public static int OnlinePlayers = 0;
         public static ConcurrentQueue<MapAction> ActionQueue;
         private static Thread _actionThread;
@@ -69,7 +74,9 @@ namespace Hypercube
         public static NetworkHandler Nh;
         public static Dictionary<string, HypercubeMap> Maps;
         #endregion
-
+        /// <summary>
+        /// Loads server settings, loads the database, and prepares the system for use.
+        /// </summary>
         public static void Setup()
         {
             Settings = new PbSettingsLoader();
@@ -100,8 +107,6 @@ namespace Hypercube
             Maps = new Dictionary<string, HypercubeMap>(StringComparer.InvariantCultureIgnoreCase);
             HypercubeMap.LoadMaps();
 
-            var found = false;
-
             HypercubeMap m;
             Maps.TryGetValue(MapMain, out m);
 
@@ -127,7 +132,9 @@ namespace Hypercube
             TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
             ActionQueue = new ConcurrentQueue<MapAction>();
         }
-
+        /// <summary>
+        /// Fills the stacks used for entity ids and ExtPlayerList Name IDs
+        /// </summary>
         public static void FillStacks() {
             for (var i = 0; i < 1000; i++) {
                 FreeEids.Push((short)i);
@@ -193,12 +200,14 @@ namespace Hypercube
         }
 
         #region Main SettingsDictionary Loading
+        /// <summary>
+        /// Loads the core server settings from file.
+        /// </summary>
         public static void ReadSystemSettings() {
-            ServerName = Settings.ReadSetting(SysSettings, "Name", "ServerCore Server");
-            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to ServerCore!");
+            ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
+            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
             MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
-            WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to ServerCore!");
-            //DefaultRank = Rankholder.GetRank(SettingsDictionary.ReadSetting(SysSettings, "Default Rank", "Guest"));
+            WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
 
             RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
             LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
@@ -214,7 +223,10 @@ namespace Hypercube
             if (Running)
                 Logger.Log("Core", "System settings loaded.", LogType.Info);
         }
-
+        
+        /// <summary>
+        /// Saves the core server settings to file
+        /// </summary>
         public static void SaveSystemSettings() {
             Settings.SaveSetting(SysSettings, "Name", ServerName);
             Settings.SaveSetting(SysSettings, "MOTD", Motd);
@@ -231,6 +243,9 @@ namespace Hypercube
             Settings.SaveSettings(SysSettings);
          }
 
+        /// <summary>
+        /// Loads the server rules list.
+        /// </summary>
         public static void ReadRules() {
             if (Rules == null)
                 Rules = new List<string>();
@@ -253,7 +268,9 @@ namespace Hypercube
         }
         #endregion
         #region Map Actions
-
+        /// <summary>
+        /// Processes queued map actions (Fills, saves, deletes, resizes)
+        /// </summary>
         public static void ProcessActions() {
             while (Running) {
                 MapAction action;
@@ -298,8 +315,14 @@ namespace Hypercube
             }
         }
         #endregion
+        /// <summary>
+        /// Timestamp of the Unix epoch.
+        /// </summary>
         public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
+        /// <summary>
+        /// Gets the current unix timestamp
+        /// </summary>
+        /// <returns>Unix-style timestamp of the current time.</returns>
         public static long GetCurrentUnixTime() {
             var timeSinceEpoch = (DateTime.UtcNow - UnixEpoch);
             return (long)timeSinceEpoch.TotalSeconds;

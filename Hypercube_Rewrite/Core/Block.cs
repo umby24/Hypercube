@@ -34,6 +34,7 @@ namespace Hypercube.Core {
         /// </summary>
         public void LoadBlocks() {
             NameList.Clear();
+            FillBlocks();
 
             foreach (var id in _blocksfile.SettingsDictionary.Keys) {
                 ServerCore.Settings.SelectGroup(_blocksfile, id);
@@ -64,8 +65,6 @@ namespace Hypercube.Core {
 
             if (NameList.Count == 0)
                 CreateBlocks();
-
-            FillBlocks();
 
             ServerCore.Logger.Log("BlockContainer", "Blocks loaded", LogType.Info);
         }

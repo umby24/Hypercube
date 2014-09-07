@@ -27,9 +27,8 @@ namespace Hypercube.Network {
         /// </summary>
         /// <param name="client"></param>
         public static void CPEHandshake(NetworkClient client) {
-            var cExtInfo = new ExtInfo {AppName = "ServerCore Server", ExtensionCount = SupportedExtensions};
+            var cExtInfo = new ExtInfo {AppName = "Hypercube Server", ExtensionCount = SupportedExtensions};
             client.SendQueue.Enqueue(cExtInfo);
-            //CExtInfo.Write(Client);
 
             var cExtEntry = new ExtEntry {ExtName = "CustomBlocks", Version = CustomBlocksVersion};
             client.SendQueue.Enqueue(cExtEntry);
@@ -95,12 +94,14 @@ namespace Hypercube.Network {
             if (client.CS.CPEExtensions.ContainsKey("CustomBlocks")) {
                 var cbsl = new CustomBlockSupportLevel {SupportLevel = CustomBlocksSupportLevel};
                 client.SendQueue.Enqueue(cbsl);
-                //CBSL.Write(Client);
-            } else {
+            } else 
                 client.Login();
-            }
         }
 
+        /// <summary>
+        /// Does initial setup of ExtPlayerList for a player that is logging in.
+        /// </summary>
+        /// <param name="client">Client logging in</param>
         public static void SetupExtPlayerList(NetworkClient client) {
 
             var extPlayerListPacket = new ExtAddPlayerName {GroupRank = 0};
@@ -141,6 +142,10 @@ namespace Hypercube.Network {
             }
         }
 
+        /// <summary>
+        /// Updates a client on everyone's ExtPlayerList (Ex. Client changed maps.)
+        /// </summary>
+        /// <param name="client">Client that has moved maps.</param>
         public static void UpdateExtPlayerList(NetworkClient client) {
             var toUpdate = new ExtAddPlayerName
             {

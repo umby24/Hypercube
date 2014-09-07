@@ -1006,16 +1006,7 @@ namespace Hypercube.Map {
         #endregion
         #region FillFunctions
 
-        public void AddFakeBlockChange(NetworkClient client, short x, short y, short z, byte Type) {
-            var BlockChange = new SetBlock {
-                Block = Type,
-                Mode = 1,
-                X = x,
-                Z = y,
-                Y = z,
-            };
-            client.
-        }
+        
         public void BuildBox(NetworkClient client, short x, short y, short z, short x2, short y2, short z2, Block material, Block replaceMaterial, bool hollow, short priority, bool undo, bool physics) {
             if (x > x2) {
                 var temp = x;
@@ -1040,9 +1031,9 @@ namespace Hypercube.Map {
                             continue;
 
                         if (ix == x || ix == x2 || iy == y || iy == y2 || iz == z || iz == z2)
-                            //BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                            BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
                         else if (hollow == false)
-                            //BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                            BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
                     }
                 }
             }
