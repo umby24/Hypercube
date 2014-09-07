@@ -89,9 +89,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hypercube_Rewrite\Hypercube_Rewrite.csproj">
+    <ProjectReference Include="..\Hypercube_Rewrite\Hypercube.csproj">
       <Project>{948fd104-59f1-450c-a576-cbcd601d3f35}</Project>
-      <Name>Hypercube_Rewrite</Name>
+      <Name>Hypercube</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
