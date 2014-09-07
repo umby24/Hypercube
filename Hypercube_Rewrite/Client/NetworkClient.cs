@@ -100,7 +100,7 @@ namespace Hypercube.Client {
             ServerCore.Nh.CreateLists();
 
             // -- Get the user logged in to the main map.
-            CS.CurrentMap = ServerCore.Maps[ServerCore.MapIndex];
+            CS.CurrentMap = ServerCore.Maps[ServerCore.MapMain];
             CS.CurrentMap.Send(this);
 
 
@@ -259,6 +259,9 @@ namespace Hypercube.Client {
         }
 
         public void Redo(int steps) {
+            if (CS.UndoObjects.Count == 0)
+                return;
+
             if (steps > (CS.UndoObjects.Count - CS.CurrentIndex))
                 steps = (CS.UndoObjects.Count - CS.CurrentIndex);
 
@@ -275,6 +278,9 @@ namespace Hypercube.Client {
         }
 
         public void Undo(int steps) {
+            if (CS.UndoObjects.Count == 0)
+                return;
+            
             if (steps - 1 > (CS.CurrentIndex))
                 steps = (CS.CurrentIndex + 1);
 
@@ -400,8 +406,10 @@ namespace Hypercube.Client {
                 }
             }
 
-            if (CS.MyEntity.SendOwn)
+            if (CS.MyEntity.SendOwn) {
                 EFullMove(CS.MyEntity, true);
+                CS.MyEntity.SendOwn = false;
+            }
         }
 
         void ESpawn(string name, EntityStub entity) {
@@ -489,13 +497,7 @@ namespace Hypercube.Client {
 
                     var incoming = _packets[opCode]();
                     incoming.Read(this);
-
-                    //try {
-                        incoming.Handle(this);
-                    //} catch (IOException e) {
-                    //    ServerCore.Logger.Log("Client", e.Message, LogType.Error);
-                    //    ServerCore.Logger.Log("Client", e.StackTrace, LogType.Debug);
-                    //}
+                    incoming.Handle(this);
                 }
 
                 try {

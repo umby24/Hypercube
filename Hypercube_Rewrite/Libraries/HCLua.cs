@@ -57,15 +57,21 @@ namespace Hypercube.Libraries {
             LuaHandler.RegisterFunction("DBUnstopPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("UnstopPlayer"));
             LuaHandler.RegisterFunction("GetDBInt", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetDatabaseInt"));
             LuaHandler.RegisterFunction("GetDBString", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetDatabaseString"));
-            //LuaHandler.RegisterFunction("SetDB", Servercore.DB, Servercore.DB.GetType().GetMethod("SetDatabase"));
+            LuaHandler.RegisterFunction("SetDBInt", ServerCore.DB, ServerCore.DB.GetType().GetMethod("SetDatabase", new[] {typeof(string), typeof(string), typeof(string), typeof(int)}));
+            LuaHandler.RegisterFunction("SetDBStr", ServerCore.DB, ServerCore.DB.GetType().GetMethod("SetDatabase", new[] { typeof(string), typeof(string), typeof(string), typeof(string) }));
+            LuaHandler.RegisterFunction("SetDBBool", ServerCore.DB, ServerCore.DB.GetType().GetMethod("SetDatabase", new[] { typeof(string), typeof(string), typeof(string), typeof(bool) }));
             LuaHandler.RegisterFunction("SendGlobalChat", luaChat, luaChat.GetType().GetMethod("SendGlobalChat"));
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
             LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
             LuaHandler.RegisterFunction("CreateFill", ServerCore.Fillholder, ServerCore.Fillholder.GetType().GetMethod("CreateFill"));
+            LuaHandler.RegisterFunction("GetBlockI", ServerCore.Blockholder,
+                ServerCore.Blockholder.GetType().GetMethod("GetBlock", new[] {typeof (int)}));
+            LuaHandler.RegisterFunction("GetBlockS", ServerCore.Blockholder,
+                ServerCore.Blockholder.GetType().GetMethod("GetBlock", new[] { typeof(string) }));
             LuaHandler.RegisterFunction("Setblock", ServerCore.Luahandler,
                 ServerCore.Luahandler.GetType().GetMethod("Setblock"));
             // -- Variables
-            LuaHandler["G_Blocks"] = ServerCore.Blockholder;
+
             LuaHandler["G_ServerName"] = ServerCore.ServerName;
             LuaHandler["G_MOTD"] = ServerCore.Motd;
             LuaHandler["G_Welcome"] = ServerCore.WelcomeMessage;

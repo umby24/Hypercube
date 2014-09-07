@@ -4,11 +4,13 @@ using System.Linq;
 
 using Hypercube.Core;
 using Hypercube.Client;
+using Hypercube.Map;
 
 namespace Hypercube.Command {
     internal static class GeneralCommands {
         public static void Init(CommandHandler holder) {
             holder.AddCommand("/about", CAbout);
+            holder.AddCommand("/bring", CBring);
             holder.AddCommand("/global", CGlobal);
             holder.AddCommand("/getrank", CGetrank);
             holder.AddCommand("/players", CPlayers);
@@ -18,6 +20,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/cmdhelp", CCmdHelp);
             holder.AddCommand("/maps", CMaps);
             holder.AddCommand("/map", CMap);
+            holder.AddCommand("/tp", Ctp);
         }
 
         #region About
@@ -45,6 +48,52 @@ namespace Hypercube.Command {
             Chat.SendClientChat(client, "§SServer Version:&f 0.0 ALPHA");
             Chat.SendClientChat(client, "§SThis server is written from scratch in C#<br>§Sand supports Lua scripting!");
         }
+        #endregion
+        #region Bring
+        static readonly Command CBring = new Command {
+            Plugin = "",
+            Group = "General",
+            Help = "§SBrings another player to you.<br>§SUsage: /bring [player name]",
+            AllPerms = true,
+            Console = true,
+
+            UsePermissions = new List<Permission> {
+                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+                new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"},
+            },
+
+            ShowPermissions = new List<Permission> {
+                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+                new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"},
+            },
+
+            Handler = BringHandler,
+        };
+
+        private static void BringHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length == 0 || args.Length > 1) {
+                Chat.SendClientChat(client, "§EIncorrect number of arguments. See /cmdhelp bring");
+                return;
+            }
+
+            NetworkClient tpClient;
+            if (!ServerCore.Nh.LoggedClients.TryGetValue(args[0], out tpClient)) {
+                Chat.SendClientChat(client, "§ECould not find a player called '" + args[0] + "'.");
+                return;
+            }
+
+            if (tpClient.CS.CurrentMap != client.CS.CurrentMap)
+                tpClient.ChangeMap(client.CS.CurrentMap);
+
+            tpClient.CS.MyEntity.X = client.CS.MyEntity.X;
+            tpClient.CS.MyEntity.Y = client.CS.MyEntity.Y;
+            tpClient.CS.MyEntity.Z = client.CS.MyEntity.Z;
+            tpClient.CS.MyEntity.Rot = client.CS.MyEntity.Rot;
+            tpClient.CS.MyEntity.Look = client.CS.MyEntity.Look;
+            tpClient.CS.MyEntity.SendOwn = true;
+            Chat.SendClientChat(client, "§STeleported.");
+        }
+
         #endregion
         #region Commands
         static readonly Command CCommands = new Command {
@@ -274,7 +323,7 @@ namespace Hypercube.Command {
         static void PlayersHandler(NetworkClient client, string[] args, string text1, string text2) {
             var onlineString = "§SOnline Players: " + ServerCore.Nh.Clients.Count + "<br>";
 
-            foreach (var hm in ServerCore.Maps) {
+            foreach (var hm in ServerCore.Maps.Values) {
                 onlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
                 foreach(var c in hm.ClientsList)
@@ -368,7 +417,7 @@ namespace Hypercube.Command {
         static void MapsHandler(NetworkClient client, string[] args, string text1, string text2) {
             var mapString = "§SMaps:<br>";
 
-            foreach (var m in ServerCore.Maps) {
+            foreach (var m in ServerCore.Maps.Values) {
                 var cansee = false;
 
                 foreach (var r in client.CS.PlayerRanks) {
@@ -409,39 +458,81 @@ namespace Hypercube.Command {
                 return;
             }
 
-            var found = false;
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue(args[0], out m);
 
-            foreach (var m in ServerCore.Maps) {
-                if (String.Equals(m.CWMap.MapName, args[0], StringComparison.CurrentCultureIgnoreCase)) {
-                    var canSee = false;
-                    var canJoin = false;
+            if (m != null) {
+                var canSee = false;
+                var canJoin = false;
 
-                    foreach (var r in client.CS.PlayerRanks) {
-                        if (PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true))
-                            canSee = true;
+                foreach (var r in client.CS.PlayerRanks) {
+                    if (PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true))
+                        canSee = true;
 
-                        if (PermissionContainer.RankMatchesPermissions(r, m.Joinperms.Values.ToList(), true)) {
-                            canJoin = true;
-                            break;
-                        }
-                    }
+                    if (!PermissionContainer.RankMatchesPermissions(r, m.Joinperms.Values.ToList(), true)) 
+                        continue;
 
-                    if (canJoin) {
-                        found = true;
-                        client.ChangeMap(m);
-                    } else {
-                        if (canSee) {
-                            Chat.SendClientChat(client, "§EYou are not allowed to join this map.");
-                            return;
-                        }
-                        Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
+                    canJoin = true;
+                    break;
+                }
+
+                if (canJoin) 
+                    client.ChangeMap(m);
+                 else {
+                    if (canSee) {
+                        Chat.SendClientChat(client, "§EYou are not allowed to join this map.");
                         return;
                     }
+                    Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
                 }
+            } else
+                Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
+                
+        }
+        #endregion
+        #region TP
+        static readonly Command Ctp = new Command {
+            Plugin = "",
+            Group = "General",
+            Help = "§STeleports you to another player.<br>§SUsage: /tp [player name]",
+            AllPerms = true,
+            Console = true,
+
+            UsePermissions = new List<Permission> {
+                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+                new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"},
+            },
+
+            ShowPermissions = new List<Permission> {
+                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+                new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"},
+            },
+
+            Handler = TPHandler,
+        };
+
+        private static void TPHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length == 0 || args.Length > 1) {
+                Chat.SendClientChat(client, "§EIncorrect number of arguments. See /cmdhelp tp");
+                return;
             }
 
-            if (!found)
-                Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
+            NetworkClient tpClient;
+            if (!ServerCore.Nh.LoggedClients.TryGetValue(args[0], out tpClient)) {
+                Chat.SendClientChat(client, "§ECould not find a player called '" + args[0] + "'.");
+                return;
+            }
+
+            if (tpClient.CS.CurrentMap != client.CS.CurrentMap)
+                client.ChangeMap(tpClient.CS.CurrentMap);
+
+            client.CS.MyEntity.X = tpClient.CS.MyEntity.X;
+            client.CS.MyEntity.Y = tpClient.CS.MyEntity.Y;
+            client.CS.MyEntity.Z = tpClient.CS.MyEntity.Z;
+            client.CS.MyEntity.Rot = tpClient.CS.MyEntity.Rot;
+            client.CS.MyEntity.Look = tpClient.CS.MyEntity.Look;
+            client.CS.MyEntity.SendOwn = true;
+            Chat.SendClientChat(client, "§STeleported.");
         }
         #endregion
     }

@@ -86,7 +86,7 @@ namespace Hypercube.Libraries {
             page +=
                 "\n\t\t\t<th>History</th>\n\t\t\t<th>Physics Queue</th>\n\t\t\t<th>Send Queue</th>\n\t\t\t<th>Clients</th>\n";
 
-            foreach (var map in ServerCore.Maps) {
+            foreach (var map in ServerCore.Maps.Values) {
                 page += "\t\t\t<tr>\n";
                 page += "\t\t\t\t<td>" + map.CWMap.MapName + "</td>\n";
                 page += "\t\t\t\t<td>" + map.Path + "</td>\n";

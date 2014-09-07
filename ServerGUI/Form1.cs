@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
 
 using Hypercube;
+using Hypercube.Core;
+using Hypercube.Map;
 
 namespace ServerGUI {
     public partial class MainForm : Form {
@@ -61,9 +65,15 @@ namespace ServerGUI {
             #endregion
             ServerCore.Setup();
 
-            foreach (var m in ServerCore.Maps) 
+            foreach (var m in ServerCore.Maps.Values) 
                 lstMaps.Items.Add(m.CWMap.MapName);
-            
+
+            foreach (var block in ServerCore.Blockholder.NumberList) {
+                if (block.Name == "Unknown")
+                    continue;
+                lstBlocks.Items.Add(block.Name);
+            }
+
         }
 
         private void LoadSettingsMenu() {
@@ -140,6 +150,225 @@ namespace ServerGUI {
                     SaveSettingsMenu();
             }
         }
+
+        
+
+        #region Button Presses
+        #region Blocks Tab
+        private void lstBlocks_SelectedIndexChanged(object sender, EventArgs e) {
+            if (lstBlocks.SelectedIndices.Count == 0) 
+                return;
+
+            var thisBlock = ServerCore.Blockholder.GetBlock((string)lstBlocks.SelectedItem);
+            numBlockId.Value = thisBlock.Id;
+            txtBlockName.Text = thisBlock.Name;
+            numBlockCId.Value = thisBlock.OnClient;
+
+            var hexValue = thisBlock.Color.ToString("X"); // Swap last, with the center.
+            hexValue = hexValue.PadLeft(6, '0');
+            hexValue = hexValue.Substring(4, 2) + hexValue.Substring(2, 2) + hexValue.Substring(0, 2);
+
+            var oColor = ColorTranslator.FromHtml("#" + hexValue);
+            picBlockColor.BackColor = oColor;
+
+            selectBlockKills.SelectedIndex = thisBlock.Kills ? 0 : 1;
+            selectBlockSpecial.SelectedIndex = thisBlock.Special ? 0 : 1;
+            selectRepPhysics.SelectedIndex = thisBlock.RepeatPhysics ? 0 : 1;
+           // selectPhysMapLoad.SelectedIndex = thisBlock
+        }
+
+        private void btnCreateBlock_Click(object sender, EventArgs e) {
+
+        }
+
+        private void btnDeleteBlock_Click(object sender, EventArgs e) {
+
+        }
+
+        private void btnSaveBlocks_Click(object sender, EventArgs e) {
+
+        }
+
+        private void btnReloadBlocks_Click(object sender, EventArgs e) {
+
+        }
+        #endregion
+        #region Maps Tab
+        private void lstMaps_SelectedIndexChanged(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string) lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            txtMapName.Text = m.CWMap.MapName;
+            txtMapMotd.Text = m.HCSettings.Motd;
+            
+            lstJoinPerms.Items.Clear();
+            lstShowPerms.Items.Clear();
+            lstBuildPerms.Items.Clear();
+
+            foreach (var perm in m.Buildperms) 
+                lstBuildPerms.Items.Add(perm.Key);
+
+            foreach (var perm in m.Showperms) 
+                lstShowPerms.Items.Add(perm.Key);
+
+            foreach (var perm in m.Joinperms) 
+                lstJoinPerms.Items.Add(perm.Key);
+
+            lblMapClients.Text = "Clients: " + m.Clients.Count;
+            lblMapPhys.Text = "Physics: " + (m.HCSettings.Physics ? "On" : "Off");
+            lblMapBuilding.Text = "Building: " + (m.HCSettings.Building ? "On" : "Off");
+            lblMapHist.Text = "History: " + (m.HCSettings.History ? "On" : "Off");
+            lblMapBlockqueue.Text = "Blocksend Queue: " + m.BlockchangeQueue.Count;
+            lblMapPhysqueue.Text = "Physics Queue: " + m.PhysicsQueue.Count;
+            lblLoadStatus.Text = "Loaded: " + (m.Loaded ? "Loaded" : "Unloaded");
+            lblMapGen.Text = "Generator: " + m.CWMap.GeneratorName;
+            lblMapSize.Text = "Size: " + m.CWMap.SizeX + " x " + m.CWMap.SizeZ + " x " + m.CWMap.SizeY;
+            lblMapSpawn.Text = "Spawn: " + m.CWMap.SpawnX + ", " + m.CWMap.SpawnZ + ", " + m.CWMap.SpawnY;
+        }
+        private void btnMapResize_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+        }
+
+        private void btnMapResend_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+        }
+
+        private void btnMapFill_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+        }
+
+        private void btnMapHistoryOn_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+        }
+
+        private void btnMapBuilding_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            m.HCSettings.Building = !m.HCSettings.Building;
+            lblMapBuilding.Text = "Building: " + (m.HCSettings.Building ? "On" : "Off");
+        }
+
+        private void btnMapClearQueue_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            m.PhysicsQueue = new ConcurrentQueue<QueueItem>();
+            m.BlockchangeQueue = new ConcurrentQueue<QueueItem>();
+            lblMapBlockqueue.Text = "Blocksend Queue: " + m.BlockchangeQueue.Count;
+            lblMapPhysqueue.Text = "Physics Queue: " + m.PhysicsQueue.Count;
+        }
+
+        private void btnMapPhysics_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            m.HCSettings.Physics = (!m.HCSettings.Physics);
+            lblMapPhys.Text = "Physics: " + (m.HCSettings.Physics ? "On" : "Off");
+
+            if (m.HCSettings.Physics == false)
+                m.PhysicsQueue = new ConcurrentQueue<QueueItem>();
+
+            lblMapPhysqueue.Text = "Physics Queue: " + m.PhysicsQueue.Count;
+        }
+
+        private void btnMapDefault_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            ServerCore.MapMain = m.CWMap.MapName;
+            ServerCore.SaveSystemSettings();
+        }
+
+        private void btnMapUpdate_Click(object sender, EventArgs e) {
+            if (lstMaps.SelectedIndices.Count == 0)
+                return;
+
+            HypercubeMap m;
+            ServerCore.Maps.TryGetValue((string)lstMaps.SelectedItem, out m);
+
+            if (m == null)
+                return;
+
+            if (ServerCore.MapMain == m.CWMap.MapName) {
+                ServerCore.MapMain = txtMapName.Text;
+                ServerCore.SaveSystemSettings();
+            }
+
+            m.CWMap.MapName = txtMapName.Text;
+            m.HCSettings.Motd = txtMapMotd.Text;
+
+            lstMaps.Items.Clear();
+
+            foreach (var c in ServerCore.Maps.Values)
+                lstMaps.Items.Add(c.CWMap.MapName);
+
+            lstMaps.SelectedItem = m.CWMap.MapName;
+            ServerCore.ActionQueue.Enqueue(new MapAction {Action = MapActions.Save, Map = m});
+        }
+        #endregion
+
+        #endregion
+
+
     }
 
     public class ControlWriter : TextWriter {

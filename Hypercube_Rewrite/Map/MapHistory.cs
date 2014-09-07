@@ -13,6 +13,7 @@ namespace Hypercube.Map
 
         private readonly string _baseName;
         private readonly HypercubeMap _thisMap;
+        private object eLock = new object();
         public List<HistoryEntry> Entries;
         private bool _fragmented;
 
@@ -107,111 +108,107 @@ namespace Hypercube.Map
 
             var indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
 
-            using (var fs = new FileStream(_baseName + ".hch", FileMode.Open))
-            {
-                foreach (var h in Entries)
-                {
-                    var temp = new byte[4];
-                    var index = (h.Y*_thisMap.CWMap.SizeZ + h.Z)*_thisMap.CWMap.SizeX + h.X;
+            using (var fs = new FileStream(_baseName + ".hch", FileMode.Open)) {
+                lock (eLock) {
+                    foreach (var h in Entries) {
+                        var temp = new byte[4];
+                        var index = (h.Y*_thisMap.CWMap.SizeZ + h.Z)*_thisMap.CWMap.SizeX + h.X;
 
-                    fs.Seek(index*4, SeekOrigin.Begin);
-                    fs.Read(temp, 0, 4);
+                        fs.Seek(index*4, SeekOrigin.Begin);
+                        fs.Read(temp, 0, 4);
 
-                    var entryIndex = BitConverter.ToInt32(temp, 0);
+                        var entryIndex = BitConverter.ToInt32(temp, 0);
 
-                    if (entryIndex == 0)
-                    {
-                        // -- There are no entries for this block yet.
-                        fs.Seek(0, SeekOrigin.End); // -- Seek to the end of the file.
-                        var endLocation = ((int) fs.Position - indexTableSize); // -- Store the index for this entry
+                        if (entryIndex == 0) {
+                            // -- There are no entries for this block yet.
+                            fs.Seek(0, SeekOrigin.End); // -- Seek to the end of the file.
+                            var endLocation = ((int) fs.Position - indexTableSize); // -- Store the index for this entry
 
-                        fs.WriteByte(1); // -- There is now 1 entry
-                        fs.Write(h.ToByteArray(), 0, 10); // -- And this is the data.
+                            fs.WriteByte(1); // -- There is now 1 entry
+                            fs.Write(h.ToByteArray(), 0, 10); // -- And this is the data.
 
-                        fs.Seek(index*4, SeekOrigin.Begin); // -- Seek back to the Int for this block.
-                        fs.Write(BitConverter.GetBytes(endLocation), 0, 4);
-                        // -- Write in the location for that block's entries.
-                        continue; // -- Move on to the next HistoryEntry.
-                    }
-
-                    // -- There is already one or more entries for this block.
-                    fs.Seek(indexTableSize + entryIndex, SeekOrigin.Begin); // -- Seek to the position for this block
-                    var numEntries = fs.ReadByte(); // -- And get the number of entries.
-
-                    // -- Before adding anything, we'll check to see if this user already has an entry.
-                    var tempArray = new HistoryEntry[numEntries];
-                    var shift = false;
-
-                    for (var i = 0; i < numEntries; i++) // -- Modify the timestamp and block if so..
-                    {
-                        // -- Load the entries for checking.
-                        var thisEntry = new byte[10];
-
-                        fs.Read(thisEntry, 0, 10);
-                        tempArray[i] = HistoryEntry.FromByteArray(thisEntry, h.X, h.Y, h.Z);
-
-                        if (tempArray[i].Player == h.Player)
-                        {
-                            // -- If there is a player, update the new block, and the change time.
-                            tempArray[i].Timestamp = h.Timestamp;
-                            tempArray[i].NewBlock = h.NewBlock;
-                            shift = true; // -- This entry now needs to be shifted.
+                            fs.Seek(index*4, SeekOrigin.Begin); // -- Seek back to the Int for this block.
+                            fs.Write(BitConverter.GetBytes(endLocation), 0, 4);
+                            // -- Write in the location for that block's entries.
+                            continue; // -- Move on to the next HistoryEntry.
                         }
 
-                    }
+                        // -- There is already one or more entries for this block.
+                        fs.Seek(indexTableSize + entryIndex, SeekOrigin.Begin);
+                        // -- Seek to the position for this block
+                        var numEntries = fs.ReadByte(); // -- And get the number of entries.
 
-                    if (shift)
-                    {
-                        tempArray = tempArray.OrderBy(o => o.Timestamp).ToArray();
-                        // -- If there was an entry, order the array...
-                        fs.Seek((indexTableSize + entryIndex) + 1, SeekOrigin.Begin);
-                        // -- Seek to the beginning of the entries..
+                        // -- Before adding anything, we'll check to see if this user already has an entry.
+                        var tempArray = new HistoryEntry[numEntries];
+                        var shift = false;
 
-                        foreach (var z in tempArray) // -- Write the newly ordered entries
+                        for (var i = 0; i < numEntries; i++) // -- Modify the timestamp and block if so..
+                        {
+                            // -- Load the entries for checking.
+                            var thisEntry = new byte[10];
+
+                            fs.Read(thisEntry, 0, 10);
+                            tempArray[i] = HistoryEntry.FromByteArray(thisEntry, h.X, h.Y, h.Z);
+
+                            if (tempArray[i].Player == h.Player) {
+                                // -- If there is a player, update the new block, and the change time.
+                                tempArray[i].Timestamp = h.Timestamp;
+                                tempArray[i].NewBlock = h.NewBlock;
+                                shift = true; // -- This entry now needs to be shifted.
+                            }
+
+                        }
+
+                        if (shift) {
+                            tempArray = tempArray.OrderBy(o => o.Timestamp).ToArray();
+                            // -- If there was an entry, order the array...
+                            fs.Seek((indexTableSize + entryIndex) + 1, SeekOrigin.Begin);
+                            // -- Seek to the beginning of the entries..
+
+                            foreach (var z in tempArray) // -- Write the newly ordered entries
+                                fs.Write(z.ToByteArray(), 0, 10);
+
+                            continue; // -- Move to the next iteration.
+                        }
+
+                        // -- If the user did not have any previous entries...
+                        // -- Now We'll handle the easy case first, if we've already reached the maximum.
+
+                        if (numEntries == ServerCore.MaxHistoryEntries) {
+                            tempArray[0] = h; // -- Overwrite the old entry with the newest one.
+                            tempArray = tempArray.OrderBy(o => o.Timestamp).ToArray();
+                            // -- Order the array by timestamp, so that our new entry is at the end.
+
+                            fs.Seek((indexTableSize + entryIndex) + 1, SeekOrigin.Begin);
+                            // -- Seek to the beginning of the entries..
+
+                            foreach (var z in tempArray) // -- Write the newly ordered entries
+                                fs.Write(z.ToByteArray(), 0, 10);
+
+                            continue; // -- Move on to the next iteration.
+                        }
+
+                        // -- And finally, the condition that causes fragmentation :( Actually creating an entry.
+
+                        fs.Seek(0, SeekOrigin.End);
+                        var endPosition = ((int) fs.Position - indexTableSize);
+                        fs.WriteByte((byte) (numEntries + 1));
+
+                        foreach (var z in tempArray)
                             fs.Write(z.ToByteArray(), 0, 10);
 
-                        continue; // -- Move to the next iteration.
+                        fs.Write(h.ToByteArray(), 0, 10);
+
+                        fs.Seek(index*4, SeekOrigin.Begin); // -- Seek back to the Int for this block.
+                        fs.Write(BitConverter.GetBytes(endPosition), 0, 4);
+                        // -- Write in the location for that block's entries.
+
+                        _fragmented = true;
+                        // -- Annnd that's all folks!
                     }
-
-                    // -- If the user did not have any previous entries...
-                    // -- Now We'll handle the easy case first, if we've already reached the maximum.
-
-                    if (numEntries == ServerCore.MaxHistoryEntries)
-                    {
-                        tempArray[0] = h; // -- Overwrite the old entry with the newest one.
-                        tempArray = tempArray.OrderBy(o => o.Timestamp).ToArray();
-                        // -- Order the array by timestamp, so that our new entry is at the end.
-
-                        fs.Seek((indexTableSize + entryIndex) + 1, SeekOrigin.Begin);
-                        // -- Seek to the beginning of the entries..
-
-                        foreach (var z in tempArray) // -- Write the newly ordered entries
-                            fs.Write(z.ToByteArray(), 0, 10);
-
-                        continue; // -- Move on to the next iteration.
-                    }
-
-                    // -- And finally, the condition that causes fragmentation :( Actually creating an entry.
-
-                    fs.Seek(0, SeekOrigin.End);
-                    var endPosition = ((int) fs.Position - indexTableSize);
-                    fs.WriteByte((byte) (numEntries + 1));
-
-                    foreach (var z in tempArray)
-                        fs.Write(z.ToByteArray(), 0, 10);
-
-                    fs.Write(h.ToByteArray(), 0, 10);
-
-                    fs.Seek(index*4, SeekOrigin.Begin); // -- Seek back to the Int for this block.
-                    fs.Write(BitConverter.GetBytes(endPosition), 0, 4);
-                    // -- Write in the location for that block's entries.
-
-                    _fragmented = true;
-                    // -- Annnd that's all folks!
+                    Entries.Clear();
                 }
             }
-
-            Entries.Clear();
         }
 
         /// <summary>
@@ -254,33 +251,32 @@ namespace Hypercube.Map
             }
 
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
-            foreach (var h in Entries)
-            {
-                if (!(h.X == x && h.Y == y && h.Z == z))
-                    continue;
-
-                if (!result.Contains(h, new HistoryComparator())) {
-                    result.Add(h);
-                    continue;
-                }
-
-                // -- If the coords for this entry match the results
-                for (var q = 0; q < result.Count; q++)
-                {
-                    if (result[q].Player != h.Player) // -- If this is not the player we are looking for..
+            lock (eLock) {
+                foreach (var h in Entries) {
+                    if (!(h.X == x && h.Y == y && h.Z == z))
                         continue;
 
-                    if (!result[q].Equals(h))
+                    if (!result.Contains(h, new HistoryComparator())) {
+                        result.Add(h);
                         continue;
+                    }
 
-                    var temp = result[q];
-                    temp.NewBlock = h.NewBlock;
-                    temp.Timestamp = h.Timestamp;
-                    result[q] = temp;
-                    break;
+                    // -- If the coords for this entry match the results
+                    for (var q = 0; q < result.Count; q++) {
+                        if (result[q].Player != h.Player) // -- If this is not the player we are looking for..
+                            continue;
+
+                        if (!result[q].Equals(h))
+                            continue;
+
+                        var temp = result[q];
+                        temp.NewBlock = h.NewBlock;
+                        temp.Timestamp = h.Timestamp;
+                        result[q] = temp;
+                        break;
+                    }
                 }
             }
-
             // -- Sort the list by time..
             result = result.OrderBy(o => o.Timestamp).ToList();
             return result.ToArray();
@@ -353,7 +349,9 @@ namespace Hypercube.Map
                 Timestamp = (int) ServerCore.GetCurrentUnixTime()
             };
 
-            Entries.Add(he);
+            lock (eLock) {
+                Entries.Add(he);
+            }
 
             if (Entries.Count > 55000)
                 SaveEntries();

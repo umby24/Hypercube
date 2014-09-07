@@ -78,19 +78,19 @@
             this.lblMapBPerms = new System.Windows.Forms.Label();
             this.lblMapSPerms = new System.Windows.Forms.Label();
             this.lblMapJperms = new System.Windows.Forms.Label();
-            this.button9 = new System.Windows.Forms.Button();
+            this.btnMapUpdate = new System.Windows.Forms.Button();
             this.lstBuildPerms = new System.Windows.Forms.ListBox();
             this.lstShowPerms = new System.Windows.Forms.ListBox();
             this.lstJoinPerms = new System.Windows.Forms.ListBox();
             this.grpMapControl = new System.Windows.Forms.GroupBox();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnMapDefault = new System.Windows.Forms.Button();
+            this.btnMapClearQueue = new System.Windows.Forms.Button();
+            this.btnMapResend = new System.Windows.Forms.Button();
+            this.btnMapBuilding = new System.Windows.Forms.Button();
+            this.btnMapHistoryOn = new System.Windows.Forms.Button();
+            this.btnMapPhysics = new System.Windows.Forms.Button();
+            this.btnMapFill = new System.Windows.Forms.Button();
+            this.btnMapResize = new System.Windows.Forms.Button();
             this.txtMapMotd = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblMapPhysqueue = new System.Windows.Forms.Label();
@@ -113,6 +113,36 @@
             this.deleteMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandsTab = new System.Windows.Forms.TabPage();
             this.blocksTab = new System.Windows.Forms.TabPage();
+            this.btnReloadBlocks = new System.Windows.Forms.Button();
+            this.selectBlockSpecial = new System.Windows.Forms.ComboBox();
+            this.selectBlockKills = new System.Windows.Forms.ComboBox();
+            this.picBlockColor = new System.Windows.Forms.PictureBox();
+            this.numBlockCId = new System.Windows.Forms.NumericUpDown();
+            this.txtBlockName = new System.Windows.Forms.TextBox();
+            this.numBlockId = new System.Windows.Forms.NumericUpDown();
+            this.btnSaveBlocks = new System.Windows.Forms.Button();
+            this.btnDeleteBlock = new System.Windows.Forms.Button();
+            this.btnCreateBlock = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.selectPhysMapLoad = new System.Windows.Forms.ComboBox();
+            this.txtPhysScript = new System.Windows.Forms.TextBox();
+            this.selectRepPhysics = new System.Windows.Forms.ComboBox();
+            this.txtPhysRandom = new System.Windows.Forms.TextBox();
+            this.txtPhysDelay = new System.Windows.Forms.TextBox();
+            this.selectBlockPhysics = new System.Windows.Forms.ComboBox();
+            this.lblBlockPhysMapload = new System.Windows.Forms.Label();
+            this.lblBlockPhysScript = new System.Windows.Forms.Label();
+            this.lblBlockRepPhys = new System.Windows.Forms.Label();
+            this.lblBlockPhysRandom = new System.Windows.Forms.Label();
+            this.lblBlockPhysDelay = new System.Windows.Forms.Label();
+            this.lblBlockPhysics = new System.Windows.Forms.Label();
+            this.lblBlockSpecial = new System.Windows.Forms.Label();
+            this.lblBlockKills = new System.Windows.Forms.Label();
+            this.lblBlockColor = new System.Windows.Forms.Label();
+            this.lblBlockCId = new System.Windows.Forms.Label();
+            this.lblBlockName = new System.Windows.Forms.Label();
+            this.lblBlockId = new System.Windows.Forms.Label();
+            this.lstBlocks = new System.Windows.Forms.ListBox();
             this.ranksTab = new System.Windows.Forms.TabPage();
             this.dbTab = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -122,24 +152,6 @@
             this.gUIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendToTrayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miniModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lstBlocks = new System.Windows.Forms.ListBox();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label23 = new System.Windows.Forms.Label();
-            this.label24 = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label25 = new System.Windows.Forms.Label();
-            this.label26 = new System.Windows.Forms.Label();
-            this.label27 = new System.Windows.Forms.Label();
-            this.label28 = new System.Windows.Forms.Label();
-            this.label29 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
-            this.button10 = new System.Windows.Forms.Button();
-            this.button11 = new System.Windows.Forms.Button();
-            this.button12 = new System.Windows.Forms.Button();
             this.mainTabs.SuspendLayout();
             this.consoleTab.SuspendLayout();
             this.consoletabs.SuspendLayout();
@@ -162,8 +174,11 @@
             this.groupBox1.SuspendLayout();
             this.contextMapStrip.SuspendLayout();
             this.blocksTab.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBlockColor)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlockCId)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlockId)).BeginInit();
             this.groupBox4.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTabs
@@ -729,7 +744,7 @@
             this.mapsTab.Controls.Add(this.lblMapBPerms);
             this.mapsTab.Controls.Add(this.lblMapSPerms);
             this.mapsTab.Controls.Add(this.lblMapJperms);
-            this.mapsTab.Controls.Add(this.button9);
+            this.mapsTab.Controls.Add(this.btnMapUpdate);
             this.mapsTab.Controls.Add(this.lstBuildPerms);
             this.mapsTab.Controls.Add(this.lstShowPerms);
             this.mapsTab.Controls.Add(this.lstJoinPerms);
@@ -775,14 +790,15 @@
             this.lblMapJperms.TabIndex = 15;
             this.lblMapJperms.Text = "Join Permissions";
             // 
-            // button9
+            // btnMapUpdate
             // 
-            this.button9.Location = new System.Drawing.Point(447, 14);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(75, 23);
-            this.button9.TabIndex = 14;
-            this.button9.Text = "Update";
-            this.button9.UseVisualStyleBackColor = true;
+            this.btnMapUpdate.Location = new System.Drawing.Point(447, 14);
+            this.btnMapUpdate.Name = "btnMapUpdate";
+            this.btnMapUpdate.Size = new System.Drawing.Size(75, 23);
+            this.btnMapUpdate.TabIndex = 14;
+            this.btnMapUpdate.Text = "Update";
+            this.btnMapUpdate.UseVisualStyleBackColor = true;
+            this.btnMapUpdate.Click += new System.EventHandler(this.btnMapUpdate_Click);
             // 
             // lstBuildPerms
             // 
@@ -810,92 +826,100 @@
             // 
             // grpMapControl
             // 
-            this.grpMapControl.Controls.Add(this.button8);
-            this.grpMapControl.Controls.Add(this.button7);
-            this.grpMapControl.Controls.Add(this.button6);
-            this.grpMapControl.Controls.Add(this.button5);
-            this.grpMapControl.Controls.Add(this.button4);
-            this.grpMapControl.Controls.Add(this.button3);
-            this.grpMapControl.Controls.Add(this.button2);
-            this.grpMapControl.Controls.Add(this.button1);
-            this.grpMapControl.Location = new System.Drawing.Point(773, 130);
+            this.grpMapControl.Controls.Add(this.btnMapDefault);
+            this.grpMapControl.Controls.Add(this.btnMapClearQueue);
+            this.grpMapControl.Controls.Add(this.btnMapResend);
+            this.grpMapControl.Controls.Add(this.btnMapBuilding);
+            this.grpMapControl.Controls.Add(this.btnMapHistoryOn);
+            this.grpMapControl.Controls.Add(this.btnMapPhysics);
+            this.grpMapControl.Controls.Add(this.btnMapFill);
+            this.grpMapControl.Controls.Add(this.btnMapResize);
+            this.grpMapControl.Location = new System.Drawing.Point(758, 130);
             this.grpMapControl.Name = "grpMapControl";
-            this.grpMapControl.Size = new System.Drawing.Size(200, 145);
+            this.grpMapControl.Size = new System.Drawing.Size(215, 145);
             this.grpMapControl.TabIndex = 10;
             this.grpMapControl.TabStop = false;
             this.grpMapControl.Text = "Control";
             // 
-            // button8
+            // btnMapDefault
             // 
-            this.button8.Location = new System.Drawing.Point(90, 106);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(84, 23);
-            this.button8.TabIndex = 18;
-            this.button8.Text = "Make Default";
-            this.button8.UseVisualStyleBackColor = true;
+            this.btnMapDefault.Location = new System.Drawing.Point(105, 106);
+            this.btnMapDefault.Name = "btnMapDefault";
+            this.btnMapDefault.Size = new System.Drawing.Size(84, 23);
+            this.btnMapDefault.TabIndex = 18;
+            this.btnMapDefault.Text = "Make Default";
+            this.btnMapDefault.UseVisualStyleBackColor = true;
+            this.btnMapDefault.Click += new System.EventHandler(this.btnMapDefault_Click);
             // 
-            // button7
+            // btnMapClearQueue
             // 
-            this.button7.Location = new System.Drawing.Point(90, 77);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(84, 23);
-            this.button7.TabIndex = 17;
-            this.button7.Text = "Clear Queue";
-            this.button7.UseVisualStyleBackColor = true;
+            this.btnMapClearQueue.Location = new System.Drawing.Point(105, 77);
+            this.btnMapClearQueue.Name = "btnMapClearQueue";
+            this.btnMapClearQueue.Size = new System.Drawing.Size(84, 23);
+            this.btnMapClearQueue.TabIndex = 17;
+            this.btnMapClearQueue.Text = "Clear Queue";
+            this.btnMapClearQueue.UseVisualStyleBackColor = true;
+            this.btnMapClearQueue.Click += new System.EventHandler(this.btnMapClearQueue_Click);
             // 
-            // button6
+            // btnMapResend
             // 
-            this.button6.Location = new System.Drawing.Point(90, 19);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(84, 23);
-            this.button6.TabIndex = 16;
-            this.button6.Text = "Resend";
-            this.button6.UseVisualStyleBackColor = true;
+            this.btnMapResend.Location = new System.Drawing.Point(105, 19);
+            this.btnMapResend.Name = "btnMapResend";
+            this.btnMapResend.Size = new System.Drawing.Size(84, 23);
+            this.btnMapResend.TabIndex = 16;
+            this.btnMapResend.Text = "Resend";
+            this.btnMapResend.UseVisualStyleBackColor = true;
+            this.btnMapResend.Click += new System.EventHandler(this.btnMapResend_Click);
             // 
-            // button5
+            // btnMapBuilding
             // 
-            this.button5.Location = new System.Drawing.Point(9, 77);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 15;
-            this.button5.Text = "Building";
-            this.button5.UseVisualStyleBackColor = true;
+            this.btnMapBuilding.Location = new System.Drawing.Point(9, 77);
+            this.btnMapBuilding.Name = "btnMapBuilding";
+            this.btnMapBuilding.Size = new System.Drawing.Size(87, 23);
+            this.btnMapBuilding.TabIndex = 15;
+            this.btnMapBuilding.Text = "Building";
+            this.btnMapBuilding.UseVisualStyleBackColor = true;
+            this.btnMapBuilding.Click += new System.EventHandler(this.btnMapBuilding_Click);
             // 
-            // button4
+            // btnMapHistoryOn
             // 
-            this.button4.Location = new System.Drawing.Point(90, 48);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(84, 23);
-            this.button4.TabIndex = 14;
-            this.button4.Text = "History";
-            this.button4.UseVisualStyleBackColor = true;
+            this.btnMapHistoryOn.Location = new System.Drawing.Point(105, 48);
+            this.btnMapHistoryOn.Name = "btnMapHistoryOn";
+            this.btnMapHistoryOn.Size = new System.Drawing.Size(84, 23);
+            this.btnMapHistoryOn.TabIndex = 14;
+            this.btnMapHistoryOn.Text = "History";
+            this.btnMapHistoryOn.UseVisualStyleBackColor = true;
+            this.btnMapHistoryOn.Click += new System.EventHandler(this.btnMapHistoryOn_Click);
             // 
-            // button3
+            // btnMapPhysics
             // 
-            this.button3.Location = new System.Drawing.Point(9, 106);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 13;
-            this.button3.Text = "Physics";
-            this.button3.UseVisualStyleBackColor = true;
+            this.btnMapPhysics.Location = new System.Drawing.Point(9, 106);
+            this.btnMapPhysics.Name = "btnMapPhysics";
+            this.btnMapPhysics.Size = new System.Drawing.Size(90, 23);
+            this.btnMapPhysics.TabIndex = 13;
+            this.btnMapPhysics.Text = "Physics";
+            this.btnMapPhysics.UseVisualStyleBackColor = true;
+            this.btnMapPhysics.Click += new System.EventHandler(this.btnMapPhysics_Click);
             // 
-            // button2
+            // btnMapFill
             // 
-            this.button2.Location = new System.Drawing.Point(9, 48);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 12;
-            this.button2.Text = "Fill";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnMapFill.Location = new System.Drawing.Point(9, 48);
+            this.btnMapFill.Name = "btnMapFill";
+            this.btnMapFill.Size = new System.Drawing.Size(87, 23);
+            this.btnMapFill.TabIndex = 12;
+            this.btnMapFill.Text = "Fill";
+            this.btnMapFill.UseVisualStyleBackColor = true;
+            this.btnMapFill.Click += new System.EventHandler(this.btnMapFill_Click);
             // 
-            // button1
+            // btnMapResize
             // 
-            this.button1.Location = new System.Drawing.Point(9, 19);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Resize";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnMapResize.Location = new System.Drawing.Point(9, 19);
+            this.btnMapResize.Name = "btnMapResize";
+            this.btnMapResize.Size = new System.Drawing.Size(87, 23);
+            this.btnMapResize.TabIndex = 11;
+            this.btnMapResize.Text = "Resize";
+            this.btnMapResize.UseVisualStyleBackColor = true;
+            this.btnMapResize.Click += new System.EventHandler(this.btnMapResize_Click);
             // 
             // txtMapMotd
             // 
@@ -916,9 +940,9 @@
             this.groupBox1.Controls.Add(this.lblLoadStatus);
             this.groupBox1.Controls.Add(this.lblMapPhys);
             this.groupBox1.Controls.Add(this.lblMapClients);
-            this.groupBox1.Location = new System.Drawing.Point(773, 3);
+            this.groupBox1.Location = new System.Drawing.Point(758, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(200, 121);
+            this.groupBox1.Size = new System.Drawing.Size(215, 121);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Status";
@@ -1056,6 +1080,7 @@
             this.lstMaps.Name = "lstMaps";
             this.lstMaps.Size = new System.Drawing.Size(120, 251);
             this.lstMaps.TabIndex = 0;
+            this.lstMaps.SelectedIndexChanged += new System.EventHandler(this.lstMaps_SelectedIndexChanged);
             // 
             // contextMapStrip
             // 
@@ -1088,17 +1113,23 @@
             // 
             // blocksTab
             // 
-            this.blocksTab.Controls.Add(this.button12);
-            this.blocksTab.Controls.Add(this.button11);
-            this.blocksTab.Controls.Add(this.button10);
+            this.blocksTab.Controls.Add(this.btnReloadBlocks);
+            this.blocksTab.Controls.Add(this.selectBlockSpecial);
+            this.blocksTab.Controls.Add(this.selectBlockKills);
+            this.blocksTab.Controls.Add(this.picBlockColor);
+            this.blocksTab.Controls.Add(this.numBlockCId);
+            this.blocksTab.Controls.Add(this.txtBlockName);
+            this.blocksTab.Controls.Add(this.numBlockId);
+            this.blocksTab.Controls.Add(this.btnSaveBlocks);
+            this.blocksTab.Controls.Add(this.btnDeleteBlock);
+            this.blocksTab.Controls.Add(this.btnCreateBlock);
             this.blocksTab.Controls.Add(this.groupBox4);
-            this.blocksTab.Controls.Add(this.label24);
-            this.blocksTab.Controls.Add(this.label23);
-            this.blocksTab.Controls.Add(this.label22);
-            this.blocksTab.Controls.Add(this.label21);
-            this.blocksTab.Controls.Add(this.label20);
-            this.blocksTab.Controls.Add(this.label19);
-            this.blocksTab.Controls.Add(this.label18);
+            this.blocksTab.Controls.Add(this.lblBlockSpecial);
+            this.blocksTab.Controls.Add(this.lblBlockKills);
+            this.blocksTab.Controls.Add(this.lblBlockColor);
+            this.blocksTab.Controls.Add(this.lblBlockCId);
+            this.blocksTab.Controls.Add(this.lblBlockName);
+            this.blocksTab.Controls.Add(this.lblBlockId);
             this.blocksTab.Controls.Add(this.lstBlocks);
             this.blocksTab.Location = new System.Drawing.Point(4, 22);
             this.blocksTab.Name = "blocksTab";
@@ -1106,6 +1137,306 @@
             this.blocksTab.TabIndex = 4;
             this.blocksTab.Text = "Blocks";
             this.blocksTab.UseVisualStyleBackColor = true;
+            // 
+            // btnReloadBlocks
+            // 
+            this.btnReloadBlocks.Location = new System.Drawing.Point(416, 244);
+            this.btnReloadBlocks.Name = "btnReloadBlocks";
+            this.btnReloadBlocks.Size = new System.Drawing.Size(85, 23);
+            this.btnReloadBlocks.TabIndex = 18;
+            this.btnReloadBlocks.Text = "Reload Blocks";
+            this.btnReloadBlocks.UseVisualStyleBackColor = true;
+            this.btnReloadBlocks.Click += new System.EventHandler(this.btnReloadBlocks_Click);
+            // 
+            // selectBlockSpecial
+            // 
+            this.selectBlockSpecial.FormattingEnabled = true;
+            this.selectBlockSpecial.Items.AddRange(new object[] {
+            "Yes",
+            "No"});
+            this.selectBlockSpecial.Location = new System.Drawing.Point(198, 134);
+            this.selectBlockSpecial.Name = "selectBlockSpecial";
+            this.selectBlockSpecial.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockSpecial.TabIndex = 17;
+            this.selectBlockSpecial.Text = "No";
+            // 
+            // selectBlockKills
+            // 
+            this.selectBlockKills.FormattingEnabled = true;
+            this.selectBlockKills.Items.AddRange(new object[] {
+            "Yes",
+            "No"});
+            this.selectBlockKills.Location = new System.Drawing.Point(199, 107);
+            this.selectBlockKills.Name = "selectBlockKills";
+            this.selectBlockKills.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockKills.TabIndex = 16;
+            this.selectBlockKills.Text = "No";
+            // 
+            // picBlockColor
+            // 
+            this.picBlockColor.Location = new System.Drawing.Point(199, 81);
+            this.picBlockColor.Name = "picBlockColor";
+            this.picBlockColor.Size = new System.Drawing.Size(20, 20);
+            this.picBlockColor.TabIndex = 15;
+            this.picBlockColor.TabStop = false;
+            // 
+            // numBlockCId
+            // 
+            this.numBlockCId.Location = new System.Drawing.Point(199, 55);
+            this.numBlockCId.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.numBlockCId.Name = "numBlockCId";
+            this.numBlockCId.Size = new System.Drawing.Size(120, 20);
+            this.numBlockCId.TabIndex = 14;
+            // 
+            // txtBlockName
+            // 
+            this.txtBlockName.Location = new System.Drawing.Point(199, 29);
+            this.txtBlockName.Name = "txtBlockName";
+            this.txtBlockName.Size = new System.Drawing.Size(120, 20);
+            this.txtBlockName.TabIndex = 13;
+            // 
+            // numBlockId
+            // 
+            this.numBlockId.Location = new System.Drawing.Point(199, 3);
+            this.numBlockId.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.numBlockId.Name = "numBlockId";
+            this.numBlockId.Size = new System.Drawing.Size(120, 20);
+            this.numBlockId.TabIndex = 12;
+            // 
+            // btnSaveBlocks
+            // 
+            this.btnSaveBlocks.Location = new System.Drawing.Point(325, 244);
+            this.btnSaveBlocks.Name = "btnSaveBlocks";
+            this.btnSaveBlocks.Size = new System.Drawing.Size(85, 23);
+            this.btnSaveBlocks.TabIndex = 11;
+            this.btnSaveBlocks.Text = "Save Blocks";
+            this.btnSaveBlocks.UseVisualStyleBackColor = true;
+            this.btnSaveBlocks.Click += new System.EventHandler(this.btnSaveBlocks_Click);
+            // 
+            // btnDeleteBlock
+            // 
+            this.btnDeleteBlock.Location = new System.Drawing.Point(234, 244);
+            this.btnDeleteBlock.Name = "btnDeleteBlock";
+            this.btnDeleteBlock.Size = new System.Drawing.Size(85, 23);
+            this.btnDeleteBlock.TabIndex = 10;
+            this.btnDeleteBlock.Text = "Delete Block";
+            this.btnDeleteBlock.UseVisualStyleBackColor = true;
+            this.btnDeleteBlock.Click += new System.EventHandler(this.btnDeleteBlock_Click);
+            // 
+            // btnCreateBlock
+            // 
+            this.btnCreateBlock.Location = new System.Drawing.Point(131, 244);
+            this.btnCreateBlock.Name = "btnCreateBlock";
+            this.btnCreateBlock.Size = new System.Drawing.Size(96, 23);
+            this.btnCreateBlock.TabIndex = 9;
+            this.btnCreateBlock.Text = "Create Block";
+            this.btnCreateBlock.UseVisualStyleBackColor = true;
+            this.btnCreateBlock.Click += new System.EventHandler(this.btnCreateBlock_Click);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.selectPhysMapLoad);
+            this.groupBox4.Controls.Add(this.txtPhysScript);
+            this.groupBox4.Controls.Add(this.selectRepPhysics);
+            this.groupBox4.Controls.Add(this.txtPhysRandom);
+            this.groupBox4.Controls.Add(this.txtPhysDelay);
+            this.groupBox4.Controls.Add(this.selectBlockPhysics);
+            this.groupBox4.Controls.Add(this.lblBlockPhysMapload);
+            this.groupBox4.Controls.Add(this.lblBlockPhysScript);
+            this.groupBox4.Controls.Add(this.lblBlockRepPhys);
+            this.groupBox4.Controls.Add(this.lblBlockPhysRandom);
+            this.groupBox4.Controls.Add(this.lblBlockPhysDelay);
+            this.groupBox4.Controls.Add(this.lblBlockPhysics);
+            this.groupBox4.Location = new System.Drawing.Point(648, 5);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(325, 177);
+            this.groupBox4.TabIndex = 8;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Physics";
+            // 
+            // selectPhysMapLoad
+            // 
+            this.selectPhysMapLoad.FormattingEnabled = true;
+            this.selectPhysMapLoad.Items.AddRange(new object[] {
+            "Yes",
+            "No"});
+            this.selectPhysMapLoad.Location = new System.Drawing.Point(122, 145);
+            this.selectPhysMapLoad.Name = "selectPhysMapLoad";
+            this.selectPhysMapLoad.Size = new System.Drawing.Size(121, 21);
+            this.selectPhysMapLoad.TabIndex = 23;
+            this.selectPhysMapLoad.Text = "No";
+            this.selectPhysMapLoad.Visible = false;
+            // 
+            // txtPhysScript
+            // 
+            this.txtPhysScript.Location = new System.Drawing.Point(122, 119);
+            this.txtPhysScript.Name = "txtPhysScript";
+            this.txtPhysScript.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysScript.TabIndex = 22;
+            // 
+            // selectRepPhysics
+            // 
+            this.selectRepPhysics.FormattingEnabled = true;
+            this.selectRepPhysics.Items.AddRange(new object[] {
+            "Yes",
+            "No"});
+            this.selectRepPhysics.Location = new System.Drawing.Point(122, 92);
+            this.selectRepPhysics.Name = "selectRepPhysics";
+            this.selectRepPhysics.Size = new System.Drawing.Size(121, 21);
+            this.selectRepPhysics.TabIndex = 21;
+            this.selectRepPhysics.Text = "No";
+            // 
+            // txtPhysRandom
+            // 
+            this.txtPhysRandom.Location = new System.Drawing.Point(122, 66);
+            this.txtPhysRandom.Name = "txtPhysRandom";
+            this.txtPhysRandom.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysRandom.TabIndex = 20;
+            // 
+            // txtPhysDelay
+            // 
+            this.txtPhysDelay.Location = new System.Drawing.Point(122, 40);
+            this.txtPhysDelay.Name = "txtPhysDelay";
+            this.txtPhysDelay.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysDelay.TabIndex = 19;
+            // 
+            // selectBlockPhysics
+            // 
+            this.selectBlockPhysics.FormattingEnabled = true;
+            this.selectBlockPhysics.Items.AddRange(new object[] {
+            "Yes",
+            "No"});
+            this.selectBlockPhysics.Location = new System.Drawing.Point(122, 13);
+            this.selectBlockPhysics.Name = "selectBlockPhysics";
+            this.selectBlockPhysics.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockPhysics.TabIndex = 18;
+            this.selectBlockPhysics.Text = "No";
+            // 
+            // lblBlockPhysMapload
+            // 
+            this.lblBlockPhysMapload.AutoSize = true;
+            this.lblBlockPhysMapload.Location = new System.Drawing.Point(9, 148);
+            this.lblBlockPhysMapload.Name = "lblBlockPhysMapload";
+            this.lblBlockPhysMapload.Size = new System.Drawing.Size(107, 13);
+            this.lblBlockPhysMapload.TabIndex = 13;
+            this.lblBlockPhysMapload.Text = "Physics on map load:";
+            this.lblBlockPhysMapload.Visible = false;
+            // 
+            // lblBlockPhysScript
+            // 
+            this.lblBlockPhysScript.AutoSize = true;
+            this.lblBlockPhysScript.Location = new System.Drawing.Point(40, 122);
+            this.lblBlockPhysScript.Name = "lblBlockPhysScript";
+            this.lblBlockPhysScript.Size = new System.Drawing.Size(76, 13);
+            this.lblBlockPhysScript.TabIndex = 12;
+            this.lblBlockPhysScript.Text = "Physics Script:";
+            // 
+            // lblBlockRepPhys
+            // 
+            this.lblBlockRepPhys.AutoSize = true;
+            this.lblBlockRepPhys.Location = new System.Drawing.Point(32, 95);
+            this.lblBlockRepPhys.Name = "lblBlockRepPhys";
+            this.lblBlockRepPhys.Size = new System.Drawing.Size(84, 13);
+            this.lblBlockRepPhys.TabIndex = 11;
+            this.lblBlockRepPhys.Text = "Repeat Physics:";
+            // 
+            // lblBlockPhysRandom
+            // 
+            this.lblBlockPhysRandom.AutoSize = true;
+            this.lblBlockPhysRandom.Location = new System.Drawing.Point(27, 69);
+            this.lblBlockPhysRandom.Name = "lblBlockPhysRandom";
+            this.lblBlockPhysRandom.Size = new System.Drawing.Size(89, 13);
+            this.lblBlockPhysRandom.TabIndex = 10;
+            this.lblBlockPhysRandom.Text = "Physics Random:";
+            // 
+            // lblBlockPhysDelay
+            // 
+            this.lblBlockPhysDelay.AutoSize = true;
+            this.lblBlockPhysDelay.Location = new System.Drawing.Point(40, 43);
+            this.lblBlockPhysDelay.Name = "lblBlockPhysDelay";
+            this.lblBlockPhysDelay.Size = new System.Drawing.Size(76, 13);
+            this.lblBlockPhysDelay.TabIndex = 9;
+            this.lblBlockPhysDelay.Text = "Physics Delay:";
+            // 
+            // lblBlockPhysics
+            // 
+            this.lblBlockPhysics.AutoSize = true;
+            this.lblBlockPhysics.Location = new System.Drawing.Point(70, 16);
+            this.lblBlockPhysics.Name = "lblBlockPhysics";
+            this.lblBlockPhysics.Size = new System.Drawing.Size(46, 13);
+            this.lblBlockPhysics.TabIndex = 8;
+            this.lblBlockPhysics.Text = "Physics:";
+            // 
+            // lblBlockSpecial
+            // 
+            this.lblBlockSpecial.AutoSize = true;
+            this.lblBlockSpecial.Location = new System.Drawing.Point(147, 137);
+            this.lblBlockSpecial.Name = "lblBlockSpecial";
+            this.lblBlockSpecial.Size = new System.Drawing.Size(45, 13);
+            this.lblBlockSpecial.TabIndex = 6;
+            this.lblBlockSpecial.Text = "Special:";
+            // 
+            // lblBlockKills
+            // 
+            this.lblBlockKills.AutoSize = true;
+            this.lblBlockKills.Location = new System.Drawing.Point(165, 110);
+            this.lblBlockKills.Name = "lblBlockKills";
+            this.lblBlockKills.Size = new System.Drawing.Size(28, 13);
+            this.lblBlockKills.TabIndex = 5;
+            this.lblBlockKills.Text = "Kills:";
+            // 
+            // lblBlockColor
+            // 
+            this.lblBlockColor.AutoSize = true;
+            this.lblBlockColor.Location = new System.Drawing.Point(159, 86);
+            this.lblBlockColor.Name = "lblBlockColor";
+            this.lblBlockColor.Size = new System.Drawing.Size(34, 13);
+            this.lblBlockColor.TabIndex = 4;
+            this.lblBlockColor.Text = "Color:";
+            // 
+            // lblBlockCId
+            // 
+            this.lblBlockCId.AutoSize = true;
+            this.lblBlockCId.Location = new System.Drawing.Point(128, 57);
+            this.lblBlockCId.Name = "lblBlockCId";
+            this.lblBlockCId.Size = new System.Drawing.Size(65, 13);
+            this.lblBlockCId.TabIndex = 3;
+            this.lblBlockCId.Text = "ID on Client:";
+            // 
+            // lblBlockName
+            // 
+            this.lblBlockName.AutoSize = true;
+            this.lblBlockName.Location = new System.Drawing.Point(155, 32);
+            this.lblBlockName.Name = "lblBlockName";
+            this.lblBlockName.Size = new System.Drawing.Size(38, 13);
+            this.lblBlockName.TabIndex = 2;
+            this.lblBlockName.Text = "Name:";
+            // 
+            // lblBlockId
+            // 
+            this.lblBlockId.AutoSize = true;
+            this.lblBlockId.Location = new System.Drawing.Point(174, 5);
+            this.lblBlockId.Name = "lblBlockId";
+            this.lblBlockId.Size = new System.Drawing.Size(19, 13);
+            this.lblBlockId.TabIndex = 1;
+            this.lblBlockId.Text = "Id:";
+            // 
+            // lstBlocks
+            // 
+            this.lstBlocks.FormattingEnabled = true;
+            this.lstBlocks.Location = new System.Drawing.Point(3, 3);
+            this.lstBlocks.Name = "lstBlocks";
+            this.lstBlocks.Size = new System.Drawing.Size(120, 264);
+            this.lstBlocks.TabIndex = 0;
+            this.lstBlocks.SelectedIndexChanged += new System.EventHandler(this.lstBlocks_SelectedIndexChanged);
             // 
             // ranksTab
             // 
@@ -1180,174 +1511,7 @@
             this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.miniModeToolStripMenuItem.Text = "&Mini mode";
             // 
-            // lstBlocks
-            // 
-            this.lstBlocks.FormattingEnabled = true;
-            this.lstBlocks.Location = new System.Drawing.Point(3, 3);
-            this.lstBlocks.Name = "lstBlocks";
-            this.lstBlocks.Size = new System.Drawing.Size(120, 251);
-            this.lstBlocks.TabIndex = 0;
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(167, 3);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(19, 13);
-            this.label18.TabIndex = 1;
-            this.label18.Text = "Id:";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(148, 29);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(38, 13);
-            this.label19.TabIndex = 2;
-            this.label19.Text = "Name:";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(129, 51);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(65, 13);
-            this.label20.TabIndex = 3;
-            this.label20.Text = "ID on Client:";
-            // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(160, 73);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(34, 13);
-            this.label21.TabIndex = 4;
-            this.label21.Text = "Color:";
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(166, 86);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(28, 13);
-            this.label22.TabIndex = 5;
-            this.label22.Text = "Kills:";
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(148, 99);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(45, 13);
-            this.label23.TabIndex = 6;
-            this.label23.Text = "Special:";
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(149, 132);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(45, 13);
-            this.label24.TabIndex = 7;
-            this.label24.Text = "Special:";
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.label30);
-            this.groupBox4.Controls.Add(this.label29);
-            this.groupBox4.Controls.Add(this.label28);
-            this.groupBox4.Controls.Add(this.label27);
-            this.groupBox4.Controls.Add(this.label26);
-            this.groupBox4.Controls.Add(this.label25);
-            this.groupBox4.Location = new System.Drawing.Point(608, 20);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(325, 177);
-            this.groupBox4.TabIndex = 8;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Physics";
-            // 
-            // label25
-            // 
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(18, 16);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(46, 13);
-            this.label25.TabIndex = 8;
-            this.label25.Text = "Physics:";
-            // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(18, 41);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(76, 13);
-            this.label26.TabIndex = 9;
-            this.label26.Text = "Physics Delay:";
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(18, 66);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(89, 13);
-            this.label27.TabIndex = 10;
-            this.label27.Text = "Physics Random:";
-            // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(18, 90);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(84, 13);
-            this.label28.TabIndex = 11;
-            this.label28.Text = "Repeat Physics:";
-            // 
-            // label29
-            // 
-            this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(18, 112);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(76, 13);
-            this.label29.TabIndex = 12;
-            this.label29.Text = "Physics Script:";
-            // 
-            // label30
-            // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(18, 147);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(107, 13);
-            this.label30.TabIndex = 13;
-            this.label30.Text = "Physics on map load:";
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(132, 231);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(96, 23);
-            this.button10.TabIndex = 9;
-            this.button10.Text = "Create Block";
-            this.button10.UseVisualStyleBackColor = true;
-            // 
-            // button11
-            // 
-            this.button11.Location = new System.Drawing.Point(234, 231);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(85, 23);
-            this.button11.TabIndex = 10;
-            this.button11.Text = "Delete Block";
-            this.button11.UseVisualStyleBackColor = true;
-            // 
-            // button12
-            // 
-            this.button12.Location = new System.Drawing.Point(325, 231);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(85, 23);
-            this.button12.TabIndex = 11;
-            this.button12.Text = "Save Blocks";
-            this.button12.UseVisualStyleBackColor = true;
-            // 
-            // mainForm
+            // MainForm
             // 
             this.AcceptButton = this.btnSendChat;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1389,10 +1553,13 @@
             this.contextMapStrip.ResumeLayout(false);
             this.blocksTab.ResumeLayout(false);
             this.blocksTab.PerformLayout();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picBlockColor)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlockCId)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numBlockId)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1484,38 +1651,50 @@
         private System.Windows.Forms.ListBox lstShowPerms;
         private System.Windows.Forms.ListBox lstJoinPerms;
         private System.Windows.Forms.GroupBox grpMapControl;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnMapDefault;
+        private System.Windows.Forms.Button btnMapClearQueue;
+        private System.Windows.Forms.Button btnMapResend;
+        private System.Windows.Forms.Button btnMapBuilding;
+        private System.Windows.Forms.Button btnMapHistoryOn;
+        private System.Windows.Forms.Button btnMapPhysics;
+        private System.Windows.Forms.Button btnMapFill;
+        private System.Windows.Forms.Button btnMapResize;
         private System.Windows.Forms.Label lblMapSpawn;
         private System.Windows.Forms.Label lblMapGen;
         private System.Windows.Forms.Label lblMapBPerms;
         private System.Windows.Forms.Label lblMapSPerms;
         private System.Windows.Forms.Label lblMapJperms;
-        private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Button btnMapUpdate;
         private System.Windows.Forms.ListBox lstBlocks;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.Label label24;
-        private System.Windows.Forms.Label label23;
-        private System.Windows.Forms.Label label22;
-        private System.Windows.Forms.Label label21;
-        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label lblBlockName;
+        private System.Windows.Forms.Label lblBlockId;
+        private System.Windows.Forms.Label lblBlockSpecial;
+        private System.Windows.Forms.Label lblBlockKills;
+        private System.Windows.Forms.Label lblBlockColor;
+        private System.Windows.Forms.Label lblBlockCId;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Button button12;
-        private System.Windows.Forms.Button button11;
-        private System.Windows.Forms.Button button10;
-        private System.Windows.Forms.Label label30;
-        private System.Windows.Forms.Label label29;
-        private System.Windows.Forms.Label label28;
-        private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.Button btnSaveBlocks;
+        private System.Windows.Forms.Button btnDeleteBlock;
+        private System.Windows.Forms.Button btnCreateBlock;
+        private System.Windows.Forms.Label lblBlockPhysMapload;
+        private System.Windows.Forms.Label lblBlockPhysScript;
+        private System.Windows.Forms.Label lblBlockRepPhys;
+        private System.Windows.Forms.Label lblBlockPhysRandom;
+        private System.Windows.Forms.Label lblBlockPhysDelay;
+        private System.Windows.Forms.Label lblBlockPhysics;
+        private System.Windows.Forms.NumericUpDown numBlockCId;
+        private System.Windows.Forms.TextBox txtBlockName;
+        private System.Windows.Forms.NumericUpDown numBlockId;
+        private System.Windows.Forms.ComboBox selectBlockSpecial;
+        private System.Windows.Forms.ComboBox selectBlockKills;
+        private System.Windows.Forms.PictureBox picBlockColor;
+        private System.Windows.Forms.ComboBox selectPhysMapLoad;
+        private System.Windows.Forms.TextBox txtPhysScript;
+        private System.Windows.Forms.ComboBox selectRepPhysics;
+        private System.Windows.Forms.TextBox txtPhysRandom;
+        private System.Windows.Forms.TextBox txtPhysDelay;
+        private System.Windows.Forms.ComboBox selectBlockPhysics;
+        private System.Windows.Forms.Button btnReloadBlocks;
     }
 }
 

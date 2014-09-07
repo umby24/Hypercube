@@ -64,11 +64,10 @@ namespace Hypercube
         #region Ids
         public readonly static Stack<short> FreeEids = new Stack<short>(1000); 
         public readonly static Stack<short> FreeIds = new Stack<short>(1000);
-        public static int MapIndex;
         #endregion
 
         public static NetworkHandler Nh;
-        public static List<HypercubeMap> Maps;
+        public static Dictionary<string, HypercubeMap> Maps;
         #endregion
 
         public static void Setup()
@@ -98,23 +97,17 @@ namespace Hypercube
             Nh = new NetworkHandler();
             Logger.Log("", "Core Initialized.", LogType.Info);
 
-            Maps = new List<HypercubeMap>();
+            Maps = new Dictionary<string, HypercubeMap>(StringComparer.InvariantCultureIgnoreCase);
             HypercubeMap.LoadMaps();
 
             var found = false;
 
-            for (var i = 0; i < Maps.Count; i++) {
-                if (!Maps[i].Path.Contains(MapMain + ".cw")) 
-                    continue;
-                MapIndex = i;
-                found = true;
-                break;
-            }
+            HypercubeMap m;
+            Maps.TryGetValue(MapMain, out m);
 
-            if (!found) {
+            if (m == null) {
                 var mainMap = new HypercubeMap("Maps/" + MapMain + ".cw", MapMain, 128, 128, 128);
-                Maps.Add(mainMap);
-                MapIndex = Maps.Count - 1;
+                Maps.Add(MapMain, mainMap);
                 Logger.Log("Core", "Main world not found, a new one has been created.", LogType.Warning);
             }
 
@@ -153,7 +146,7 @@ namespace Hypercube
             TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 1), Settings.SettingsMain);
             TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 1), Luahandler.Main);
 
-            foreach (var m in Maps) {
+            foreach (var m in Maps.Values) {
                 TaskScheduler.CreateTask("Memory Conservation (" + m.CWMap.MapName + ")", new TimeSpan(0, 0, 30), m.MapMain);
                 TaskScheduler.CreateTask("Autosave (" + m.CWMap.MapName + ")", new TimeSpan(0,m.HCSettings.SaveInterval, 0), m.MapSave);
 
@@ -190,7 +183,7 @@ namespace Hypercube
                     Settings.SaveSettings(i);
             }
 
-            foreach (var m in Maps)
+            foreach (var m in Maps.Values)
                 m.Shutdown();
 
             _actionThread.Abort();
@@ -235,6 +228,7 @@ namespace Hypercube
             Settings.SaveSetting(SysSettings, "MaxBlocksSecond", MaxBlockChanges.ToString());
             Settings.SaveSetting(SysSettings, "MaxHistoryEntries", MaxHistoryEntries.ToString());
             Settings.SaveSetting(SysSettings, "DefaultRank", DefaultRank.Name);
+            Settings.SaveSettings(SysSettings);
          }
 
         public static void ReadRules() {
@@ -269,12 +263,12 @@ namespace Hypercube
                         case MapActions.Delete:
                             if (action.Map.Clients.Any()) {
                                 foreach (var c in action.Map.ClientsList) {
-                                    c.ChangeMap(Maps[MapIndex]);
+                                    c.ChangeMap(Maps[MapMain]);
                                 }
                                 action.Map.Shutdown();
                                 TaskScheduler.ScheduledTasks.Remove("Memory Conservation (" + action.Map.CWMap.MapName +
                                                                     ")");
-                                Maps.Remove(action.Map);
+                                Maps.Remove(action.Map.CWMap.MapName);
                                 action.Map = null;
                             }
                             break;

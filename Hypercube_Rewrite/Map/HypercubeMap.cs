@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.IO;
-using System.Xml.Linq;
 using ClassicWorld.NET;
 using fNbt;
 
@@ -91,7 +90,7 @@ namespace Hypercube.Map {
 
         public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
         public ConcurrentQueue<QueueItem> PhysicsQueue = new ConcurrentQueue<QueueItem>();
-        private byte[] physicsBitmask;
+        private byte[] _physicsBitmask;
         #endregion
         #region IDs
         public readonly Stack<sbyte> FreeIds = new Stack<sbyte>(127);
@@ -152,7 +151,7 @@ namespace Hypercube.Map {
                 FreeIds.Push(i);
             }
 
-            physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
+            _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
         }
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace Hypercube.Map {
             CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
+            _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
 
             HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
 
@@ -241,18 +240,15 @@ namespace Hypercube.Map {
                 try {
                     var newMap = new HypercubeMap(file);
 
-                    foreach (var m in ServerCore.Maps) {
-                        if (m.CWMap.MapName == newMap.CWMap.MapName) {
-                            ServerCore.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
-                            newMap = null;
-                            break;
-                        }
+                    HypercubeMap m;
+                    ServerCore.Maps.TryGetValue(newMap.CWMap.MapName, out m);
+
+                    if (m != null) {
+                        ServerCore.Logger.Log("Maps", "Failed to load " + file + ". Map with duplicate name already loaded. (" + m.Path + ")", LogType.Error);
+                        continue;
                     }
 
-                    if (newMap == null)
-                        continue;
-
-                    ServerCore.Maps.Add(newMap);
+                    ServerCore.Maps.Add(newMap.CWMap.MapName, newMap);
                     ServerCore.Logger.Log("Maps", "Loaded map '" + file + "'. (X=" + newMap.CWMap.SizeX + " Y=" + newMap.CWMap.SizeZ + " Z=" + newMap.CWMap.SizeY + ")", LogType.Info);
                 } catch (Exception e) {
                     ServerCore.Logger.Log("Maps", "Failed to load map '" + file + "'.", LogType.Warning);
@@ -289,7 +285,7 @@ namespace Hypercube.Map {
             CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
+            _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
 
             HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
             Path = Path.Replace(".cwu", ".cw");
@@ -322,7 +318,7 @@ namespace Hypercube.Map {
             CWMap.MetadataParsers.Add("Hypercube", HCSettings);
             CWMap.Load();
 
-            physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
+            _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
 
             HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
 
@@ -385,7 +381,7 @@ namespace Hypercube.Map {
 
             PhysicsQueue = new ConcurrentQueue<QueueItem>();
             CWMap.BlockData = null;
-            physicsBitmask = null;
+            _physicsBitmask = null;
             CWMap.MetadataParsers.Clear();
             GC.Collect();
             Loaded = false;
@@ -453,8 +449,8 @@ namespace Hypercube.Map {
             return (x + y*CWMap.SizeX + z*CWMap.SizeX*CWMap.SizeZ);
         }
         public bool BlockInBounds(short x, short y, short z) {
-            bool result1 = (0 <= x && CWMap.SizeX >= x) && (0 <= z && CWMap.SizeY >= z);
-            bool result2 = result1 && (0 <= y && CWMap.SizeZ >= y);
+            var result1 = (0 <= x && CWMap.SizeX >= x) && (0 <= z && CWMap.SizeY >= z);
+            var result2 = result1 && (0 <= y && CWMap.SizeZ >= y);
             return result2;
         }
         /// <summary>
@@ -601,6 +597,12 @@ namespace Hypercube.Map {
         #endregion
         #region Block Management
         public void ClientChangeBlock(NetworkClient client, short x, short y, short z, byte mode, Block newBlock) {
+            if (!HCSettings.Building) {
+                Chat.SendClientChat(client, "Building is disabled on this map at this time.");
+                SendBlock(client, x, y, z, GetBlock(x, y, z));
+                return;
+            }
+
             if (!BlockInBounds(x, y, z)) 
                 return;
 
@@ -644,6 +646,9 @@ namespace Hypercube.Map {
         }
 
         public void BlockChange(short clientId, short x, short y, short z, Block type, Block lastType, bool undo, bool physics, bool send, short priority) {
+            if (!HCSettings.Building)
+                return;
+
             SetBlockId(x, y, z, (byte)(type.Id), clientId);
 
             if (undo) {
@@ -670,38 +675,42 @@ namespace Hypercube.Map {
                 }
             }
 
-            if (physics) {
-                var randomGen = new Random();
+            if (send)
+                BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
 
-                for (short ix = -1; ix < 2; ix++) {
-                    for (short iy = -1; iy < 2; iy++) {
-                        for (short iz = -1; iz < 2; iz++) {
+            if (!physics || !HCSettings.Physics) 
+                return;
 
-                            if (!BlockInBounds((short)(x + ix), (short)(y + iy), (short)(z + iz)))
-                                continue;
+            var randomGen = new Random();
 
-                            var index = BlockIndex(x + ix, y + iy, z + iz);
+            for (short ix = -1; ix < 2; ix++) {
+                for (short iy = -1; iy < 2; iy++) {
+                    for (short iz = -1; iz < 2; iz++) {
 
-                            if ((physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
-                                continue;
+                        if (!BlockInBounds((short)(x + ix), (short)(y + iy), (short)(z + iz)))
+                            continue;
 
-                            var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
+                        var index = BlockIndex(x + ix, y + iy, z + iz);
 
-                            if (blockQueue.Physics <= 0 && string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) 
-                                continue;
+                        if ((_physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
+                            continue;
 
-                            physicsBitmask[index/8] = (byte)(physicsBitmask[index/8] | (1 << (index%8)));
-                            PhysicsQueue.Enqueue(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(blockQueue.PhysicsDelay + randomGen.Next(blockQueue.PhysicsRandom))));
-                        }
+                        var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
+
+                        if (blockQueue.Physics <= 0 && string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) 
+                            continue;
+
+                        _physicsBitmask[index/8] = (byte)(_physicsBitmask[index/8] | (1 << (index%8)));
+                        PhysicsQueue.Enqueue(new QueueItem((short)(x + ix), (short)(y + iy), (short)(z + iz), DateTime.UtcNow.AddMilliseconds(blockQueue.PhysicsDelay + randomGen.Next(blockQueue.PhysicsRandom))));
                     }
                 }
             }
-
-            if (send)
-                BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
         }
 
         public void MoveBlock(short x, short y, short z, short x2, short y2, short z2, bool undo, bool physics, short priority) {
+            if (!HCSettings.Building)
+                return;
+
             if (!BlockInBounds(x, y, z) || !BlockInBounds(x2, y2, z2))
                 return;
 
@@ -753,7 +762,7 @@ namespace Hypercube.Map {
             BlockchangeQueue.Enqueue(new QueueItem(x, y, z, priority));
             BlockchangeQueue.Enqueue(new QueueItem(x2, y2, z2, priority));
 
-            if (!physics) 
+            if (!physics || !HCSettings.Physics) 
                 return;
 
             var randomGen = new Random();
@@ -771,17 +780,17 @@ namespace Hypercube.Map {
                         var index = BlockIndex(x + ix, y + iy, z + iz);
                         var index2 = BlockIndex(x2 + ix, y2 + iy, z2 + iz);
 
-                        if ((physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
+                        if ((_physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
                             continue;
 
-                        if ((physicsBitmask[index2 / 8] & (1 << (index2 % 8))) != 0)
+                        if ((_physicsBitmask[index2 / 8] & (1 << (index2 % 8))) != 0)
                             continue;
 
                         var blockQueue = GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz));
                         var blockQueue2 = GetBlock((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz));
 
                         if (blockQueue.Physics > 0 || !string.IsNullOrEmpty(blockQueue.PhysicsPlugin)) {
-                            physicsBitmask[index / 8] = (byte)(physicsBitmask[index / 8] | (1 << (index % 8)));
+                            _physicsBitmask[index / 8] = (byte)(_physicsBitmask[index / 8] | (1 << (index % 8)));
                             PhysicsQueue.Enqueue(new QueueItem((short) (x + ix), (short) (y + iy), (short) (z + iz),
                                 DateTime.UtcNow.AddMilliseconds(blockQueue.PhysicsDelay +
                                                                 randomGen.Next(blockQueue.PhysicsRandom))));
@@ -790,7 +799,7 @@ namespace Hypercube.Map {
                         if (blockQueue2.Physics <= 0 && string.IsNullOrEmpty(blockQueue2.PhysicsPlugin)) 
                             continue;
 
-                        physicsBitmask[index2 / 8] = (byte)(physicsBitmask[index2 / 8] | (1 << (index2 % 8)));
+                        _physicsBitmask[index2 / 8] = (byte)(_physicsBitmask[index2 / 8] | (1 << (index2 % 8)));
                         PhysicsQueue.Enqueue(new QueueItem((short)(x2 + ix), (short)(y2 + iy), (short)(z2 + iz), DateTime.UtcNow.AddMilliseconds(blockQueue2.PhysicsDelay + randomGen.Next(blockQueue2.PhysicsRandom))));
                     }
                 }
@@ -864,7 +873,7 @@ namespace Hypercube.Map {
                     short x = physItem.X, y = physItem.Y, z = physItem.Z;
 
                     var index = BlockIndex(x, y, z);
-                    physicsBitmask[index/8] = (byte) (physicsBitmask[index/8] & ~(1 << index%8));
+                    _physicsBitmask[index/8] = (byte) (_physicsBitmask[index/8] & ~(1 << index%8));
 
                     switch (physicBlock.Physics) {
                         case 10:
@@ -894,10 +903,10 @@ namespace Hypercube.Map {
 
                     var randomGen = new Random();
 
-                    if ((physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
+                    if ((_physicsBitmask[index / 8] & (1 << (index % 8))) != 0)
                         continue;
 
-                    physicsBitmask[index / 8] = (byte)(physicsBitmask[index / 8] | (1 << (index % 8)));
+                    _physicsBitmask[index / 8] = (byte)(_physicsBitmask[index / 8] | (1 << (index % 8)));
                     PhysicsQueue.Enqueue(new QueueItem(x, y, z, DateTime.UtcNow.AddMilliseconds(physicBlock.PhysicsDelay + randomGen.Next(physicBlock.PhysicsRandom))));
                 }
             Thread.Sleep(1);
@@ -996,6 +1005,17 @@ namespace Hypercube.Map {
         #endregion
         #endregion
         #region FillFunctions
+
+        public void AddFakeBlockChange(NetworkClient client, short x, short y, short z, byte Type) {
+            var BlockChange = new SetBlock {
+                Block = Type,
+                Mode = 1,
+                X = x,
+                Z = y,
+                Y = z,
+            };
+            client.
+        }
         public void BuildBox(NetworkClient client, short x, short y, short z, short x2, short y2, short z2, Block material, Block replaceMaterial, bool hollow, short priority, bool undo, bool physics) {
             if (x > x2) {
                 var temp = x;
@@ -1016,12 +1036,13 @@ namespace Hypercube.Map {
             for (var ix = x; ix < x2 + 1; ix++) {
                 for (var iy = y; iy < y2 + 1; iy++) {
                     for (var iz = z; iz < z2 + 1; iz++) {
-                        if (replaceMaterial.Id == 99 || replaceMaterial == GetBlock(ix, iy, iz)) {
-                            if (ix == x || ix == x2 || iy == y || iy == y2 || iz == z || iz == z2)
-                                BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
-                            else if (hollow == false)
-                                BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
-                        }
+                        if (replaceMaterial.Id != 99 && replaceMaterial != GetBlock(ix, iy, iz)) 
+                            continue;
+
+                        if (ix == x || ix == x2 || iy == y || iy == y2 || iz == z || iz == z2)
+                            //BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                        else if (hollow == false)
+                            //BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
                     }
                 }
             }
@@ -1061,35 +1082,38 @@ namespace Hypercube.Map {
                     for (var iz = -rounded; iz < rounded; iz++) {
                         var squareDistance = (int)(Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2));
 
-                        if (squareDistance <= power) {
-                            var allowed = false;
-                            if (hollow) {
-                                if (Math.Pow(ix + 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
-                                    allowed = true;
+                        if (!(squareDistance <= power)) 
+                            continue;
 
-                                if (Math.Pow(ix - 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
-                                    allowed = true;
+                        var allowed = false;
 
-                                if (Math.Pow(ix, 2) + Math.Pow(iy + 1, 2) + Math.Pow(iz, 2) > power)
-                                    allowed = true;
-
-                                if (Math.Pow(ix, 2) + Math.Pow(iy - 1, 2) + Math.Pow(iz, 2) > power)
-                                    allowed = true;
-
-                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz + 1, 2) > power)
-                                    allowed = true;
-
-                                if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz - 1, 2) > power)
-                                    allowed = true;
-                            } else {
+                        if (hollow) {
+                            if (Math.Pow(ix + 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
                                 allowed = true;
-                            }
 
-                            if (allowed) {
-                                if (replaceMaterial.Id == 99 || replaceMaterial == GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)))
-                                    BlockChange(client.CS.Id, (short)(x + ix), (short)(y + iy), (short)(z + iz), material, GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)), undo, physics, true, priority);
-                            }
+                            if (Math.Pow(ix - 1, 2) + Math.Pow(iy, 2) + Math.Pow(iz, 2) > power)
+                                allowed = true;
+
+                            if (Math.Pow(ix, 2) + Math.Pow(iy + 1, 2) + Math.Pow(iz, 2) > power)
+                                allowed = true;
+
+                            if (Math.Pow(ix, 2) + Math.Pow(iy - 1, 2) + Math.Pow(iz, 2) > power)
+                                allowed = true;
+
+                            if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz + 1, 2) > power)
+                                allowed = true;
+
+                            if (Math.Pow(ix, 2) + Math.Pow(iy, 2) + Math.Pow(iz - 1, 2) > power)
+                                allowed = true;
+                        } else {
+                            allowed = true;
                         }
+
+                        if (!allowed) 
+                            continue;
+
+                        if (replaceMaterial.Id == 99 || replaceMaterial == GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)))
+                            BlockChange(client.CS.Id, (short)(x + ix), (short)(y + iy), (short)(z + iz), material, GetBlock((short)(x + ix), (short)(y + iy), (short)(z + iz)), undo, physics, true, priority);
                     }
                 }
             }

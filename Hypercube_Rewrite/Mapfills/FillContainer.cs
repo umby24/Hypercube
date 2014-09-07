@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Hypercube.Core;
 using Hypercube.Map;
 
@@ -42,6 +43,9 @@ namespace Hypercube.Mapfills {
                     map.CWMap.SizeY, args);
             }
 
+            map.CWMap.GeneratorName = fillname;
+            map.CWMap.GeneratingSoftware = "Hypercube";
+            
             map.Resend();
             ServerCore.Luahandler.RunFunction("E_MapFilled", map, fillname);
         }

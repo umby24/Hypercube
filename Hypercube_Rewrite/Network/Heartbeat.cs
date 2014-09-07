@@ -61,7 +61,7 @@ namespace Hypercube.Network {
             }
 
             try {
-                var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.Nh.Port + "&users=" + ServerCore.OnlinePlayers + "&max=" + ServerCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.Nh.Public + "&software=ServerCore&salt=" + HttpUtility.UrlEncode(Salt));
+                var response = request.DownloadString("http://www.classicube.net/heartbeat.jsp?port=" + ServerCore.Nh.Port + "&users=" + ServerCore.OnlinePlayers + "&max=" + ServerCore.Nh.MaxPlayers + "&name=" + HttpUtility.UrlEncode(ServerCore.ServerName) + "&public=" + ServerCore.Nh.Public + "&software=Hypercube&salt=" + HttpUtility.UrlEncode(Salt));
                 ServerCore.Logger.Log("Heartbeat", "Heartbeat sent.", LogType.Info);
                 ServerCore.Luahandler.RunFunction("E_Heartbeat");
                 ServerUrl = response;

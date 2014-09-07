@@ -60,7 +60,7 @@ namespace Hypercube.Command {
             }
 
             var newMap = new HypercubeMap("Maps/" + args[0] + ".cw", args[0], 64, 64, 64);
-            ServerCore.Maps.Add(newMap);
+            ServerCore.Maps.Add(args[0], newMap);
             newMap.BlockThread = new Thread(newMap.BlockQueueLoop);
             newMap.PhysicsThread = new Thread(newMap.PhysicsQueueLoop);
             newMap.BlockThread.Start();
@@ -109,7 +109,8 @@ namespace Hypercube.Command {
 
             Chat.SendClientChat(client, "§SFill added to queue...");
             ServerCore.ActionQueue.Enqueue(new MapAction {Action = MapActions.Fill, Arguments = args, Map = client.CS.CurrentMap});
-            //ServerCore.Fillholder.FillMap(client.CS.CurrentMap, args[0]);
+            client.CS.CurrentMap.CWMap.CreatingService = "Classicube";
+            client.CS.CurrentMap.CWMap.CreatingUsername = client.CS.LoginName;
         }
         #endregion
         #region MapFills
