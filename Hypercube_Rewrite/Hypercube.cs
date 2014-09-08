@@ -164,6 +164,7 @@ namespace Hypercube
                 m.PhysicsThread.Start();
             }
 
+            TaskScheduler.CreateTask("Client Actions", new TimeSpan(0, 0, 0, 0, 50), HypercubeMap.HandleActionQueue);
             TaskScheduler.CreateTask("Watchdog", new TimeSpan(0, 0, 30), Watchdog.GenHtml);
 
             _actionThread = new Thread(ProcessActions);

@@ -191,20 +191,22 @@
             this.mainTabs.Controls.Add(this.ranksTab);
             this.mainTabs.Controls.Add(this.dbTab);
             this.mainTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainTabs.Location = new System.Drawing.Point(0, 24);
+            this.mainTabs.Location = new System.Drawing.Point(0, 28);
+            this.mainTabs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.mainTabs.Name = "mainTabs";
             this.mainTabs.SelectedIndex = 0;
-            this.mainTabs.Size = new System.Drawing.Size(989, 304);
+            this.mainTabs.Size = new System.Drawing.Size(1319, 376);
             this.mainTabs.TabIndex = 0;
             this.mainTabs.SelectedIndexChanged += new System.EventHandler(this.mainTabs_SelectedIndexChanged);
             // 
             // consoleTab
             // 
             this.consoleTab.Controls.Add(this.consoletabs);
-            this.consoleTab.Location = new System.Drawing.Point(4, 22);
+            this.consoleTab.Location = new System.Drawing.Point(4, 25);
+            this.consoleTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.consoleTab.Name = "consoleTab";
-            this.consoleTab.Padding = new System.Windows.Forms.Padding(3);
-            this.consoleTab.Size = new System.Drawing.Size(981, 278);
+            this.consoleTab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.consoleTab.Size = new System.Drawing.Size(1311, 347);
             this.consoleTab.TabIndex = 0;
             this.consoleTab.Text = "Console";
             this.consoleTab.UseVisualStyleBackColor = true;
@@ -218,19 +220,21 @@
             this.consoletabs.Controls.Add(this.ErrorsTab);
             this.consoletabs.Controls.Add(this.debugTab);
             this.consoletabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.consoletabs.Location = new System.Drawing.Point(3, 3);
+            this.consoletabs.Location = new System.Drawing.Point(4, 4);
+            this.consoletabs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.consoletabs.Name = "consoletabs";
             this.consoletabs.SelectedIndex = 0;
-            this.consoletabs.Size = new System.Drawing.Size(975, 272);
+            this.consoletabs.Size = new System.Drawing.Size(1303, 339);
             this.consoletabs.TabIndex = 2;
             // 
             // Alltab
             // 
             this.Alltab.Controls.Add(this.txtAllConsole);
-            this.Alltab.Location = new System.Drawing.Point(4, 22);
+            this.Alltab.Location = new System.Drawing.Point(4, 25);
+            this.Alltab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Alltab.Name = "Alltab";
-            this.Alltab.Padding = new System.Windows.Forms.Padding(3);
-            this.Alltab.Size = new System.Drawing.Size(967, 246);
+            this.Alltab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Alltab.Size = new System.Drawing.Size(1295, 310);
             this.Alltab.TabIndex = 0;
             this.Alltab.Text = "All";
             this.Alltab.UseVisualStyleBackColor = true;
@@ -238,21 +242,23 @@
             // txtAllConsole
             // 
             this.txtAllConsole.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtAllConsole.Location = new System.Drawing.Point(3, 3);
+            this.txtAllConsole.Location = new System.Drawing.Point(4, 4);
+            this.txtAllConsole.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtAllConsole.Multiline = true;
             this.txtAllConsole.Name = "txtAllConsole";
             this.txtAllConsole.ReadOnly = true;
             this.txtAllConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtAllConsole.Size = new System.Drawing.Size(961, 240);
+            this.txtAllConsole.Size = new System.Drawing.Size(1287, 302);
             this.txtAllConsole.TabIndex = 0;
             // 
             // infotab
             // 
             this.infotab.Controls.Add(this.txtInfobox);
-            this.infotab.Location = new System.Drawing.Point(4, 22);
+            this.infotab.Location = new System.Drawing.Point(4, 25);
+            this.infotab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.infotab.Name = "infotab";
-            this.infotab.Padding = new System.Windows.Forms.Padding(3);
-            this.infotab.Size = new System.Drawing.Size(967, 246);
+            this.infotab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.infotab.Size = new System.Drawing.Size(1292, 306);
             this.infotab.TabIndex = 1;
             this.infotab.Text = "Info";
             this.infotab.UseVisualStyleBackColor = true;
@@ -260,10 +266,11 @@
             // txtInfobox
             // 
             this.txtInfobox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtInfobox.Location = new System.Drawing.Point(3, 3);
+            this.txtInfobox.Location = new System.Drawing.Point(4, 4);
+            this.txtInfobox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtInfobox.Name = "txtInfobox";
             this.txtInfobox.ReadOnly = true;
-            this.txtInfobox.Size = new System.Drawing.Size(961, 240);
+            this.txtInfobox.Size = new System.Drawing.Size(1284, 298);
             this.txtInfobox.TabIndex = 0;
             this.txtInfobox.Text = "";
             // 
@@ -272,9 +279,10 @@
             this.chatTab.Controls.Add(this.txtChatbox);
             this.chatTab.Controls.Add(this.btnSendChat);
             this.chatTab.Controls.Add(this.txtChat);
-            this.chatTab.Location = new System.Drawing.Point(4, 22);
+            this.chatTab.Location = new System.Drawing.Point(4, 25);
+            this.chatTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chatTab.Name = "chatTab";
-            this.chatTab.Size = new System.Drawing.Size(967, 246);
+            this.chatTab.Size = new System.Drawing.Size(1292, 306);
             this.chatTab.TabIndex = 2;
             this.chatTab.Text = "Chat";
             this.chatTab.UseVisualStyleBackColor = true;
@@ -284,17 +292,19 @@
             this.txtChatbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtChatbox.Location = new System.Drawing.Point(0, 0);
+            this.txtChatbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChatbox.Name = "txtChatbox";
             this.txtChatbox.ReadOnly = true;
-            this.txtChatbox.Size = new System.Drawing.Size(964, 214);
+            this.txtChatbox.Size = new System.Drawing.Size(1284, 262);
             this.txtChatbox.TabIndex = 2;
             this.txtChatbox.Text = "";
             // 
             // btnSendChat
             // 
-            this.btnSendChat.Location = new System.Drawing.Point(883, 220);
+            this.btnSendChat.Location = new System.Drawing.Point(1177, 271);
+            this.btnSendChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSendChat.Name = "btnSendChat";
-            this.btnSendChat.Size = new System.Drawing.Size(75, 23);
+            this.btnSendChat.Size = new System.Drawing.Size(100, 28);
             this.btnSendChat.TabIndex = 1;
             this.btnSendChat.Text = "Send";
             this.btnSendChat.UseVisualStyleBackColor = true;
@@ -303,17 +313,19 @@
             // 
             this.txtChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtChat.Location = new System.Drawing.Point(3, 223);
+            this.txtChat.Location = new System.Drawing.Point(4, 271);
+            this.txtChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChat.Name = "txtChat";
-            this.txtChat.Size = new System.Drawing.Size(874, 20);
+            this.txtChat.Size = new System.Drawing.Size(1164, 22);
             this.txtChat.TabIndex = 0;
             // 
             // cTab
             // 
             this.cTab.Controls.Add(this.txtCommandbox);
-            this.cTab.Location = new System.Drawing.Point(4, 22);
+            this.cTab.Location = new System.Drawing.Point(4, 25);
+            this.cTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cTab.Name = "cTab";
-            this.cTab.Size = new System.Drawing.Size(967, 246);
+            this.cTab.Size = new System.Drawing.Size(1292, 306);
             this.cTab.TabIndex = 3;
             this.cTab.Text = "Commands";
             this.cTab.UseVisualStyleBackColor = true;
@@ -322,17 +334,19 @@
             // 
             this.txtCommandbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtCommandbox.Location = new System.Drawing.Point(0, 0);
+            this.txtCommandbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtCommandbox.Name = "txtCommandbox";
-            this.txtCommandbox.Size = new System.Drawing.Size(967, 246);
+            this.txtCommandbox.Size = new System.Drawing.Size(1292, 306);
             this.txtCommandbox.TabIndex = 0;
             this.txtCommandbox.Text = "";
             // 
             // ErrorsTab
             // 
             this.ErrorsTab.Controls.Add(this.txtErrorbox);
-            this.ErrorsTab.Location = new System.Drawing.Point(4, 22);
+            this.ErrorsTab.Location = new System.Drawing.Point(4, 25);
+            this.ErrorsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ErrorsTab.Name = "ErrorsTab";
-            this.ErrorsTab.Size = new System.Drawing.Size(967, 246);
+            this.ErrorsTab.Size = new System.Drawing.Size(1292, 306);
             this.ErrorsTab.TabIndex = 4;
             this.ErrorsTab.Text = "Errors";
             this.ErrorsTab.UseVisualStyleBackColor = true;
@@ -341,17 +355,19 @@
             // 
             this.txtErrorbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtErrorbox.Location = new System.Drawing.Point(0, 0);
+            this.txtErrorbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtErrorbox.Name = "txtErrorbox";
-            this.txtErrorbox.Size = new System.Drawing.Size(967, 246);
+            this.txtErrorbox.Size = new System.Drawing.Size(1292, 306);
             this.txtErrorbox.TabIndex = 0;
             this.txtErrorbox.Text = "";
             // 
             // debugTab
             // 
             this.debugTab.Controls.Add(this.txtDebugBox);
-            this.debugTab.Location = new System.Drawing.Point(4, 22);
+            this.debugTab.Location = new System.Drawing.Point(4, 25);
+            this.debugTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.debugTab.Name = "debugTab";
-            this.debugTab.Size = new System.Drawing.Size(967, 246);
+            this.debugTab.Size = new System.Drawing.Size(1292, 306);
             this.debugTab.TabIndex = 5;
             this.debugTab.Text = "Debug";
             this.debugTab.UseVisualStyleBackColor = true;
@@ -360,8 +376,9 @@
             // 
             this.txtDebugBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDebugBox.Location = new System.Drawing.Point(0, 0);
+            this.txtDebugBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtDebugBox.Name = "txtDebugBox";
-            this.txtDebugBox.Size = new System.Drawing.Size(967, 246);
+            this.txtDebugBox.Size = new System.Drawing.Size(1292, 306);
             this.txtDebugBox.TabIndex = 0;
             this.txtDebugBox.Text = "";
             // 
@@ -371,19 +388,21 @@
             this.settingsTab.Controls.Add(this.grpSettingsChat);
             this.settingsTab.Controls.Add(this.grpNetwork);
             this.settingsTab.Controls.Add(this.grpSystem);
-            this.settingsTab.Location = new System.Drawing.Point(4, 22);
+            this.settingsTab.Location = new System.Drawing.Point(4, 25);
+            this.settingsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.settingsTab.Name = "settingsTab";
-            this.settingsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.settingsTab.Size = new System.Drawing.Size(981, 278);
+            this.settingsTab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.settingsTab.Size = new System.Drawing.Size(1311, 345);
             this.settingsTab.TabIndex = 1;
             this.settingsTab.Text = "Settings";
             this.settingsTab.UseVisualStyleBackColor = true;
             // 
             // btnRuleEdit
             // 
-            this.btnRuleEdit.Location = new System.Drawing.Point(447, 12);
+            this.btnRuleEdit.Location = new System.Drawing.Point(596, 15);
+            this.btnRuleEdit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnRuleEdit.Name = "btnRuleEdit";
-            this.btnRuleEdit.Size = new System.Drawing.Size(200, 23);
+            this.btnRuleEdit.Size = new System.Drawing.Size(267, 28);
             this.btnRuleEdit.TabIndex = 3;
             this.btnRuleEdit.Text = "Edit rules";
             this.btnRuleEdit.UseVisualStyleBackColor = true;
@@ -398,75 +417,85 @@
             this.grpSettingsChat.Controls.Add(this.lblError);
             this.grpSettingsChat.Controls.Add(this.txtChatSystem);
             this.grpSettingsChat.Controls.Add(this.txtChatError);
-            this.grpSettingsChat.Location = new System.Drawing.Point(241, 123);
+            this.grpSettingsChat.Location = new System.Drawing.Point(321, 151);
+            this.grpSettingsChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpSettingsChat.Name = "grpSettingsChat";
-            this.grpSettingsChat.Size = new System.Drawing.Size(200, 136);
+            this.grpSettingsChat.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSettingsChat.Size = new System.Drawing.Size(267, 167);
             this.grpSettingsChat.TabIndex = 2;
             this.grpSettingsChat.TabStop = false;
             this.grpSettingsChat.Text = "Chat";
             // 
             // txtChatDivider
             // 
-            this.txtChatDivider.Location = new System.Drawing.Point(58, 39);
+            this.txtChatDivider.Location = new System.Drawing.Point(77, 48);
+            this.txtChatDivider.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChatDivider.Name = "txtChatDivider";
-            this.txtChatDivider.Size = new System.Drawing.Size(135, 20);
+            this.txtChatDivider.Size = new System.Drawing.Size(179, 22);
             this.txtChatDivider.TabIndex = 7;
             // 
             // lblDivider
             // 
             this.lblDivider.AutoSize = true;
-            this.lblDivider.Location = new System.Drawing.Point(9, 42);
+            this.lblDivider.Location = new System.Drawing.Point(12, 52);
+            this.lblDivider.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblDivider.Name = "lblDivider";
-            this.lblDivider.Size = new System.Drawing.Size(43, 13);
+            this.lblDivider.Size = new System.Drawing.Size(56, 17);
             this.lblDivider.TabIndex = 6;
             this.lblDivider.Text = "Divider:";
             // 
             // txtPlayerlist
             // 
-            this.txtPlayerlist.Location = new System.Drawing.Point(58, 91);
+            this.txtPlayerlist.Location = new System.Drawing.Point(77, 112);
+            this.txtPlayerlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPlayerlist.Name = "txtPlayerlist";
-            this.txtPlayerlist.Size = new System.Drawing.Size(135, 20);
+            this.txtPlayerlist.Size = new System.Drawing.Size(179, 22);
             this.txtPlayerlist.TabIndex = 5;
             // 
             // lblPlayerList
             // 
             this.lblPlayerList.AutoSize = true;
-            this.lblPlayerList.Location = new System.Drawing.Point(0, 94);
+            this.lblPlayerList.Location = new System.Drawing.Point(0, 116);
+            this.lblPlayerList.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPlayerList.Name = "lblPlayerList";
-            this.lblPlayerList.Size = new System.Drawing.Size(52, 13);
+            this.lblPlayerList.Size = new System.Drawing.Size(70, 17);
             this.lblPlayerList.TabIndex = 4;
             this.lblPlayerList.Text = "PlayerList";
             // 
             // lblSystem
             // 
             this.lblSystem.AutoSize = true;
-            this.lblSystem.Location = new System.Drawing.Point(8, 68);
+            this.lblSystem.Location = new System.Drawing.Point(11, 84);
+            this.lblSystem.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblSystem.Name = "lblSystem";
-            this.lblSystem.Size = new System.Drawing.Size(44, 13);
+            this.lblSystem.Size = new System.Drawing.Size(58, 17);
             this.lblSystem.TabIndex = 3;
             this.lblSystem.Text = "System:";
             // 
             // lblError
             // 
             this.lblError.AutoSize = true;
-            this.lblError.Location = new System.Drawing.Point(20, 16);
+            this.lblError.Location = new System.Drawing.Point(27, 20);
+            this.lblError.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblError.Name = "lblError";
-            this.lblError.Size = new System.Drawing.Size(32, 13);
+            this.lblError.Size = new System.Drawing.Size(44, 17);
             this.lblError.TabIndex = 2;
             this.lblError.Text = "Error:";
             // 
             // txtChatSystem
             // 
-            this.txtChatSystem.Location = new System.Drawing.Point(58, 65);
+            this.txtChatSystem.Location = new System.Drawing.Point(77, 80);
+            this.txtChatSystem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChatSystem.Name = "txtChatSystem";
-            this.txtChatSystem.Size = new System.Drawing.Size(135, 20);
+            this.txtChatSystem.Size = new System.Drawing.Size(179, 22);
             this.txtChatSystem.TabIndex = 1;
             // 
             // txtChatError
             // 
-            this.txtChatError.Location = new System.Drawing.Point(58, 13);
+            this.txtChatError.Location = new System.Drawing.Point(77, 16);
+            this.txtChatError.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChatError.Name = "txtChatError";
-            this.txtChatError.Size = new System.Drawing.Size(135, 20);
+            this.txtChatError.Size = new System.Drawing.Size(179, 22);
             this.txtChatError.TabIndex = 0;
             // 
             // grpNetwork
@@ -477,16 +506,19 @@
             this.grpNetwork.Controls.Add(this.chkVerifyNames);
             this.grpNetwork.Controls.Add(this.lblMaxPlayers);
             this.grpNetwork.Controls.Add(this.lblPort);
-            this.grpNetwork.Location = new System.Drawing.Point(241, 6);
+            this.grpNetwork.Location = new System.Drawing.Point(321, 7);
+            this.grpNetwork.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpNetwork.Name = "grpNetwork";
-            this.grpNetwork.Size = new System.Drawing.Size(200, 111);
+            this.grpNetwork.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpNetwork.Size = new System.Drawing.Size(267, 137);
             this.grpNetwork.TabIndex = 1;
             this.grpNetwork.TabStop = false;
             this.grpNetwork.Text = "Network";
             // 
             // numMaxPlayers
             // 
-            this.numMaxPlayers.Location = new System.Drawing.Point(76, 40);
+            this.numMaxPlayers.Location = new System.Drawing.Point(101, 49);
+            this.numMaxPlayers.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numMaxPlayers.Maximum = new decimal(new int[] {
             600,
             0,
@@ -498,7 +530,7 @@
             0,
             0});
             this.numMaxPlayers.Name = "numMaxPlayers";
-            this.numMaxPlayers.Size = new System.Drawing.Size(120, 20);
+            this.numMaxPlayers.Size = new System.Drawing.Size(160, 22);
             this.numMaxPlayers.TabIndex = 5;
             this.numMaxPlayers.Value = new decimal(new int[] {
             128,
@@ -508,7 +540,8 @@
             // 
             // numPort
             // 
-            this.numPort.Location = new System.Drawing.Point(76, 14);
+            this.numPort.Location = new System.Drawing.Point(101, 17);
+            this.numPort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numPort.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -520,7 +553,7 @@
             0,
             0});
             this.numPort.Name = "numPort";
-            this.numPort.Size = new System.Drawing.Size(120, 20);
+            this.numPort.Size = new System.Drawing.Size(160, 22);
             this.numPort.TabIndex = 4;
             this.numPort.Value = new decimal(new int[] {
             25565,
@@ -531,9 +564,10 @@
             // chkPub
             // 
             this.chkPub.AutoSize = true;
-            this.chkPub.Location = new System.Drawing.Point(139, 89);
+            this.chkPub.Location = new System.Drawing.Point(185, 110);
+            this.chkPub.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkPub.Name = "chkPub";
-            this.chkPub.Size = new System.Drawing.Size(55, 17);
+            this.chkPub.Size = new System.Drawing.Size(68, 21);
             this.chkPub.TabIndex = 3;
             this.chkPub.Text = "Public";
             this.chkPub.UseVisualStyleBackColor = true;
@@ -541,9 +575,10 @@
             // chkVerifyNames
             // 
             this.chkVerifyNames.AutoSize = true;
-            this.chkVerifyNames.Location = new System.Drawing.Point(106, 66);
+            this.chkVerifyNames.Location = new System.Drawing.Point(141, 81);
+            this.chkVerifyNames.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkVerifyNames.Name = "chkVerifyNames";
-            this.chkVerifyNames.Size = new System.Drawing.Size(88, 17);
+            this.chkVerifyNames.Size = new System.Drawing.Size(114, 21);
             this.chkVerifyNames.TabIndex = 2;
             this.chkVerifyNames.Text = "Verify Names";
             this.chkVerifyNames.UseVisualStyleBackColor = true;
@@ -551,18 +586,20 @@
             // lblMaxPlayers
             // 
             this.lblMaxPlayers.AutoSize = true;
-            this.lblMaxPlayers.Location = new System.Drawing.Point(6, 42);
+            this.lblMaxPlayers.Location = new System.Drawing.Point(8, 52);
+            this.lblMaxPlayers.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMaxPlayers.Name = "lblMaxPlayers";
-            this.lblMaxPlayers.Size = new System.Drawing.Size(64, 13);
+            this.lblMaxPlayers.Size = new System.Drawing.Size(84, 17);
             this.lblMaxPlayers.TabIndex = 1;
             this.lblMaxPlayers.Text = "Max Players";
             // 
             // lblPort
             // 
             this.lblPort.AutoSize = true;
-            this.lblPort.Location = new System.Drawing.Point(44, 16);
+            this.lblPort.Location = new System.Drawing.Point(59, 20);
+            this.lblPort.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPort.Name = "lblPort";
-            this.lblPort.Size = new System.Drawing.Size(26, 13);
+            this.lblPort.Size = new System.Drawing.Size(34, 17);
             this.lblPort.TabIndex = 0;
             this.lblPort.Text = "Port";
             // 
@@ -582,9 +619,11 @@
             this.grpSystem.Controls.Add(this.lblSrvMotd);
             this.grpSystem.Controls.Add(this.txtSrvName);
             this.grpSystem.Controls.Add(this.lblSrvName);
-            this.grpSystem.Location = new System.Drawing.Point(8, 6);
+            this.grpSystem.Location = new System.Drawing.Point(11, 7);
+            this.grpSystem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpSystem.Name = "grpSystem";
-            this.grpSystem.Size = new System.Drawing.Size(227, 264);
+            this.grpSystem.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSystem.Size = new System.Drawing.Size(303, 325);
             this.grpSystem.TabIndex = 0;
             this.grpSystem.TabStop = false;
             this.grpSystem.Text = "System";
@@ -592,15 +631,17 @@
             // lblHistory
             // 
             this.lblHistory.AutoSize = true;
-            this.lblHistory.Location = new System.Drawing.Point(22, 235);
+            this.lblHistory.Location = new System.Drawing.Point(29, 289);
+            this.lblHistory.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblHistory.Name = "lblHistory";
-            this.lblHistory.Size = new System.Drawing.Size(94, 13);
+            this.lblHistory.Size = new System.Drawing.Size(126, 17);
             this.lblHistory.TabIndex = 13;
             this.lblHistory.Text = "Max history entries";
             // 
             // numHistory
             // 
-            this.numHistory.Location = new System.Drawing.Point(122, 233);
+            this.numHistory.Location = new System.Drawing.Point(163, 287);
+            this.numHistory.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numHistory.Maximum = new decimal(new int[] {
             300,
             0,
@@ -612,7 +653,7 @@
             0,
             0});
             this.numHistory.Name = "numHistory";
-            this.numHistory.Size = new System.Drawing.Size(99, 20);
+            this.numHistory.Size = new System.Drawing.Size(132, 22);
             this.numHistory.TabIndex = 12;
             this.numHistory.Value = new decimal(new int[] {
             128,
@@ -623,15 +664,17 @@
             // lblBlockChn
             // 
             this.lblBlockChn.AutoSize = true;
-            this.lblBlockChn.Location = new System.Drawing.Point(3, 209);
+            this.lblBlockChn.Location = new System.Drawing.Point(4, 257);
+            this.lblBlockChn.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockChn.Name = "lblBlockChn";
-            this.lblBlockChn.Size = new System.Drawing.Size(113, 13);
+            this.lblBlockChn.Size = new System.Drawing.Size(143, 17);
             this.lblBlockChn.TabIndex = 11;
             this.lblBlockChn.Text = "Max block changes /s";
             // 
             // numMaxBlocks
             // 
-            this.numMaxBlocks.Location = new System.Drawing.Point(122, 207);
+            this.numMaxBlocks.Location = new System.Drawing.Point(163, 255);
+            this.numMaxBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numMaxBlocks.Maximum = new decimal(new int[] {
             900000,
             0,
@@ -643,7 +686,7 @@
             0,
             0});
             this.numMaxBlocks.Name = "numMaxBlocks";
-            this.numMaxBlocks.Size = new System.Drawing.Size(99, 20);
+            this.numMaxBlocks.Size = new System.Drawing.Size(132, 22);
             this.numMaxBlocks.TabIndex = 10;
             this.numMaxBlocks.Value = new decimal(new int[] {
             33000,
@@ -654,9 +697,10 @@
             // chkComArgs
             // 
             this.chkComArgs.AutoSize = true;
-            this.chkComArgs.Location = new System.Drawing.Point(6, 184);
+            this.chkComArgs.Location = new System.Drawing.Point(8, 226);
+            this.chkComArgs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkComArgs.Name = "chkComArgs";
-            this.chkComArgs.Size = new System.Drawing.Size(154, 17);
+            this.chkComArgs.Size = new System.Drawing.Size(200, 21);
             this.chkComArgs.TabIndex = 9;
             this.chkComArgs.Text = "Show command arguments";
             this.chkComArgs.UseVisualStyleBackColor = true;
@@ -664,9 +708,10 @@
             // chkMaphistory
             // 
             this.chkMaphistory.AutoSize = true;
-            this.chkMaphistory.Location = new System.Drawing.Point(6, 161);
+            this.chkMaphistory.Location = new System.Drawing.Point(8, 198);
+            this.chkMaphistory.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkMaphistory.Name = "chkMaphistory";
-            this.chkMaphistory.Size = new System.Drawing.Size(126, 17);
+            this.chkMaphistory.Size = new System.Drawing.Size(166, 21);
             this.chkMaphistory.TabIndex = 8;
             this.chkMaphistory.Text = "Compress Maphistory";
             this.chkMaphistory.UseVisualStyleBackColor = true;
@@ -674,9 +719,10 @@
             // chkLogs
             // 
             this.chkLogs.AutoSize = true;
-            this.chkLogs.Location = new System.Drawing.Point(92, 138);
+            this.chkLogs.Location = new System.Drawing.Point(123, 170);
+            this.chkLogs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkLogs.Name = "chkLogs";
-            this.chkLogs.Size = new System.Drawing.Size(72, 17);
+            this.chkLogs.Size = new System.Drawing.Size(92, 21);
             this.chkLogs.TabIndex = 7;
             this.chkLogs.Text = "Log to file";
             this.chkLogs.UseVisualStyleBackColor = true;
@@ -684,58 +730,65 @@
             // chkRotLogs
             // 
             this.chkRotLogs.AutoSize = true;
-            this.chkRotLogs.Location = new System.Drawing.Point(6, 138);
+            this.chkRotLogs.Location = new System.Drawing.Point(8, 170);
+            this.chkRotLogs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.chkRotLogs.Name = "chkRotLogs";
-            this.chkRotLogs.Size = new System.Drawing.Size(80, 17);
+            this.chkRotLogs.Size = new System.Drawing.Size(102, 21);
             this.chkRotLogs.TabIndex = 6;
             this.chkRotLogs.Text = "Rotate logs";
             this.chkRotLogs.UseVisualStyleBackColor = true;
             // 
             // txtWelcomeMess
             // 
-            this.txtWelcomeMess.Location = new System.Drawing.Point(6, 112);
+            this.txtWelcomeMess.Location = new System.Drawing.Point(8, 138);
+            this.txtWelcomeMess.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtWelcomeMess.Name = "txtWelcomeMess";
-            this.txtWelcomeMess.Size = new System.Drawing.Size(215, 20);
+            this.txtWelcomeMess.Size = new System.Drawing.Size(285, 22);
             this.txtWelcomeMess.TabIndex = 5;
             // 
             // lblWelcmess
             // 
             this.lblWelcmess.AutoSize = true;
-            this.lblWelcmess.Location = new System.Drawing.Point(3, 94);
+            this.lblWelcmess.Location = new System.Drawing.Point(4, 116);
+            this.lblWelcmess.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblWelcmess.Name = "lblWelcmess";
-            this.lblWelcmess.Size = new System.Drawing.Size(100, 13);
+            this.lblWelcmess.Size = new System.Drawing.Size(131, 17);
             this.lblWelcmess.TabIndex = 4;
             this.lblWelcmess.Text = "Welcome message:";
             // 
             // txtSrvMotd
             // 
-            this.txtSrvMotd.Location = new System.Drawing.Point(6, 71);
+            this.txtSrvMotd.Location = new System.Drawing.Point(8, 87);
+            this.txtSrvMotd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtSrvMotd.Name = "txtSrvMotd";
-            this.txtSrvMotd.Size = new System.Drawing.Size(215, 20);
+            this.txtSrvMotd.Size = new System.Drawing.Size(285, 22);
             this.txtSrvMotd.TabIndex = 3;
             // 
             // lblSrvMotd
             // 
             this.lblSrvMotd.AutoSize = true;
-            this.lblSrvMotd.Location = new System.Drawing.Point(3, 55);
+            this.lblSrvMotd.Location = new System.Drawing.Point(4, 68);
+            this.lblSrvMotd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblSrvMotd.Name = "lblSrvMotd";
-            this.lblSrvMotd.Size = new System.Drawing.Size(76, 13);
+            this.lblSrvMotd.Size = new System.Drawing.Size(99, 17);
             this.lblSrvMotd.TabIndex = 2;
             this.lblSrvMotd.Text = "Server MOTD:";
             // 
             // txtSrvName
             // 
-            this.txtSrvName.Location = new System.Drawing.Point(6, 32);
+            this.txtSrvName.Location = new System.Drawing.Point(8, 39);
+            this.txtSrvName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtSrvName.Name = "txtSrvName";
-            this.txtSrvName.Size = new System.Drawing.Size(215, 20);
+            this.txtSrvName.Size = new System.Drawing.Size(285, 22);
             this.txtSrvName.TabIndex = 1;
             // 
             // lblSrvName
             // 
             this.lblSrvName.AutoSize = true;
-            this.lblSrvName.Location = new System.Drawing.Point(3, 16);
+            this.lblSrvName.Location = new System.Drawing.Point(4, 20);
+            this.lblSrvName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblSrvName.Name = "lblSrvName";
-            this.lblSrvName.Size = new System.Drawing.Size(70, 13);
+            this.lblSrvName.Size = new System.Drawing.Size(93, 17);
             this.lblSrvName.TabIndex = 0;
             this.lblSrvName.Text = "Server name:";
             // 
@@ -756,9 +809,10 @@
             this.mapsTab.Controls.Add(this.lblMapName);
             this.mapsTab.Controls.Add(this.lblMaps);
             this.mapsTab.Controls.Add(this.lstMaps);
-            this.mapsTab.Location = new System.Drawing.Point(4, 22);
+            this.mapsTab.Location = new System.Drawing.Point(4, 25);
+            this.mapsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.mapsTab.Name = "mapsTab";
-            this.mapsTab.Size = new System.Drawing.Size(981, 278);
+            this.mapsTab.Size = new System.Drawing.Size(1311, 345);
             this.mapsTab.TabIndex = 2;
             this.mapsTab.Text = "Maps";
             this.mapsTab.UseVisualStyleBackColor = true;
@@ -766,35 +820,39 @@
             // lblMapBPerms
             // 
             this.lblMapBPerms.AutoSize = true;
-            this.lblMapBPerms.Location = new System.Drawing.Point(398, 51);
+            this.lblMapBPerms.Location = new System.Drawing.Point(531, 63);
+            this.lblMapBPerms.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapBPerms.Name = "lblMapBPerms";
-            this.lblMapBPerms.Size = new System.Drawing.Size(88, 13);
+            this.lblMapBPerms.Size = new System.Drawing.Size(119, 17);
             this.lblMapBPerms.TabIndex = 17;
             this.lblMapBPerms.Text = "Build Permissions";
             // 
             // lblMapSPerms
             // 
             this.lblMapSPerms.AutoSize = true;
-            this.lblMapSPerms.Location = new System.Drawing.Point(272, 51);
+            this.lblMapSPerms.Location = new System.Drawing.Point(363, 63);
+            this.lblMapSPerms.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapSPerms.Name = "lblMapSPerms";
-            this.lblMapSPerms.Size = new System.Drawing.Size(92, 13);
+            this.lblMapSPerms.Size = new System.Drawing.Size(122, 17);
             this.lblMapSPerms.TabIndex = 16;
             this.lblMapSPerms.Text = "Show Permissions";
             // 
             // lblMapJperms
             // 
             this.lblMapJperms.AutoSize = true;
-            this.lblMapJperms.Location = new System.Drawing.Point(143, 51);
+            this.lblMapJperms.Location = new System.Drawing.Point(191, 63);
+            this.lblMapJperms.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapJperms.Name = "lblMapJperms";
-            this.lblMapJperms.Size = new System.Drawing.Size(84, 13);
+            this.lblMapJperms.Size = new System.Drawing.Size(114, 17);
             this.lblMapJperms.TabIndex = 15;
             this.lblMapJperms.Text = "Join Permissions";
             // 
             // btnMapUpdate
             // 
-            this.btnMapUpdate.Location = new System.Drawing.Point(447, 14);
+            this.btnMapUpdate.Location = new System.Drawing.Point(596, 17);
+            this.btnMapUpdate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapUpdate.Name = "btnMapUpdate";
-            this.btnMapUpdate.Size = new System.Drawing.Size(75, 23);
+            this.btnMapUpdate.Size = new System.Drawing.Size(100, 28);
             this.btnMapUpdate.TabIndex = 14;
             this.btnMapUpdate.Text = "Update";
             this.btnMapUpdate.UseVisualStyleBackColor = true;
@@ -803,25 +861,31 @@
             // lstBuildPerms
             // 
             this.lstBuildPerms.FormattingEnabled = true;
-            this.lstBuildPerms.Location = new System.Drawing.Point(398, 67);
+            this.lstBuildPerms.ItemHeight = 16;
+            this.lstBuildPerms.Location = new System.Drawing.Point(531, 82);
+            this.lstBuildPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstBuildPerms.Name = "lstBuildPerms";
-            this.lstBuildPerms.Size = new System.Drawing.Size(120, 199);
+            this.lstBuildPerms.Size = new System.Drawing.Size(159, 244);
             this.lstBuildPerms.TabIndex = 13;
             // 
             // lstShowPerms
             // 
             this.lstShowPerms.FormattingEnabled = true;
-            this.lstShowPerms.Location = new System.Drawing.Point(272, 67);
+            this.lstShowPerms.ItemHeight = 16;
+            this.lstShowPerms.Location = new System.Drawing.Point(363, 82);
+            this.lstShowPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstShowPerms.Name = "lstShowPerms";
-            this.lstShowPerms.Size = new System.Drawing.Size(120, 199);
+            this.lstShowPerms.Size = new System.Drawing.Size(159, 244);
             this.lstShowPerms.TabIndex = 12;
             // 
             // lstJoinPerms
             // 
             this.lstJoinPerms.FormattingEnabled = true;
-            this.lstJoinPerms.Location = new System.Drawing.Point(146, 67);
+            this.lstJoinPerms.ItemHeight = 16;
+            this.lstJoinPerms.Location = new System.Drawing.Point(195, 82);
+            this.lstJoinPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstJoinPerms.Name = "lstJoinPerms";
-            this.lstJoinPerms.Size = new System.Drawing.Size(120, 199);
+            this.lstJoinPerms.Size = new System.Drawing.Size(159, 244);
             this.lstJoinPerms.TabIndex = 11;
             // 
             // grpMapControl
@@ -834,18 +898,21 @@
             this.grpMapControl.Controls.Add(this.btnMapPhysics);
             this.grpMapControl.Controls.Add(this.btnMapFill);
             this.grpMapControl.Controls.Add(this.btnMapResize);
-            this.grpMapControl.Location = new System.Drawing.Point(758, 130);
+            this.grpMapControl.Location = new System.Drawing.Point(1011, 160);
+            this.grpMapControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.grpMapControl.Name = "grpMapControl";
-            this.grpMapControl.Size = new System.Drawing.Size(215, 145);
+            this.grpMapControl.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMapControl.Size = new System.Drawing.Size(287, 178);
             this.grpMapControl.TabIndex = 10;
             this.grpMapControl.TabStop = false;
             this.grpMapControl.Text = "Control";
             // 
             // btnMapDefault
             // 
-            this.btnMapDefault.Location = new System.Drawing.Point(105, 106);
+            this.btnMapDefault.Location = new System.Drawing.Point(140, 130);
+            this.btnMapDefault.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapDefault.Name = "btnMapDefault";
-            this.btnMapDefault.Size = new System.Drawing.Size(84, 23);
+            this.btnMapDefault.Size = new System.Drawing.Size(112, 28);
             this.btnMapDefault.TabIndex = 18;
             this.btnMapDefault.Text = "Make Default";
             this.btnMapDefault.UseVisualStyleBackColor = true;
@@ -853,9 +920,10 @@
             // 
             // btnMapClearQueue
             // 
-            this.btnMapClearQueue.Location = new System.Drawing.Point(105, 77);
+            this.btnMapClearQueue.Location = new System.Drawing.Point(140, 95);
+            this.btnMapClearQueue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapClearQueue.Name = "btnMapClearQueue";
-            this.btnMapClearQueue.Size = new System.Drawing.Size(84, 23);
+            this.btnMapClearQueue.Size = new System.Drawing.Size(112, 28);
             this.btnMapClearQueue.TabIndex = 17;
             this.btnMapClearQueue.Text = "Clear Queue";
             this.btnMapClearQueue.UseVisualStyleBackColor = true;
@@ -863,9 +931,10 @@
             // 
             // btnMapResend
             // 
-            this.btnMapResend.Location = new System.Drawing.Point(105, 19);
+            this.btnMapResend.Location = new System.Drawing.Point(140, 23);
+            this.btnMapResend.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapResend.Name = "btnMapResend";
-            this.btnMapResend.Size = new System.Drawing.Size(84, 23);
+            this.btnMapResend.Size = new System.Drawing.Size(112, 28);
             this.btnMapResend.TabIndex = 16;
             this.btnMapResend.Text = "Resend";
             this.btnMapResend.UseVisualStyleBackColor = true;
@@ -873,9 +942,10 @@
             // 
             // btnMapBuilding
             // 
-            this.btnMapBuilding.Location = new System.Drawing.Point(9, 77);
+            this.btnMapBuilding.Location = new System.Drawing.Point(12, 95);
+            this.btnMapBuilding.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapBuilding.Name = "btnMapBuilding";
-            this.btnMapBuilding.Size = new System.Drawing.Size(87, 23);
+            this.btnMapBuilding.Size = new System.Drawing.Size(116, 28);
             this.btnMapBuilding.TabIndex = 15;
             this.btnMapBuilding.Text = "Building";
             this.btnMapBuilding.UseVisualStyleBackColor = true;
@@ -883,9 +953,10 @@
             // 
             // btnMapHistoryOn
             // 
-            this.btnMapHistoryOn.Location = new System.Drawing.Point(105, 48);
+            this.btnMapHistoryOn.Location = new System.Drawing.Point(140, 59);
+            this.btnMapHistoryOn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapHistoryOn.Name = "btnMapHistoryOn";
-            this.btnMapHistoryOn.Size = new System.Drawing.Size(84, 23);
+            this.btnMapHistoryOn.Size = new System.Drawing.Size(112, 28);
             this.btnMapHistoryOn.TabIndex = 14;
             this.btnMapHistoryOn.Text = "History";
             this.btnMapHistoryOn.UseVisualStyleBackColor = true;
@@ -893,9 +964,10 @@
             // 
             // btnMapPhysics
             // 
-            this.btnMapPhysics.Location = new System.Drawing.Point(9, 106);
+            this.btnMapPhysics.Location = new System.Drawing.Point(12, 130);
+            this.btnMapPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapPhysics.Name = "btnMapPhysics";
-            this.btnMapPhysics.Size = new System.Drawing.Size(90, 23);
+            this.btnMapPhysics.Size = new System.Drawing.Size(120, 28);
             this.btnMapPhysics.TabIndex = 13;
             this.btnMapPhysics.Text = "Physics";
             this.btnMapPhysics.UseVisualStyleBackColor = true;
@@ -903,9 +975,10 @@
             // 
             // btnMapFill
             // 
-            this.btnMapFill.Location = new System.Drawing.Point(9, 48);
+            this.btnMapFill.Location = new System.Drawing.Point(12, 59);
+            this.btnMapFill.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapFill.Name = "btnMapFill";
-            this.btnMapFill.Size = new System.Drawing.Size(87, 23);
+            this.btnMapFill.Size = new System.Drawing.Size(116, 28);
             this.btnMapFill.TabIndex = 12;
             this.btnMapFill.Text = "Fill";
             this.btnMapFill.UseVisualStyleBackColor = true;
@@ -913,9 +986,10 @@
             // 
             // btnMapResize
             // 
-            this.btnMapResize.Location = new System.Drawing.Point(9, 19);
+            this.btnMapResize.Location = new System.Drawing.Point(12, 23);
+            this.btnMapResize.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnMapResize.Name = "btnMapResize";
-            this.btnMapResize.Size = new System.Drawing.Size(87, 23);
+            this.btnMapResize.Size = new System.Drawing.Size(116, 28);
             this.btnMapResize.TabIndex = 11;
             this.btnMapResize.Text = "Resize";
             this.btnMapResize.UseVisualStyleBackColor = true;
@@ -923,9 +997,10 @@
             // 
             // txtMapMotd
             // 
-            this.txtMapMotd.Location = new System.Drawing.Point(341, 16);
+            this.txtMapMotd.Location = new System.Drawing.Point(455, 20);
+            this.txtMapMotd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtMapMotd.Name = "txtMapMotd";
-            this.txtMapMotd.Size = new System.Drawing.Size(100, 20);
+            this.txtMapMotd.Size = new System.Drawing.Size(132, 22);
             this.txtMapMotd.TabIndex = 6;
             // 
             // groupBox1
@@ -940,9 +1015,11 @@
             this.groupBox1.Controls.Add(this.lblLoadStatus);
             this.groupBox1.Controls.Add(this.lblMapPhys);
             this.groupBox1.Controls.Add(this.lblMapClients);
-            this.groupBox1.Location = new System.Drawing.Point(758, 3);
+            this.groupBox1.Location = new System.Drawing.Point(1011, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(215, 121);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Size = new System.Drawing.Size(287, 149);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Status";
@@ -950,116 +1027,129 @@
             // lblMapPhysqueue
             // 
             this.lblMapPhysqueue.AutoSize = true;
-            this.lblMapPhysqueue.Location = new System.Drawing.Point(6, 96);
+            this.lblMapPhysqueue.Location = new System.Drawing.Point(8, 118);
+            this.lblMapPhysqueue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapPhysqueue.Name = "lblMapPhysqueue";
-            this.lblMapPhysqueue.Size = new System.Drawing.Size(90, 13);
+            this.lblMapPhysqueue.Size = new System.Drawing.Size(119, 17);
             this.lblMapPhysqueue.TabIndex = 6;
             this.lblMapPhysqueue.Text = "Physics Queue: 0";
             // 
             // lblMapSpawn
             // 
             this.lblMapSpawn.AutoSize = true;
-            this.lblMapSpawn.Location = new System.Drawing.Point(113, 64);
+            this.lblMapSpawn.Location = new System.Drawing.Point(151, 79);
+            this.lblMapSpawn.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapSpawn.Name = "lblMapSpawn";
-            this.lblMapSpawn.Size = new System.Drawing.Size(76, 13);
+            this.lblMapSpawn.Size = new System.Drawing.Size(98, 17);
             this.lblMapSpawn.TabIndex = 9;
             this.lblMapSpawn.Text = "Spawn: 0, 0, 0";
             // 
             // lblMapBlockqueue
             // 
             this.lblMapBlockqueue.AutoSize = true;
-            this.lblMapBlockqueue.Location = new System.Drawing.Point(6, 80);
+            this.lblMapBlockqueue.Location = new System.Drawing.Point(8, 98);
+            this.lblMapBlockqueue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapBlockqueue.Name = "lblMapBlockqueue";
-            this.lblMapBlockqueue.Size = new System.Drawing.Size(104, 13);
+            this.lblMapBlockqueue.Size = new System.Drawing.Size(136, 17);
             this.lblMapBlockqueue.TabIndex = 5;
             this.lblMapBlockqueue.Text = "Blocksend Queue: 0";
             // 
             // lblMapSize
             // 
             this.lblMapSize.AutoSize = true;
-            this.lblMapSize.Location = new System.Drawing.Point(98, 48);
+            this.lblMapSize.Location = new System.Drawing.Point(131, 59);
+            this.lblMapSize.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapSize.Name = "lblMapSize";
-            this.lblMapSize.Size = new System.Drawing.Size(91, 13);
+            this.lblMapSize.Size = new System.Drawing.Size(119, 17);
             this.lblMapSize.TabIndex = 7;
             this.lblMapSize.Text = "Size: 64 x 64 x 64";
             // 
             // lblMapGen
             // 
             this.lblMapGen.AutoSize = true;
-            this.lblMapGen.Location = new System.Drawing.Point(87, 32);
+            this.lblMapGen.Location = new System.Drawing.Point(116, 39);
+            this.lblMapGen.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapGen.Name = "lblMapGen";
             this.lblMapGen.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.lblMapGen.Size = new System.Drawing.Size(102, 13);
+            this.lblMapGen.Size = new System.Drawing.Size(139, 17);
             this.lblMapGen.TabIndex = 8;
             this.lblMapGen.Text = "Generator: Flatgrass";
             // 
             // lblMapBuilding
             // 
             this.lblMapBuilding.AutoSize = true;
-            this.lblMapBuilding.Location = new System.Drawing.Point(6, 64);
+            this.lblMapBuilding.Location = new System.Drawing.Point(8, 79);
+            this.lblMapBuilding.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapBuilding.Name = "lblMapBuilding";
-            this.lblMapBuilding.Size = new System.Drawing.Size(64, 13);
+            this.lblMapBuilding.Size = new System.Drawing.Size(85, 17);
             this.lblMapBuilding.TabIndex = 4;
             this.lblMapBuilding.Text = "Building: On";
             // 
             // lblMapHist
             // 
             this.lblMapHist.AutoSize = true;
-            this.lblMapHist.Location = new System.Drawing.Point(6, 48);
+            this.lblMapHist.Location = new System.Drawing.Point(8, 59);
+            this.lblMapHist.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapHist.Name = "lblMapHist";
-            this.lblMapHist.Size = new System.Drawing.Size(59, 13);
+            this.lblMapHist.Size = new System.Drawing.Size(79, 17);
             this.lblMapHist.TabIndex = 3;
             this.lblMapHist.Text = "History: On";
             // 
             // lblLoadStatus
             // 
             this.lblLoadStatus.AutoSize = true;
-            this.lblLoadStatus.Location = new System.Drawing.Point(110, 16);
+            this.lblLoadStatus.Location = new System.Drawing.Point(147, 20);
+            this.lblLoadStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblLoadStatus.Name = "lblLoadStatus";
-            this.lblLoadStatus.Size = new System.Drawing.Size(79, 13);
+            this.lblLoadStatus.Size = new System.Drawing.Size(104, 17);
             this.lblLoadStatus.TabIndex = 2;
             this.lblLoadStatus.Text = "Status: Loaded";
             // 
             // lblMapPhys
             // 
             this.lblMapPhys.AutoSize = true;
-            this.lblMapPhys.Location = new System.Drawing.Point(6, 32);
+            this.lblMapPhys.Location = new System.Drawing.Point(8, 39);
+            this.lblMapPhys.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapPhys.Name = "lblMapPhys";
-            this.lblMapPhys.Size = new System.Drawing.Size(63, 13);
+            this.lblMapPhys.Size = new System.Drawing.Size(83, 17);
             this.lblMapPhys.TabIndex = 1;
             this.lblMapPhys.Text = "Physics: On";
             // 
             // lblMapClients
             // 
             this.lblMapClients.AutoSize = true;
-            this.lblMapClients.Location = new System.Drawing.Point(6, 16);
+            this.lblMapClients.Location = new System.Drawing.Point(8, 20);
+            this.lblMapClients.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapClients.Name = "lblMapClients";
-            this.lblMapClients.Size = new System.Drawing.Size(50, 13);
+            this.lblMapClients.Size = new System.Drawing.Size(66, 17);
             this.lblMapClients.TabIndex = 0;
             this.lblMapClients.Text = "Clients: 0";
             // 
             // lblMapMotd
             // 
             this.lblMapMotd.AutoSize = true;
-            this.lblMapMotd.Location = new System.Drawing.Point(293, 19);
+            this.lblMapMotd.Location = new System.Drawing.Point(391, 23);
+            this.lblMapMotd.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapMotd.Name = "lblMapMotd";
-            this.lblMapMotd.Size = new System.Drawing.Size(42, 13);
+            this.lblMapMotd.Size = new System.Drawing.Size(53, 17);
             this.lblMapMotd.TabIndex = 4;
             this.lblMapMotd.Text = "MOTD:";
             // 
             // txtMapName
             // 
-            this.txtMapName.Location = new System.Drawing.Point(187, 16);
+            this.txtMapName.Location = new System.Drawing.Point(249, 20);
+            this.txtMapName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtMapName.Name = "txtMapName";
-            this.txtMapName.Size = new System.Drawing.Size(100, 20);
+            this.txtMapName.Size = new System.Drawing.Size(132, 22);
             this.txtMapName.TabIndex = 3;
             // 
             // lblMapName
             // 
             this.lblMapName.AutoSize = true;
-            this.lblMapName.Location = new System.Drawing.Point(143, 19);
+            this.lblMapName.Location = new System.Drawing.Point(191, 23);
+            this.lblMapName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMapName.Name = "lblMapName";
-            this.lblMapName.Size = new System.Drawing.Size(38, 13);
+            this.lblMapName.Size = new System.Drawing.Size(49, 17);
             this.lblMapName.TabIndex = 2;
             this.lblMapName.Text = "Name:";
             // 
@@ -1067,8 +1157,9 @@
             // 
             this.lblMaps.AutoSize = true;
             this.lblMaps.Location = new System.Drawing.Point(0, 0);
+            this.lblMaps.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMaps.Name = "lblMaps";
-            this.lblMaps.Size = new System.Drawing.Size(36, 13);
+            this.lblMaps.Size = new System.Drawing.Size(46, 17);
             this.lblMaps.TabIndex = 1;
             this.lblMaps.Text = "Maps:";
             // 
@@ -1076,9 +1167,11 @@
             // 
             this.lstMaps.ContextMenuStrip = this.contextMapStrip;
             this.lstMaps.FormattingEnabled = true;
-            this.lstMaps.Location = new System.Drawing.Point(8, 19);
+            this.lstMaps.ItemHeight = 16;
+            this.lstMaps.Location = new System.Drawing.Point(11, 23);
+            this.lstMaps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstMaps.Name = "lstMaps";
-            this.lstMaps.Size = new System.Drawing.Size(120, 251);
+            this.lstMaps.Size = new System.Drawing.Size(159, 308);
             this.lstMaps.TabIndex = 0;
             this.lstMaps.SelectedIndexChanged += new System.EventHandler(this.lstMaps_SelectedIndexChanged);
             // 
@@ -1088,25 +1181,26 @@
             this.addMapToolStripMenuItem,
             this.deleteMapToolStripMenuItem});
             this.contextMapStrip.Name = "contextMapStrip";
-            this.contextMapStrip.Size = new System.Drawing.Size(135, 48);
+            this.contextMapStrip.Size = new System.Drawing.Size(157, 52);
             // 
             // addMapToolStripMenuItem
             // 
             this.addMapToolStripMenuItem.Name = "addMapToolStripMenuItem";
-            this.addMapToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.addMapToolStripMenuItem.Size = new System.Drawing.Size(156, 24);
             this.addMapToolStripMenuItem.Text = "Add Map";
             // 
             // deleteMapToolStripMenuItem
             // 
             this.deleteMapToolStripMenuItem.Name = "deleteMapToolStripMenuItem";
-            this.deleteMapToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.deleteMapToolStripMenuItem.Size = new System.Drawing.Size(156, 24);
             this.deleteMapToolStripMenuItem.Text = "Delete Map";
             // 
             // commandsTab
             // 
-            this.commandsTab.Location = new System.Drawing.Point(4, 22);
+            this.commandsTab.Location = new System.Drawing.Point(4, 25);
+            this.commandsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.commandsTab.Name = "commandsTab";
-            this.commandsTab.Size = new System.Drawing.Size(981, 278);
+            this.commandsTab.Size = new System.Drawing.Size(1311, 345);
             this.commandsTab.TabIndex = 3;
             this.commandsTab.Text = "Commands";
             this.commandsTab.UseVisualStyleBackColor = true;
@@ -1131,18 +1225,20 @@
             this.blocksTab.Controls.Add(this.lblBlockName);
             this.blocksTab.Controls.Add(this.lblBlockId);
             this.blocksTab.Controls.Add(this.lstBlocks);
-            this.blocksTab.Location = new System.Drawing.Point(4, 22);
+            this.blocksTab.Location = new System.Drawing.Point(4, 25);
+            this.blocksTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.blocksTab.Name = "blocksTab";
-            this.blocksTab.Size = new System.Drawing.Size(981, 278);
+            this.blocksTab.Size = new System.Drawing.Size(1311, 345);
             this.blocksTab.TabIndex = 4;
             this.blocksTab.Text = "Blocks";
             this.blocksTab.UseVisualStyleBackColor = true;
             // 
             // btnReloadBlocks
             // 
-            this.btnReloadBlocks.Location = new System.Drawing.Point(416, 244);
+            this.btnReloadBlocks.Location = new System.Drawing.Point(555, 300);
+            this.btnReloadBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnReloadBlocks.Name = "btnReloadBlocks";
-            this.btnReloadBlocks.Size = new System.Drawing.Size(85, 23);
+            this.btnReloadBlocks.Size = new System.Drawing.Size(113, 28);
             this.btnReloadBlocks.TabIndex = 18;
             this.btnReloadBlocks.Text = "Reload Blocks";
             this.btnReloadBlocks.UseVisualStyleBackColor = true;
@@ -1154,9 +1250,10 @@
             this.selectBlockSpecial.Items.AddRange(new object[] {
             "Yes",
             "No"});
-            this.selectBlockSpecial.Location = new System.Drawing.Point(198, 134);
+            this.selectBlockSpecial.Location = new System.Drawing.Point(264, 165);
+            this.selectBlockSpecial.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.selectBlockSpecial.Name = "selectBlockSpecial";
-            this.selectBlockSpecial.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockSpecial.Size = new System.Drawing.Size(160, 24);
             this.selectBlockSpecial.TabIndex = 17;
             this.selectBlockSpecial.Text = "No";
             // 
@@ -1166,56 +1263,62 @@
             this.selectBlockKills.Items.AddRange(new object[] {
             "Yes",
             "No"});
-            this.selectBlockKills.Location = new System.Drawing.Point(199, 107);
+            this.selectBlockKills.Location = new System.Drawing.Point(265, 132);
+            this.selectBlockKills.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.selectBlockKills.Name = "selectBlockKills";
-            this.selectBlockKills.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockKills.Size = new System.Drawing.Size(160, 24);
             this.selectBlockKills.TabIndex = 16;
             this.selectBlockKills.Text = "No";
             // 
             // picBlockColor
             // 
-            this.picBlockColor.Location = new System.Drawing.Point(199, 81);
+            this.picBlockColor.Location = new System.Drawing.Point(265, 100);
+            this.picBlockColor.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.picBlockColor.Name = "picBlockColor";
-            this.picBlockColor.Size = new System.Drawing.Size(20, 20);
+            this.picBlockColor.Size = new System.Drawing.Size(27, 25);
             this.picBlockColor.TabIndex = 15;
             this.picBlockColor.TabStop = false;
             // 
             // numBlockCId
             // 
-            this.numBlockCId.Location = new System.Drawing.Point(199, 55);
+            this.numBlockCId.Location = new System.Drawing.Point(265, 68);
+            this.numBlockCId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numBlockCId.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numBlockCId.Name = "numBlockCId";
-            this.numBlockCId.Size = new System.Drawing.Size(120, 20);
+            this.numBlockCId.Size = new System.Drawing.Size(160, 22);
             this.numBlockCId.TabIndex = 14;
             // 
             // txtBlockName
             // 
-            this.txtBlockName.Location = new System.Drawing.Point(199, 29);
+            this.txtBlockName.Location = new System.Drawing.Point(265, 36);
+            this.txtBlockName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtBlockName.Name = "txtBlockName";
-            this.txtBlockName.Size = new System.Drawing.Size(120, 20);
+            this.txtBlockName.Size = new System.Drawing.Size(159, 22);
             this.txtBlockName.TabIndex = 13;
             // 
             // numBlockId
             // 
-            this.numBlockId.Location = new System.Drawing.Point(199, 3);
+            this.numBlockId.Location = new System.Drawing.Point(265, 4);
+            this.numBlockId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numBlockId.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numBlockId.Name = "numBlockId";
-            this.numBlockId.Size = new System.Drawing.Size(120, 20);
+            this.numBlockId.Size = new System.Drawing.Size(160, 22);
             this.numBlockId.TabIndex = 12;
             // 
             // btnSaveBlocks
             // 
-            this.btnSaveBlocks.Location = new System.Drawing.Point(325, 244);
+            this.btnSaveBlocks.Location = new System.Drawing.Point(433, 300);
+            this.btnSaveBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSaveBlocks.Name = "btnSaveBlocks";
-            this.btnSaveBlocks.Size = new System.Drawing.Size(85, 23);
+            this.btnSaveBlocks.Size = new System.Drawing.Size(113, 28);
             this.btnSaveBlocks.TabIndex = 11;
             this.btnSaveBlocks.Text = "Save Blocks";
             this.btnSaveBlocks.UseVisualStyleBackColor = true;
@@ -1223,9 +1326,10 @@
             // 
             // btnDeleteBlock
             // 
-            this.btnDeleteBlock.Location = new System.Drawing.Point(234, 244);
+            this.btnDeleteBlock.Location = new System.Drawing.Point(312, 300);
+            this.btnDeleteBlock.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnDeleteBlock.Name = "btnDeleteBlock";
-            this.btnDeleteBlock.Size = new System.Drawing.Size(85, 23);
+            this.btnDeleteBlock.Size = new System.Drawing.Size(113, 28);
             this.btnDeleteBlock.TabIndex = 10;
             this.btnDeleteBlock.Text = "Delete Block";
             this.btnDeleteBlock.UseVisualStyleBackColor = true;
@@ -1233,9 +1337,10 @@
             // 
             // btnCreateBlock
             // 
-            this.btnCreateBlock.Location = new System.Drawing.Point(131, 244);
+            this.btnCreateBlock.Location = new System.Drawing.Point(175, 300);
+            this.btnCreateBlock.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnCreateBlock.Name = "btnCreateBlock";
-            this.btnCreateBlock.Size = new System.Drawing.Size(96, 23);
+            this.btnCreateBlock.Size = new System.Drawing.Size(128, 28);
             this.btnCreateBlock.TabIndex = 9;
             this.btnCreateBlock.Text = "Create Block";
             this.btnCreateBlock.UseVisualStyleBackColor = true;
@@ -1255,9 +1360,11 @@
             this.groupBox4.Controls.Add(this.lblBlockPhysRandom);
             this.groupBox4.Controls.Add(this.lblBlockPhysDelay);
             this.groupBox4.Controls.Add(this.lblBlockPhysics);
-            this.groupBox4.Location = new System.Drawing.Point(648, 5);
+            this.groupBox4.Location = new System.Drawing.Point(864, 6);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(325, 177);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox4.Size = new System.Drawing.Size(433, 218);
             this.groupBox4.TabIndex = 8;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Physics";
@@ -1268,18 +1375,20 @@
             this.selectPhysMapLoad.Items.AddRange(new object[] {
             "Yes",
             "No"});
-            this.selectPhysMapLoad.Location = new System.Drawing.Point(122, 145);
+            this.selectPhysMapLoad.Location = new System.Drawing.Point(163, 178);
+            this.selectPhysMapLoad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.selectPhysMapLoad.Name = "selectPhysMapLoad";
-            this.selectPhysMapLoad.Size = new System.Drawing.Size(121, 21);
+            this.selectPhysMapLoad.Size = new System.Drawing.Size(160, 24);
             this.selectPhysMapLoad.TabIndex = 23;
             this.selectPhysMapLoad.Text = "No";
             this.selectPhysMapLoad.Visible = false;
             // 
             // txtPhysScript
             // 
-            this.txtPhysScript.Location = new System.Drawing.Point(122, 119);
+            this.txtPhysScript.Location = new System.Drawing.Point(163, 146);
+            this.txtPhysScript.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPhysScript.Name = "txtPhysScript";
-            this.txtPhysScript.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysScript.Size = new System.Drawing.Size(160, 22);
             this.txtPhysScript.TabIndex = 22;
             // 
             // selectRepPhysics
@@ -1288,24 +1397,27 @@
             this.selectRepPhysics.Items.AddRange(new object[] {
             "Yes",
             "No"});
-            this.selectRepPhysics.Location = new System.Drawing.Point(122, 92);
+            this.selectRepPhysics.Location = new System.Drawing.Point(163, 113);
+            this.selectRepPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.selectRepPhysics.Name = "selectRepPhysics";
-            this.selectRepPhysics.Size = new System.Drawing.Size(121, 21);
+            this.selectRepPhysics.Size = new System.Drawing.Size(160, 24);
             this.selectRepPhysics.TabIndex = 21;
             this.selectRepPhysics.Text = "No";
             // 
             // txtPhysRandom
             // 
-            this.txtPhysRandom.Location = new System.Drawing.Point(122, 66);
+            this.txtPhysRandom.Location = new System.Drawing.Point(163, 81);
+            this.txtPhysRandom.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPhysRandom.Name = "txtPhysRandom";
-            this.txtPhysRandom.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysRandom.Size = new System.Drawing.Size(160, 22);
             this.txtPhysRandom.TabIndex = 20;
             // 
             // txtPhysDelay
             // 
-            this.txtPhysDelay.Location = new System.Drawing.Point(122, 40);
+            this.txtPhysDelay.Location = new System.Drawing.Point(163, 49);
+            this.txtPhysDelay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPhysDelay.Name = "txtPhysDelay";
-            this.txtPhysDelay.Size = new System.Drawing.Size(121, 20);
+            this.txtPhysDelay.Size = new System.Drawing.Size(160, 22);
             this.txtPhysDelay.TabIndex = 19;
             // 
             // selectBlockPhysics
@@ -1314,18 +1426,20 @@
             this.selectBlockPhysics.Items.AddRange(new object[] {
             "Yes",
             "No"});
-            this.selectBlockPhysics.Location = new System.Drawing.Point(122, 13);
+            this.selectBlockPhysics.Location = new System.Drawing.Point(163, 16);
+            this.selectBlockPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.selectBlockPhysics.Name = "selectBlockPhysics";
-            this.selectBlockPhysics.Size = new System.Drawing.Size(121, 21);
+            this.selectBlockPhysics.Size = new System.Drawing.Size(160, 24);
             this.selectBlockPhysics.TabIndex = 18;
             this.selectBlockPhysics.Text = "No";
             // 
             // lblBlockPhysMapload
             // 
             this.lblBlockPhysMapload.AutoSize = true;
-            this.lblBlockPhysMapload.Location = new System.Drawing.Point(9, 148);
+            this.lblBlockPhysMapload.Location = new System.Drawing.Point(12, 182);
+            this.lblBlockPhysMapload.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockPhysMapload.Name = "lblBlockPhysMapload";
-            this.lblBlockPhysMapload.Size = new System.Drawing.Size(107, 13);
+            this.lblBlockPhysMapload.Size = new System.Drawing.Size(142, 17);
             this.lblBlockPhysMapload.TabIndex = 13;
             this.lblBlockPhysMapload.Text = "Physics on map load:";
             this.lblBlockPhysMapload.Visible = false;
@@ -1333,125 +1447,140 @@
             // lblBlockPhysScript
             // 
             this.lblBlockPhysScript.AutoSize = true;
-            this.lblBlockPhysScript.Location = new System.Drawing.Point(40, 122);
+            this.lblBlockPhysScript.Location = new System.Drawing.Point(53, 150);
+            this.lblBlockPhysScript.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockPhysScript.Name = "lblBlockPhysScript";
-            this.lblBlockPhysScript.Size = new System.Drawing.Size(76, 13);
+            this.lblBlockPhysScript.Size = new System.Drawing.Size(100, 17);
             this.lblBlockPhysScript.TabIndex = 12;
             this.lblBlockPhysScript.Text = "Physics Script:";
             // 
             // lblBlockRepPhys
             // 
             this.lblBlockRepPhys.AutoSize = true;
-            this.lblBlockRepPhys.Location = new System.Drawing.Point(32, 95);
+            this.lblBlockRepPhys.Location = new System.Drawing.Point(43, 117);
+            this.lblBlockRepPhys.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockRepPhys.Name = "lblBlockRepPhys";
-            this.lblBlockRepPhys.Size = new System.Drawing.Size(84, 13);
+            this.lblBlockRepPhys.Size = new System.Drawing.Size(110, 17);
             this.lblBlockRepPhys.TabIndex = 11;
             this.lblBlockRepPhys.Text = "Repeat Physics:";
             // 
             // lblBlockPhysRandom
             // 
             this.lblBlockPhysRandom.AutoSize = true;
-            this.lblBlockPhysRandom.Location = new System.Drawing.Point(27, 69);
+            this.lblBlockPhysRandom.Location = new System.Drawing.Point(36, 85);
+            this.lblBlockPhysRandom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockPhysRandom.Name = "lblBlockPhysRandom";
-            this.lblBlockPhysRandom.Size = new System.Drawing.Size(89, 13);
+            this.lblBlockPhysRandom.Size = new System.Drawing.Size(117, 17);
             this.lblBlockPhysRandom.TabIndex = 10;
             this.lblBlockPhysRandom.Text = "Physics Random:";
             // 
             // lblBlockPhysDelay
             // 
             this.lblBlockPhysDelay.AutoSize = true;
-            this.lblBlockPhysDelay.Location = new System.Drawing.Point(40, 43);
+            this.lblBlockPhysDelay.Location = new System.Drawing.Point(53, 53);
+            this.lblBlockPhysDelay.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockPhysDelay.Name = "lblBlockPhysDelay";
-            this.lblBlockPhysDelay.Size = new System.Drawing.Size(76, 13);
+            this.lblBlockPhysDelay.Size = new System.Drawing.Size(100, 17);
             this.lblBlockPhysDelay.TabIndex = 9;
             this.lblBlockPhysDelay.Text = "Physics Delay:";
             // 
             // lblBlockPhysics
             // 
             this.lblBlockPhysics.AutoSize = true;
-            this.lblBlockPhysics.Location = new System.Drawing.Point(70, 16);
+            this.lblBlockPhysics.Location = new System.Drawing.Point(93, 20);
+            this.lblBlockPhysics.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockPhysics.Name = "lblBlockPhysics";
-            this.lblBlockPhysics.Size = new System.Drawing.Size(46, 13);
+            this.lblBlockPhysics.Size = new System.Drawing.Size(60, 17);
             this.lblBlockPhysics.TabIndex = 8;
             this.lblBlockPhysics.Text = "Physics:";
             // 
             // lblBlockSpecial
             // 
             this.lblBlockSpecial.AutoSize = true;
-            this.lblBlockSpecial.Location = new System.Drawing.Point(147, 137);
+            this.lblBlockSpecial.Location = new System.Drawing.Point(196, 169);
+            this.lblBlockSpecial.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockSpecial.Name = "lblBlockSpecial";
-            this.lblBlockSpecial.Size = new System.Drawing.Size(45, 13);
+            this.lblBlockSpecial.Size = new System.Drawing.Size(58, 17);
             this.lblBlockSpecial.TabIndex = 6;
             this.lblBlockSpecial.Text = "Special:";
             // 
             // lblBlockKills
             // 
             this.lblBlockKills.AutoSize = true;
-            this.lblBlockKills.Location = new System.Drawing.Point(165, 110);
+            this.lblBlockKills.Location = new System.Drawing.Point(220, 135);
+            this.lblBlockKills.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockKills.Name = "lblBlockKills";
-            this.lblBlockKills.Size = new System.Drawing.Size(28, 13);
+            this.lblBlockKills.Size = new System.Drawing.Size(37, 17);
             this.lblBlockKills.TabIndex = 5;
             this.lblBlockKills.Text = "Kills:";
             // 
             // lblBlockColor
             // 
             this.lblBlockColor.AutoSize = true;
-            this.lblBlockColor.Location = new System.Drawing.Point(159, 86);
+            this.lblBlockColor.Location = new System.Drawing.Point(212, 106);
+            this.lblBlockColor.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockColor.Name = "lblBlockColor";
-            this.lblBlockColor.Size = new System.Drawing.Size(34, 13);
+            this.lblBlockColor.Size = new System.Drawing.Size(45, 17);
             this.lblBlockColor.TabIndex = 4;
             this.lblBlockColor.Text = "Color:";
             // 
             // lblBlockCId
             // 
             this.lblBlockCId.AutoSize = true;
-            this.lblBlockCId.Location = new System.Drawing.Point(128, 57);
+            this.lblBlockCId.Location = new System.Drawing.Point(171, 70);
+            this.lblBlockCId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockCId.Name = "lblBlockCId";
-            this.lblBlockCId.Size = new System.Drawing.Size(65, 13);
+            this.lblBlockCId.Size = new System.Drawing.Size(84, 17);
             this.lblBlockCId.TabIndex = 3;
             this.lblBlockCId.Text = "ID on Client:";
             // 
             // lblBlockName
             // 
             this.lblBlockName.AutoSize = true;
-            this.lblBlockName.Location = new System.Drawing.Point(155, 32);
+            this.lblBlockName.Location = new System.Drawing.Point(207, 39);
+            this.lblBlockName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockName.Name = "lblBlockName";
-            this.lblBlockName.Size = new System.Drawing.Size(38, 13);
+            this.lblBlockName.Size = new System.Drawing.Size(49, 17);
             this.lblBlockName.TabIndex = 2;
             this.lblBlockName.Text = "Name:";
             // 
             // lblBlockId
             // 
             this.lblBlockId.AutoSize = true;
-            this.lblBlockId.Location = new System.Drawing.Point(174, 5);
+            this.lblBlockId.Location = new System.Drawing.Point(232, 6);
+            this.lblBlockId.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblBlockId.Name = "lblBlockId";
-            this.lblBlockId.Size = new System.Drawing.Size(19, 13);
+            this.lblBlockId.Size = new System.Drawing.Size(23, 17);
             this.lblBlockId.TabIndex = 1;
             this.lblBlockId.Text = "Id:";
             // 
             // lstBlocks
             // 
             this.lstBlocks.FormattingEnabled = true;
-            this.lstBlocks.Location = new System.Drawing.Point(3, 3);
+            this.lstBlocks.ItemHeight = 16;
+            this.lstBlocks.Location = new System.Drawing.Point(4, 4);
+            this.lstBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lstBlocks.Name = "lstBlocks";
-            this.lstBlocks.Size = new System.Drawing.Size(120, 264);
+            this.lstBlocks.Size = new System.Drawing.Size(159, 324);
             this.lstBlocks.TabIndex = 0;
             this.lstBlocks.SelectedIndexChanged += new System.EventHandler(this.lstBlocks_SelectedIndexChanged);
             // 
             // ranksTab
             // 
-            this.ranksTab.Location = new System.Drawing.Point(4, 22);
+            this.ranksTab.Location = new System.Drawing.Point(4, 25);
+            this.ranksTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ranksTab.Name = "ranksTab";
-            this.ranksTab.Size = new System.Drawing.Size(981, 278);
+            this.ranksTab.Size = new System.Drawing.Size(1311, 345);
             this.ranksTab.TabIndex = 5;
             this.ranksTab.Text = "Ranks";
             this.ranksTab.UseVisualStyleBackColor = true;
             // 
             // dbTab
             // 
-            this.dbTab.Location = new System.Drawing.Point(4, 22);
+            this.dbTab.Location = new System.Drawing.Point(4, 25);
+            this.dbTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.dbTab.Name = "dbTab";
-            this.dbTab.Size = new System.Drawing.Size(981, 278);
+            this.dbTab.Size = new System.Drawing.Size(1311, 345);
             this.dbTab.TabIndex = 6;
             this.dbTab.Text = "Database";
             this.dbTab.UseVisualStyleBackColor = true;
@@ -1463,7 +1592,8 @@
             this.gUIToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(989, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1319, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1473,20 +1603,20 @@
             this.startServerToolStripMenuItem,
             this.stopServerToolStripMenuItem});
             this.controlToolStripMenuItem.Name = "controlToolStripMenuItem";
-            this.controlToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
+            this.controlToolStripMenuItem.Size = new System.Drawing.Size(70, 24);
             this.controlToolStripMenuItem.Text = "&Control";
             // 
             // startServerToolStripMenuItem
             // 
             this.startServerToolStripMenuItem.Name = "startServerToolStripMenuItem";
-            this.startServerToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.startServerToolStripMenuItem.Size = new System.Drawing.Size(154, 24);
             this.startServerToolStripMenuItem.Text = "&Start Server";
             this.startServerToolStripMenuItem.Click += new System.EventHandler(this.startServerToolStripMenuItem_Click);
             // 
             // stopServerToolStripMenuItem
             // 
             this.stopServerToolStripMenuItem.Name = "stopServerToolStripMenuItem";
-            this.stopServerToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.stopServerToolStripMenuItem.Size = new System.Drawing.Size(154, 24);
             this.stopServerToolStripMenuItem.Text = "S&top Server";
             this.stopServerToolStripMenuItem.Click += new System.EventHandler(this.stopServerToolStripMenuItem_Click);
             // 
@@ -1496,32 +1626,33 @@
             this.sendToTrayToolStripMenuItem,
             this.miniModeToolStripMenuItem});
             this.gUIToolStripMenuItem.Name = "gUIToolStripMenuItem";
-            this.gUIToolStripMenuItem.Size = new System.Drawing.Size(38, 20);
+            this.gUIToolStripMenuItem.Size = new System.Drawing.Size(45, 24);
             this.gUIToolStripMenuItem.Text = "&GUI";
             // 
             // sendToTrayToolStripMenuItem
             // 
             this.sendToTrayToolStripMenuItem.Name = "sendToTrayToolStripMenuItem";
-            this.sendToTrayToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.sendToTrayToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
             this.sendToTrayToolStripMenuItem.Text = "&Send to Tray";
             // 
             // miniModeToolStripMenuItem
             // 
             this.miniModeToolStripMenuItem.Name = "miniModeToolStripMenuItem";
-            this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
             this.miniModeToolStripMenuItem.Text = "&Mini mode";
             // 
             // MainForm
             // 
             this.AcceptButton = this.btnSendChat;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(989, 328);
+            this.ClientSize = new System.Drawing.Size(1319, 404);
             this.Controls.Add(this.mainTabs);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MainForm";
-            this.Text = "ServerCore";
+            this.Text = "Hypercube";
             this.Load += new System.EventHandler(this.mainForm_Load);
             this.mainTabs.ResumeLayout(false);
             this.consoleTab.ResumeLayout(false);

@@ -39,6 +39,7 @@ namespace Hypercube {
         public NetworkHandler() {
             Ns = ServerCore.Settings.RegisterFile("Network.txt", true, LoadSettings);
             ServerCore.Settings.ReadSettings(Ns);
+            CreateLists();
         }
 
         /// <summary>

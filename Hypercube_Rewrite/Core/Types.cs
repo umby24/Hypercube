@@ -24,6 +24,18 @@ namespace Hypercube.Core {
         public Block NewBlock;
     }
 
+    public struct BlockQueueItem {
+        public short PlayerId;
+        public short X;
+        public short Y;
+        public short Z;
+        public HypercubeMap Map;
+        public Block Last;
+        public Block Material;
+        public short Priority;
+        public bool Undo;
+        public bool Physics;
+    }
     public struct Vector3S {
         public short X;
         public short Y;

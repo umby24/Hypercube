@@ -246,6 +246,7 @@ namespace Hypercube.Command {
         static void RedoHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 client.Redo(30000);
+                Chat.SendClientChat(client, "§SDone.");
                 return;
             }
 
@@ -253,6 +254,7 @@ namespace Hypercube.Command {
             int.TryParse(args[0], out myInt);
 
             client.Redo(myInt);
+            Chat.SendClientChat(client, "§SDone.");
         }
         #endregion
         #region Undo
@@ -279,6 +281,7 @@ namespace Hypercube.Command {
         static void UndoHandler(NetworkClient client, string[] args, string text1, string text2) {
             if (args.Length == 0) {
                 client.Undo(30000);
+                Chat.SendClientChat(client, "§SDone.");
                 return;
             }
 
@@ -286,6 +289,7 @@ namespace Hypercube.Command {
             int.TryParse(args[0], out myInt);
 
             client.Undo(myInt);
+            Chat.SendClientChat(client, "§SDone.");
         }
         #endregion
     }

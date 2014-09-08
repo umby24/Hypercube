@@ -28,20 +28,21 @@ namespace Hypercube.Map {
         public NbtCompound Read(NbtCompound metadata) {
             var hcData = metadata.Get<NbtCompound>("Hypercube");
 
-            if (hcData != null) {
-                BuildPerms = hcData["BuildPerms"].StringValue;
-                ShowPerms = hcData["ShowPerms"].StringValue;
-                JoinPerms = hcData["JoinPerms"].StringValue;
-                Physics = Convert.ToBoolean(hcData["Physics"].ByteValue);
-                Building = Convert.ToBoolean(hcData["Building"].ByteValue);
-                History = Convert.ToBoolean(hcData["History"].ByteValue);
-                SaveInterval = hcData["SaveInterval"].IntValue;
+            if (hcData == null) 
+                return metadata;
 
-                if (hcData["MOTD"] != null)
-                    Motd = hcData["MOTD"].StringValue;
+            BuildPerms = hcData["BuildPerms"].StringValue;
+            ShowPerms = hcData["ShowPerms"].StringValue;
+            JoinPerms = hcData["JoinPerms"].StringValue;
+            Physics = Convert.ToBoolean(hcData["Physics"].ByteValue);
+            Building = Convert.ToBoolean(hcData["Building"].ByteValue);
+            History = Convert.ToBoolean(hcData["History"].ByteValue);
+            SaveInterval = hcData["SaveInterval"].IntValue;
 
-                metadata.Remove(hcData);
-            }
+            if (hcData["MOTD"] != null)
+                Motd = hcData["MOTD"].StringValue;
+
+            metadata.Remove(hcData);
 
             return metadata;
         }
@@ -80,6 +81,7 @@ namespace Hypercube.Map {
         public SortedDictionary<string, Permission> Joinperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public SortedDictionary<string, Permission> Buildperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public SortedDictionary<string, Permission> Showperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
+        public static ConcurrentQueue<BlockQueueItem> ActionQueue = new ConcurrentQueue<BlockQueueItem>();  
 
         public Dictionary<int, Entity> Entities;
         public Dictionary<short, NetworkClient> Clients;
@@ -256,6 +258,23 @@ namespace Hypercube.Map {
                     ServerCore.Logger.Log("Maps", e.StackTrace, LogType.Debug);
                     GC.Collect();
                 }
+            }
+        }
+
+        public static void HandleActionQueue() {
+            var startTime = DateTime.UtcNow;
+
+            while (true) {
+                BlockQueueItem item;
+
+                if (!ActionQueue.TryDequeue(out item))
+                    break;
+
+                item.Map.BlockChange(item.PlayerId, item.X, item.Y, item.Z, item.Material, item.Last, item.Undo, item.Physics, true,
+                    item.Priority);
+
+                if ((DateTime.UtcNow - startTime).Milliseconds > 50)
+                    break;
             }
         }
         #region Map Functions
@@ -1030,10 +1049,23 @@ namespace Hypercube.Map {
                         if (replaceMaterial.Id != 99 && replaceMaterial != GetBlock(ix, iy, iz)) 
                             continue;
 
+                        var item = new BlockQueueItem {
+                            Last = GetBlock(ix, iy, iz),
+                            Map = this,
+                            Material = material,
+                            Physics = physics,
+                            PlayerId = client.CS.Id,
+                            Priority = priority,
+                            Undo = undo,
+                            X = ix,
+                            Y = iy,
+                            Z = iz,
+                        };
+
                         if (ix == x || ix == x2 || iy == y || iy == y2 || iz == z || iz == z2)
-                            BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                            ActionQueue.Enqueue(item);
                         else if (hollow == false)
-                            BlockChange(client.CS.Id, ix, iy, iz, material, GetBlock(ix, iy, iz), undo, physics, true, priority);
+                            ActionQueue.Enqueue(item);
                     }
                 }
             }
@@ -1060,8 +1092,22 @@ namespace Hypercube.Map {
             var my = dy / (float)blocks;
             var mz = dz / (float)blocks;
 
-            for (var i = 0; i < blocks; i++)
-                BlockChange(client.CS.Id, (short)(x + mx * i), (short)(y + my * i), (short)(z + mz * i), material, GetBlock((short)(x + mx * i), (short)(y + my * i), (short)(z + mz * i)), undo, physics, true, priority);
+            for (var i = 0; i < blocks; i++) {
+                var item = new BlockQueueItem {
+                    Last = GetBlock((short)(x + mx * i), (short)(y + my * i), (short)(z + mz * i)),
+                    Map = this,
+                    Material = material,
+                    Physics = physics,
+                    PlayerId = client.CS.Id,
+                    Priority = priority,
+                    Undo = undo,
+                    X = (short)(x + mx * i),
+                    Y = (short)(y + my * i),
+                    Z = (short)(z + mz * i),
+                };
+
+                ActionQueue.Enqueue(item);
+            }
         }
 
         public void BuildSphere(NetworkClient client, short x, short y, short z, float radius, Block material, Block replaceMaterial, bool hollow, short priority, bool undo, bool physics) {

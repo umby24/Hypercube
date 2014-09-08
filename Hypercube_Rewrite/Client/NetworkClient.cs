@@ -202,7 +202,7 @@ namespace Hypercube.Client {
         /// </summary>
         /// <param name="reason">The reason for the player being kicked.</param>
         public void KickNow(string reason) {
-            ServerCore.Logger.Log("Client", "Played kicked: " + reason);
+            ServerCore.Logger.Log("Client", "Played kicked: " + reason, LogType.Info);
             var dc = new Disconnect { Reason = reason };
             dc.Write(this);
 
@@ -308,9 +308,22 @@ namespace Hypercube.Client {
             if (CS.CurrentIndex == -1)
                 CS.CurrentIndex = 0;
 
-            for (var i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++)
-                CS.CurrentMap.BlockChange(CS.Id, CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z, CS.UndoObjects[i].NewBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z), false, false, true, 100);
+            for (var i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++) {
+                var item = new BlockQueueItem {
+                    Last = CS.CurrentMap.GetBlock(CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z),
+                    Map = CS.CurrentMap,
+                    Material = CS.UndoObjects[i].NewBlock,
+                    Physics = false,
+                    PlayerId = CS.Id,
+                    Priority = 100,
+                    Undo = false,
+                    X = CS.UndoObjects[i].X,
+                    Y = CS.UndoObjects[i].Y,
+                    Z = CS.UndoObjects[i].Z,
+                };
 
+                HypercubeMap.ActionQueue.Enqueue(item);
+            }
             CS.CurrentIndex += (steps - 1);
         }
 
@@ -328,8 +341,22 @@ namespace Hypercube.Client {
             if (CS.CurrentIndex == -1)
                 return;
 
-            for (var i = CS.CurrentIndex; i > (CS.CurrentIndex - steps); i--)
-                CS.CurrentMap.BlockChange(CS.Id, CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z, CS.UndoObjects[i].OldBlock, CS.CurrentMap.GetBlock(CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z), false, false, true, 100);
+            for (var i = CS.CurrentIndex; i > (CS.CurrentIndex - steps); i--) {
+                var item = new BlockQueueItem {
+                    Last = CS.CurrentMap.GetBlock(CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z),
+                    Map = CS.CurrentMap,
+                    Material = CS.UndoObjects[i].OldBlock,
+                    Physics = false,
+                    PlayerId = CS.Id,
+                    Priority = 100,
+                    Undo = false,
+                    X = CS.UndoObjects[i].X,
+                    Y = CS.UndoObjects[i].Y,
+                    Z = CS.UndoObjects[i].Z,
+                };
+
+                HypercubeMap.ActionQueue.Enqueue(item);
+            }
 
             CS.CurrentIndex -= (steps - 1);
         }
