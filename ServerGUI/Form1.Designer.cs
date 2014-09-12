@@ -152,6 +152,7 @@
             this.gUIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendToTrayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miniModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnSaveSettings = new System.Windows.Forms.Button();
             this.mainTabs.SuspendLayout();
             this.consoleTab.SuspendLayout();
             this.consoletabs.SuspendLayout();
@@ -192,7 +193,7 @@
             this.mainTabs.Controls.Add(this.dbTab);
             this.mainTabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainTabs.Location = new System.Drawing.Point(0, 28);
-            this.mainTabs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.mainTabs.Margin = new System.Windows.Forms.Padding(4);
             this.mainTabs.Name = "mainTabs";
             this.mainTabs.SelectedIndex = 0;
             this.mainTabs.Size = new System.Drawing.Size(1319, 376);
@@ -203,9 +204,9 @@
             // 
             this.consoleTab.Controls.Add(this.consoletabs);
             this.consoleTab.Location = new System.Drawing.Point(4, 25);
-            this.consoleTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.consoleTab.Margin = new System.Windows.Forms.Padding(4);
             this.consoleTab.Name = "consoleTab";
-            this.consoleTab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.consoleTab.Padding = new System.Windows.Forms.Padding(4);
             this.consoleTab.Size = new System.Drawing.Size(1311, 347);
             this.consoleTab.TabIndex = 0;
             this.consoleTab.Text = "Console";
@@ -221,7 +222,7 @@
             this.consoletabs.Controls.Add(this.debugTab);
             this.consoletabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.consoletabs.Location = new System.Drawing.Point(4, 4);
-            this.consoletabs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.consoletabs.Margin = new System.Windows.Forms.Padding(4);
             this.consoletabs.Name = "consoletabs";
             this.consoletabs.SelectedIndex = 0;
             this.consoletabs.Size = new System.Drawing.Size(1303, 339);
@@ -231,9 +232,9 @@
             // 
             this.Alltab.Controls.Add(this.txtAllConsole);
             this.Alltab.Location = new System.Drawing.Point(4, 25);
-            this.Alltab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Alltab.Margin = new System.Windows.Forms.Padding(4);
             this.Alltab.Name = "Alltab";
-            this.Alltab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Alltab.Padding = new System.Windows.Forms.Padding(4);
             this.Alltab.Size = new System.Drawing.Size(1295, 310);
             this.Alltab.TabIndex = 0;
             this.Alltab.Text = "All";
@@ -243,7 +244,7 @@
             // 
             this.txtAllConsole.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtAllConsole.Location = new System.Drawing.Point(4, 4);
-            this.txtAllConsole.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtAllConsole.Margin = new System.Windows.Forms.Padding(4);
             this.txtAllConsole.Multiline = true;
             this.txtAllConsole.Name = "txtAllConsole";
             this.txtAllConsole.ReadOnly = true;
@@ -255,10 +256,10 @@
             // 
             this.infotab.Controls.Add(this.txtInfobox);
             this.infotab.Location = new System.Drawing.Point(4, 25);
-            this.infotab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.infotab.Margin = new System.Windows.Forms.Padding(4);
             this.infotab.Name = "infotab";
-            this.infotab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.infotab.Size = new System.Drawing.Size(1292, 306);
+            this.infotab.Padding = new System.Windows.Forms.Padding(4);
+            this.infotab.Size = new System.Drawing.Size(1295, 310);
             this.infotab.TabIndex = 1;
             this.infotab.Text = "Info";
             this.infotab.UseVisualStyleBackColor = true;
@@ -267,10 +268,10 @@
             // 
             this.txtInfobox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtInfobox.Location = new System.Drawing.Point(4, 4);
-            this.txtInfobox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtInfobox.Margin = new System.Windows.Forms.Padding(4);
             this.txtInfobox.Name = "txtInfobox";
             this.txtInfobox.ReadOnly = true;
-            this.txtInfobox.Size = new System.Drawing.Size(1284, 298);
+            this.txtInfobox.Size = new System.Drawing.Size(1287, 302);
             this.txtInfobox.TabIndex = 0;
             this.txtInfobox.Text = "";
             // 
@@ -280,9 +281,9 @@
             this.chatTab.Controls.Add(this.btnSendChat);
             this.chatTab.Controls.Add(this.txtChat);
             this.chatTab.Location = new System.Drawing.Point(4, 25);
-            this.chatTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chatTab.Margin = new System.Windows.Forms.Padding(4);
             this.chatTab.Name = "chatTab";
-            this.chatTab.Size = new System.Drawing.Size(1292, 306);
+            this.chatTab.Size = new System.Drawing.Size(1295, 310);
             this.chatTab.TabIndex = 2;
             this.chatTab.Text = "Chat";
             this.chatTab.UseVisualStyleBackColor = true;
@@ -292,40 +293,41 @@
             this.txtChatbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtChatbox.Location = new System.Drawing.Point(0, 0);
-            this.txtChatbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtChatbox.Margin = new System.Windows.Forms.Padding(4);
             this.txtChatbox.Name = "txtChatbox";
             this.txtChatbox.ReadOnly = true;
-            this.txtChatbox.Size = new System.Drawing.Size(1284, 262);
+            this.txtChatbox.Size = new System.Drawing.Size(1287, 262);
             this.txtChatbox.TabIndex = 2;
             this.txtChatbox.Text = "";
             // 
             // btnSendChat
             // 
             this.btnSendChat.Location = new System.Drawing.Point(1177, 271);
-            this.btnSendChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnSendChat.Margin = new System.Windows.Forms.Padding(4);
             this.btnSendChat.Name = "btnSendChat";
             this.btnSendChat.Size = new System.Drawing.Size(100, 28);
             this.btnSendChat.TabIndex = 1;
             this.btnSendChat.Text = "Send";
             this.btnSendChat.UseVisualStyleBackColor = true;
+            this.btnSendChat.Click += new System.EventHandler(this.btnSendChat_Click);
             // 
             // txtChat
             // 
             this.txtChat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtChat.Location = new System.Drawing.Point(4, 271);
-            this.txtChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtChat.Location = new System.Drawing.Point(4, 275);
+            this.txtChat.Margin = new System.Windows.Forms.Padding(4);
             this.txtChat.Name = "txtChat";
-            this.txtChat.Size = new System.Drawing.Size(1164, 22);
+            this.txtChat.Size = new System.Drawing.Size(1167, 22);
             this.txtChat.TabIndex = 0;
             // 
             // cTab
             // 
             this.cTab.Controls.Add(this.txtCommandbox);
             this.cTab.Location = new System.Drawing.Point(4, 25);
-            this.cTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cTab.Margin = new System.Windows.Forms.Padding(4);
             this.cTab.Name = "cTab";
-            this.cTab.Size = new System.Drawing.Size(1292, 306);
+            this.cTab.Size = new System.Drawing.Size(1295, 310);
             this.cTab.TabIndex = 3;
             this.cTab.Text = "Commands";
             this.cTab.UseVisualStyleBackColor = true;
@@ -334,9 +336,9 @@
             // 
             this.txtCommandbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtCommandbox.Location = new System.Drawing.Point(0, 0);
-            this.txtCommandbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtCommandbox.Margin = new System.Windows.Forms.Padding(4);
             this.txtCommandbox.Name = "txtCommandbox";
-            this.txtCommandbox.Size = new System.Drawing.Size(1292, 306);
+            this.txtCommandbox.Size = new System.Drawing.Size(1295, 310);
             this.txtCommandbox.TabIndex = 0;
             this.txtCommandbox.Text = "";
             // 
@@ -344,9 +346,9 @@
             // 
             this.ErrorsTab.Controls.Add(this.txtErrorbox);
             this.ErrorsTab.Location = new System.Drawing.Point(4, 25);
-            this.ErrorsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ErrorsTab.Margin = new System.Windows.Forms.Padding(4);
             this.ErrorsTab.Name = "ErrorsTab";
-            this.ErrorsTab.Size = new System.Drawing.Size(1292, 306);
+            this.ErrorsTab.Size = new System.Drawing.Size(1295, 310);
             this.ErrorsTab.TabIndex = 4;
             this.ErrorsTab.Text = "Errors";
             this.ErrorsTab.UseVisualStyleBackColor = true;
@@ -355,9 +357,9 @@
             // 
             this.txtErrorbox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtErrorbox.Location = new System.Drawing.Point(0, 0);
-            this.txtErrorbox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtErrorbox.Margin = new System.Windows.Forms.Padding(4);
             this.txtErrorbox.Name = "txtErrorbox";
-            this.txtErrorbox.Size = new System.Drawing.Size(1292, 306);
+            this.txtErrorbox.Size = new System.Drawing.Size(1295, 310);
             this.txtErrorbox.TabIndex = 0;
             this.txtErrorbox.Text = "";
             // 
@@ -365,9 +367,9 @@
             // 
             this.debugTab.Controls.Add(this.txtDebugBox);
             this.debugTab.Location = new System.Drawing.Point(4, 25);
-            this.debugTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.debugTab.Margin = new System.Windows.Forms.Padding(4);
             this.debugTab.Name = "debugTab";
-            this.debugTab.Size = new System.Drawing.Size(1292, 306);
+            this.debugTab.Size = new System.Drawing.Size(1295, 310);
             this.debugTab.TabIndex = 5;
             this.debugTab.Text = "Debug";
             this.debugTab.UseVisualStyleBackColor = true;
@@ -376,23 +378,24 @@
             // 
             this.txtDebugBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDebugBox.Location = new System.Drawing.Point(0, 0);
-            this.txtDebugBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtDebugBox.Margin = new System.Windows.Forms.Padding(4);
             this.txtDebugBox.Name = "txtDebugBox";
-            this.txtDebugBox.Size = new System.Drawing.Size(1292, 306);
+            this.txtDebugBox.Size = new System.Drawing.Size(1295, 310);
             this.txtDebugBox.TabIndex = 0;
             this.txtDebugBox.Text = "";
             // 
             // settingsTab
             // 
+            this.settingsTab.Controls.Add(this.btnSaveSettings);
             this.settingsTab.Controls.Add(this.btnRuleEdit);
             this.settingsTab.Controls.Add(this.grpSettingsChat);
             this.settingsTab.Controls.Add(this.grpNetwork);
             this.settingsTab.Controls.Add(this.grpSystem);
             this.settingsTab.Location = new System.Drawing.Point(4, 25);
-            this.settingsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.settingsTab.Margin = new System.Windows.Forms.Padding(4);
             this.settingsTab.Name = "settingsTab";
-            this.settingsTab.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.settingsTab.Size = new System.Drawing.Size(1311, 345);
+            this.settingsTab.Padding = new System.Windows.Forms.Padding(4);
+            this.settingsTab.Size = new System.Drawing.Size(1311, 347);
             this.settingsTab.TabIndex = 1;
             this.settingsTab.Text = "Settings";
             this.settingsTab.UseVisualStyleBackColor = true;
@@ -400,7 +403,7 @@
             // btnRuleEdit
             // 
             this.btnRuleEdit.Location = new System.Drawing.Point(596, 15);
-            this.btnRuleEdit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnRuleEdit.Margin = new System.Windows.Forms.Padding(4);
             this.btnRuleEdit.Name = "btnRuleEdit";
             this.btnRuleEdit.Size = new System.Drawing.Size(267, 28);
             this.btnRuleEdit.TabIndex = 3;
@@ -418,9 +421,9 @@
             this.grpSettingsChat.Controls.Add(this.txtChatSystem);
             this.grpSettingsChat.Controls.Add(this.txtChatError);
             this.grpSettingsChat.Location = new System.Drawing.Point(321, 151);
-            this.grpSettingsChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSettingsChat.Margin = new System.Windows.Forms.Padding(4);
             this.grpSettingsChat.Name = "grpSettingsChat";
-            this.grpSettingsChat.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSettingsChat.Padding = new System.Windows.Forms.Padding(4);
             this.grpSettingsChat.Size = new System.Drawing.Size(267, 167);
             this.grpSettingsChat.TabIndex = 2;
             this.grpSettingsChat.TabStop = false;
@@ -429,7 +432,7 @@
             // txtChatDivider
             // 
             this.txtChatDivider.Location = new System.Drawing.Point(77, 48);
-            this.txtChatDivider.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtChatDivider.Margin = new System.Windows.Forms.Padding(4);
             this.txtChatDivider.Name = "txtChatDivider";
             this.txtChatDivider.Size = new System.Drawing.Size(179, 22);
             this.txtChatDivider.TabIndex = 7;
@@ -447,7 +450,7 @@
             // txtPlayerlist
             // 
             this.txtPlayerlist.Location = new System.Drawing.Point(77, 112);
-            this.txtPlayerlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPlayerlist.Margin = new System.Windows.Forms.Padding(4);
             this.txtPlayerlist.Name = "txtPlayerlist";
             this.txtPlayerlist.Size = new System.Drawing.Size(179, 22);
             this.txtPlayerlist.TabIndex = 5;
@@ -485,7 +488,7 @@
             // txtChatSystem
             // 
             this.txtChatSystem.Location = new System.Drawing.Point(77, 80);
-            this.txtChatSystem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtChatSystem.Margin = new System.Windows.Forms.Padding(4);
             this.txtChatSystem.Name = "txtChatSystem";
             this.txtChatSystem.Size = new System.Drawing.Size(179, 22);
             this.txtChatSystem.TabIndex = 1;
@@ -493,7 +496,7 @@
             // txtChatError
             // 
             this.txtChatError.Location = new System.Drawing.Point(77, 16);
-            this.txtChatError.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtChatError.Margin = new System.Windows.Forms.Padding(4);
             this.txtChatError.Name = "txtChatError";
             this.txtChatError.Size = new System.Drawing.Size(179, 22);
             this.txtChatError.TabIndex = 0;
@@ -507,9 +510,9 @@
             this.grpNetwork.Controls.Add(this.lblMaxPlayers);
             this.grpNetwork.Controls.Add(this.lblPort);
             this.grpNetwork.Location = new System.Drawing.Point(321, 7);
-            this.grpNetwork.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpNetwork.Margin = new System.Windows.Forms.Padding(4);
             this.grpNetwork.Name = "grpNetwork";
-            this.grpNetwork.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpNetwork.Padding = new System.Windows.Forms.Padding(4);
             this.grpNetwork.Size = new System.Drawing.Size(267, 137);
             this.grpNetwork.TabIndex = 1;
             this.grpNetwork.TabStop = false;
@@ -518,7 +521,7 @@
             // numMaxPlayers
             // 
             this.numMaxPlayers.Location = new System.Drawing.Point(101, 49);
-            this.numMaxPlayers.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numMaxPlayers.Margin = new System.Windows.Forms.Padding(4);
             this.numMaxPlayers.Maximum = new decimal(new int[] {
             600,
             0,
@@ -541,7 +544,7 @@
             // numPort
             // 
             this.numPort.Location = new System.Drawing.Point(101, 17);
-            this.numPort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numPort.Margin = new System.Windows.Forms.Padding(4);
             this.numPort.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -565,7 +568,7 @@
             // 
             this.chkPub.AutoSize = true;
             this.chkPub.Location = new System.Drawing.Point(185, 110);
-            this.chkPub.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkPub.Margin = new System.Windows.Forms.Padding(4);
             this.chkPub.Name = "chkPub";
             this.chkPub.Size = new System.Drawing.Size(68, 21);
             this.chkPub.TabIndex = 3;
@@ -576,7 +579,7 @@
             // 
             this.chkVerifyNames.AutoSize = true;
             this.chkVerifyNames.Location = new System.Drawing.Point(141, 81);
-            this.chkVerifyNames.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkVerifyNames.Margin = new System.Windows.Forms.Padding(4);
             this.chkVerifyNames.Name = "chkVerifyNames";
             this.chkVerifyNames.Size = new System.Drawing.Size(114, 21);
             this.chkVerifyNames.TabIndex = 2;
@@ -620,9 +623,9 @@
             this.grpSystem.Controls.Add(this.txtSrvName);
             this.grpSystem.Controls.Add(this.lblSrvName);
             this.grpSystem.Location = new System.Drawing.Point(11, 7);
-            this.grpSystem.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSystem.Margin = new System.Windows.Forms.Padding(4);
             this.grpSystem.Name = "grpSystem";
-            this.grpSystem.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSystem.Padding = new System.Windows.Forms.Padding(4);
             this.grpSystem.Size = new System.Drawing.Size(303, 325);
             this.grpSystem.TabIndex = 0;
             this.grpSystem.TabStop = false;
@@ -641,7 +644,7 @@
             // numHistory
             // 
             this.numHistory.Location = new System.Drawing.Point(163, 287);
-            this.numHistory.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numHistory.Margin = new System.Windows.Forms.Padding(4);
             this.numHistory.Maximum = new decimal(new int[] {
             300,
             0,
@@ -674,7 +677,7 @@
             // numMaxBlocks
             // 
             this.numMaxBlocks.Location = new System.Drawing.Point(163, 255);
-            this.numMaxBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numMaxBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.numMaxBlocks.Maximum = new decimal(new int[] {
             900000,
             0,
@@ -698,7 +701,7 @@
             // 
             this.chkComArgs.AutoSize = true;
             this.chkComArgs.Location = new System.Drawing.Point(8, 226);
-            this.chkComArgs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkComArgs.Margin = new System.Windows.Forms.Padding(4);
             this.chkComArgs.Name = "chkComArgs";
             this.chkComArgs.Size = new System.Drawing.Size(200, 21);
             this.chkComArgs.TabIndex = 9;
@@ -709,7 +712,7 @@
             // 
             this.chkMaphistory.AutoSize = true;
             this.chkMaphistory.Location = new System.Drawing.Point(8, 198);
-            this.chkMaphistory.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkMaphistory.Margin = new System.Windows.Forms.Padding(4);
             this.chkMaphistory.Name = "chkMaphistory";
             this.chkMaphistory.Size = new System.Drawing.Size(166, 21);
             this.chkMaphistory.TabIndex = 8;
@@ -720,7 +723,7 @@
             // 
             this.chkLogs.AutoSize = true;
             this.chkLogs.Location = new System.Drawing.Point(123, 170);
-            this.chkLogs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkLogs.Margin = new System.Windows.Forms.Padding(4);
             this.chkLogs.Name = "chkLogs";
             this.chkLogs.Size = new System.Drawing.Size(92, 21);
             this.chkLogs.TabIndex = 7;
@@ -731,7 +734,7 @@
             // 
             this.chkRotLogs.AutoSize = true;
             this.chkRotLogs.Location = new System.Drawing.Point(8, 170);
-            this.chkRotLogs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.chkRotLogs.Margin = new System.Windows.Forms.Padding(4);
             this.chkRotLogs.Name = "chkRotLogs";
             this.chkRotLogs.Size = new System.Drawing.Size(102, 21);
             this.chkRotLogs.TabIndex = 6;
@@ -741,7 +744,7 @@
             // txtWelcomeMess
             // 
             this.txtWelcomeMess.Location = new System.Drawing.Point(8, 138);
-            this.txtWelcomeMess.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtWelcomeMess.Margin = new System.Windows.Forms.Padding(4);
             this.txtWelcomeMess.Name = "txtWelcomeMess";
             this.txtWelcomeMess.Size = new System.Drawing.Size(285, 22);
             this.txtWelcomeMess.TabIndex = 5;
@@ -759,7 +762,7 @@
             // txtSrvMotd
             // 
             this.txtSrvMotd.Location = new System.Drawing.Point(8, 87);
-            this.txtSrvMotd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtSrvMotd.Margin = new System.Windows.Forms.Padding(4);
             this.txtSrvMotd.Name = "txtSrvMotd";
             this.txtSrvMotd.Size = new System.Drawing.Size(285, 22);
             this.txtSrvMotd.TabIndex = 3;
@@ -777,7 +780,7 @@
             // txtSrvName
             // 
             this.txtSrvName.Location = new System.Drawing.Point(8, 39);
-            this.txtSrvName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtSrvName.Margin = new System.Windows.Forms.Padding(4);
             this.txtSrvName.Name = "txtSrvName";
             this.txtSrvName.Size = new System.Drawing.Size(285, 22);
             this.txtSrvName.TabIndex = 1;
@@ -810,9 +813,9 @@
             this.mapsTab.Controls.Add(this.lblMaps);
             this.mapsTab.Controls.Add(this.lstMaps);
             this.mapsTab.Location = new System.Drawing.Point(4, 25);
-            this.mapsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.mapsTab.Margin = new System.Windows.Forms.Padding(4);
             this.mapsTab.Name = "mapsTab";
-            this.mapsTab.Size = new System.Drawing.Size(1311, 345);
+            this.mapsTab.Size = new System.Drawing.Size(1311, 347);
             this.mapsTab.TabIndex = 2;
             this.mapsTab.Text = "Maps";
             this.mapsTab.UseVisualStyleBackColor = true;
@@ -850,7 +853,7 @@
             // btnMapUpdate
             // 
             this.btnMapUpdate.Location = new System.Drawing.Point(596, 17);
-            this.btnMapUpdate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapUpdate.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapUpdate.Name = "btnMapUpdate";
             this.btnMapUpdate.Size = new System.Drawing.Size(100, 28);
             this.btnMapUpdate.TabIndex = 14;
@@ -863,7 +866,7 @@
             this.lstBuildPerms.FormattingEnabled = true;
             this.lstBuildPerms.ItemHeight = 16;
             this.lstBuildPerms.Location = new System.Drawing.Point(531, 82);
-            this.lstBuildPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstBuildPerms.Margin = new System.Windows.Forms.Padding(4);
             this.lstBuildPerms.Name = "lstBuildPerms";
             this.lstBuildPerms.Size = new System.Drawing.Size(159, 244);
             this.lstBuildPerms.TabIndex = 13;
@@ -873,7 +876,7 @@
             this.lstShowPerms.FormattingEnabled = true;
             this.lstShowPerms.ItemHeight = 16;
             this.lstShowPerms.Location = new System.Drawing.Point(363, 82);
-            this.lstShowPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstShowPerms.Margin = new System.Windows.Forms.Padding(4);
             this.lstShowPerms.Name = "lstShowPerms";
             this.lstShowPerms.Size = new System.Drawing.Size(159, 244);
             this.lstShowPerms.TabIndex = 12;
@@ -883,7 +886,7 @@
             this.lstJoinPerms.FormattingEnabled = true;
             this.lstJoinPerms.ItemHeight = 16;
             this.lstJoinPerms.Location = new System.Drawing.Point(195, 82);
-            this.lstJoinPerms.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstJoinPerms.Margin = new System.Windows.Forms.Padding(4);
             this.lstJoinPerms.Name = "lstJoinPerms";
             this.lstJoinPerms.Size = new System.Drawing.Size(159, 244);
             this.lstJoinPerms.TabIndex = 11;
@@ -899,9 +902,9 @@
             this.grpMapControl.Controls.Add(this.btnMapFill);
             this.grpMapControl.Controls.Add(this.btnMapResize);
             this.grpMapControl.Location = new System.Drawing.Point(1011, 160);
-            this.grpMapControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMapControl.Margin = new System.Windows.Forms.Padding(4);
             this.grpMapControl.Name = "grpMapControl";
-            this.grpMapControl.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpMapControl.Padding = new System.Windows.Forms.Padding(4);
             this.grpMapControl.Size = new System.Drawing.Size(287, 178);
             this.grpMapControl.TabIndex = 10;
             this.grpMapControl.TabStop = false;
@@ -910,7 +913,7 @@
             // btnMapDefault
             // 
             this.btnMapDefault.Location = new System.Drawing.Point(140, 130);
-            this.btnMapDefault.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapDefault.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapDefault.Name = "btnMapDefault";
             this.btnMapDefault.Size = new System.Drawing.Size(112, 28);
             this.btnMapDefault.TabIndex = 18;
@@ -921,7 +924,7 @@
             // btnMapClearQueue
             // 
             this.btnMapClearQueue.Location = new System.Drawing.Point(140, 95);
-            this.btnMapClearQueue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapClearQueue.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapClearQueue.Name = "btnMapClearQueue";
             this.btnMapClearQueue.Size = new System.Drawing.Size(112, 28);
             this.btnMapClearQueue.TabIndex = 17;
@@ -932,7 +935,7 @@
             // btnMapResend
             // 
             this.btnMapResend.Location = new System.Drawing.Point(140, 23);
-            this.btnMapResend.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapResend.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapResend.Name = "btnMapResend";
             this.btnMapResend.Size = new System.Drawing.Size(112, 28);
             this.btnMapResend.TabIndex = 16;
@@ -943,7 +946,7 @@
             // btnMapBuilding
             // 
             this.btnMapBuilding.Location = new System.Drawing.Point(12, 95);
-            this.btnMapBuilding.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapBuilding.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapBuilding.Name = "btnMapBuilding";
             this.btnMapBuilding.Size = new System.Drawing.Size(116, 28);
             this.btnMapBuilding.TabIndex = 15;
@@ -954,7 +957,7 @@
             // btnMapHistoryOn
             // 
             this.btnMapHistoryOn.Location = new System.Drawing.Point(140, 59);
-            this.btnMapHistoryOn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapHistoryOn.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapHistoryOn.Name = "btnMapHistoryOn";
             this.btnMapHistoryOn.Size = new System.Drawing.Size(112, 28);
             this.btnMapHistoryOn.TabIndex = 14;
@@ -965,7 +968,7 @@
             // btnMapPhysics
             // 
             this.btnMapPhysics.Location = new System.Drawing.Point(12, 130);
-            this.btnMapPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapPhysics.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapPhysics.Name = "btnMapPhysics";
             this.btnMapPhysics.Size = new System.Drawing.Size(120, 28);
             this.btnMapPhysics.TabIndex = 13;
@@ -976,7 +979,7 @@
             // btnMapFill
             // 
             this.btnMapFill.Location = new System.Drawing.Point(12, 59);
-            this.btnMapFill.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapFill.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapFill.Name = "btnMapFill";
             this.btnMapFill.Size = new System.Drawing.Size(116, 28);
             this.btnMapFill.TabIndex = 12;
@@ -987,7 +990,7 @@
             // btnMapResize
             // 
             this.btnMapResize.Location = new System.Drawing.Point(12, 23);
-            this.btnMapResize.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnMapResize.Margin = new System.Windows.Forms.Padding(4);
             this.btnMapResize.Name = "btnMapResize";
             this.btnMapResize.Size = new System.Drawing.Size(116, 28);
             this.btnMapResize.TabIndex = 11;
@@ -998,7 +1001,7 @@
             // txtMapMotd
             // 
             this.txtMapMotd.Location = new System.Drawing.Point(455, 20);
-            this.txtMapMotd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtMapMotd.Margin = new System.Windows.Forms.Padding(4);
             this.txtMapMotd.Name = "txtMapMotd";
             this.txtMapMotd.Size = new System.Drawing.Size(132, 22);
             this.txtMapMotd.TabIndex = 6;
@@ -1016,9 +1019,9 @@
             this.groupBox1.Controls.Add(this.lblMapPhys);
             this.groupBox1.Controls.Add(this.lblMapClients);
             this.groupBox1.Location = new System.Drawing.Point(1011, 4);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(287, 149);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
@@ -1138,7 +1141,7 @@
             // txtMapName
             // 
             this.txtMapName.Location = new System.Drawing.Point(249, 20);
-            this.txtMapName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtMapName.Margin = new System.Windows.Forms.Padding(4);
             this.txtMapName.Name = "txtMapName";
             this.txtMapName.Size = new System.Drawing.Size(132, 22);
             this.txtMapName.TabIndex = 3;
@@ -1169,7 +1172,7 @@
             this.lstMaps.FormattingEnabled = true;
             this.lstMaps.ItemHeight = 16;
             this.lstMaps.Location = new System.Drawing.Point(11, 23);
-            this.lstMaps.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstMaps.Margin = new System.Windows.Forms.Padding(4);
             this.lstMaps.Name = "lstMaps";
             this.lstMaps.Size = new System.Drawing.Size(159, 308);
             this.lstMaps.TabIndex = 0;
@@ -1198,9 +1201,9 @@
             // commandsTab
             // 
             this.commandsTab.Location = new System.Drawing.Point(4, 25);
-            this.commandsTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.commandsTab.Margin = new System.Windows.Forms.Padding(4);
             this.commandsTab.Name = "commandsTab";
-            this.commandsTab.Size = new System.Drawing.Size(1311, 345);
+            this.commandsTab.Size = new System.Drawing.Size(1311, 347);
             this.commandsTab.TabIndex = 3;
             this.commandsTab.Text = "Commands";
             this.commandsTab.UseVisualStyleBackColor = true;
@@ -1226,9 +1229,9 @@
             this.blocksTab.Controls.Add(this.lblBlockId);
             this.blocksTab.Controls.Add(this.lstBlocks);
             this.blocksTab.Location = new System.Drawing.Point(4, 25);
-            this.blocksTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.blocksTab.Margin = new System.Windows.Forms.Padding(4);
             this.blocksTab.Name = "blocksTab";
-            this.blocksTab.Size = new System.Drawing.Size(1311, 345);
+            this.blocksTab.Size = new System.Drawing.Size(1311, 347);
             this.blocksTab.TabIndex = 4;
             this.blocksTab.Text = "Blocks";
             this.blocksTab.UseVisualStyleBackColor = true;
@@ -1236,7 +1239,7 @@
             // btnReloadBlocks
             // 
             this.btnReloadBlocks.Location = new System.Drawing.Point(555, 300);
-            this.btnReloadBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnReloadBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.btnReloadBlocks.Name = "btnReloadBlocks";
             this.btnReloadBlocks.Size = new System.Drawing.Size(113, 28);
             this.btnReloadBlocks.TabIndex = 18;
@@ -1251,7 +1254,7 @@
             "Yes",
             "No"});
             this.selectBlockSpecial.Location = new System.Drawing.Point(264, 165);
-            this.selectBlockSpecial.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectBlockSpecial.Margin = new System.Windows.Forms.Padding(4);
             this.selectBlockSpecial.Name = "selectBlockSpecial";
             this.selectBlockSpecial.Size = new System.Drawing.Size(160, 24);
             this.selectBlockSpecial.TabIndex = 17;
@@ -1264,7 +1267,7 @@
             "Yes",
             "No"});
             this.selectBlockKills.Location = new System.Drawing.Point(265, 132);
-            this.selectBlockKills.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectBlockKills.Margin = new System.Windows.Forms.Padding(4);
             this.selectBlockKills.Name = "selectBlockKills";
             this.selectBlockKills.Size = new System.Drawing.Size(160, 24);
             this.selectBlockKills.TabIndex = 16;
@@ -1273,7 +1276,7 @@
             // picBlockColor
             // 
             this.picBlockColor.Location = new System.Drawing.Point(265, 100);
-            this.picBlockColor.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.picBlockColor.Margin = new System.Windows.Forms.Padding(4);
             this.picBlockColor.Name = "picBlockColor";
             this.picBlockColor.Size = new System.Drawing.Size(27, 25);
             this.picBlockColor.TabIndex = 15;
@@ -1282,7 +1285,7 @@
             // numBlockCId
             // 
             this.numBlockCId.Location = new System.Drawing.Point(265, 68);
-            this.numBlockCId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numBlockCId.Margin = new System.Windows.Forms.Padding(4);
             this.numBlockCId.Maximum = new decimal(new int[] {
             255,
             0,
@@ -1295,7 +1298,7 @@
             // txtBlockName
             // 
             this.txtBlockName.Location = new System.Drawing.Point(265, 36);
-            this.txtBlockName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtBlockName.Margin = new System.Windows.Forms.Padding(4);
             this.txtBlockName.Name = "txtBlockName";
             this.txtBlockName.Size = new System.Drawing.Size(159, 22);
             this.txtBlockName.TabIndex = 13;
@@ -1303,7 +1306,7 @@
             // numBlockId
             // 
             this.numBlockId.Location = new System.Drawing.Point(265, 4);
-            this.numBlockId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numBlockId.Margin = new System.Windows.Forms.Padding(4);
             this.numBlockId.Maximum = new decimal(new int[] {
             255,
             0,
@@ -1316,7 +1319,7 @@
             // btnSaveBlocks
             // 
             this.btnSaveBlocks.Location = new System.Drawing.Point(433, 300);
-            this.btnSaveBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnSaveBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.btnSaveBlocks.Name = "btnSaveBlocks";
             this.btnSaveBlocks.Size = new System.Drawing.Size(113, 28);
             this.btnSaveBlocks.TabIndex = 11;
@@ -1327,7 +1330,7 @@
             // btnDeleteBlock
             // 
             this.btnDeleteBlock.Location = new System.Drawing.Point(312, 300);
-            this.btnDeleteBlock.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnDeleteBlock.Margin = new System.Windows.Forms.Padding(4);
             this.btnDeleteBlock.Name = "btnDeleteBlock";
             this.btnDeleteBlock.Size = new System.Drawing.Size(113, 28);
             this.btnDeleteBlock.TabIndex = 10;
@@ -1338,7 +1341,7 @@
             // btnCreateBlock
             // 
             this.btnCreateBlock.Location = new System.Drawing.Point(175, 300);
-            this.btnCreateBlock.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnCreateBlock.Margin = new System.Windows.Forms.Padding(4);
             this.btnCreateBlock.Name = "btnCreateBlock";
             this.btnCreateBlock.Size = new System.Drawing.Size(128, 28);
             this.btnCreateBlock.TabIndex = 9;
@@ -1361,9 +1364,9 @@
             this.groupBox4.Controls.Add(this.lblBlockPhysDelay);
             this.groupBox4.Controls.Add(this.lblBlockPhysics);
             this.groupBox4.Location = new System.Drawing.Point(864, 6);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox4.Size = new System.Drawing.Size(433, 218);
             this.groupBox4.TabIndex = 8;
             this.groupBox4.TabStop = false;
@@ -1376,7 +1379,7 @@
             "Yes",
             "No"});
             this.selectPhysMapLoad.Location = new System.Drawing.Point(163, 178);
-            this.selectPhysMapLoad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectPhysMapLoad.Margin = new System.Windows.Forms.Padding(4);
             this.selectPhysMapLoad.Name = "selectPhysMapLoad";
             this.selectPhysMapLoad.Size = new System.Drawing.Size(160, 24);
             this.selectPhysMapLoad.TabIndex = 23;
@@ -1386,7 +1389,7 @@
             // txtPhysScript
             // 
             this.txtPhysScript.Location = new System.Drawing.Point(163, 146);
-            this.txtPhysScript.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPhysScript.Margin = new System.Windows.Forms.Padding(4);
             this.txtPhysScript.Name = "txtPhysScript";
             this.txtPhysScript.Size = new System.Drawing.Size(160, 22);
             this.txtPhysScript.TabIndex = 22;
@@ -1398,7 +1401,7 @@
             "Yes",
             "No"});
             this.selectRepPhysics.Location = new System.Drawing.Point(163, 113);
-            this.selectRepPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectRepPhysics.Margin = new System.Windows.Forms.Padding(4);
             this.selectRepPhysics.Name = "selectRepPhysics";
             this.selectRepPhysics.Size = new System.Drawing.Size(160, 24);
             this.selectRepPhysics.TabIndex = 21;
@@ -1407,7 +1410,7 @@
             // txtPhysRandom
             // 
             this.txtPhysRandom.Location = new System.Drawing.Point(163, 81);
-            this.txtPhysRandom.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPhysRandom.Margin = new System.Windows.Forms.Padding(4);
             this.txtPhysRandom.Name = "txtPhysRandom";
             this.txtPhysRandom.Size = new System.Drawing.Size(160, 22);
             this.txtPhysRandom.TabIndex = 20;
@@ -1415,7 +1418,7 @@
             // txtPhysDelay
             // 
             this.txtPhysDelay.Location = new System.Drawing.Point(163, 49);
-            this.txtPhysDelay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txtPhysDelay.Margin = new System.Windows.Forms.Padding(4);
             this.txtPhysDelay.Name = "txtPhysDelay";
             this.txtPhysDelay.Size = new System.Drawing.Size(160, 22);
             this.txtPhysDelay.TabIndex = 19;
@@ -1427,7 +1430,7 @@
             "Yes",
             "No"});
             this.selectBlockPhysics.Location = new System.Drawing.Point(163, 16);
-            this.selectBlockPhysics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.selectBlockPhysics.Margin = new System.Windows.Forms.Padding(4);
             this.selectBlockPhysics.Name = "selectBlockPhysics";
             this.selectBlockPhysics.Size = new System.Drawing.Size(160, 24);
             this.selectBlockPhysics.TabIndex = 18;
@@ -1559,7 +1562,7 @@
             this.lstBlocks.FormattingEnabled = true;
             this.lstBlocks.ItemHeight = 16;
             this.lstBlocks.Location = new System.Drawing.Point(4, 4);
-            this.lstBlocks.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.lstBlocks.Name = "lstBlocks";
             this.lstBlocks.Size = new System.Drawing.Size(159, 324);
             this.lstBlocks.TabIndex = 0;
@@ -1568,9 +1571,9 @@
             // ranksTab
             // 
             this.ranksTab.Location = new System.Drawing.Point(4, 25);
-            this.ranksTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ranksTab.Margin = new System.Windows.Forms.Padding(4);
             this.ranksTab.Name = "ranksTab";
-            this.ranksTab.Size = new System.Drawing.Size(1311, 345);
+            this.ranksTab.Size = new System.Drawing.Size(1311, 347);
             this.ranksTab.TabIndex = 5;
             this.ranksTab.Text = "Ranks";
             this.ranksTab.UseVisualStyleBackColor = true;
@@ -1578,9 +1581,9 @@
             // dbTab
             // 
             this.dbTab.Location = new System.Drawing.Point(4, 25);
-            this.dbTab.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dbTab.Margin = new System.Windows.Forms.Padding(4);
             this.dbTab.Name = "dbTab";
-            this.dbTab.Size = new System.Drawing.Size(1311, 345);
+            this.dbTab.Size = new System.Drawing.Size(1311, 347);
             this.dbTab.TabIndex = 6;
             this.dbTab.Text = "Database";
             this.dbTab.UseVisualStyleBackColor = true;
@@ -1641,6 +1644,17 @@
             this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
             this.miniModeToolStripMenuItem.Text = "&Mini mode";
             // 
+            // btnSaveSettings
+            // 
+            this.btnSaveSettings.Location = new System.Drawing.Point(596, 51);
+            this.btnSaveSettings.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSaveSettings.Name = "btnSaveSettings";
+            this.btnSaveSettings.Size = new System.Drawing.Size(267, 28);
+            this.btnSaveSettings.TabIndex = 4;
+            this.btnSaveSettings.Text = "Save Changes";
+            this.btnSaveSettings.UseVisualStyleBackColor = true;
+            this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
+            // 
             // MainForm
             // 
             this.AcceptButton = this.btnSendChat;
@@ -1650,7 +1664,7 @@
             this.Controls.Add(this.mainTabs);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "Hypercube";
             this.Load += new System.EventHandler(this.mainForm_Load);
@@ -1826,6 +1840,7 @@
         private System.Windows.Forms.TextBox txtPhysDelay;
         private System.Windows.Forms.ComboBox selectBlockPhysics;
         private System.Windows.Forms.Button btnReloadBlocks;
+        private System.Windows.Forms.Button btnSaveSettings;
     }
 }
 

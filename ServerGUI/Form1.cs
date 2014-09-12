@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.IO;
 
@@ -134,7 +135,8 @@ namespace ServerGUI {
         }
 
         private void startServerToolStripMenuItem_Click(object sender, EventArgs e) {
-            ServerCore.Start();
+            var asdf = new Thread(ServerCore.Start);
+            asdf.Start();
         }
 
         private void stopServerToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -366,7 +368,15 @@ namespace ServerGUI {
         }
         #endregion
 
+        private void btnSendChat_Click(object sender, EventArgs e) {
+            Chat.SendGlobalChat("&6[SERVER]:&f " + txtChat.Text, 0, true);
+        }
+
         #endregion
+
+        private void btnSaveSettings_Click(object sender, EventArgs e) {
+
+        }
 
 
     }

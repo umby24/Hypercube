@@ -129,7 +129,6 @@ namespace Hypercube
             }
 
             FillStacks();
-            TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
             ActionQueue = new ConcurrentQueue<MapAction>();
         }
         /// <summary>
@@ -147,6 +146,7 @@ namespace Hypercube
         public static void Start() {
             Nh.Start();
             Running = true;
+            TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
             TaskScheduler.TaskThread.Start();
 
             Hb = new Heartbeat();
