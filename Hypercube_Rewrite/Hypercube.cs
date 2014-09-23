@@ -134,6 +134,7 @@ namespace Hypercube
             FillStacks();
             ActionQueue = new ConcurrentQueue<MapAction>();
         }
+        
         /// <summary>
         /// Fills the stacks used for entity ids and ExtPlayerList Name IDs
         /// </summary>
@@ -147,12 +148,13 @@ namespace Hypercube
         /// Starts the server.
         /// </summary>
         public static void Start() {
-            Nh.Start();
-            Running = true;
-            TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks);
+            Nh.Start(); // -- Start up the server listening system
+            Running = true; // -- Server is now classified as running (keeps all major loops running)
+
+            TaskScheduler.TaskThread = new Thread(TaskScheduler.RunTasks); // -- Create a single thread to run smaller server tasks at registered intervals
             TaskScheduler.TaskThread.Start();
 
-            Hb = new Heartbeat();
+            Hb = new Heartbeat(); // -- Register server tasks
             TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 1), Settings.SettingsMain);
             TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 1), Luahandler.Main);
 
@@ -160,19 +162,20 @@ namespace Hypercube
                 TaskScheduler.CreateTask("Memory Conservation (" + m.CWMap.MapName + ")", new TimeSpan(0, 0, 30), m.MapMain);
                 TaskScheduler.CreateTask("Autosave (" + m.CWMap.MapName + ")", new TimeSpan(0,m.HCSettings.SaveInterval, 0), m.MapSave);
 
-                m.BlockThread = new Thread(m.BlockQueueLoop);
+                m.BlockThread = new Thread(m.BlockQueueLoop); // -- Block queue and physics queue get their own threads, as they can be very intensive at times.
                 m.BlockThread.Start();
 
                 m.PhysicsThread = new Thread(m.PhysicsQueueLoop);
                 m.PhysicsThread.Start();
             }
-
+            // -- Create tasks for generating html files, and handling client actions.
             TaskScheduler.CreateTask("Client Actions", new TimeSpan(0, 0, 0, 0, 50), HypercubeMap.HandleActionQueue);
             TaskScheduler.CreateTask("Watchdog", new TimeSpan(0, 0, 30), Watchdog.GenHtml);
 
-            _actionThread = new Thread(ProcessActions);
+            _actionThread = new Thread(ProcessActions); // -- Create a thread to handle map actions (Fills, resizes, deletes).
             _actionThread.Start();
 
+             // -- Server fully started
             Logger.Log("Core", "Server started.", LogType.Info);
         }
 

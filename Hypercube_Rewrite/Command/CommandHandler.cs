@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Web.UI;
 using Hypercube.Client;
 using Hypercube.Libraries;
 using Hypercube.Core;
@@ -130,6 +129,9 @@ namespace Hypercube.Command {
             RegisterGroups();
         }
 
+        /// <summary>
+        /// Loads a list of all command groups
+        /// </summary>
         void RegisterGroups() {
             if (Groups != null)
                 Groups.Clear();
@@ -144,6 +146,11 @@ namespace Hypercube.Command {
             }
         }
 
+        /// <summary>
+        /// Handles a command incoming from a client, and executes it.
+        /// </summary>
+        /// <param name="client">The client sending this message</param>
+        /// <param name="message">The text the client sent</param>
         public void HandleCommand(NetworkClient client, string message) {
             if (!message.Contains(" "))
                 message += " ";
@@ -181,7 +188,12 @@ namespace Hypercube.Command {
         }
         #endregion
         #region Aliases
+        /// <summary>
+        /// Loads command aliases from file.
+        /// </summary>
         public void LoadAliases() {
+            // -- File format is actual = alias
+            // -- You may use /actual = /alias as well
             if (Aliases == null)
                 Aliases = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
             else
@@ -226,6 +238,11 @@ namespace Hypercube.Command {
             ServerCore.Logger.Log("Commands", "Command aliases loaded.", LogType.Info);
         }
 
+        /// <summary>
+        /// Returns the actual command for the given alias
+        /// </summary>
+        /// <param name="command">alias command</param>
+        /// <returns>false if no alias found, else the actual command will be returned</returns>
         public string GetAlias(string command) {
             foreach (var s in Aliases.Keys.Where(s => Aliases[s].Contains(command.ToLower()))) {
                 return s;
@@ -235,6 +252,9 @@ namespace Hypercube.Command {
         }
         #endregion
         #region Command File
+        /// <summary>
+        /// Loads scripted commands, and command modifications from file.
+        /// </summary>
         public void LoadCommands() {
             foreach (var id in CommandSettings.SettingsDictionary.Keys) {
                 ServerCore.Settings.SelectGroup(CommandSettings, id);
@@ -289,6 +309,11 @@ namespace Hypercube.Command {
             }
         }
 
+        /// <summary>
+        /// Adds / Updates a command to the command phone
+        /// </summary>
+        /// <param name="cmdTrig">The 'command' used to trigger this command. ex. /rules</param>
+        /// <param name="cmd">The command class for this command.</param>
         public void UpdateCommand(string cmdTrig, Command cmd) {
             ServerCore.Settings.SelectGroup(CommandSettings, cmdTrig);
 

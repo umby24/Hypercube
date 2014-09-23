@@ -26,6 +26,7 @@ namespace Hypercube.Core {
                     CPEReplace = 46,
                     RanksDelete = RankContainer.SplitRanks("2,3")
                 };
+
             ServerCore.Settings.ReadSettings(_blocksfile);
         }
 
@@ -309,6 +310,8 @@ namespace Hypercube.Core {
         public byte OnClient;
         public string Name, PhysicsPlugin;
         public bool Kills, Special, RepeatPhysics;
+        public SortedDictionary<string, Permission> PlacePermissions;
+        public SortedDictionary<string, Permission> DeletePermissions; 
         public List<Rank> RanksPlace = new List<Rank>();
         public List<Rank> RanksDelete = new List<Rank>();
     }

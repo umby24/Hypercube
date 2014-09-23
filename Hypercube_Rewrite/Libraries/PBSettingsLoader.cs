@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using JetBrains.Annotations;
 
 namespace Hypercube.Libraries {
     /// <summary>
@@ -16,7 +15,14 @@ namespace Hypercube.Libraries {
         public bool Save { get; set; }
     }
 
+    /// <summary>
+    /// A flexible library for managing settings files in a key = value format, seperated by groups
+    /// Groups are defined by a name enclosed in brackets. ex. [example]
+    /// Each group may have its own unique key value pairs that share the same keys as other groups, without causing interference.
+    /// This imitates the behavior by PureBasic's built-in setting system.
+    /// </summary>
     public class PbSettingsLoader {
+        /// <summary> List of files to watch and activly reload </summary>
         public List<Settings> SettingsFiles;
 
         public delegate void LoadSettings();
@@ -110,7 +116,7 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <param name="settingsFile"></param>
         /// <param name="groupName"></param>
-        public Settings SelectGroup([NotNull] Settings settingsFile, string groupName) {
+        public Settings SelectGroup(Settings settingsFile, string groupName) {
             if (settingsFile.SettingsDictionary.ContainsKey(groupName))
                 settingsFile.CurrentGroup = groupName;
             else {
@@ -173,6 +179,13 @@ namespace Hypercube.Libraries {
                 settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(settingsKey, settingsValue);
         }
 
+        /// <summary>
+        /// Registers a file with the settings system
+        /// </summary>
+        /// <param name="filename">The file to watch, load, and save from</param>
+        /// <param name="save">True to make the settings loader handle saving of this file.</param>
+        /// <param name="readFunction">The function that will be called when this file is loaded.</param>
+        /// <returns>Associated settings class containing all settings and information</returns>
         public Settings RegisterFile(string filename, bool save, LoadSettings readFunction) {
             var newSettings = new Settings {
                 Filename = filename,
@@ -190,7 +203,7 @@ namespace Hypercube.Libraries {
         /// <summary>
         /// A loop that constantly checks the modified date of every setting file
         /// and reloads the settings file if it has been modified.
-        /// This should be run in a thread.
+        /// This should be run in a thread / using a task scheduler
         /// </summary>
         public void SettingsMain() {
             foreach (var t in SettingsFiles) {
