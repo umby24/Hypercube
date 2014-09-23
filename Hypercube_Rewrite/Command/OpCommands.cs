@@ -29,12 +29,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = AddrankHandler,
@@ -96,12 +96,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = BanHandler,
@@ -136,12 +136,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = DelrankHandler,
@@ -203,12 +203,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = KickHandler,
@@ -237,12 +237,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = MuteHandler,
@@ -282,12 +282,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = PInfoHandler,
@@ -344,12 +344,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = HandlePushRank,
@@ -419,12 +419,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = SetrankHandler,
@@ -481,12 +481,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = Handlestop,
@@ -525,12 +525,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = UnbanHandler,
@@ -560,12 +560,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = UnmuteHandler,
@@ -599,12 +599,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = UnstopHandler,

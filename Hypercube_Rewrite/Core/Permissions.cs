@@ -106,32 +106,6 @@ namespace Hypercube.Core {
 
             return cds;
         }
-
-        //public static bool RankMatchesPermissions(Rank rank, List<Permission> permissions, bool matchAll) {
-        //    if (matchAll && permissions.Count > rank.Permissions.Count)
-        //        return false;
-
-        //    if (matchAll) {
-        //        var broke = false;
-
-        //        foreach (var p in permissions) {
-        //            if (rank.Permissions.ContainsKey(p.Fullname)) 
-        //                continue;
-
-        //            broke = true;
-        //            break;
-        //        }
-
-        //        return !broke;
-        //    }
-
-        //    foreach (var p in permissions) {
-        //        if (rank.Permissions.ContainsKey(p.Fullname))
-        //            return true;
-        //    }
-
-        //    return false;
-        //}
     }
 
     public class Permission {

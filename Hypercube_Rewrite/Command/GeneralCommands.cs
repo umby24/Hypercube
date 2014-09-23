@@ -31,12 +31,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = AboutHandler,
@@ -57,14 +57,14 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
-                new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+                {"command.bring", new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
-                new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+                {"command.bring", new Permission { Fullname = "command.bring", Group = "command", Perm = "bring"}},
             },
 
             Handler = BringHandler,
@@ -106,12 +106,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = CommandsHandler,
@@ -181,12 +181,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = CmdhelpHandler,
@@ -221,12 +221,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = Getrankhandler,
@@ -267,12 +267,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = false,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = GlobalHandler,
@@ -312,12 +312,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = PlayersHandler,
@@ -346,12 +346,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = RanksHandler,
@@ -380,12 +380,12 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = false,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = RulesHandler,
@@ -406,12 +406,12 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = MapsHandler,
@@ -436,12 +436,12 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = MapHandler,
@@ -471,14 +471,14 @@ namespace Hypercube.Command {
             AllPerms = true,
             Console = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
-                new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+                {"command.tp", new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
-                new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+                {"command.tp", new Permission { Fullname = "command.tp", Group = "command", Perm = "tp"}},
             },
 
             Handler = TPHandler,

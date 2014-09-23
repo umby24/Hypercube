@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-
+using System.Web.UI;
 using Hypercube.Client;
 using Hypercube.Libraries;
 using Hypercube.Core;
@@ -14,8 +14,8 @@ namespace Hypercube.Command {
         public string Help;
         public bool Console;
         public bool AllPerms; // -- if true, a user must have every permission in the list to use the command. false, they only need one.
-        public List<Permission> UsePermissions;
-        public List<Permission> ShowPermissions;
+        public SortedDictionary<string, Permission> UsePermissions; 
+        public SortedDictionary<string, Permission> ShowPermissions;
         public CommandInvoker Handler;
 
         public bool CanBeCalled(Rank rank) {
@@ -69,6 +69,8 @@ namespace Hypercube.Command {
 
             CommandSettings = ServerCore.Settings.RegisterFile("Commands.txt", true, LoadCommands);
             ServerCore.Settings.ReadSettings(CommandSettings);
+
+            FillFile();
         }
 
         /// <summary>
@@ -88,7 +90,9 @@ namespace Hypercube.Command {
         /// <param name="name"></param>
         /// <param name="newCommand"></param>
         public void AddCommand(string name, Command newCommand) {
-            if (CommandDict.ContainsKey(name))
+            Command myCmd;
+
+            if (CommandDict.TryGetValue(name, out myCmd))
                 CommandDict[name] = newCommand;
             else
                 CommandDict.Add(name, newCommand);
@@ -113,8 +117,8 @@ namespace Hypercube.Command {
                 AllPerms = allPerms,
                 Console = console,
 
-                UsePermissions = PermissionContainer.SplitPermissions(usePermissions).Values.ToList(),
-                ShowPermissions = PermissionContainer.SplitPermissions(showPermissions).Values.ToList()
+                UsePermissions = PermissionContainer.SplitPermissions(usePermissions),
+                ShowPermissions = PermissionContainer.SplitPermissions(showPermissions),
 
             };
 
@@ -122,6 +126,7 @@ namespace Hypercube.Command {
                 command = "/" + command;
 
             AddCommand(command, newCommand);
+            UpdateCommand(command, newCommand);
             RegisterGroups();
         }
 
@@ -230,9 +235,74 @@ namespace Hypercube.Command {
         }
         #endregion
         #region Command File
-
         public void LoadCommands() {
-            
+            foreach (var id in CommandSettings.SettingsDictionary.Keys) {
+                ServerCore.Settings.SelectGroup(CommandSettings, id);
+                Command myCmd;
+
+                if (!CommandDict.TryGetValue(id, out myCmd)) {
+                    myCmd = new Command {
+                        Plugin = ServerCore.Settings.ReadSetting(CommandSettings, "Plugin", ""),
+                        Group = ServerCore.Settings.ReadSetting(CommandSettings, "Group", "General"),
+                        Help = ServerCore.Settings.ReadSetting(CommandSettings, "Help", ""),
+                        Console = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "Console", "false")),
+                        AllPerms = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "AllPerms", "false")),
+
+                        UsePermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "UsePerms",
+                            "player.chat")),
+
+                        ShowPermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "ShowPerms",
+                            "player.chat")),
+                    };
+
+                    AddCommand(id, myCmd);
+                    continue;
+                }
+
+                myCmd.Plugin = ServerCore.Settings.ReadSetting(CommandSettings, "Plugin", "");
+                myCmd.Group = ServerCore.Settings.ReadSetting(CommandSettings, "Group", "General");
+                myCmd.Help = ServerCore.Settings.ReadSetting(CommandSettings, "Help", "");
+                myCmd.Console = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "Console", "false"));
+                myCmd.AllPerms = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "AllPerms", "false"));
+                myCmd.UsePermissions =
+                    PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "UsePerms",
+                        "player.chat"));
+                myCmd.ShowPermissions =
+                    PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "ShowPerms",
+                        "player.chat"));
+
+                CommandDict[id] = myCmd;
+            }
+
+            ServerCore.Logger.Log("Commands", "Commands Loaded", LogType.Info);
+        }
+
+        /// <summary>
+        /// Checks for missing built in commands, and adds them to the commands file.
+        /// </summary>
+        public void FillFile() {
+            foreach (var command in CommandDict) { // Iterate the list
+                Dictionary<string, string> temp;
+
+                if (!CommandSettings.SettingsDictionary.TryGetValue(command.Key, out temp)) // -- If we don't have the value in the file
+                    UpdateCommand(command.Key, command.Value); // -- Add it to the file.
+            }
+        }
+
+        public void UpdateCommand(string cmdTrig, Command cmd) {
+            ServerCore.Settings.SelectGroup(CommandSettings, cmdTrig);
+
+            ServerCore.Settings.SaveSetting(CommandSettings, "Plugin", cmd.Plugin);
+            ServerCore.Settings.SaveSetting(CommandSettings, "Group", cmd.Group);
+            ServerCore.Settings.SaveSetting(CommandSettings, "Help", cmd.Help);
+            ServerCore.Settings.SaveSetting(CommandSettings, "Console", cmd.Console.ToString());
+            ServerCore.Settings.SaveSetting(CommandSettings, "AllPerms", cmd.AllPerms.ToString());
+            ServerCore.Settings.SaveSetting(CommandSettings, "UsePerms",
+                PermissionContainer.PermissionsToString(cmd.UsePermissions));
+            ServerCore.Settings.SaveSetting(CommandSettings, "ShowPerms",
+            PermissionContainer.PermissionsToString(cmd.ShowPermissions));
+
+            ServerCore.Settings.SaveSettings(CommandSettings);
         }
         #endregion
     }

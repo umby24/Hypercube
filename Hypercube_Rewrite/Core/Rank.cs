@@ -201,6 +201,10 @@ namespace Hypercube.Core
             return Permissions.TryGetValue(permission, out perm);
         }
 
+        public bool HasAllPermissions(SortedDictionary<string, Permission> prms) {
+            return prms.All(perm => HasPermission(perm.Key));
+        }
+
         public bool HasAllPermissions(List<Permission> prms) {
            return prms.All(perm => HasPermission(perm.Fullname));
         }

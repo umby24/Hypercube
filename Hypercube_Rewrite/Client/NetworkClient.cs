@@ -437,6 +437,15 @@ namespace Hypercube.Client {
             return permissions.All(permission => HasPermission(permission.Fullname));
         }
 
+        /// <summary>
+        /// An overload of the main method providing support for sorted dictionaries
+        /// </summary>
+        /// <param name="prms"></param>
+        /// <returns></returns>
+        public bool HasAllPermissions(SortedDictionary<string, Permission> prms) {
+            return prms.All(perm => HasPermission(perm.Key));
+        }
+
         #region Entity Management
         /// <summary>
         /// Updates entity positions on this client.

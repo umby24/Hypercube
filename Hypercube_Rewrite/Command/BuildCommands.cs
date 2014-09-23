@@ -23,14 +23,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = false,
             
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = BindHandler,
@@ -91,14 +91,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = false,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = CancelHandler,
@@ -118,14 +118,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = false,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = MaterialHandler,
@@ -157,14 +157,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = false,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = MaterialsHandler,
@@ -193,12 +193,12 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
             },
 
             Handler = PlaceHandler,
@@ -230,14 +230,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = RedoHandler,
@@ -265,14 +265,14 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
             },
 
             Handler = UndoHandler,

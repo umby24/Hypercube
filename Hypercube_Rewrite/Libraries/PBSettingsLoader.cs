@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 
 namespace Hypercube.Libraries {
     /// <summary>
@@ -109,7 +110,7 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <param name="settingsFile"></param>
         /// <param name="groupName"></param>
-        public Settings SelectGroup(Settings settingsFile, string groupName) {
+        public Settings SelectGroup([NotNull] Settings settingsFile, string groupName) {
             if (settingsFile.SettingsDictionary.ContainsKey(groupName))
                 settingsFile.CurrentGroup = groupName;
             else {

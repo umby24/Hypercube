@@ -32,17 +32,17 @@ namespace Hypercube.Command {
             Console = true,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.addmap", Group = "map", Perm = "addmap"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.addmap", new Permission { Fullname = "map.addmap", Group = "map", Perm = "addmap"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = MapaddHandler,
@@ -79,18 +79,18 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
             Handler = MapfillHandler,
@@ -121,18 +121,18 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
             Handler = MapfillsHandler,
@@ -156,12 +156,12 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
             },
 
             Handler = MapinfoHandler,
@@ -186,18 +186,18 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
             Handler = MaploadHandler,
@@ -228,16 +228,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = MapresendHandler,
@@ -257,18 +257,18 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
-                new Permission {Fullname = "map.fillmap", Group = "map", Perm = "fillmap"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
             },
 
             Handler = MapresizeHandler,
@@ -298,16 +298,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = HistoryHandler,
@@ -362,16 +362,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = MapsaveHandler,
@@ -396,16 +396,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = SetspawnHandler,
@@ -430,16 +430,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = PhysicsHandler,
@@ -477,16 +477,16 @@ namespace Hypercube.Command {
             Console = false,
             AllPerms = true,
 
-            UsePermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
-            ShowPermissions = new List<Permission> {
-                new Permission {Fullname = "player.build", Group = "player", Perm = "build"},
-                new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"},
-                new Permission {Fullname = "player.op", Group = "player", Perm = "op"},
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
             },
 
             Handler = BuildingHandler,
