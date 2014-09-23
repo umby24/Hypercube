@@ -23,6 +23,8 @@ namespace Hypercube
     // -- TODO: Add Teleporters
     // -- TODO: Make line, box, sphere threaded.
     // -- TODO: Make permissions work right
+    // -- TODO: SubTask ^: Make blocks permission based.
+    // -- TODO: Allow commands from console
 
     public static class ServerCore {
         #region Variables
@@ -74,6 +76,7 @@ namespace Hypercube
         public static NetworkHandler Nh;
         public static Dictionary<string, HypercubeMap> Maps;
         #endregion
+        
         /// <summary>
         /// Loads server settings, loads the database, and prepares the system for use.
         /// </summary>

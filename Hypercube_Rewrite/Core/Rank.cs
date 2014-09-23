@@ -56,17 +56,11 @@ namespace Hypercube.Core
         /// </summary>
         /// <returns> A rank object for modification or reference.</returns>
         public Rank GetRank(int id) {
-            if (NumberList.ContainsKey(id))
-                return NumberList[id];
-            
-            return null;
+            return NumberList.ContainsKey(id) ? NumberList[id] : null;
         }
 
         public Rank GetRank(string name) {
-            if (NameList.ContainsKey(name))
-                return NameList[name];
-            
-            return null;
+            return NameList.ContainsKey(name) ? NameList[name] : null;
         }
 
         public void LoadRanks() {
@@ -200,6 +194,15 @@ namespace Hypercube.Core
             PointsInRank = rankPoints;
             NextRank = nextRankUp;
             Group = rankGroup;
+        }
+
+        public bool HasPermission(string permission) {
+            Permission perm;
+            return Permissions.TryGetValue(permission, out perm);
+        }
+
+        public bool HasAllPermissions(List<Permission> prms) {
+           return prms.All(perm => HasPermission(perm.Fullname));
         }
     }
 }

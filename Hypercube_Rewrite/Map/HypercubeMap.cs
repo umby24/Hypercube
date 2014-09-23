@@ -633,16 +633,7 @@ namespace Hypercube.Map {
             if (newBlock == mapBlock && newBlock != ServerCore.Blockholder.GetBlock(0))
                 return;
 
-            var canbuild = false;
-
-            foreach(var r in client.CS.PlayerRanks) {
-                if (PermissionContainer.RankMatchesPermissions(r, Buildperms.Values.ToList(), true)) {
-                    canbuild = true;
-                    break;
-                }
-            }
-
-            if (!canbuild) {
+            if (!client.HasAllPermissions(Buildperms.Values.ToList())) {
                 Chat.SendClientChat(client, "§EYou are not allowed to build here.");
                 SendBlock(client, x, y, z, mapBlock);
                 return;

@@ -75,10 +75,9 @@ namespace Hypercube.Core {
         }
 
         public Permission GetPermission(string name) {
-            if (Permissions.ContainsKey(name))
-                return Permissions[name];
-            
-            return null;
+            Permission perm;
+            Permissions.TryGetValue(name, out perm);
+            return perm;
         }
 
         public static SortedDictionary<string, Permission> SplitPermissions(string perms) {
@@ -108,33 +107,31 @@ namespace Hypercube.Core {
             return cds;
         }
 
-        public static bool RankMatchesPermissions(Rank rank, List<Permission> permissions, bool matchAll) {
-            if (matchAll && permissions.Count > rank.Permissions.Count)
-                return false;
+        //public static bool RankMatchesPermissions(Rank rank, List<Permission> permissions, bool matchAll) {
+        //    if (matchAll && permissions.Count > rank.Permissions.Count)
+        //        return false;
 
-            if (matchAll) {
-                var broke = false;
+        //    if (matchAll) {
+        //        var broke = false;
 
-                foreach (var p in permissions) {
-                    if (!rank.Permissions.ContainsKey(p.Fullname)) {
-                        broke = true;
-                        break;
-                    }
-                }
+        //        foreach (var p in permissions) {
+        //            if (rank.Permissions.ContainsKey(p.Fullname)) 
+        //                continue;
 
-                if (broke)
-                    return false;
-                
-                return true;
-            }
+        //            broke = true;
+        //            break;
+        //        }
 
-            foreach (var p in permissions) {
-                if (rank.Permissions.ContainsKey(p.Fullname))
-                    return true;
-            }
+        //        return !broke;
+        //    }
 
-            return false;
-        }
+        //    foreach (var p in permissions) {
+        //        if (rank.Permissions.ContainsKey(p.Fullname))
+        //            return true;
+        //    }
+
+        //    return false;
+        //}
     }
 
     public class Permission {

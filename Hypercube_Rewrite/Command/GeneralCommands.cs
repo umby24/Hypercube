@@ -85,13 +85,16 @@ namespace Hypercube.Command {
             if (tpClient.CS.CurrentMap != client.CS.CurrentMap)
                 tpClient.ChangeMap(client.CS.CurrentMap);
 
+            if (client.CS.CurrentMap != tpClient.CS.CurrentMap)
+                return;
+
             tpClient.CS.MyEntity.X = client.CS.MyEntity.X;
             tpClient.CS.MyEntity.Y = client.CS.MyEntity.Y;
             tpClient.CS.MyEntity.Z = client.CS.MyEntity.Z;
             tpClient.CS.MyEntity.Rot = client.CS.MyEntity.Rot;
             tpClient.CS.MyEntity.Look = client.CS.MyEntity.Look;
             tpClient.CS.MyEntity.SendOwn = true;
-            Chat.SendClientChat(client, "§STeleported.");
+            Chat.SendClientChat(client, "§STeleported by " + client.CS.FormattedName);
         }
 
         #endregion
@@ -418,15 +421,7 @@ namespace Hypercube.Command {
             var mapString = "§SMaps:<br>";
 
             foreach (var m in ServerCore.Maps.Values) {
-                var cansee = false;
-
-                foreach (var r in client.CS.PlayerRanks) {
-                    if (!PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true)) continue;
-                    cansee = true;
-                    break;
-                }
-
-                if (cansee) 
+                if (client.HasAllPermissions(m.Showperms.Values.ToList()))
                     mapString += "§S" + m.CWMap.MapName + " §D ";
             }
 
@@ -461,31 +456,9 @@ namespace Hypercube.Command {
             HypercubeMap m;
             ServerCore.Maps.TryGetValue(args[0], out m);
 
-            if (m != null) {
-                var canSee = false;
-                var canJoin = false;
-
-                foreach (var r in client.CS.PlayerRanks) {
-                    if (PermissionContainer.RankMatchesPermissions(r, m.Showperms.Values.ToList(), true))
-                        canSee = true;
-
-                    if (!PermissionContainer.RankMatchesPermissions(r, m.Joinperms.Values.ToList(), true)) 
-                        continue;
-
-                    canJoin = true;
-                    break;
-                }
-
-                if (canJoin) 
-                    client.ChangeMap(m);
-                 else {
-                    if (canSee) {
-                        Chat.SendClientChat(client, "§EYou are not allowed to join this map.");
-                        return;
-                    }
-                    Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
-                }
-            } else
+            if (m != null) 
+                client.ChangeMap(m);
+             else
                 Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
                 
         }
@@ -526,6 +499,9 @@ namespace Hypercube.Command {
             if (tpClient.CS.CurrentMap != client.CS.CurrentMap)
                 client.ChangeMap(tpClient.CS.CurrentMap);
 
+            if (client.CS.CurrentMap != tpClient.CS.CurrentMap)
+                return;
+            
             client.CS.MyEntity.X = tpClient.CS.MyEntity.X;
             client.CS.MyEntity.Y = tpClient.CS.MyEntity.Y;
             client.CS.MyEntity.Z = tpClient.CS.MyEntity.Z;

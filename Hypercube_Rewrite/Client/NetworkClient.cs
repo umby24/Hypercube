@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Net.Sockets;
 using Hypercube.Core;
@@ -371,6 +372,16 @@ namespace Hypercube.Client {
                 return;
             }
 
+            if (!HasAllPermissions(newMap.Joinperms.Values.ToList())) {
+                if (!HasAllPermissions(newMap.Showperms.Values.ToList())) {
+                    Chat.SendClientChat(this, "§EMap '" + newMap.CWMap.MapName + "' not found.");
+                    return;
+                }
+
+                Chat.SendClientChat(this, "§EYou do not have permission to join this map.");
+                return;
+            }
+
             Chat.SendMapChat(newMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".", 0, true);
             Chat.SendMapChat(CS.CurrentMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".");
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
@@ -407,6 +418,25 @@ namespace Hypercube.Client {
 
             CPE.UpdateExtPlayerList(this);
         }
+
+        /// <summary>
+        /// Determines if this client has a given permission
+        /// </summary>
+        /// <param name="permission">The full permission name ex. map.joinmap</param>
+        /// <returns>True if client has permission, false if not.</returns>
+        public bool HasPermission(string permission) {
+            return CS.PlayerRanks.Any(rank => rank.HasPermission(permission));
+        }
+
+        /// <summary>
+        /// Determines if this client has all the permissions in the list
+        /// </summary>
+        /// <param name="permissions"></param>
+        /// <returns></returns>
+        public bool HasAllPermissions(List<Permission> permissions) {
+            return permissions.All(permission => HasPermission(permission.Fullname));
+        }
+
         #region Entity Management
         /// <summary>
         /// Updates entity positions on this client.
@@ -532,6 +562,11 @@ namespace Hypercube.Client {
             SendQueue.Enqueue(oUp);
         }
 
+        /// <summary>
+        /// Updates the location (absolute) and look of an entity rendered on this client.
+        /// </summary>
+        /// <param name="fullEntity"></param>
+        /// <param name="own"></param>
         void EFullMove(Entity fullEntity, bool own = false) {
             var move = new PlayerTeleport
             {

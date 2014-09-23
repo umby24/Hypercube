@@ -19,37 +19,19 @@ namespace Hypercube.Command {
         public CommandInvoker Handler;
 
         public bool CanBeCalled(Rank rank) {
-            return PermissionContainer.RankMatchesPermissions(rank, UsePermissions, AllPerms);
+            return rank.HasAllPermissions(UsePermissions);
         }
 
         public bool CanBeCalled(NetworkClient client) {
-            var result = false;
-
-            foreach (var r in client.CS.PlayerRanks) {
-                if (PermissionContainer.RankMatchesPermissions(r, UsePermissions, AllPerms)) {
-                    result = true;
-                    break;
-                }
-            }
-
-            return result;
+            return client.HasAllPermissions(UsePermissions);
         }
 
         public bool CanBeSeen(Rank rank) {
-            return PermissionContainer.RankMatchesPermissions(rank, ShowPermissions, AllPerms);
+            return rank.HasAllPermissions(ShowPermissions);
         }
 
         public bool CanBeSeen(NetworkClient client) {
-            var result = false;
-
-            foreach (var r in client.CS.PlayerRanks) {
-                if (PermissionContainer.RankMatchesPermissions(r, ShowPermissions, AllPerms)) {
-                    result = true;
-                    break;
-                }
-            }
-
-            return result;
+            return client.HasAllPermissions(ShowPermissions);
         }
 
         public void PrintHelp(NetworkClient client) {
@@ -57,6 +39,11 @@ namespace Hypercube.Command {
         }
 
         public void Call(NetworkClient client, string[] args, string text1, string text2) {
+            if (!CanBeCalled(client)) {
+                Chat.SendClientChat(client, "§EYou do not have permission to use this command.");
+                return;
+            }
+
             if (!string.IsNullOrEmpty(Plugin))
                 ServerCore.Luahandler.RunFunction(Plugin, client, args, text1, text2); // -- Run lua plugin for this command.
             else 
@@ -69,6 +56,7 @@ namespace Hypercube.Command {
         public Dictionary<string, List<string>> Groups;
         public Dictionary<string, List<string>> Aliases;
         public Settings AliasLoader;
+        public Settings CommandSettings;
 
         public CommandHandler() {
             CommandDict = new Dictionary<string, Command>(StringComparer.InvariantCultureIgnoreCase);
@@ -78,8 +66,14 @@ namespace Hypercube.Command {
 
             AliasLoader = ServerCore.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
             ServerCore.Settings.ReadSettings(AliasLoader);
+
+            CommandSettings = ServerCore.Settings.RegisterFile("Commands.txt", true, LoadCommands);
+            ServerCore.Settings.ReadSettings(CommandSettings);
         }
 
+        /// <summary>
+        /// Populates the server with the default command sets.
+        /// </summary>
         public void Populate() {
             GeneralCommands.Init(this);
             BuildCommands.Init(this);
@@ -87,6 +81,7 @@ namespace Hypercube.Command {
             OpCommands.Init(this);
         }
 
+        #region Command management
         /// <summary>
         /// Function for internal command registration.
         /// </summary>
@@ -167,24 +162,20 @@ namespace Hypercube.Command {
             var alias = GetAlias(command); // -- Determine if this is an alias of a command.
 
             if (!CommandDict.ContainsKey(command) && alias == "false") // -- Command is not an alias, and is not in our list (It doesn't exist)
-                Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
+                Chat.SendClientChat(client, "§ECommand '" + command + "' not found.");
             else {
                 var thisCommand = alias == "false" ? CommandDict[command.ToLower()] : CommandDict[alias.ToLower()];
 
                 if (!thisCommand.CanBeSeen(client)) { // -- If it cannot be seen by this user, then it doesn't exist.
-                    Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "Command '" + command + "' not found.");
-                    return;
-                }
-
-                if (!thisCommand.CanBeCalled(client)) { // -- If it cannot be called by this user, tell them.
-                    Chat.SendClientChat(client, ServerCore.TextFormats.ErrorMessage + "You do not have permission to use this command.");
+                    Chat.SendClientChat(client, "§ECommand '" + command + "' not found.");
                     return;
                 }
 
                 thisCommand.Call(client, splits, text, text2); // -- All is good! run the command.
             }
         }
-
+        #endregion
+        #region Aliases
         public void LoadAliases() {
             if (Aliases == null)
                 Aliases = new Dictionary<string, List<string>>(StringComparer.InvariantCultureIgnoreCase);
@@ -231,12 +222,18 @@ namespace Hypercube.Command {
         }
 
         public string GetAlias(string command) {
-            foreach (var s in Aliases.Keys) {
-                if (Aliases[s].Contains(command.ToLower()))
-                    return s;
+            foreach (var s in Aliases.Keys.Where(s => Aliases[s].Contains(command.ToLower()))) {
+                return s;
             }
 
             return "false";
         }
+        #endregion
+        #region Command File
+
+        public void LoadCommands() {
+            
+        }
+        #endregion
     }
 }
