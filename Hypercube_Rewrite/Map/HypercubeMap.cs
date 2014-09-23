@@ -639,13 +639,13 @@ namespace Hypercube.Map {
                 return;
             }
 
-            if (!RankContainer.RankListContains(mapBlock.RanksDelete, client.CS.PlayerRanks) && mode == 0) {
+            if (!client.HasAllPermissions(mapBlock.DeletePermissions.Values.ToList()) && mode == 0) {
                 Chat.SendClientChat(client, "§EYou are not allowed to delete this block type.");
                 SendBlock(client, x, y, z, mapBlock);
                 return;
             }
 
-            if (!RankContainer.RankListContains(newBlock.RanksPlace, client.CS.PlayerRanks) && mode > 0) {
+            if (!client.HasAllPermissions(newBlock.PlacePermissions.Values.ToList()) && mode > 0) {
                 Chat.SendClientChat(client, "§EYou are not allowed to place this block type.");
                 SendBlock(client, x, y, z, mapBlock);
                 return;
