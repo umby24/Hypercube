@@ -20,13 +20,13 @@ namespace Hypercube {
         public Settings Ns;
         public List<NetworkClient> Clients = new List<NetworkClient>();
         public Dictionary<string, NetworkClient> LoggedClients = new Dictionary<string, NetworkClient>(StringComparer.InvariantCultureIgnoreCase);
-        public Dictionary<int, NetworkClient> IntLoggeClients = new Dictionary<int, NetworkClient>(); 
+        public Dictionary<int, NetworkClient> IntLoggedClients = new Dictionary<int, NetworkClient>(); 
         public NetworkClient[] ClientList;
 
         public TcpListener CoreListener;
         public object ClientLock = new object();
 
-        // -- Network SettingsDictionary
+        // -- Network Settings
         public int Port, MaxPlayers, MaxPerIp;
         public bool VerifyNames, Public;
 
@@ -132,7 +132,7 @@ namespace Hypercube {
                 ServerCore.OnlinePlayers -= 1;
                 ServerCore.FreeIds.Push(client.CS.NameId);
                 LoggedClients.Remove(client.CS.LoginName);
-                IntLoggeClients.Remove(client.CS.Id);
+                IntLoggedClients.Remove(client.CS.Id);
                 CreateLists();
 
                 var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};

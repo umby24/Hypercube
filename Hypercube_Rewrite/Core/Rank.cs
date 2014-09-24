@@ -8,13 +8,13 @@ namespace Hypercube.Core
     public class RankContainer {
         public SortedDictionary<int, Rank> NumberList;
         public SortedDictionary<string, Rank> NameList;
-        public Dictionary<string, int> RankGroups;
- 
+        public Dictionary<Rank, List<Rank>> RankHierarchy; 
         public Settings Ranksfile;
 
         public RankContainer() {
             NumberList = new SortedDictionary<int, Rank>();
             NameList = new SortedDictionary<string, Rank>(StringComparer.InvariantCultureIgnoreCase);
+            RankHierarchy = new Dictionary<Rank, List<Rank>>();
 
             Ranksfile = ServerCore.Settings.RegisterFile("Ranks.txt", true, LoadRanks);
             ServerCore.Settings.ReadSettings(Ranksfile);
@@ -27,7 +27,7 @@ namespace Hypercube.Core
         /// <returns></returns>
         public static List<Rank> SplitRanks(string rankString) {
             var splitRanks = rankString.Split(',');
-
+            Console.WriteLine(rankString);
             return splitRanks.Select(s => ServerCore.Rankholder.GetRank(int.Parse(s))).ToList();
         }
 
@@ -113,7 +113,7 @@ namespace Hypercube.Core
                     Id = 2,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat")
+                            "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,player.kick,player.mute,player.stop")
                 };
 
                 var ownerRank = new Rank("Owner", "Staff", "&0", "", true, 0, "")
@@ -121,7 +121,7 @@ namespace Hypercube.Core
                     Id = 3,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.addmap,map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap")
+                            "map.addmap,map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap,player.kick,player.mute,player.stop,player.ban")
                 };
 
                 NumberList.Add(0, guestRank);
@@ -139,6 +139,7 @@ namespace Hypercube.Core
                 SaveRanks();
             }
 
+            CreateHierarchy();
             ServerCore.Logger.Log("RankContainer", "Ranks loaded.", LogType.Info);
         }
 
@@ -164,11 +165,49 @@ namespace Hypercube.Core
         }
 
         /// <summary>
+        /// Is rank1 a higher rank than rank 2?
+        /// </summary>
+        /// <param name="rank1"></param>
+        /// <param name="rank2"></param>
+        /// <returns></returns>
+        public bool IsRankHigher(Rank rank1, Rank rank2) {
+            var myList = RankHierarchy[rank1];
+
+            return !myList.Contains(rank2);
+        }
+
+        public Rank GetHighestRank(List<Rank> ranks) {
+            var highest = ranks.First();
+
+            foreach (var rank in ranks) {
+                if (IsRankHigher(rank, highest))
+                    highest = rank;
+            }
+
+            return highest;
+        }
+
+        /// <summary>
         /// Creates the Hierarchy table used for determining what rank is 'higher' than another.
         /// </summary>
         public void CreateHierarchy() {
-            foreach (var rnk in NameList.Values) {
-                
+            RankHierarchy.Clear();
+
+            // -- Now that the groups, and the number of points in them has been esablished, we need to calculate what ranks are higher than others.
+            foreach (var rank in NameList.Values) {
+                var myList = new List<Rank>();
+                var workingRank = rank;
+
+                // -- Finds all ranks after our current one, and adds it to the list to say that these ranks are higher.
+                while (true) {
+                    if (GetRank(workingRank.NextRank) == null)
+                        break;
+
+                    workingRank = GetRank(workingRank.NextRank);
+                    myList.Add(workingRank);
+                }
+
+                RankHierarchy.Add(rank, myList); // -- Add the list to the heirarchy system.
             }
         }
     }

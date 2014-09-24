@@ -60,7 +60,19 @@ namespace Hypercube.Command {
                 return;
             }
 
-            //TODO: Add permissions
+            var good = false;
+
+            foreach (var playerRank in client.CS.PlayerRanks) {
+                if (!ServerCore.Rankholder.IsRankHigher(playerRank, newRank))
+                    continue;
+                good = true;
+                break;
+            }
+
+            if (!good) {
+                Chat.SendClientChat(client, "§EYou cannot add a rank higher than your own.");
+                return;
+            }
 
             var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
             var steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
@@ -98,6 +110,7 @@ namespace Hypercube.Command {
 
             UsePermissions = new SortedDictionary<string, Permission> {
                 {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"player.ban", new Permission { Fullname = "player.ban", Group = "player", Perm = "ban"}},
             },
 
             ShowPermissions = new SortedDictionary<string, Permission> {
@@ -118,10 +131,20 @@ namespace Hypercube.Command {
                 return;
             }
 
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var banHighest = ServerCore.Rankholder.GetHighestRank(ranks);
+            var clientHighest = ServerCore.Rankholder.GetHighestRank(client.CS.PlayerRanks);
+
+            if (ServerCore.Rankholder.IsRankHigher(banHighest, clientHighest)) {
+                Chat.SendClientChat(client, "§EYou cannot ban someone of a higher rank.");
+                return;
+            }
+
             var reason = args.Length == 1 ? "You have been banned." : text2;
 
             Chat.SendGlobalChat("§SPlayer " + args[0] + " was banned by " + client.CS.FormattedName + "§S. (&f" + reason + "§S).", 0, true);
-            ServerCore.DB.BanPlayer(ServerCore.DB.GetPlayerName(args[0]), reason, client.CS.LoginName);
+            ServerCore.DB.BanPlayer(args[0], reason, client.CS.LoginName);
 
             if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) 
                 ServerCore.Nh.LoggedClients[args[0]].KickPlayer("Banned: " + reason);
@@ -167,10 +190,23 @@ namespace Hypercube.Command {
                 return;
             }
 
-            //TODO: Add permissions
+            var good = false;
+
+            foreach (var playerRank in client.CS.PlayerRanks) {
+                if (!ServerCore.Rankholder.IsRankHigher(playerRank, newRank)) 
+                    continue;
+                good = true;
+                break;
+            }
+
+            if (!good) {
+                Chat.SendClientChat(client, "§EYou cannot delete a rank higher than your own.");
+                return;
+            }
 
             var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
             var steps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "RankStep"));
+
             steps.RemoveAt(ranks.IndexOf(newRank));
             ranks.Remove(newRank);
 
@@ -205,6 +241,7 @@ namespace Hypercube.Command {
 
             UsePermissions = new SortedDictionary<string, Permission> {
                 {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"player.kick", new Permission { Fullname = "player.kick", Group = "player", Perm = "kick"}},
             },
 
             ShowPermissions = new SortedDictionary<string, Permission> {
@@ -223,6 +260,16 @@ namespace Hypercube.Command {
             var reason = args.Length == 1 ? "Kicked." : text2;
 
             if (ServerCore.Nh.LoggedClients.ContainsKey(args[0])) {
+                args[0] = ServerCore.DB.GetPlayerName(args[0]);
+                var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+                var banHighest = ServerCore.Rankholder.GetHighestRank(ranks);
+                var clientHighest = ServerCore.Rankholder.GetHighestRank(client.CS.PlayerRanks);
+
+                if (ServerCore.Rankholder.IsRankHigher(banHighest, clientHighest)) {
+                    Chat.SendClientChat(client, "§EYou cannot kick someone of a higher rank.");
+                    return;
+                }
+
                 ServerCore.Logger.Log("Command", "Player " + args[0] + " was kicked by " + client.CS.LoginName + ". (" + reason + ")", LogType.Info);
                 ServerCore.Nh.LoggedClients[args[0]].KickPlayer(reason, true);
             } else
@@ -239,6 +286,7 @@ namespace Hypercube.Command {
 
             UsePermissions = new SortedDictionary<string, Permission> {
                 {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"player.mute", new Permission { Fullname = "player.mute", Group = "player", Perm = "mute"}},
             },
 
             ShowPermissions = new SortedDictionary<string, Permission> {
@@ -256,6 +304,16 @@ namespace Hypercube.Command {
 
             if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(client, "§ECould not find a player called '" + args[0] + "'.");
+                return;
+            }
+
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var banHighest = ServerCore.Rankholder.GetHighestRank(ranks);
+            var clientHighest = ServerCore.Rankholder.GetHighestRank(client.CS.PlayerRanks);
+
+            if (ServerCore.Rankholder.IsRankHigher(banHighest, clientHighest)) {
+                Chat.SendClientChat(client, "§EYou cannot mute someone of a higher rank.");
                 return;
             }
 
@@ -308,7 +366,6 @@ namespace Hypercube.Command {
 
             var playerInfo = "§SPlayerinfo:<br>";
 
-            //ServerCore.DB.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + args[0] + "' LIMIT 1");
             playerInfo += "§SNumber: " + ServerCore.DB.GetDatabaseInt(args[0], "PlayerDB", "Number") + "<br>";
             playerInfo += "§SName: " + args[0] + "<br>";
 
@@ -374,7 +431,6 @@ namespace Hypercube.Command {
                 Chat.SendClientChat(client, "&4Error: &fCould not find the rank you specified.");
                 return;
             }
-            //TODO: Add permissions
 
             var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
 
@@ -435,7 +491,7 @@ namespace Hypercube.Command {
                 Chat.SendClientChat(client, "&4Error: &fYou are missing some arguments. Look at /cmdhelp setrank.");
                 return;
             }
-
+            // -- Set next rank if points > greater than points in rank.
             args[0] = ServerCore.DB.GetPlayerName(args[0]);
 
             if (args[0] == "") {
@@ -449,7 +505,21 @@ namespace Hypercube.Command {
                 Chat.SendClientChat(client, "&4Error: &fCould not find the rank you specified.");
                 return;
             }
-            //TODO: Add permissions
+
+            var good = false;
+
+            foreach (var playerRank in client.CS.PlayerRanks) {
+                if (!ServerCore.Rankholder.IsRankHigher(playerRank, newRank))
+                    continue;
+                good = true;
+                break;
+            }
+
+            if (!good) {
+                Chat.SendClientChat(client, "§EYou cannot add a rank higher than your own.");
+                return;
+            }
+
             var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
 
             if (!ranks.Contains(newRank)) {
@@ -483,6 +553,7 @@ namespace Hypercube.Command {
 
             UsePermissions = new SortedDictionary<string, Permission> {
                 {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"player.stop", new Permission { Fullname = "player.stop", Group = "player", Perm = "stop"}},
             },
 
             ShowPermissions = new SortedDictionary<string, Permission> {
@@ -500,6 +571,16 @@ namespace Hypercube.Command {
 
             if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(client, "§ECould not find a user with the name '" + args[0] + "'.");
+                return;
+            }
+
+            args[0] = ServerCore.DB.GetPlayerName(args[0]);
+            var ranks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(args[0], "PlayerDB", "Rank"));
+            var banHighest = ServerCore.Rankholder.GetHighestRank(ranks);
+            var clientHighest = ServerCore.Rankholder.GetHighestRank(client.CS.PlayerRanks);
+
+            if (ServerCore.Rankholder.IsRankHigher(banHighest, clientHighest)) {
+                Chat.SendClientChat(client, "§EYou cannot stop someone of a higher rank.");
                 return;
             }
 
@@ -582,6 +663,11 @@ namespace Hypercube.Command {
                 return;
             }
 
+            if (String.Equals(args[0], client.CS.LoginName, StringComparison.CurrentCultureIgnoreCase)) {
+                Chat.SendClientChat(client, "§EYou cannot unmute yourself.");
+                return;
+            }
+
             Chat.SendGlobalChat("§SPlayer " + args[0] + "§S was unmuted.", 0, true);
 
             ServerCore.DB.UnmutePlayer(args[0]);
@@ -618,6 +704,11 @@ namespace Hypercube.Command {
 
             if (!ServerCore.DB.ContainsPlayer(args[0])) {
                 Chat.SendClientChat(client, "§ECould not find a user with the name '" + args[0] + "'.");
+                return;
+            }
+
+            if (String.Equals(args[0], client.CS.LoginName, StringComparison.CurrentCultureIgnoreCase)) {
+                Chat.SendClientChat(client, "§EYou cannot unstop yourself.");
                 return;
             }
 

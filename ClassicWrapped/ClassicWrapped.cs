@@ -95,7 +95,7 @@ namespace ClassicWrapped
         private byte[] ReadBytes(int size) {
             var myBytes = new byte[size];
 
-            int bytesRead = Stream.Read(myBytes, 0, size);
+            var bytesRead = Stream.Read(myBytes, 0, size);
 
             if (bytesRead == size)
                 return myBytes;

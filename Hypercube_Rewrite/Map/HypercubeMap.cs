@@ -664,7 +664,7 @@ namespace Hypercube.Map {
             if (undo) {
                 NetworkClient client;
 
-                ServerCore.Nh.IntLoggeClients.TryGetValue(clientId, out client);
+                ServerCore.Nh.IntLoggedClients.TryGetValue(clientId, out client);
 
                 if (client != null) {
                     if (client.CS.CurrentIndex == -1)
@@ -740,7 +740,7 @@ namespace Hypercube.Map {
                 var lastPlayer = History.GetLastPlayer(x, z, y);
                 NetworkClient client;
 
-                ServerCore.Nh.IntLoggeClients.TryGetValue(lastPlayer, out client);
+                ServerCore.Nh.IntLoggedClients.TryGetValue(lastPlayer, out client);
 
                 if (client != null) {
                     if (client.CS.CurrentIndex == -1)

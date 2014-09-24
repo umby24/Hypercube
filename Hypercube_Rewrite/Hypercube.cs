@@ -22,7 +22,6 @@ namespace Hypercube
     // -- TODO: Make gui
     // -- TODO: Add Teleporters
     // -- TODO: Make line, box, sphere threaded.
-    // -- TODO: Make permissions work right
     // -- TODO: Allow commands from console
 
     public static class ServerCore {
