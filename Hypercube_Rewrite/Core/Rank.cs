@@ -8,7 +8,8 @@ namespace Hypercube.Core
     public class RankContainer {
         public SortedDictionary<int, Rank> NumberList;
         public SortedDictionary<string, Rank> NameList;
-
+        public Dictionary<string, int> RankGroups;
+ 
         public Settings Ranksfile;
 
         public RankContainer() {
@@ -160,6 +161,15 @@ namespace Hypercube.Core
             }
 
             ServerCore.Settings.SaveSettings(Ranksfile);
+        }
+
+        /// <summary>
+        /// Creates the Hierarchy table used for determining what rank is 'higher' than another.
+        /// </summary>
+        public void CreateHierarchy() {
+            foreach (var rnk in NameList.Values) {
+                
+            }
         }
     }
 
