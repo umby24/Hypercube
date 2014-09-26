@@ -468,8 +468,8 @@ namespace Hypercube.Map {
             return (x + y*CWMap.SizeX + z*CWMap.SizeX*CWMap.SizeZ);
         }
         public bool BlockInBounds(short x, short y, short z) {
-            var result1 = (0 <= x && CWMap.SizeX >= x) && (0 <= z && CWMap.SizeY >= z);
-            var result2 = result1 && (0 <= y && CWMap.SizeZ >= y);
+            var result1 = (0 <= x && (CWMap.SizeX - 1) >= x) && (0 <= z && (CWMap.SizeY - 1) >= z);
+            var result2 = result1 && (0 <= y && (CWMap.SizeZ - 1) >= y);
             return result2;
         }
         /// <summary>
