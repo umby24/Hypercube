@@ -114,6 +114,7 @@
     <Compile Include="Libraries\TaskScheduler.cs" />
     <Compile Include="Libraries\Text.cs" />
     <Compile Include="Libraries\Watchdog.cs" />
+    <Compile Include="Mapfills\D3 Fills.cs" />
     <Compile Include="Mapfills\DefaultFills.cs" />
     <Compile Include="Mapfills\FillContainer.cs" />
     <Compile Include="Map\D3Map.cs" />
