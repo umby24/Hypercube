@@ -1,11 +1,14 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Remoting;
 using System.Threading;
 using Hypercube.Client;
 using Hypercube.Core;
 using Hypercube.Libraries;
 using Hypercube.Map;
+using Hypercube.Network;
 
 namespace Hypercube.Command {
     internal static class MapCommands {
@@ -22,6 +25,10 @@ namespace Hypercube.Command {
             holder.AddCommand("/mapsave", CMapsave);
             holder.AddCommand("/setspawn", CSetSpawn);
             holder.AddCommand("/physics", CPhysics);
+
+            holder.AddCommand("/texture", CTexture);
+            holder.AddCommand("/setedge", CSetEdge);
+            holder.AddCommand("/setweather", CSetWeather);
         }
 
         #region Mapadd
@@ -515,6 +522,188 @@ namespace Hypercube.Command {
             } else
                 Chat.SendClientChat(client, "§EIncorrect command usage. See /cmdhelp building.");
         }
+        #endregion
+
+        // -- CPE Commands
+        #region Texture
+        static readonly Command CTexture = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SSets the texture for the map you are in.<br>§SUsage: /texture [url]",
+            Console = false,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            Handler = TextureHandler,
+        };
+
+        private static void TextureHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length != 1) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp texture");
+                return;
+            }
+
+            if (!args[0].Contains("http://")) {
+                Chat.SendClientChat(client, "§EInvalid texture url.");
+                return;
+            }
+
+            client.CS.CurrentMap.CPESettings.TextureUrl = args[0];
+            Chat.SendClientChat(client, "§SChanged applied.");
+            client.CS.CurrentMap.ResendCPE();
+        }
+
+        #endregion
+        #region SetEgde
+        static readonly Command CSetEdge = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SSets the edge blocks for the map you are in.<br>§SUsage: /SetEdge [SideBlock] [EdgeBlock] [SideLevel].",
+            Console = false,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            Handler = SetEdgeHandler,
+        };
+
+        private static void SetEdgeHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length > 3 || args.Length <= 0) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp setedge");
+                return;
+            }
+
+            Chat.SendClientChat(client, "§SChanged applied.");
+
+            int testint;
+
+            if (int.TryParse(args[0], out testint)) {
+                var sideBlock = ServerCore.Blockholder.GetBlock(testint);
+
+                if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
+                    client.CS.CurrentMap.CPESettings.SideBlock = sideBlock.OnClient;
+                else
+                    Chat.SendClientChat(client, "§EBlock ID " + args[0] + " is invalid.");
+            }
+            else {
+                var sideBlock = ServerCore.Blockholder.GetBlock(args[0]);
+
+                if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
+                    client.CS.CurrentMap.CPESettings.SideBlock = sideBlock.OnClient;
+                else
+                    Chat.SendClientChat(client, "§EBlock " + args[0] + " is invalid.");
+            }
+
+            if (args.Length < 2) {
+                client.CS.CurrentMap.ResendCPE();
+                return;
+            }
+
+            if (int.TryParse(args[1], out testint)) {
+                var sideBlock = ServerCore.Blockholder.GetBlock(testint);
+
+                if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
+                    client.CS.CurrentMap.CPESettings.EdgeBlock = sideBlock.OnClient;
+                else
+                    Chat.SendClientChat(client, "§EBlock ID " + args[1] + " is invalid.");
+            } else {
+                var sideBlock = ServerCore.Blockholder.GetBlock(args[1]);
+
+                if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
+                    client.CS.CurrentMap.CPESettings.EdgeBlock = sideBlock.OnClient;
+                else
+                    Chat.SendClientChat(client, "§EBlock " + args[1] + " is invalid.");
+            }
+
+            if (args.Length < 3) {
+                client.CS.CurrentMap.ResendCPE();
+                return;
+            }
+
+            if (!int.TryParse(args[2], out testint)) {
+                Chat.SendClientChat(client, "§EInvalid argument: " + args[2] + ". Must be a number.");
+                return;
+            }
+
+            if (!(testint <= client.CS.CurrentMap.CWMap.SizeY)) {
+                Chat.SendClientChat(client, "§EInvalid side level.");
+                return;
+            }
+
+            client.CS.CurrentMap.CPESettings.SideLevel = (short) testint;
+            client.CS.CurrentMap.ResendCPE();
+        }
+        #endregion
+        #region SetWeather
+        static readonly Command CSetWeather = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SSets the weather for the map you are in.<br>§SUsage: /weather [type]<br>§STypes are 0, 1, 2 (None, Rain, Snow)",
+            Console = false,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            Handler = SetWeatherHandler,
+        };
+
+        private static void SetWeatherHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length != 1) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp setweather");
+                return;
+            }
+
+            switch (args[0]) {
+                case "0":
+                case "none":
+                case "sunny":
+                    client.CS.CurrentMap.CPESettings.Weather = 0;
+                    break;
+                case "1":
+                case "rain":
+                case "rainy":
+                    client.CS.CurrentMap.CPESettings.Weather = 1;
+                    break;
+                case "2":
+                case "snow":
+                case "snowy":
+                    client.CS.CurrentMap.CPESettings.Weather = 2;
+                    break;
+                default:
+                    Chat.SendClientChat(client, "§EInvalid argument. See /cmdhelp setweather");
+                    break;
+
+            }
+            
+            Chat.SendClientChat(client, "§SChanged applied.");
+            client.CS.CurrentMap.ResendCPE();
+        }
+
         #endregion
     }
 }

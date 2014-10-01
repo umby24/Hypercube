@@ -37,25 +37,31 @@ namespace Hypercube.Network {
             if (ProtocolVersion != 7) {
                 ServerCore.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Unsupported protocol verison (" + ProtocolVersion + ")", LogType.Info);
                 client.KickPlayer("Unsupported protocol version.");
+                return;
             }
 
             if (!ServerCore.Hb.VerifyClientName(client)) {
                 ServerCore.Logger.Log("Handshake", "Disconnecting client '" + Name + "'. Failed to verify name.", LogType.Info);
                 client.KickPlayer("Name verification incorrect.");
+                return;
             }
 
             if (Text.StringMatches(Name)) {
                 ServerCore.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid characters in name.", LogType.Info);
                 client.KickPlayer("Invalid characters in name.");
+                return;
             }
 
             if (Name == "") {
                 ServerCore.Logger.Log("Handshake", "Disconnecting Client '" + Name + "'. Invalid name.", LogType.Info);
                 client.KickPlayer("Invalid name.");
+                return;
             }
 
-            if (ServerCore.OnlinePlayers > ServerCore.Nh.MaxPlayers) 
-                client.KickPlayer("The server is full.");
+            if (ServerCore.OnlinePlayers > ServerCore.Nh.MaxPlayers) {
+                client.KickNow("The server is full.");
+                return;
+            }
 
             client.CS.MpPass = Motd;
 
@@ -64,11 +70,12 @@ namespace Hypercube.Network {
                 ServerCore.Logger.Log("Handshake", "CPE Client Detected.", LogType.Info);
                 client.CS.CPE = true;
                 CPE.CPEHandshake(client);
-            } else {
-                // -- Normal Client.
-                client.CS.CPE = false;
-                client.Login();
+                return;
             }
+
+            // -- Normal Client.
+            client.CS.CPE = false;
+            client.Login();
         }
     }
 
@@ -291,16 +298,17 @@ namespace Hypercube.Network {
                 client.CS.MyEntity.Z = Z;
             }
 
-            if (client.CS.CPEExtensions.ContainsKey("HeldBlock")) {
-                if (client.CS.HeldBlock == null)
-                    client.CS.HeldBlock = ServerCore.Blockholder.GetBlock(0);
+            if (!client.CS.CPEExtensions.ContainsKey("HeldBlock")) 
+                return;
 
-                if (client.CS.HeldBlock.Id == PlayerId)
-                    return;
-                //TODO: Held Block changed event
-                client.CS.HeldBlock = ServerCore.Blockholder.GetBlock(PlayerId);
-            }
-            
+            if (client.CS.HeldBlock == null)
+                client.CS.HeldBlock = ServerCore.Blockholder.GetBlock(0);
+
+            if (client.CS.HeldBlock.Id == PlayerId)
+                return;
+
+            //TODO: Held Block changed event
+            client.CS.HeldBlock = ServerCore.Blockholder.GetBlock(PlayerId);
         }
     }
 

@@ -24,6 +24,7 @@ namespace Hypercube.Core {
                     CPELevel = 0,
                     CPEReplace = 46,
                     DeletePermissions = PermissionContainer.SplitPermissions("player.op"),
+                    Special = true,
                 };
 
             ServerCore.Settings.ReadSettings(_blocksfile);
@@ -55,7 +56,7 @@ namespace Hypercube.Core {
                     Special = bool.Parse(ServerCore.Settings.ReadSetting(_blocksfile, "Special", "false")),
                     ReplaceOnLoad = ServerCore.Settings.ReadSetting(_blocksfile, "ReplaceOnLoad", -1),
                     PlacePermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(_blocksfile, "PlacePerms", "player.build")),
-                    DeletePermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(_blocksfile, "PlacePerms", "player.delete")),
+                    DeletePermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(_blocksfile, "DeletePerms", "player.delete")),
                 };
                 NumberList[newblock.Id] = newblock;
                 NameList.Add(newblock.Name, newblock);
@@ -78,7 +79,7 @@ namespace Hypercube.Core {
             CreateBlock("Cobblestone", 4, "player.build", "player.delete", 0, 0, 0, "", false, false, 6250336, 0, 0, false, -1);
             CreateBlock("Planks", 5, "player.build", "player.delete", 0, 0, 0, "", false, false, 4220797, 0, 0, false, -1);
             CreateBlock("Sapling", 6, "player.build", "player.delete", 0, 0, 0, "", false, false, 11401600, 0, 0, false, -1);
-            CreateBlock("Solid", 7, "player.op,player.build", "player.op,player.delete", 0, 0, 0, "", false, false, 4539717, 0, 0, true, -1);
+            CreateBlock("Solid", 7, "player.op,player.build", "player.op,player.delete", 0, 0, 0, "", false, false, 4539717, 0, 0, false, -1);
             CreateBlock("Water", 8, "player.op,player.build", "player.op,player.delete", 20, 100, 100, "", false, false, 10438957, 0, 0, false, -1);
             CreateBlock("Still Water", 9, "player.build", "player.delete", 21, 100, 100, "", false, false, 10438957, 0, 0, true, -1);
             CreateBlock("Lava", 10, "player.op,player.build", "player.op,player.delete", 20, 500, 100, "", false, false, 1729750, 0, 0, false, -1);

@@ -1,9 +1,12 @@
-﻿using Hypercube.Client;
+﻿using System.Runtime.InteropServices;
+using ClassicWorld.NET;
+using Hypercube.Client;
+using Hypercube.Core;
 
 namespace Hypercube.Network {
     public class CPE {
         // -- General information for CPE.
-        public const short SupportedExtensions = 5;
+        public const short SupportedExtensions = 8;
         public const byte CustomBlocksSupportLevel = 1;
 
         // -- Individual extension versions.
@@ -53,21 +56,21 @@ namespace Hypercube.Network {
             cExtEntry.Version = ExtPlayerListVersion;
             client.SendQueue.Enqueue(cExtEntry);
 
-            //CExtEntry.ExtName = "EnvWeatherType";
-            //CExtEntry.Version = EnvWeatherTypeVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "EnvWeatherType";
+            cExtEntry.Version = EnvWeatherTypeVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
-            //CExtEntry.ExtName = "EnvMapAppearance";
-            //CExtEntry.Version = EnvMapAppearanceVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "EnvMapAppearance";
+            cExtEntry.Version = EnvMapAppearanceVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
             cExtEntry.ExtName = "MessageTypes";
             cExtEntry.Version = MessageTypesVersion;
             client.SendQueue.Enqueue(cExtEntry);
 
-            //CExtEntry.ExtName = "BlockPermissions";
-            //CExtEntry.Version = BlockPermissionsVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "BlockPermissions";
+            cExtEntry.Version = BlockPermissionsVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
             //CExtEntry.ExtName = "TextHotKey";
             //CExtEntry.Version = TextHotKeyVersion;
@@ -163,6 +166,108 @@ namespace Hypercube.Network {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines if a block is valid to be sent in the EnvSetMapAppearence packet.
+        /// By spec: Sprites and half-blocks are not allowed to be a side/edge block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
+        public static bool AppearanceAllowed(Block block) {
+            switch (block.Name) {
+                case "Sapling":
+                case "Yellow Flower":
+                case "Red Flower":
+                case "Brown Mushroom":
+                case "Red Mushroom":
+                case "Stair":
+                case "Cobblestone Slab":
+                case "Rope":
+                case "Fire":
+                case "Snow":
+                    return false;
+                default:
+                    return true;
+            }    
+        }
+
+        /// <summary>
+        /// Sends additional packets to clients after sending the map to the client.
+        /// </summary>
+        /// <param name="client"></param>
+        public static void PostMapActions(NetworkClient client) {
+            int mapAppearance, blockPerms, weatherVer;
+
+            if (client.CS.CPEExtensions.TryGetValue("EnvMapAppearance", out mapAppearance) &&
+                mapAppearance == EnvMapAppearanceVersion) {
+
+                var cpeData = client.CS.CurrentMap.CPESettings;
+
+                var mapApprPacket = new EnvSetMapAppearance {
+                    EdgeBlock = cpeData.EdgeBlock,
+                    SideBlock = cpeData.SideBlock,
+                    SideLevel = cpeData.SideLevel,
+                    TextureUrl = cpeData.TextureUrl
+                };
+
+                // -- Customblocks compatibility check
+                if (mapApprPacket.EdgeBlock > 49) {
+                    var mBlock = ServerCore.Blockholder.GetBlock(mapApprPacket.EdgeBlock);
+
+                    if (mBlock.CPELevel > client.CS.CustomBlocksLevel)
+                        mapApprPacket.EdgeBlock = (byte)mBlock.CPEReplace;
+                }
+
+                if (mapApprPacket.SideBlock > 49) {
+                    var mBlock = ServerCore.Blockholder.GetBlock(mapApprPacket.SideBlock);
+
+                    if (mBlock.CPELevel > client.CS.CustomBlocksLevel)
+                        mapApprPacket.SideBlock = (byte)mBlock.CPEReplace;
+                }
+
+                client.SendQueue.Enqueue(mapApprPacket);
+            }
+
+            if (client.CS.CPEExtensions.TryGetValue("BlockPermissions", out blockPerms) &&
+                blockPerms == BlockPermissionsVersion) {
+
+                foreach (var block in ServerCore.Blockholder.NumberList) {
+                    if (block.CPELevel > client.CS.CustomBlocksLevel)
+                        continue;
+
+                    if (block.Name == "Unknown")
+                        continue;
+
+                    var disallowPlace = new SetBlockPermissions {
+                        AllowDeletion = 1,
+                        AllowPlacement = 1,
+                        BlockType = block.OnClient,
+                    };
+
+                    if (!client.HasAllPermissions(block.PlacePermissions)) {
+                        disallowPlace.AllowPlacement = 0;
+                    }
+
+                    if (!client.HasAllPermissions(block.DeletePermissions))
+                        disallowPlace.AllowDeletion = 0;
+
+                    if (disallowPlace.AllowDeletion != 1 || disallowPlace.AllowPlacement != 1)
+                        client.SendQueue.Enqueue(disallowPlace);
+                }
+            }
+
+            if (client.CS.CPEExtensions.TryGetValue("EnvWeatherType", out weatherVer) &&
+                weatherVer == EnvWeatherTypeVersion) {
+
+                var weather = new EnvSetWeatherType {
+                    WeatherType = client.CS.CurrentMap.CPESettings.Weather,
+                };
+
+                client.SendQueue.Enqueue(weather);
+            }
+
+
         }
     }
 }

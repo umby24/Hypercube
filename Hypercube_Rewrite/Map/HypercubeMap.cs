@@ -71,6 +71,7 @@ namespace Hypercube.Map {
         public DateTime Lastclient; // -- The time the last client was on this map.
         public Classicworld CWMap; // -- The ClassicWorld core for this map.
         public HypercubeMetadata HCSettings; // -- Our ClassicWorld Metadata
+        public CPEMetadata CPESettings;
         public Thread BlockThread, PhysicsThread; // -- Threads for handling block and physics changes.
         public MapHistory History; // -- History for tracking block changes.
 
@@ -126,20 +127,24 @@ namespace Hypercube.Map {
             CWMap.CreatingService = "Classicube";
             CWMap.CreatingUsername = "[SERVER]";
 
-            var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
+            CPESettings = (CPEMetadata) CWMap.MetadataParsers["CPE"];
 
-            if (cpeMeta.CustomBlocksFallback == null) {
-                cpeMeta.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
-                cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
-                cpeMeta.CustomBlocksFallback = new byte[256];
+            if (CPESettings.CustomBlocksFallback == null) {
+                CPESettings.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
+                CPESettings.CustomBlocksVersion = CPE.CustomBlocksVersion;
+                CPESettings.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
+                    CPESettings.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
-                CWMap.MetadataParsers["CPE"] = cpeMeta;
+                CWMap.MetadataParsers["CPE"] = CPESettings;
             }
 
-            cpeMeta.CustomBlocksFallback = null;
+            CPESettings.TextureUrl = "";
+            CPESettings.EdgeBlock = 8;
+            CPESettings.SideBlock = 7;
+            CPESettings.SideLevel = (short)(CWMap.SizeY / 2);
+            CPESettings.EnvMapAppearanceVersion = CPE.EnvMapAppearanceVersion;
 
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
@@ -197,20 +202,26 @@ namespace Hypercube.Map {
             if (HCSettings.SaveInterval == 0)
                 HCSettings.SaveInterval = 10;
 
-            var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
+            CPESettings = (CPEMetadata)CWMap.MetadataParsers["CPE"];
 
-            if (cpeMeta.CustomBlocksFallback == null) {
-                cpeMeta.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
-                cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
-                cpeMeta.CustomBlocksFallback = new byte[256];
+            if (CPESettings.CustomBlocksFallback == null) {
+                CPESettings.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
+                CPESettings.CustomBlocksVersion = CPE.CustomBlocksVersion;
+                CPESettings.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
+                    CPESettings.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
-                CWMap.MetadataParsers["CPE"] = cpeMeta;
+                CWMap.MetadataParsers["CPE"] = CPESettings;
             }
 
-            cpeMeta.CustomBlocksFallback = null;
+            if (CPESettings.EnvMapAppearanceVersion != CPE.EnvMapAppearanceVersion) {
+                CPESettings.TextureUrl = "";
+                CPESettings.EdgeBlock = 8;
+                CPESettings.SideBlock = 7;
+                CPESettings.SideLevel = (short)(CWMap.SizeY / 2);
+                CPESettings.EnvMapAppearanceVersion = CPE.EnvMapAppearanceVersion;
+            }
 
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
@@ -302,6 +313,7 @@ namespace Hypercube.Map {
             HCSettings.ShowPerms = PermissionContainer.PermissionsToString(Showperms);
 
             CWMap.MetadataParsers["Hypercube"] = HCSettings;
+            CWMap.MetadataParsers["CPE"] = CPESettings;
 
             CWMap.Save(filename != "" ? filename : Path);
         }
@@ -383,20 +395,26 @@ namespace Hypercube.Map {
             if (HCSettings.SaveInterval == 0)
                 HCSettings.SaveInterval = 10;
 
-            var cpeMeta = (CPEMetadata)CWMap.MetadataParsers["CPE"];
+            CPESettings = (CPEMetadata)CWMap.MetadataParsers["CPE"];
 
-            if (cpeMeta.CustomBlocksFallback == null) {
-                cpeMeta.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
-                cpeMeta.CustomBlocksVersion = CPE.CustomBlocksVersion;
-                cpeMeta.CustomBlocksFallback = new byte[256];
+            if (CPESettings.CustomBlocksFallback == null) {
+                CPESettings.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
+                CPESettings.CustomBlocksVersion = CPE.CustomBlocksVersion;
+                CPESettings.CustomBlocksFallback = new byte[256];
 
                 for (var i = 50; i < 66; i++)
-                    cpeMeta.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
+                    CPESettings.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
 
-                CWMap.MetadataParsers["CPE"] = cpeMeta;
+                CWMap.MetadataParsers["CPE"] = CPESettings;
             }
 
-            cpeMeta.CustomBlocksFallback = null;
+            if (CPESettings.EnvMapAppearanceVersion != CPE.EnvMapAppearanceVersion) {
+                CPESettings.TextureUrl = "";
+                CPESettings.EdgeBlock = 8;
+                CPESettings.SideBlock = 7;
+                CPESettings.SideLevel = (short)(CWMap.SizeY / 2);
+                CPESettings.EnvMapAppearanceVersion = CPE.EnvMapAppearanceVersion;
+            }
 
             if (HCSettings.History)
                 History = new MapHistory(this);
@@ -559,6 +577,13 @@ namespace Hypercube.Map {
             }
         }
 
+        public void ResendCPE() {
+            lock (ClientLock) {
+                foreach (var c in Clients.Values) 
+                    CPE.PostMapActions(c);
+            }
+        }
+
         public void Send(NetworkClient client) {
             if (!Loaded)
                 Load();
@@ -628,6 +653,7 @@ namespace Hypercube.Map {
             var final = new LevelFinalize {SizeX = CWMap.SizeX, SizeY = CWMap.SizeZ, SizeZ = CWMap.SizeY};
             client.SendQueue.Enqueue(final);
 
+            CPE.PostMapActions(client);
             GC.Collect();
         }
 
