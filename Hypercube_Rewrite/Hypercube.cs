@@ -14,14 +14,14 @@ using Hypercube.Mapfills;
 
 namespace Hypercube
 {
-    // -- ServerCore Classic Minecraft Software by Umby24
+    // -- Hypercube Classic Minecraft Software by Umby24
     // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
     // -- 
     // -- TODO: Add physics on mapload
     // -- TODO: Add vanish
     // -- TODO: Make gui
     // -- TODO: Add Teleporters
-    // -- TODO: Make line, box, sphere threaded.
+    // -- TODO: [Low] Make line, box, sphere threaded.
     // -- TODO: Allow commands from console
 
     public static class ServerCore {

@@ -146,6 +146,10 @@ namespace Hypercube.Command {
             }
         }
 
+        public void HandleConsoleCommand(string message) {
+            
+        }
+
         /// <summary>
         /// Handles a command incoming from a client, and executes it.
         /// </summary>

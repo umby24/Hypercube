@@ -68,34 +68,35 @@ namespace Hypercube.Map {
 
     public class HypercubeMap {
         #region Variables
-        public DateTime Lastclient;
-        public Classicworld CWMap;
-        public HypercubeMetadata HCSettings;
-        public Thread BlockThread, PhysicsThread;
-        public MapHistory History;
+        public DateTime Lastclient; // -- The time the last client was on this map.
+        public Classicworld CWMap; // -- The ClassicWorld core for this map.
+        public HypercubeMetadata HCSettings; // -- Our ClassicWorld Metadata
+        public Thread BlockThread, PhysicsThread; // -- Threads for handling block and physics changes.
+        public MapHistory History; // -- History for tracking block changes.
 
-        public string Path;
-        public bool Loaded = true;
+        public string Path; // -- The path to the classicworld file.
+        public bool Loaded = true; // -- If the map blocks are loaded or not.
 
         #region Lists
+        // -- Permissions lists for who can join, build, and see this map.
         public SortedDictionary<string, Permission> Joinperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public SortedDictionary<string, Permission> Buildperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public SortedDictionary<string, Permission> Showperms = new SortedDictionary<string, Permission>(StringComparer.InvariantCultureIgnoreCase);
         public static ConcurrentQueue<BlockQueueItem> ActionQueue = new ConcurrentQueue<BlockQueueItem>();  
 
-        public Dictionary<int, Entity> Entities;
-        public Dictionary<short, NetworkClient> Clients;
-        public NetworkClient[] ClientsList;
-        public Entity[] EntitysList;
-        public object ClientLock = new object();
+        public Dictionary<int, Entity> Entities; // -- All entities on this map.
+        public Dictionary<short, NetworkClient> Clients; // -- All clients on this map.
+        public NetworkClient[] ClientsList; // -- Readonly list of clients on this map.
+        public Entity[] EntitysList; // -- Readonly list of entities on this map.
+        public object ClientLock = new object(); // -- Locks for accessing the main entity and client lists.
         public object EntityLock = new object();
 
-        public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>();
+        public ConcurrentQueue<QueueItem> BlockchangeQueue = new ConcurrentQueue<QueueItem>(); // -- The queues for block changes, and physics.
         public ConcurrentQueue<QueueItem> PhysicsQueue = new ConcurrentQueue<QueueItem>();
-        private byte[] _physicsBitmask;
+        private byte[] _physicsBitmask; // -- A simple bitmask for determineing what blocks are in the physics queue.
         #endregion
         #region IDs
-        public readonly Stack<sbyte> FreeIds = new Stack<sbyte>(127);
+        public readonly Stack<sbyte> FreeIds = new Stack<sbyte>(127); // -- a stack of entity ids available for this map.
         #endregion
         #endregion
 
@@ -232,6 +233,9 @@ namespace Hypercube.Map {
             }
         }
 
+        /// <summary>
+        /// Search the maps directory for maps and load them.
+        /// </summary>
         public static void LoadMaps() {
             if (!Directory.Exists("Maps"))
                 Directory.CreateDirectory("Maps");
@@ -261,6 +265,9 @@ namespace Hypercube.Map {
             }
         }
 
+        /// <summary>
+        /// Handle queued block changes from build modes.
+        /// </summary>
         public static void HandleActionQueue() {
             var startTime = DateTime.UtcNow;
 
@@ -278,6 +285,10 @@ namespace Hypercube.Map {
             }
         }
         #region Map Functions
+        /// <summary>
+        /// Saves the map.
+        /// </summary>
+        /// <param name="filename">Optional filename to save this map under. If not provided, saves to the current file.</param>
         public void Save(string filename = "") {
             if (!Loaded)
                 return;
@@ -295,6 +306,9 @@ namespace Hypercube.Map {
             CWMap.Save(filename != "" ? filename : Path);
         }
 
+        /// <summary>
+        /// Reloads the map after being unloaded to conserve memory.
+        /// </summary>
         public void Load() {
             if (Loaded)
                 return;
@@ -323,6 +337,10 @@ namespace Hypercube.Map {
             ServerCore.Luahandler.RunFunction("E_MapReloaded", this);
         }
 
+        /// <summary>
+        /// Loads a new file into this map object.
+        /// </summary>
+        /// <param name="filename">The file to load into this map.</param>
         public void Load(string filename) {
             if (!File.Exists(filename)) {
                 if (File.Exists(filename + "u"))
@@ -384,6 +402,9 @@ namespace Hypercube.Map {
                 History = new MapHistory(this);
         }
 
+        /// <summary>
+        /// Unloads block history and blocks to conserve server memory usage.
+        /// </summary>
         public void Unload() {
             if (Path.Substring(Path.Length - 1, 1) != "u") {
                 if (File.Exists(Path + "u"))
@@ -408,6 +429,12 @@ namespace Hypercube.Map {
             ServerCore.Luahandler.RunFunction("E_MapUnloaded", this);
         }
 
+        /// <summary>
+        /// Resizes the map.
+        /// </summary>
+        /// <param name="x">New x Size of the map.</param>
+        /// <param name="y">New y Size of the map.</param>
+        /// <param name="z">New z Size of the map.</param>
         public void Resize(short x, short y, short z) {
             var unloadMap = false;
 
@@ -434,6 +461,13 @@ namespace Hypercube.Map {
                 
         }
 
+        /// <summary>
+        /// Gets the ID of a block at the given location.
+        /// </summary>
+        /// <param name="x">X Location of the block to retreive.</param>
+        /// <param name="z">Y Location of the block to retreive.</param>
+        /// <param name="y">Z Location of the block to retreive.</param>
+        /// <returns>The blocktype for this location.</returns>
         public byte GetBlockId(short x, short z, short y) {
             if (!BlockInBounds(x, z, y))
                 return 254;
@@ -445,10 +479,25 @@ namespace Hypercube.Map {
             return CWMap.BlockData[index];
         }
 
+        /// <summary>
+        /// Retreives the block object for a block at the given location.
+        /// </summary>
+        /// <param name="x">X Location of the block to retreive.</param>
+        /// <param name="z">Y Location of the block to retreive.</param>
+        /// <param name="y">Z Location of the block to retreive.</param>
+        /// <returns>A block object</returns>
         public Block GetBlock(short x, short z, short y) {
             return ServerCore.Blockholder.GetBlock(GetBlockId(x, z, y));
         }
 
+        /// <summary>
+        /// Sets the block at the given location, and optionally records map history.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="z"></param>
+        /// <param name="y"></param>
+        /// <param name="type"></param>
+        /// <param name="clientId">-1 to not record history.</param>
         public void SetBlockId(short x, short z, short y, byte type, int clientId) {
             if (!BlockInBounds(x, z, y))
                 return;
@@ -467,11 +516,20 @@ namespace Hypercube.Map {
         public int BlockIndex(int x, int y, int z) {
             return (x + y*CWMap.SizeX + z*CWMap.SizeX*CWMap.SizeZ);
         }
+
+        /// <summary>
+        /// Determines if the given coordinates are in-bounds of the map.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
         public bool BlockInBounds(short x, short y, short z) {
             var result1 = (0 <= x && (CWMap.SizeX - 1) >= x) && (0 <= z && (CWMap.SizeY - 1) >= z);
             var result2 = result1 && (0 <= y && (CWMap.SizeZ - 1) >= y);
             return result2;
         }
+
         /// <summary>
         /// Checks for clients. If clients have not been active for more than 30 seconds, the map will be unloaded.
         /// </summary>
@@ -487,6 +545,9 @@ namespace Hypercube.Map {
             ServerCore.Logger.Log("Map", "Map saved. (" + CWMap.MapName + ")", LogType.Info);
         }
 
+        /// <summary>
+        /// Resends the map to all connected clients.
+        /// </summary>
         public void Resend() {
             BlockchangeQueue = new ConcurrentQueue<QueueItem>();
 

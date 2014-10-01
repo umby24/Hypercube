@@ -117,6 +117,5 @@ namespace Hypercube.Mapfills {
             Chat.SendMapChat(map, "&cMap done.");
         }
         #endregion
-
     }
 }
