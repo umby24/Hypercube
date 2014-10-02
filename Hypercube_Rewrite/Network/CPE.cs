@@ -4,7 +4,7 @@ using Hypercube.Core;
 namespace Hypercube.Network {
     public class CPE {
         // -- General information for CPE.
-        public const short SupportedExtensions = 10;
+        public const short SupportedExtensions = 11;
         public const byte CustomBlocksSupportLevel = 1;
 
         // -- Individual extension versions.
@@ -46,9 +46,9 @@ namespace Hypercube.Network {
             cExtEntry.Version = ClickDistanceVersion;
             client.SendQueue.Enqueue(cExtEntry);
 
-            //CExtEntry.ExtName = "ChangeModel";
-            //CExtEntry.Version = ChangeModelVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "ChangeModel";
+            cExtEntry.Version = ChangeModelVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
             cExtEntry.ExtName = "ExtPlayerList";
             cExtEntry.Version = ExtPlayerListVersion;

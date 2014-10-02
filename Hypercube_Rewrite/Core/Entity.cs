@@ -9,9 +9,10 @@ namespace Hypercube.Core {
         public byte ClientId, Rot, Look;
         public short X, Y, Z;
         public bool Looked, Changed, Visible, Spawned;
+        public string Model;
         public HypercubeMap Map;
 
-        public EntityStub(int id, byte clientId, bool visible, HypercubeMap cMap, short x, short y, short z, byte rot, byte look) {
+        public EntityStub(int id, byte clientId, bool visible, HypercubeMap cMap, short x, short y, short z, byte rot, byte look, string model) {
             Map = cMap;
             Id = id;
             ClientId = clientId;
@@ -24,6 +25,7 @@ namespace Hypercube.Core {
             Looked = false;
             Changed = false;
             Spawned = false;
+            Model = model;
         }
     }
 
@@ -48,7 +50,7 @@ namespace Hypercube.Core {
             Rot = rot;
             Look = look;
             Map = map;
-
+            Model = "default";
             
             Id = ServerCore.FreeEids.Pop();
 
@@ -67,7 +69,7 @@ namespace Hypercube.Core {
         }
 
         public EntityStub CreateStub() {
-            return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look);
+            return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look, Model);
         }
     }
 }

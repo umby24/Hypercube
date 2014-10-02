@@ -21,6 +21,8 @@ namespace Hypercube.Command {
             holder.AddCommand("/maps", CMaps);
             holder.AddCommand("/map", CMap);
             holder.AddCommand("/tp", Ctp);
+
+            holder.AddCommand("/model", CModel);
         }
 
         #region About
@@ -510,6 +512,76 @@ namespace Hypercube.Command {
             client.CS.MyEntity.SendOwn = true;
             Chat.SendClientChat(client, "§STeleported.");
         }
+        #endregion
+
+        #region Model
+        static readonly Command CModel = new Command {
+            Plugin = "",
+            Group = "General",
+            Help = "§SChanges you into a different model!<br>§SUsage: /model [mob or block]<br>§SYou may insert a block ID, or one of the following types:<br>Chicken, Creeper, Croc, Printer, Zombie, Pig, Sheep, Skeleton, Spider",
+            AllPerms = true,
+            Console = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+            },
+
+            Handler = ModelHandler,
+        };
+
+        private static void ModelHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length > 1) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp model");
+                return;
+            }
+
+            if (args.Length == 0) {
+                client.CS.MyEntity.Model = "default";
+                Chat.SendClientChat(client, "§SYour model has been reset.");
+            }
+
+            int block;
+
+            if (int.TryParse(args[0], out block)) {
+                if (block > 66 || block < 1) {
+                    Chat.SendClientChat(client, "§EInvalid block number. Must be from 1-66.");
+                    return;
+                }
+
+                client.CS.MyEntity.Model = block.ToString();
+                Chat.SendClientChat(client, "§SModel changed.");
+                return;
+            }
+
+            switch (args[0].ToLower()) {
+                case "chicken":
+                case "creeper":
+                case "croc":
+                    args[0] = "crocodile";
+                    goto case "crocodile";
+                case "crocodile":
+                case "pig":
+                case "printer":
+                case "sheep":
+                case "skele":
+                    args[0] = "skele";
+                    goto case "skeleton";
+                case "skeleton":
+                case "spider":
+                case "zombie":
+                    client.CS.MyEntity.Model = args[0].ToLower();
+                    break;
+                default:
+                    client.CS.MyEntity.Model = "default";
+                    break;
+            }
+            Chat.SendClientChat(client, "§SModel changed.");
+        }
+
         #endregion
     }
 }

@@ -489,6 +489,12 @@ namespace Hypercube.Client {
                     EFullMove(CS.CurrentMap.Entities[e.Id]);
                     e.Changed = false;
                 }
+
+                if (p.Model == e.Model) 
+                    continue;
+
+                e.Model = p.Model;
+                EModelChange(e.ClientId, e.Model);
             }
 
             foreach (var i in delete) 
@@ -548,7 +554,28 @@ namespace Hypercube.Client {
                 spawn.PlayerId = (sbyte)entity.ClientId;
             
             SendQueue.Enqueue(spawn);
-            //Spawn.Write(this);
+
+            if (!CS.CPEExtensions.ContainsKey("ChangeModel") || entity.Model == "default")
+                return;
+
+            var modelPack = new ChangeModel {
+                EntityId = entity.ClientId,
+                ModelName = entity.Model,
+            };
+
+            SendQueue.Enqueue(modelPack);
+        }
+
+        void EModelChange(byte id, string model) {
+            if (!CS.CPEExtensions.ContainsKey("ChangeModel"))
+                return;
+
+            var modelPack = new ChangeModel {
+                EntityId = id,
+                ModelName = model,
+            };
+
+            SendQueue.Enqueue(modelPack);
         }
 
         /// <summary>
