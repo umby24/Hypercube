@@ -1,13 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using ClassicWorld.NET;
-using Hypercube.Client;
+﻿using Hypercube.Client;
 using Hypercube.Core;
 
 namespace Hypercube.Network {
     public class CPE {
         // -- General information for CPE.
-        public const short SupportedExtensions = 8;
+        public const short SupportedExtensions = 10;
         public const byte CustomBlocksSupportLevel = 1;
 
         // -- Individual extension versions.
@@ -45,9 +42,9 @@ namespace Hypercube.Network {
             cExtEntry.Version = HeldBlockVersion;
             client.SendQueue.Enqueue(cExtEntry);
 
-            //CExtEntry.ExtName = "ClickDistance";
-            //CExtEntry.Version = ClickDistanceVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "ClickDistance";
+            cExtEntry.Version = ClickDistanceVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
             //CExtEntry.ExtName = "ChangeModel";
             //CExtEntry.Version = ChangeModelVersion;
@@ -95,11 +92,25 @@ namespace Hypercube.Network {
         /// </summary>
         /// <param name="client"></param>
         public static void CPEPackets(NetworkClient client) {
+            if (client.CS.CPEExtensions.ContainsKey("ClickDistance")) {
+                var distance = new SetClickDistance {Distance = (short) ServerCore.ClickDistance};
+                client.SendQueue.Enqueue(distance);
+            }
+
             if (client.CS.CPEExtensions.ContainsKey("CustomBlocks")) {
                 var cbsl = new CustomBlockSupportLevel {SupportLevel = CustomBlocksSupportLevel};
                 client.SendQueue.Enqueue(cbsl);
             } else 
                 client.Login();
+        }
+
+        public static void SendAllClickDistance() {
+            foreach (var nc in ServerCore.Nh.ClientList) {
+                if (!nc.CS.CPEExtensions.ContainsKey("ClickDistance")) 
+                    continue;
+                var distance = new SetClickDistance { Distance = (short)ServerCore.ClickDistance };
+                nc.SendQueue.Enqueue(distance);
+            }
         }
 
         /// <summary>
@@ -281,35 +292,35 @@ namespace Hypercube.Network {
 
                 // -- if envcolors is enabled on the map
                 if (client.CS.CurrentMap.CPESettings.EnvColorsVersion > 0) {
-                    var skyColor = new EnvSetColor() {
+                    var skyColor = new EnvSetColor {
                         ColorType = (byte) EnvSetColor.ColorTypes.SkyColor,
                         Red = client.CS.CurrentMap.CPESettings.SkyColor[0],
                         Green = client.CS.CurrentMap.CPESettings.SkyColor[1],
                         Blue = client.CS.CurrentMap.CPESettings.SkyColor[2],
                     };
 
-                    var cloudColor = new EnvSetColor() {
+                    var cloudColor = new EnvSetColor {
                         ColorType = (byte)EnvSetColor.ColorTypes.CloudColor,
                         Red = client.CS.CurrentMap.CPESettings.CloudColor[0],
                         Green = client.CS.CurrentMap.CPESettings.CloudColor[1],
                         Blue = client.CS.CurrentMap.CPESettings.CloudColor[2],
                     };
 
-                    var fogColor = new EnvSetColor() {
+                    var fogColor = new EnvSetColor {
                         ColorType = (byte)EnvSetColor.ColorTypes.FogColor,
                         Red = client.CS.CurrentMap.CPESettings.FogColor[0],
                         Green = client.CS.CurrentMap.CPESettings.FogColor[1],
                         Blue = client.CS.CurrentMap.CPESettings.FogColor[2],
                     };
 
-                    var ambeintColor = new EnvSetColor() {
+                    var ambeintColor = new EnvSetColor {
                         ColorType = (byte)EnvSetColor.ColorTypes.AmbientColor,
                         Red = client.CS.CurrentMap.CPESettings.AmbientColor[0],
                         Green = client.CS.CurrentMap.CPESettings.AmbientColor[1],
                         Blue = client.CS.CurrentMap.CPESettings.AmbientColor[2],
                     };
 
-                    var sunlightColor = new EnvSetColor() {
+                    var sunlightColor = new EnvSetColor {
                         ColorType = (byte)EnvSetColor.ColorTypes.SunlightColor,
                         Red = client.CS.CurrentMap.CPESettings.SunlightColor[0],
                         Green = client.CS.CurrentMap.CPESettings.SunlightColor[1],

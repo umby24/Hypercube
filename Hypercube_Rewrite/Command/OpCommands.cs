@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Hypercube.Core;
 using Hypercube.Client;
+using Hypercube.Network;
 
 namespace Hypercube.Command {
     internal static class OpCommands {
@@ -19,6 +20,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/unban", CUnban);
             holder.AddCommand("/unmute", CUnmute);
             holder.AddCommand("/unstop", CUnstop);
+            holder.AddCommand("/clickdistance", CClickDistance);
         }
 
         #region AddRank
@@ -719,6 +721,48 @@ namespace Hypercube.Command {
             if (ServerCore.Nh.LoggedClients.ContainsKey(args[0]))
                 ServerCore.Nh.LoggedClients[args[0]].CS.Stopped = false;
         }
+        #endregion
+
+        // -- CPE
+        #region ClickDistance
+        static readonly Command CClickDistance = new Command {
+            Plugin = "",
+            Group = "Op",
+            Help = "§SSets the click distance in blocks for clients.<br>§SUsage: /clickdistance [blocks]",
+            Console = true,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+            },
+
+            Handler = ClickDistanceHandler,
+        };
+
+        private static void ClickDistanceHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length != 1) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp clickdistance");
+                return;
+            }
+
+            int dist;
+
+            if (!int.TryParse(args[0], out dist)) {
+                Chat.SendClientChat(client, "§EInvalid argument. Distance must be a number.");
+                return;
+            }
+
+            dist *= 32;
+            ServerCore.ClickDistance = dist;
+            ServerCore.SaveSystemSettings();
+            CPE.SendAllClickDistance();
+            Chat.SendClientChat(client, "§SClick distance set.");
+        }
+
         #endregion
     }
 }

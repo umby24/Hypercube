@@ -40,7 +40,7 @@ namespace Hypercube
         #region Server SettingsDictionary
         public static string ServerName, Motd, WelcomeMessage, MapMain;
         public static bool CompressHistory, ColoredConsole;
-        public static int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000;
+        public static int MaxBlockChanges = 33000, MaxHistoryEntries = 10, MaxUndoSteps = 1000, ClickDistance = 160;
         public static List<string> Rules;
         public static Rank DefaultRank;
 
@@ -224,6 +224,8 @@ namespace Hypercube
             MaxBlockChanges = int.Parse(Settings.ReadSetting(SysSettings, "MaxBlocksSecond", "33000"));
             MaxHistoryEntries = int.Parse(Settings.ReadSetting(SysSettings, "MaxHistoryEntries", "10"));
 
+            ClickDistance = int.Parse(Settings.ReadSetting(SysSettings, "Click Distance", "160"));
+
             DefaultRank = new Rank(Settings.ReadSetting(SysSettings, "DefaultRank", "Guest"), "Default", "", "", false, 0, "");
 
             if (Running)
@@ -246,6 +248,7 @@ namespace Hypercube
             Settings.SaveSetting(SysSettings, "MaxBlocksSecond", MaxBlockChanges.ToString());
             Settings.SaveSetting(SysSettings, "MaxHistoryEntries", MaxHistoryEntries.ToString());
             Settings.SaveSetting(SysSettings, "DefaultRank", DefaultRank.Name);
+            Settings.SaveSetting(SysSettings, "Click Distance", ClickDistance.ToString());
             Settings.SaveSettings(SysSettings);
          }
 
