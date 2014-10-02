@@ -23,6 +23,7 @@ namespace Hypercube
     // -- TODO: Add Teleporters
     // -- TODO: [Low] Make line, box, sphere threaded.
     // -- TODO: Allow commands from console
+    // -- BUG: Occationally, map history file is in use somewhere else (on map shutdown via console's 'end')
 
     public static class ServerCore {
         #region Variables

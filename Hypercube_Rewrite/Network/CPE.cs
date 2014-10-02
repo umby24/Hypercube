@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using ClassicWorld.NET;
 using Hypercube.Client;
 using Hypercube.Core;
@@ -84,9 +85,9 @@ namespace Hypercube.Network {
             //CExtEntry.Version = SelectionCuboidVersion;
             //CExtEntry.Write(Client);
 
-            //CExtEntry.ExtName = "EnvColors";
-            //CExtEntry.Version = EnvColorsVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "EnvColors";
+            cExtEntry.Version = EnvColorsVersion;
+            client.SendQueue.Enqueue(cExtEntry);
         }
         
         /// <summary>
@@ -197,8 +198,9 @@ namespace Hypercube.Network {
         /// </summary>
         /// <param name="client"></param>
         public static void PostMapActions(NetworkClient client) {
-            int mapAppearance, blockPerms, weatherVer;
+            int mapAppearance, blockPerms, weatherVer, colorVer;
 
+            // -- EnvMapAppearance
             if (client.CS.CPEExtensions.TryGetValue("EnvMapAppearance", out mapAppearance) &&
                 mapAppearance == EnvMapAppearanceVersion) {
 
@@ -229,17 +231,22 @@ namespace Hypercube.Network {
                 client.SendQueue.Enqueue(mapApprPacket);
             }
 
+            // -- BlockPermissions
+
             if (client.CS.CPEExtensions.TryGetValue("BlockPermissions", out blockPerms) &&
                 blockPerms == BlockPermissionsVersion) {
 
-                foreach (var block in ServerCore.Blockholder.NumberList) {
-                    if (block.CPELevel > client.CS.CustomBlocksLevel)
+                foreach (var block in ServerCore.Blockholder.NumberList) { // -- For every block
+                    if (block.CPELevel > client.CS.CustomBlocksLevel) // -- If its within this player's CustomBlock support
                         continue;
 
-                    if (block.Name == "Unknown")
+                    if (block.Name == "Unknown") // -- If its not an unknown block
                         continue;
 
-                    var disallowPlace = new SetBlockPermissions {
+                    if (block.Special) // -- If it's not a custom block.
+                        continue;
+
+                    var disallowPlace = new SetBlockPermissions { // -- THen set the permissions for the block
                         AllowDeletion = 1,
                         AllowPlacement = 1,
                         BlockType = block.OnClient,
@@ -252,11 +259,12 @@ namespace Hypercube.Network {
                     if (!client.HasAllPermissions(block.DeletePermissions))
                         disallowPlace.AllowDeletion = 0;
 
-                    if (disallowPlace.AllowDeletion != 1 || disallowPlace.AllowPlacement != 1)
+                    if (disallowPlace.AllowDeletion != 1 || disallowPlace.AllowPlacement != 1) // -- Only send if we're changing permissions though
                         client.SendQueue.Enqueue(disallowPlace);
                 }
             }
 
+            // -- EnvWeatherType
             if (client.CS.CPEExtensions.TryGetValue("EnvWeatherType", out weatherVer) &&
                 weatherVer == EnvWeatherTypeVersion) {
 
@@ -267,7 +275,54 @@ namespace Hypercube.Network {
                 client.SendQueue.Enqueue(weather);
             }
 
+            // -- EnvColors
+            if (client.CS.CPEExtensions.TryGetValue("EnvColors", out colorVer) &&
+                colorVer == EnvColorsVersion) {
 
+                // -- if envcolors is enabled on the map
+                if (client.CS.CurrentMap.CPESettings.EnvColorsVersion > 0) {
+                    var skyColor = new EnvSetColor() {
+                        ColorType = (byte) EnvSetColor.ColorTypes.SkyColor,
+                        Red = client.CS.CurrentMap.CPESettings.SkyColor[0],
+                        Green = client.CS.CurrentMap.CPESettings.SkyColor[1],
+                        Blue = client.CS.CurrentMap.CPESettings.SkyColor[2],
+                    };
+
+                    var cloudColor = new EnvSetColor() {
+                        ColorType = (byte)EnvSetColor.ColorTypes.CloudColor,
+                        Red = client.CS.CurrentMap.CPESettings.CloudColor[0],
+                        Green = client.CS.CurrentMap.CPESettings.CloudColor[1],
+                        Blue = client.CS.CurrentMap.CPESettings.CloudColor[2],
+                    };
+
+                    var fogColor = new EnvSetColor() {
+                        ColorType = (byte)EnvSetColor.ColorTypes.FogColor,
+                        Red = client.CS.CurrentMap.CPESettings.FogColor[0],
+                        Green = client.CS.CurrentMap.CPESettings.FogColor[1],
+                        Blue = client.CS.CurrentMap.CPESettings.FogColor[2],
+                    };
+
+                    var ambeintColor = new EnvSetColor() {
+                        ColorType = (byte)EnvSetColor.ColorTypes.AmbientColor,
+                        Red = client.CS.CurrentMap.CPESettings.AmbientColor[0],
+                        Green = client.CS.CurrentMap.CPESettings.AmbientColor[1],
+                        Blue = client.CS.CurrentMap.CPESettings.AmbientColor[2],
+                    };
+
+                    var sunlightColor = new EnvSetColor() {
+                        ColorType = (byte)EnvSetColor.ColorTypes.SunlightColor,
+                        Red = client.CS.CurrentMap.CPESettings.SunlightColor[0],
+                        Green = client.CS.CurrentMap.CPESettings.SunlightColor[1],
+                        Blue = client.CS.CurrentMap.CPESettings.SunlightColor[2],
+                    };
+
+                    client.SendQueue.Enqueue(skyColor);
+                    client.SendQueue.Enqueue(cloudColor);
+                    client.SendQueue.Enqueue(fogColor);
+                    client.SendQueue.Enqueue(ambeintColor);
+                    client.SendQueue.Enqueue(sunlightColor);
+                }
+            }
         }
     }
 }

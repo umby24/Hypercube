@@ -29,6 +29,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/texture", CTexture);
             holder.AddCommand("/setedge", CSetEdge);
             holder.AddCommand("/setweather", CSetWeather);
+            holder.AddCommand("/setcolors", CSetColors);
         }
 
         #region Mapadd
@@ -595,6 +596,9 @@ namespace Hypercube.Command {
             int testint;
 
             if (int.TryParse(args[0], out testint)) {
+                if (testint <= 0) { // -- Reset to default.
+                    testint = 7;
+                }
                 var sideBlock = ServerCore.Blockholder.GetBlock(testint);
 
                 if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
@@ -617,6 +621,9 @@ namespace Hypercube.Command {
             }
 
             if (int.TryParse(args[1], out testint)) {
+                if (testint <= 0) { // -- Reset to default.
+                    testint = 8;
+                }
                 var sideBlock = ServerCore.Blockholder.GetBlock(testint);
 
                 if (sideBlock.Name != "Unknown" && CPE.AppearanceAllowed(sideBlock))
@@ -646,6 +653,9 @@ namespace Hypercube.Command {
                 Chat.SendClientChat(client, "§EInvalid side level.");
                 return;
             }
+
+            if (testint < 0)
+                testint = client.CS.CurrentMap.CWMap.SizeY/2;
 
             client.CS.CurrentMap.CPESettings.SideLevel = (short) testint;
             client.CS.CurrentMap.ResendCPE();
@@ -678,7 +688,7 @@ namespace Hypercube.Command {
                 return;
             }
 
-            switch (args[0]) {
+            switch (args[0].ToLower()) {
                 case "0":
                 case "none":
                 case "sunny":
@@ -701,6 +711,104 @@ namespace Hypercube.Command {
             }
             
             Chat.SendClientChat(client, "§SChanged applied.");
+            client.CS.CurrentMap.ResendCPE();
+        }
+
+        #endregion
+        #region SetColors
+        static readonly Command CSetColors = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SSets the enviroment colors for the map you're in.<br>§SUsage: /setcolors [r] [g] [b] [type] <br>§STypes are 0, 1, 2, 3, 4 (Sky, cloud, fog, ambient, sun)",
+            Console = false,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+                {"map.fillmap", new Permission { Fullname = "map.fillmap", Group = "map", Perm = "fillmap"}},
+            },
+
+            Handler = SetColorsHandler,
+        };
+
+        private static void SetColorsHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length != 4) {
+                Chat.SendClientChat(client, "§EInvalid number of arguments. See /cmdhelp setcolors");
+                return;
+            }
+
+            short r, g, b;
+
+            if (!short.TryParse(args[0], out r)) {
+                Chat.SendClientChat(client, "§EField 'R' Must be a number.");
+                return;
+            }
+
+            if (!short.TryParse(args[1], out g)) {
+                Chat.SendClientChat(client, "§EField 'G' Must be a number.");
+                return;
+            }
+
+            if (!short.TryParse(args[2], out b)) {
+                Chat.SendClientChat(client, "§EField 'B' Must be a number.");
+                return;
+            }
+
+            if (r < 0) {
+                r = -1;
+            }
+
+            if (g < 0) {
+                g = -1;
+            }
+
+            if (b < 0) {
+                b = -1;
+            }
+
+            if (client.CS.CurrentMap.CPESettings.EnvColorsVersion == 0) {
+                client.CS.CurrentMap.CPESettings.EnvColorsVersion = 1;
+                client.CS.CurrentMap.CPESettings.SkyColor = new short[] {-1, -1, -1};
+                client.CS.CurrentMap.CPESettings.CloudColor = new short[] { -1, -1, -1 };
+                client.CS.CurrentMap.CPESettings.FogColor = new short[] { -1, -1, -1 };
+                client.CS.CurrentMap.CPESettings.AmbientColor = new short[] { -1, -1, -1 };
+                client.CS.CurrentMap.CPESettings.SunlightColor = new short[] { -1, -1, -1 };
+            }
+
+            switch (args[3].ToLower()) {
+                case "0":
+                case "sky":
+                    client.CS.CurrentMap.CPESettings.SkyColor = new[] {r, g, b};
+                    break;
+                case "1":
+                case "cloud":
+                    client.CS.CurrentMap.CPESettings.CloudColor = new[] {r, g, b};
+                    break;
+                case "2":
+                case "fog":
+                    client.CS.CurrentMap.CPESettings.FogColor = new[] {r, g, b};
+                    break;
+                case "3":
+                case "ambient":
+                case "amb":
+                    client.CS.CurrentMap.CPESettings.AmbientColor = new[] {r, g, b};
+                    break;
+                case "4":
+                case "sun":
+                case "sunlight":
+                    client.CS.CurrentMap.CPESettings.SunlightColor = new[] {r, g, b};
+                    break;
+                default:
+                    Chat.SendClientChat(client, "§EInvalid color type.");
+                    return;
+            }
+
+            Chat.SendClientChat(client, "§SChanges applied.");
             client.CS.CurrentMap.ResendCPE();
         }
 

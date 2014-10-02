@@ -51,7 +51,6 @@ namespace Hypercube.Core {
 
             
             Id = ServerCore.FreeEids.Pop();
-            ServerCore.Logger.Log("Client", "Pop ID " + Id, LogType.Debug);
 
             BuildMaterial = ServerCore.Blockholder.GetBlock("");
             Lastmaterial = ServerCore.Blockholder.GetBlock(1);

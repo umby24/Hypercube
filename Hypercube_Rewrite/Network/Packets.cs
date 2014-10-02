@@ -695,6 +695,14 @@ namespace Hypercube.Network {
         public short Green { get; set; }
         public short Blue { get; set; }
 
+        public enum ColorTypes {
+            SkyColor = 0,
+            CloudColor,
+            FogColor,
+            AmbientColor,
+            SunlightColor,
+        }
+
         public void Read(NetworkClient client) {
 
         }

@@ -27,7 +27,6 @@ namespace Hypercube.Core
         /// <returns></returns>
         public static List<Rank> SplitRanks(string rankString) {
             var splitRanks = rankString.Split(',');
-            Console.WriteLine(rankString);
             return splitRanks.Select(s => ServerCore.Rankholder.GetRank(int.Parse(s))).ToList();
         }
 
