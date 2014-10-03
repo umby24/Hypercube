@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Net;
 using System.Web;
@@ -41,7 +42,7 @@ namespace Hypercube.Network {
         /// <returns>IPv4 Address of the given site.</returns>
         public string GetIPv4Address(string site) {
             var addresses = Dns.GetHostAddresses(site);
-            var v4 = addresses.First(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            var v4 = addresses.First(ip => ip.AddressFamily == AddressFamily.InterNetwork);
 
             return v4.ToString();
         }

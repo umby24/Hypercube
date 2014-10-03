@@ -13,7 +13,7 @@ namespace Hypercube.Map
 
         private readonly string _baseName;
         private readonly HypercubeMap _thisMap;
-        private object eLock = new object();
+        private readonly object _eLock = new object();
         public List<HistoryEntry> Entries;
         private bool _fragmented;
 
@@ -106,7 +106,7 @@ namespace Hypercube.Map
             var indexTableSize = (_thisMap.CWMap.SizeX*_thisMap.CWMap.SizeY*_thisMap.CWMap.SizeZ)*4;
 
             using (var fs = new FileStream(_baseName + ".hch", FileMode.Open)) {
-                lock (eLock) {
+                lock (_eLock) {
                     foreach (var h in Entries) {
                         var temp = new byte[4];
                         var index = (h.Y*_thisMap.CWMap.SizeZ + h.Z)*_thisMap.CWMap.SizeX + h.X;
@@ -248,7 +248,7 @@ namespace Hypercube.Map
             }
 
             // -- Now we've loaded the entries from file, and we must apply everything that has changed since then..
-            lock (eLock) {
+            lock (_eLock) {
                 foreach (var h in Entries) {
                     if (!(h.X == x && h.Y == y && h.Z == z))
                         continue;
@@ -346,7 +346,7 @@ namespace Hypercube.Map
                 Timestamp = (int) ServerCore.GetCurrentUnixTime()
             };
 
-            lock (eLock) {
+            lock (_eLock) {
                 Entries.Add(he);
             }
 

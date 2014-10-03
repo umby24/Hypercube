@@ -96,10 +96,12 @@ namespace Hypercube.Client {
             LoadDB(); // -- Load the user's profile
 
             // -- Check to ensure noone with the same name is already logged in
-            if (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName)) {
-                ServerCore.Nh.LoggedClients[CS.LoginName].KickNow("Logged in from another location");
+            NetworkClient client;
 
-                while (ServerCore.Nh.LoggedClients.ContainsKey(CS.LoginName))
+            if (ServerCore.Nh.LoggedClients.TryGetValue(CS.LoginName, out client)) {
+                client.KickNow("Logged in from another location");
+
+                while (ServerCore.Nh.LoggedClients.TryGetValue(CS.LoginName, out client))
                     Thread.Sleep(1);
             }
 
@@ -235,9 +237,10 @@ namespace Hypercube.Client {
             ServerCore.Nh.CreateLists();
 
             var remove = new ExtRemovePlayerName { NameId = CS.NameId };
-                
+
             foreach (var c in ServerCore.Nh.ClientList) {
-                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                int extVer;
+                if (c.CS.CPEExtensions.TryGetValue("ExtPlayerList", out extVer))
                     c.SendQueue.Enqueue(remove);
             }
 
@@ -555,7 +558,9 @@ namespace Hypercube.Client {
             
             SendQueue.Enqueue(spawn);
 
-            if (!CS.CPEExtensions.ContainsKey("ChangeModel") || entity.Model == "default")
+            int extVer;
+
+            if (!CS.CPEExtensions.TryGetValue("ChangeModel", out extVer) || entity.Model == "default")
                 return;
 
             var modelPack = new ChangeModel {
@@ -567,7 +572,9 @@ namespace Hypercube.Client {
         }
 
         void EModelChange(byte id, string model) {
-            if (!CS.CPEExtensions.ContainsKey("ChangeModel"))
+            int extVer;
+
+            if (!CS.CPEExtensions.TryGetValue("ChangeModel", out extVer))
                 return;
 
             var modelPack = new ChangeModel {
@@ -649,14 +656,17 @@ namespace Hypercube.Client {
                 if (BaseStream.DataAvailable) {
                     var opCode = WSock.ReadByte();
 
-                    if (!_packets.ContainsKey(opCode)) {
+                    Func<IPacket> packet;
+
+                    if (!_packets.TryGetValue(opCode, out packet)) {
                         KickPlayer("Invalid packet received.");
                         ServerCore.Logger.Log("Client", "Invalid packet received: " + opCode, LogType.Warning);
+                        return;
                     }
 
                     CS.LastActive = DateTime.UtcNow;
 
-                    var incoming = _packets[opCode]();
+                    var incoming = packet();
                     incoming.Read(this);
                     incoming.Handle(this);
                 }

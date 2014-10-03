@@ -1,8 +1,7 @@
 ﻿using System;
-using System.CodeDom;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Remoting;
 using System.Threading;
 using Hypercube.Client;
 using Hypercube.Core;
@@ -252,7 +251,7 @@ namespace Hypercube.Command {
         };
 
         static void MapresendHandler(NetworkClient client, string[] args, string text1, string text2) {
-            client.CS.CurrentMap.BlockchangeQueue = new System.Collections.Concurrent.ConcurrentQueue<QueueItem>();
+            client.CS.CurrentMap.BlockchangeQueue = new ConcurrentQueue<QueueItem>();
             client.CS.CurrentMap.Resend();
         }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-
+using ClassicWorld.NET;
 using Hypercube.Core;
 using Hypercube.Libraries;
 
@@ -66,7 +66,7 @@ namespace Hypercube.Map {
 
             // -- Now, Block data will be properly oriented for use in ClassicWorld maps, and we have all the data we need to create a classicworld map.
 
-            var cwMap = new ClassicWorld.NET.Classicworld(Mapsize.X, Mapsize.Z, Mapsize.Y) {
+            var cwMap = new Classicworld(Mapsize.X, Mapsize.Z, Mapsize.Y) {
                 BlockData = Blockdata,
                 SpawnX = Spawn.X,
                 SpawnY = Spawn.Z,

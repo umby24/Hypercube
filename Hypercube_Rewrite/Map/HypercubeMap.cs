@@ -9,6 +9,7 @@ using fNbt;
 
 using Hypercube.Client;
 using Hypercube.Core;
+using Hypercube.Libraries;
 using Hypercube.Network;
 
 namespace Hypercube.Map {
@@ -611,7 +612,7 @@ namespace Hypercube.Map {
                 offset += 1;
             }
 
-            temp = Libraries.GZip.Compress(temp);
+            temp = GZip.Compress(temp);
 
             var init = new LevelInit();
             client.SendQueue.Enqueue(init);

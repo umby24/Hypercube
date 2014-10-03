@@ -96,7 +96,7 @@ namespace Hypercube.Command {
                 ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
                 Chat.SendClientChat(ServerCore.Nh.LoggedClients[args[0]], "§SYou now have a rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "!");
                 ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
-                Network.CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
+                CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
             }
 
             Chat.SendClientChat(client, "§S" + args[0] + "'s Rank was updated.");
@@ -227,7 +227,7 @@ namespace Hypercube.Command {
                 ServerCore.Nh.LoggedClients[args[0]].CS.RankSteps = steps;
                 Chat.SendClientChat(ServerCore.Nh.LoggedClients[args[0]], "§SYour rank of " + newRank.Prefix + newRank.Name + newRank.Suffix + "§S has been removed.");
                 ServerCore.Nh.LoggedClients[args[0]].CS.FormattedName = newRank.Prefix + ServerCore.Nh.LoggedClients[args[0]].CS.LoginName + newRank.Suffix;
-                Network.CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
+                CPE.UpdateExtPlayerList(ServerCore.Nh.LoggedClients[args[0]]);
             }
 
             Chat.SendClientChat(client, "§S" + args[0] + "'s Ranks were updated.");
@@ -466,7 +466,7 @@ namespace Hypercube.Command {
             }
 
             Chat.SendClientChat(client, "§S" + args[0] + "'s Rank was updated.");
-            Network.CPE.UpdateExtPlayerList(client);
+            CPE.UpdateExtPlayerList(client);
         }
         #endregion
         #region Setrank
@@ -542,7 +542,7 @@ namespace Hypercube.Command {
             }
 
             Chat.SendClientChat(client, "§S" + args[0] + "'s Rank was updated.");
-            Network.CPE.UpdateExtPlayerList(client);
+            CPE.UpdateExtPlayerList(client);
         }
         #endregion
         #region Stop
