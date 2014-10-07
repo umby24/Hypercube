@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Hypercube.Map;
+using Hypercube.Network;
 using NLua;
 using NLua.Exceptions;
 using Hypercube.Core;
@@ -42,7 +43,7 @@ namespace Hypercube.Libraries {
         /// </summary>
         public void RegisterFunctions() {
             var luaChat = new Chat();
-
+            var luaCPE = new CPE();
             // -- Functions
             LuaHandler.RegisterFunction("Log", ServerCore.Logger, ServerCore.Logger.GetType().GetMethod("Log"));
             // -- Command creation functions
@@ -64,6 +65,8 @@ namespace Hypercube.Libraries {
             LuaHandler.RegisterFunction("SendMapChat", luaChat, luaChat.GetType().GetMethod("SendMapChat"));
             LuaHandler.RegisterFunction("SendClientChat", luaChat, luaChat.GetType().GetMethod("SendClientChat"));
             LuaHandler.RegisterFunction("CreateFill", ServerCore.Fillholder, ServerCore.Fillholder.GetType().GetMethod("CreateFill"));
+            LuaHandler.RegisterFunction("CreateSelection", luaCPE, luaCPE.GetType().GetMethod("CreateSelection"));
+            LuaHandler.RegisterFunction("DeleteSelection", luaCPE, luaCPE.GetType().GetMethod("DeleteSelection"));
             LuaHandler.RegisterFunction("GetBlockI", ServerCore.Blockholder,
                 ServerCore.Blockholder.GetType().GetMethod("GetBlock", new[] {typeof (int)}));
             LuaHandler.RegisterFunction("GetBlockS", ServerCore.Blockholder,

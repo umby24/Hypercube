@@ -4,7 +4,7 @@ using Hypercube.Core;
 namespace Hypercube.Network {
     public class CPE {
         // -- General information for CPE.
-        public const short SupportedExtensions = 11;
+        public const short SupportedExtensions = 12;
         public const byte CustomBlocksSupportLevel = 1;
 
         // -- Individual extension versions.
@@ -78,9 +78,9 @@ namespace Hypercube.Network {
             //CExtEntry.Version = HackControlVersion;
             //CExtEntry.Write(Client);
 
-            //CExtEntry.ExtName = "SelectionCuboid";
-            //CExtEntry.Version = SelectionCuboidVersion;
-            //CExtEntry.Write(Client);
+            cExtEntry.ExtName = "SelectionCuboid";
+            cExtEntry.Version = SelectionCuboidVersion;
+            client.SendQueue.Enqueue(cExtEntry);
 
             cExtEntry.ExtName = "EnvColors";
             cExtEntry.Version = EnvColorsVersion;
@@ -104,6 +104,9 @@ namespace Hypercube.Network {
                 client.Login();
         }
 
+        /// <summary>
+        /// Sends a new click distance to all logged in clients.
+        /// </summary>
         public static void SendAllClickDistance() {
             foreach (var nc in ServerCore.Nh.ClientList) {
                 if (!nc.CS.CPEExtensions.ContainsKey("ClickDistance")) 
@@ -334,6 +337,68 @@ namespace Hypercube.Network {
                     client.SendQueue.Enqueue(sunlightColor);
                 }
             }
+        }
+
+        public static void CreateSelection(NetworkClient client, byte selectionId, string label, short x, short y, short z, short x1, short y1, short z1, short red, short green, short blue, short opacity) {
+            int selectionVer;
+
+            if (!client.CS.CPEExtensions.TryGetValue("SelectionCuboid", out selectionVer) && selectionVer == SelectionCuboidVersion) 
+                return;
+            
+            if (x > x1) {
+                var temp = x;
+                x = x1;
+                x1 = temp;
+            }
+            if (y > y1) {
+                var temp = y;
+                y = y1;
+                y1 = temp;
+            }
+            if (z > z1) {
+                var temp = z;
+                z = z1;
+                z1 = temp;
+            }
+
+            if (client.CS.SelectionCuboids.Contains(selectionId)) 
+                DeleteSelection(client, selectionId);
+            
+            client.CS.SelectionCuboids.Add(selectionId);
+
+            var selectionPack = new MakeSelection {
+                Red = red,
+                Green = green,
+                Blue = blue,
+                Opacity = opacity,
+                StartX = x,
+                StartY = y,
+                StartZ = z,
+                EndX = x1,
+                EndY = y1,
+                EndZ = z1,
+                Label = label,
+                SelectionId = selectionId,
+            };
+
+            client.SendQueue.Enqueue(selectionPack);
+        }
+
+        public static void DeleteSelection(NetworkClient client, byte selectionId) {
+            int selectionVer;
+
+            if (!client.CS.CPEExtensions.TryGetValue("SelectionCuboid", out selectionVer) && selectionVer == SelectionCuboidVersion)
+                return;
+
+            if (!client.CS.SelectionCuboids.Contains(selectionId))
+                return;
+
+            var remSelect = new RemoveSelection {
+                SelectionId = selectionId,
+            };
+
+            client.SendQueue.Enqueue(remSelect);
+            client.CS.SelectionCuboids.Remove(selectionId);
         }
     }
 }

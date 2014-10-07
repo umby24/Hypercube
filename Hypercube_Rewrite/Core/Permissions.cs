@@ -73,6 +73,7 @@ namespace Hypercube.Core {
                 sw.WriteLine("player.stop");
                 sw.WriteLine("chat.readstaffchat");
                 sw.WriteLine("chat.useemotes");
+                sw.WriteLine("block.disabled");
             }
 
             ServerCore.Logger.Log("PermContainer", "Permissions created", LogType.Info);

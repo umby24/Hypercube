@@ -176,7 +176,18 @@ namespace ServerGUI {
             selectBlockKills.SelectedIndex = thisBlock.Kills ? 0 : 1;
             selectBlockSpecial.SelectedIndex = thisBlock.Special ? 0 : 1;
             selectRepPhysics.SelectedIndex = thisBlock.RepeatPhysics ? 0 : 1;
-           // selectPhysMapLoad.SelectedIndex = thisBlock
+            selectCPELevel.SelectedIndex = thisBlock.CPELevel;
+
+            lstPlacePerms.Items.Clear();
+            lstDeletePerms.Items.Clear();
+
+            foreach (var p in thisBlock.PlacePermissions)
+                lstPlacePerms.Items.Add(p.Key);
+
+            foreach (var p in thisBlock.DeletePermissions)
+                lstDeletePerms.Items.Add(p.Key);
+
+            // selectPhysMapLoad.SelectedIndex = thisBlock
         }
 
         private void btnCreateBlock_Click(object sender, EventArgs e) {

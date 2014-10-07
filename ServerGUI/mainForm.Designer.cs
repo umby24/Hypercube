@@ -42,6 +42,7 @@
             this.debugTab = new System.Windows.Forms.TabPage();
             this.txtDebugBox = new System.Windows.Forms.RichTextBox();
             this.settingsTab = new System.Windows.Forms.TabPage();
+            this.btnSaveSettings = new System.Windows.Forms.Button();
             this.btnRuleEdit = new System.Windows.Forms.Button();
             this.grpSettingsChat = new System.Windows.Forms.GroupBox();
             this.txtChatDivider = new System.Windows.Forms.TextBox();
@@ -112,7 +113,36 @@
             this.addMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.commandsTab = new System.Windows.Forms.TabPage();
+            this.btnReloadCmd = new System.Windows.Forms.Button();
+            this.btnSaveCmd = new System.Windows.Forms.Button();
+            this.btnDeleteCmd = new System.Windows.Forms.Button();
+            this.btnAddCommand = new System.Windows.Forms.Button();
+            this.lblCmdHelp = new System.Windows.Forms.Label();
+            this.lblCmdPlugin = new System.Windows.Forms.Label();
+            this.lblCmdGrp = new System.Windows.Forms.Label();
+            this.lblCmdName = new System.Windows.Forms.Label();
+            this.chkCmdConsole = new System.Windows.Forms.CheckBox();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.chkCmdAllPerms = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lstCmdShowPerms = new System.Windows.Forms.ListBox();
+            this.lstCmdUsePerms = new System.Windows.Forms.ListBox();
+            this.lstCommands = new System.Windows.Forms.ListBox();
             this.blocksTab = new System.Windows.Forms.TabPage();
+            this.selectCPELevel = new System.Windows.Forms.ComboBox();
+            this.selectCPEReplace = new System.Windows.Forms.ComboBox();
+            this.lblBlockCPEReplace = new System.Windows.Forms.Label();
+            this.lblBlockCPELevel = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lblblkpermDelete = new System.Windows.Forms.Label();
+            this.lblblkpermPlace = new System.Windows.Forms.Label();
+            this.lstDeletePerms = new System.Windows.Forms.ListBox();
+            this.lstPlacePerms = new System.Windows.Forms.ListBox();
             this.btnReloadBlocks = new System.Windows.Forms.Button();
             this.selectBlockSpecial = new System.Windows.Forms.ComboBox();
             this.selectBlockKills = new System.Windows.Forms.ComboBox();
@@ -152,7 +182,7 @@
             this.gUIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendToTrayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miniModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnSaveSettings = new System.Windows.Forms.Button();
+            this.chkBlockDisable = new System.Windows.Forms.CheckBox();
             this.mainTabs.SuspendLayout();
             this.consoleTab.SuspendLayout();
             this.consoletabs.SuspendLayout();
@@ -174,7 +204,10 @@
             this.grpMapControl.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.contextMapStrip.SuspendLayout();
+            this.commandsTab.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.blocksTab.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBlockColor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBlockCId)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBlockId)).BeginInit();
@@ -338,6 +371,7 @@
             this.txtCommandbox.Location = new System.Drawing.Point(0, 0);
             this.txtCommandbox.Margin = new System.Windows.Forms.Padding(4);
             this.txtCommandbox.Name = "txtCommandbox";
+            this.txtCommandbox.ReadOnly = true;
             this.txtCommandbox.Size = new System.Drawing.Size(1295, 310);
             this.txtCommandbox.TabIndex = 0;
             this.txtCommandbox.Text = "";
@@ -359,6 +393,7 @@
             this.txtErrorbox.Location = new System.Drawing.Point(0, 0);
             this.txtErrorbox.Margin = new System.Windows.Forms.Padding(4);
             this.txtErrorbox.Name = "txtErrorbox";
+            this.txtErrorbox.ReadOnly = true;
             this.txtErrorbox.Size = new System.Drawing.Size(1295, 310);
             this.txtErrorbox.TabIndex = 0;
             this.txtErrorbox.Text = "";
@@ -376,10 +411,12 @@
             // 
             // txtDebugBox
             // 
+            this.txtDebugBox.BackColor = System.Drawing.SystemColors.Control;
             this.txtDebugBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDebugBox.Location = new System.Drawing.Point(0, 0);
             this.txtDebugBox.Margin = new System.Windows.Forms.Padding(4);
             this.txtDebugBox.Name = "txtDebugBox";
+            this.txtDebugBox.ReadOnly = true;
             this.txtDebugBox.Size = new System.Drawing.Size(1295, 310);
             this.txtDebugBox.TabIndex = 0;
             this.txtDebugBox.Text = "";
@@ -399,6 +436,17 @@
             this.settingsTab.TabIndex = 1;
             this.settingsTab.Text = "Settings";
             this.settingsTab.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveSettings
+            // 
+            this.btnSaveSettings.Location = new System.Drawing.Point(596, 51);
+            this.btnSaveSettings.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSaveSettings.Name = "btnSaveSettings";
+            this.btnSaveSettings.Size = new System.Drawing.Size(267, 28);
+            this.btnSaveSettings.TabIndex = 4;
+            this.btnSaveSettings.Text = "Save Changes";
+            this.btnSaveSettings.UseVisualStyleBackColor = true;
+            this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
             // 
             // btnRuleEdit
             // 
@@ -1200,6 +1248,21 @@
             // 
             // commandsTab
             // 
+            this.commandsTab.Controls.Add(this.btnReloadCmd);
+            this.commandsTab.Controls.Add(this.btnSaveCmd);
+            this.commandsTab.Controls.Add(this.btnDeleteCmd);
+            this.commandsTab.Controls.Add(this.btnAddCommand);
+            this.commandsTab.Controls.Add(this.lblCmdHelp);
+            this.commandsTab.Controls.Add(this.lblCmdPlugin);
+            this.commandsTab.Controls.Add(this.lblCmdGrp);
+            this.commandsTab.Controls.Add(this.lblCmdName);
+            this.commandsTab.Controls.Add(this.chkCmdConsole);
+            this.commandsTab.Controls.Add(this.textBox4);
+            this.commandsTab.Controls.Add(this.textBox3);
+            this.commandsTab.Controls.Add(this.textBox2);
+            this.commandsTab.Controls.Add(this.textBox1);
+            this.commandsTab.Controls.Add(this.groupBox3);
+            this.commandsTab.Controls.Add(this.lstCommands);
             this.commandsTab.Location = new System.Drawing.Point(4, 25);
             this.commandsTab.Margin = new System.Windows.Forms.Padding(4);
             this.commandsTab.Name = "commandsTab";
@@ -1208,8 +1271,193 @@
             this.commandsTab.Text = "Commands";
             this.commandsTab.UseVisualStyleBackColor = true;
             // 
+            // btnReloadCmd
+            // 
+            this.btnReloadCmd.Location = new System.Drawing.Point(572, 311);
+            this.btnReloadCmd.Name = "btnReloadCmd";
+            this.btnReloadCmd.Size = new System.Drawing.Size(136, 28);
+            this.btnReloadCmd.TabIndex = 33;
+            this.btnReloadCmd.Text = "Reload Commands";
+            this.btnReloadCmd.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveCmd
+            // 
+            this.btnSaveCmd.Location = new System.Drawing.Point(430, 311);
+            this.btnSaveCmd.Name = "btnSaveCmd";
+            this.btnSaveCmd.Size = new System.Drawing.Size(136, 28);
+            this.btnSaveCmd.TabIndex = 32;
+            this.btnSaveCmd.Text = "Save Commands";
+            this.btnSaveCmd.UseVisualStyleBackColor = true;
+            // 
+            // btnDeleteCmd
+            // 
+            this.btnDeleteCmd.Location = new System.Drawing.Point(288, 311);
+            this.btnDeleteCmd.Name = "btnDeleteCmd";
+            this.btnDeleteCmd.Size = new System.Drawing.Size(136, 28);
+            this.btnDeleteCmd.TabIndex = 31;
+            this.btnDeleteCmd.Text = "Delete Command";
+            this.btnDeleteCmd.UseVisualStyleBackColor = true;
+            // 
+            // btnAddCommand
+            // 
+            this.btnAddCommand.Location = new System.Drawing.Point(146, 311);
+            this.btnAddCommand.Name = "btnAddCommand";
+            this.btnAddCommand.Size = new System.Drawing.Size(136, 28);
+            this.btnAddCommand.TabIndex = 30;
+            this.btnAddCommand.Text = "Add Command";
+            this.btnAddCommand.UseVisualStyleBackColor = true;
+            // 
+            // lblCmdHelp
+            // 
+            this.lblCmdHelp.AutoSize = true;
+            this.lblCmdHelp.Location = new System.Drawing.Point(153, 101);
+            this.lblCmdHelp.Name = "lblCmdHelp";
+            this.lblCmdHelp.Size = new System.Drawing.Size(41, 17);
+            this.lblCmdHelp.TabIndex = 29;
+            this.lblCmdHelp.Text = "Help:";
+            // 
+            // lblCmdPlugin
+            // 
+            this.lblCmdPlugin.AutoSize = true;
+            this.lblCmdPlugin.Location = new System.Drawing.Point(143, 73);
+            this.lblCmdPlugin.Name = "lblCmdPlugin";
+            this.lblCmdPlugin.Size = new System.Drawing.Size(51, 17);
+            this.lblCmdPlugin.TabIndex = 28;
+            this.lblCmdPlugin.Text = "Plugin:";
+            // 
+            // lblCmdGrp
+            // 
+            this.lblCmdGrp.AutoSize = true;
+            this.lblCmdGrp.Location = new System.Drawing.Point(142, 45);
+            this.lblCmdGrp.Name = "lblCmdGrp";
+            this.lblCmdGrp.Size = new System.Drawing.Size(52, 17);
+            this.lblCmdGrp.TabIndex = 27;
+            this.lblCmdGrp.Text = "Group:";
+            // 
+            // lblCmdName
+            // 
+            this.lblCmdName.AutoSize = true;
+            this.lblCmdName.Location = new System.Drawing.Point(145, 15);
+            this.lblCmdName.Name = "lblCmdName";
+            this.lblCmdName.Size = new System.Drawing.Size(49, 17);
+            this.lblCmdName.TabIndex = 26;
+            this.lblCmdName.Text = "Name:";
+            // 
+            // chkCmdConsole
+            // 
+            this.chkCmdConsole.AutoSize = true;
+            this.chkCmdConsole.Location = new System.Drawing.Point(200, 126);
+            this.chkCmdConsole.Name = "chkCmdConsole";
+            this.chkCmdConsole.Size = new System.Drawing.Size(155, 21);
+            this.chkCmdConsole.TabIndex = 25;
+            this.chkCmdConsole.Text = "Console Compatible";
+            this.chkCmdConsole.UseVisualStyleBackColor = true;
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(200, 98);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(247, 22);
+            this.textBox4.TabIndex = 24;
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(200, 70);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(247, 22);
+            this.textBox3.TabIndex = 23;
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(200, 42);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(247, 22);
+            this.textBox2.TabIndex = 22;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(200, 12);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(247, 22);
+            this.textBox1.TabIndex = 21;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.chkCmdAllPerms);
+            this.groupBox3.Controls.Add(this.label1);
+            this.groupBox3.Controls.Add(this.label2);
+            this.groupBox3.Controls.Add(this.lstCmdShowPerms);
+            this.groupBox3.Controls.Add(this.lstCmdUsePerms);
+            this.groupBox3.Location = new System.Drawing.Point(1029, 15);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(274, 242);
+            this.groupBox3.TabIndex = 20;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Permissions";
+            // 
+            // chkCmdAllPerms
+            // 
+            this.chkCmdAllPerms.AutoSize = true;
+            this.chkCmdAllPerms.Location = new System.Drawing.Point(6, 215);
+            this.chkCmdAllPerms.Name = "chkCmdAllPerms";
+            this.chkCmdAllPerms.Size = new System.Drawing.Size(179, 21);
+            this.chkCmdAllPerms.TabIndex = 26;
+            this.chkCmdAllPerms.Text = "Require All Permissions";
+            this.chkCmdAllPerms.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(138, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(42, 17);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Show";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 13);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(33, 17);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Use";
+            // 
+            // lstCmdShowPerms
+            // 
+            this.lstCmdShowPerms.FormattingEnabled = true;
+            this.lstCmdShowPerms.ItemHeight = 16;
+            this.lstCmdShowPerms.Location = new System.Drawing.Point(141, 30);
+            this.lstCmdShowPerms.Name = "lstCmdShowPerms";
+            this.lstCmdShowPerms.Size = new System.Drawing.Size(120, 180);
+            this.lstCmdShowPerms.TabIndex = 1;
+            // 
+            // lstCmdUsePerms
+            // 
+            this.lstCmdUsePerms.FormattingEnabled = true;
+            this.lstCmdUsePerms.ItemHeight = 16;
+            this.lstCmdUsePerms.Location = new System.Drawing.Point(6, 30);
+            this.lstCmdUsePerms.Name = "lstCmdUsePerms";
+            this.lstCmdUsePerms.Size = new System.Drawing.Size(120, 180);
+            this.lstCmdUsePerms.TabIndex = 0;
+            // 
+            // lstCommands
+            // 
+            this.lstCommands.FormattingEnabled = true;
+            this.lstCommands.ItemHeight = 16;
+            this.lstCommands.Location = new System.Drawing.Point(8, 3);
+            this.lstCommands.Name = "lstCommands";
+            this.lstCommands.Size = new System.Drawing.Size(120, 340);
+            this.lstCommands.TabIndex = 0;
+            // 
             // blocksTab
             // 
+            this.blocksTab.Controls.Add(this.chkBlockDisable);
+            this.blocksTab.Controls.Add(this.selectCPELevel);
+            this.blocksTab.Controls.Add(this.selectCPEReplace);
+            this.blocksTab.Controls.Add(this.lblBlockCPEReplace);
+            this.blocksTab.Controls.Add(this.lblBlockCPELevel);
+            this.blocksTab.Controls.Add(this.groupBox2);
             this.blocksTab.Controls.Add(this.btnReloadBlocks);
             this.blocksTab.Controls.Add(this.selectBlockSpecial);
             this.blocksTab.Controls.Add(this.selectBlockKills);
@@ -1236,9 +1484,100 @@
             this.blocksTab.Text = "Blocks";
             this.blocksTab.UseVisualStyleBackColor = true;
             // 
+            // selectCPELevel
+            // 
+            this.selectCPELevel.FormattingEnabled = true;
+            this.selectCPELevel.Items.AddRange(new object[] {
+            "0",
+            "1"});
+            this.selectCPELevel.Location = new System.Drawing.Point(265, 195);
+            this.selectCPELevel.Margin = new System.Windows.Forms.Padding(4);
+            this.selectCPELevel.Name = "selectCPELevel";
+            this.selectCPELevel.Size = new System.Drawing.Size(160, 24);
+            this.selectCPELevel.TabIndex = 23;
+            this.selectCPELevel.Text = "0";
+            // 
+            // selectCPEReplace
+            // 
+            this.selectCPEReplace.FormattingEnabled = true;
+            this.selectCPEReplace.Location = new System.Drawing.Point(265, 225);
+            this.selectCPEReplace.Margin = new System.Windows.Forms.Padding(4);
+            this.selectCPEReplace.Name = "selectCPEReplace";
+            this.selectCPEReplace.Size = new System.Drawing.Size(160, 24);
+            this.selectCPEReplace.TabIndex = 22;
+            // 
+            // lblBlockCPEReplace
+            // 
+            this.lblBlockCPEReplace.AutoSize = true;
+            this.lblBlockCPEReplace.Location = new System.Drawing.Point(165, 228);
+            this.lblBlockCPEReplace.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblBlockCPEReplace.Name = "lblBlockCPEReplace";
+            this.lblBlockCPEReplace.Size = new System.Drawing.Size(95, 17);
+            this.lblBlockCPEReplace.TabIndex = 21;
+            this.lblBlockCPEReplace.Text = "CPE Replace:";
+            // 
+            // lblBlockCPELevel
+            // 
+            this.lblBlockCPELevel.AutoSize = true;
+            this.lblBlockCPELevel.Location = new System.Drawing.Point(180, 202);
+            this.lblBlockCPELevel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblBlockCPELevel.Name = "lblBlockCPELevel";
+            this.lblBlockCPELevel.Size = new System.Drawing.Size(77, 17);
+            this.lblBlockCPELevel.TabIndex = 20;
+            this.lblBlockCPELevel.Text = "CPE Level:";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.lblblkpermDelete);
+            this.groupBox2.Controls.Add(this.lblblkpermPlace);
+            this.groupBox2.Controls.Add(this.lstDeletePerms);
+            this.groupBox2.Controls.Add(this.lstPlacePerms);
+            this.groupBox2.Location = new System.Drawing.Point(583, 9);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(274, 215);
+            this.groupBox2.TabIndex = 19;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Permissions";
+            // 
+            // lblblkpermDelete
+            // 
+            this.lblblkpermDelete.AutoSize = true;
+            this.lblblkpermDelete.Location = new System.Drawing.Point(138, 10);
+            this.lblblkpermDelete.Name = "lblblkpermDelete";
+            this.lblblkpermDelete.Size = new System.Drawing.Size(49, 17);
+            this.lblblkpermDelete.TabIndex = 3;
+            this.lblblkpermDelete.Text = "Delete";
+            // 
+            // lblblkpermPlace
+            // 
+            this.lblblkpermPlace.AutoSize = true;
+            this.lblblkpermPlace.Location = new System.Drawing.Point(3, 13);
+            this.lblblkpermPlace.Name = "lblblkpermPlace";
+            this.lblblkpermPlace.Size = new System.Drawing.Size(43, 17);
+            this.lblblkpermPlace.TabIndex = 2;
+            this.lblblkpermPlace.Text = "Place";
+            // 
+            // lstDeletePerms
+            // 
+            this.lstDeletePerms.FormattingEnabled = true;
+            this.lstDeletePerms.ItemHeight = 16;
+            this.lstDeletePerms.Location = new System.Drawing.Point(141, 30);
+            this.lstDeletePerms.Name = "lstDeletePerms";
+            this.lstDeletePerms.Size = new System.Drawing.Size(120, 180);
+            this.lstDeletePerms.TabIndex = 1;
+            // 
+            // lstPlacePerms
+            // 
+            this.lstPlacePerms.FormattingEnabled = true;
+            this.lstPlacePerms.ItemHeight = 16;
+            this.lstPlacePerms.Location = new System.Drawing.Point(6, 30);
+            this.lstPlacePerms.Name = "lstPlacePerms";
+            this.lstPlacePerms.Size = new System.Drawing.Size(120, 180);
+            this.lstPlacePerms.TabIndex = 0;
+            // 
             // btnReloadBlocks
             // 
-            this.btnReloadBlocks.Location = new System.Drawing.Point(555, 300);
+            this.btnReloadBlocks.Location = new System.Drawing.Point(538, 300);
             this.btnReloadBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.btnReloadBlocks.Name = "btnReloadBlocks";
             this.btnReloadBlocks.Size = new System.Drawing.Size(113, 28);
@@ -1287,7 +1626,7 @@
             this.numBlockCId.Location = new System.Drawing.Point(265, 68);
             this.numBlockCId.Margin = new System.Windows.Forms.Padding(4);
             this.numBlockCId.Maximum = new decimal(new int[] {
-            255,
+            65,
             0,
             0,
             0});
@@ -1318,7 +1657,7 @@
             // 
             // btnSaveBlocks
             // 
-            this.btnSaveBlocks.Location = new System.Drawing.Point(433, 300);
+            this.btnSaveBlocks.Location = new System.Drawing.Point(417, 300);
             this.btnSaveBlocks.Margin = new System.Windows.Forms.Padding(4);
             this.btnSaveBlocks.Name = "btnSaveBlocks";
             this.btnSaveBlocks.Size = new System.Drawing.Size(113, 28);
@@ -1329,7 +1668,7 @@
             // 
             // btnDeleteBlock
             // 
-            this.btnDeleteBlock.Location = new System.Drawing.Point(312, 300);
+            this.btnDeleteBlock.Location = new System.Drawing.Point(296, 300);
             this.btnDeleteBlock.Margin = new System.Windows.Forms.Padding(4);
             this.btnDeleteBlock.Name = "btnDeleteBlock";
             this.btnDeleteBlock.Size = new System.Drawing.Size(113, 28);
@@ -1343,7 +1682,7 @@
             this.btnCreateBlock.Location = new System.Drawing.Point(175, 300);
             this.btnCreateBlock.Margin = new System.Windows.Forms.Padding(4);
             this.btnCreateBlock.Name = "btnCreateBlock";
-            this.btnCreateBlock.Size = new System.Drawing.Size(128, 28);
+            this.btnCreateBlock.Size = new System.Drawing.Size(113, 28);
             this.btnCreateBlock.TabIndex = 9;
             this.btnCreateBlock.Text = "Create Block";
             this.btnCreateBlock.UseVisualStyleBackColor = true;
@@ -1644,16 +1983,15 @@
             this.miniModeToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
             this.miniModeToolStripMenuItem.Text = "&Mini mode";
             // 
-            // btnSaveSettings
+            // chkBlockDisable
             // 
-            this.btnSaveSettings.Location = new System.Drawing.Point(596, 51);
-            this.btnSaveSettings.Margin = new System.Windows.Forms.Padding(4);
-            this.btnSaveSettings.Name = "btnSaveSettings";
-            this.btnSaveSettings.Size = new System.Drawing.Size(267, 28);
-            this.btnSaveSettings.TabIndex = 4;
-            this.btnSaveSettings.Text = "Save Changes";
-            this.btnSaveSettings.UseVisualStyleBackColor = true;
-            this.btnSaveSettings.Click += new System.EventHandler(this.btnSaveSettings_Click);
+            this.chkBlockDisable.AutoSize = true;
+            this.chkBlockDisable.Location = new System.Drawing.Point(264, 256);
+            this.chkBlockDisable.Name = "chkBlockDisable";
+            this.chkBlockDisable.Size = new System.Drawing.Size(115, 21);
+            this.chkBlockDisable.TabIndex = 24;
+            this.chkBlockDisable.Text = "Disable Block";
+            this.chkBlockDisable.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -1696,8 +2034,14 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.contextMapStrip.ResumeLayout(false);
+            this.commandsTab.ResumeLayout(false);
+            this.commandsTab.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.blocksTab.ResumeLayout(false);
             this.blocksTab.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picBlockColor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBlockCId)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numBlockId)).EndInit();
@@ -1841,6 +2185,36 @@
         private System.Windows.Forms.ComboBox selectBlockPhysics;
         private System.Windows.Forms.Button btnReloadBlocks;
         private System.Windows.Forms.Button btnSaveSettings;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label lblblkpermDelete;
+        private System.Windows.Forms.Label lblblkpermPlace;
+        private System.Windows.Forms.ListBox lstDeletePerms;
+        private System.Windows.Forms.ListBox lstPlacePerms;
+        private System.Windows.Forms.Label lblBlockCPEReplace;
+        private System.Windows.Forms.Label lblBlockCPELevel;
+        private System.Windows.Forms.ComboBox selectCPELevel;
+        private System.Windows.Forms.ComboBox selectCPEReplace;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ListBox lstCmdShowPerms;
+        private System.Windows.Forms.ListBox lstCmdUsePerms;
+        private System.Windows.Forms.ListBox lstCommands;
+        private System.Windows.Forms.CheckBox chkCmdConsole;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.CheckBox chkCmdAllPerms;
+        private System.Windows.Forms.Label lblCmdHelp;
+        private System.Windows.Forms.Label lblCmdPlugin;
+        private System.Windows.Forms.Label lblCmdGrp;
+        private System.Windows.Forms.Label lblCmdName;
+        private System.Windows.Forms.Button btnReloadCmd;
+        private System.Windows.Forms.Button btnSaveCmd;
+        private System.Windows.Forms.Button btnDeleteCmd;
+        private System.Windows.Forms.Button btnAddCommand;
+        private System.Windows.Forms.CheckBox chkBlockDisable;
     }
 }
 
