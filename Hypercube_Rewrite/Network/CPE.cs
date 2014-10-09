@@ -146,7 +146,7 @@ namespace Hypercube.Network {
                         extPlayerListPacket.GroupName = ServerCore.TextFormats.ExtPlayerList + c.CS.CurrentMap.CWMap.MapName;
                         client.SendQueue.Enqueue(extPlayerListPacket);
                     } else {
-                        if (!client.CS.CPEExtensions.ContainsKey("ExtPlayerList")) 
+                        if (!client.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
                             continue;
 
                         extPlayerListPacket.NameId = client.CS.NameId;
@@ -176,9 +176,8 @@ namespace Hypercube.Network {
 
             lock (ServerCore.Nh.ClientLock) {
                 foreach (var c in ServerCore.Nh.Clients) {
-                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) {
+                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList")) 
                         c.SendQueue.Enqueue(toUpdate);
-                    }
                 }
             }
         }

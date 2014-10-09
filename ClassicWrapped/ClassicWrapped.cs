@@ -32,7 +32,7 @@ namespace ClassicWrapped
         }
 
         public string ReadString() {
-            return Encoding.ASCII.GetString(ReadBytes(64)).TrimEnd(' ');
+            return Encoding.ASCII.GetString(ReadBytes(64)).Trim(' ');
         }
 
         public byte[] ReadByteArray() {
