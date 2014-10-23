@@ -18,12 +18,12 @@ namespace Hypercube
     // -- TODO List: (There may be additional TODOs scattered throughout the code, these are just big points)
     // -- 
     // -- TODO: Add physics on mapload
-    // -- TODO: Add vanish
+    // -- TODO: Add vanish -- Partially implemented
     // -- TODO: Make gui
-    // -- TODO: Add Teleporters
     // -- TODO: [Low] Make line, box, sphere threaded.
     // -- TODO: Allow commands from console
     // -- TODO: Create more Lua events, and extend more server functions to Lua.
+    // -- TODO: Make logging system a bit better, so having things from different threads doesn't cause conflicts.
     // -- BUG: Occationally, map history file is in use somewhere else (on map shutdown via console's 'end')
 
     public static class ServerCore {

@@ -71,6 +71,8 @@ namespace Hypercube.Core {
                 sw.WriteLine("player.kick");
                 sw.WriteLine("player.mute");
                 sw.WriteLine("player.stop");
+                sw.WriteLine("player.seehidden");
+                sw.WriteLine("player.hide");
                 sw.WriteLine("chat.readstaffchat");
                 sw.WriteLine("chat.useemotes");
                 sw.WriteLine("block.disabled");

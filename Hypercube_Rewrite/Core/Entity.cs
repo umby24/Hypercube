@@ -71,5 +71,12 @@ namespace Hypercube.Core {
         public EntityStub CreateStub() {
             return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look, Model);
         }
+
+        public void PositionUpdate(short x, short y, short z) {
+            X = x;
+            Y = y;
+            Z = z;
+
+        }
     }
 }

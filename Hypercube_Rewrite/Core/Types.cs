@@ -36,10 +36,17 @@ namespace Hypercube.Core {
         public bool Undo;
         public bool Physics;
     }
+
     public struct Vector3S {
         public short X;
         public short Y;
         public short Z;
+
+        public Vector3S(short x, short y, short z) {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 
     public struct BmStruct {

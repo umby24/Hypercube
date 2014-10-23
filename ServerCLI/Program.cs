@@ -3,7 +3,7 @@ using Hypercube;
 
 namespace ServerCLI {
     class Program {
-        static void Main(string[] args) {
+        static void Main() {
             Console.Title = "Hypercube";
 
             ServerCore.Setup();

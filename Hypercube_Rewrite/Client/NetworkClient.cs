@@ -478,7 +478,12 @@ namespace Hypercube.Client {
                     continue;
                 }
 
-                if (!e.Spawned) { // -- Spawn an entity if it's not there yet.
+                if (!e.Visible) {
+                    EDelete((sbyte)e.ClientId);
+                    delete.Add(e.Id);
+                }
+
+                if (!e.Spawned && e.Visible) { // -- Spawn an entity if it's not there yet.
                     ESpawn(CS.CurrentMap.Entities[e.Id].Name, e);
                     e.Spawned = true;
                 }
@@ -534,7 +539,34 @@ namespace Hypercube.Client {
                 CS.MyEntity.SendOwn = false;
             }
         }
-        
+
+        /// <summary>
+        /// Checks if this client is within a teleporter, or needs to be killed by a kill block.
+        /// </summary>
+        void CheckPosition() {
+            var myLoc = new Vector3S {
+                X = (short)(CS.MyEntity.X / 32),
+                Y = (short)(CS.MyEntity.Y / 32),
+                Z = (short)(CS.MyEntity.Z / 32),
+            };
+
+            var tele = CS.CurrentMap.Teleporters.FindTeleporter(myLoc);
+
+            if (tele != null) {
+                if (tele.DestinationMap != CS.CurrentMap)
+                    ChangeMap(tele.DestinationMap);
+
+                CS.MyEntity.X = (short)(tele.Dest.X * 32);
+                CS.MyEntity.Y = (short)(tele.Dest.Y * 32);
+                CS.MyEntity.Z = (short)((tele.Dest.Z * 32) + 51);
+                CS.MyEntity.Look = tele.DestLook;
+                CS.MyEntity.Rot = tele.DestRot;
+                CS.MyEntity.SendOwn = true;
+            }
+
+            //TODO: Kill blocks.
+        }
+
         /// <summary>
         /// Spawns a new entity on the client.
         /// </summary>
@@ -691,8 +723,10 @@ namespace Hypercube.Client {
                     return;
                 }
 
-                if (CS.LoggedIn)
+                if (CS.LoggedIn) {
+                    CheckPosition();
                     EntityPositions();
+                }
 
                 Thread.Sleep(1);
             }

@@ -119,6 +119,7 @@
     <Compile Include="Map\D3Map.cs" />
     <Compile Include="Map\HypercubeMap.cs" />
     <Compile Include="Map\MapHistory.cs" />
+    <Compile Include="Map\Teleporter.cs" />
     <Compile Include="NetworkHandler.cs" />
     <Compile Include="Network\CPE.cs" />
     <Compile Include="Network\Heartbeat.cs" />
