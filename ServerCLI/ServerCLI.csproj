@@ -89,7 +89,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hypercube_Rewrite\Hypercube.csproj">
+    <ProjectReference Include="..\Hypercube\Hypercube.csproj">
       <Project>{948fd104-59f1-450c-a576-cbcd601d3f35}</Project>
       <Name>Hypercube</Name>
     </ProjectReference>
