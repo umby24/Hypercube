@@ -77,6 +77,7 @@ namespace Hypercube
         public static NetworkHandler Nh;
         public static Dictionary<string, HypercubeMap> Maps;
         #endregion
+
         
         /// <summary>
         /// Loads server settings, loads the database, and prepares the system for use.

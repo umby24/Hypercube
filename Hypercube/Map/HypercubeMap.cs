@@ -128,7 +128,7 @@ namespace Hypercube.Map {
             CWMap.GeneratorName = "Blank";
             CWMap.CreatingService = "Classicube";
             CWMap.CreatingUsername = "[SERVER]";
-
+            
             CPESettings = (CPEMetadata) CWMap.MetadataParsers["CPE"];
 
             if (CPESettings.CustomBlocksFallback == null) {

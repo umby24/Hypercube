@@ -44,6 +44,7 @@ namespace Hypercube.Libraries {
         public void RegisterFunctions() {
             var luaChat = new Chat();
             var luaCPE = new CPE();
+
             // -- Functions
             LuaHandler.RegisterFunction("Log", ServerCore.Logger, ServerCore.Logger.GetType().GetMethod("Log"));
             // -- Command creation functions
@@ -73,6 +74,7 @@ namespace Hypercube.Libraries {
                 ServerCore.Blockholder.GetType().GetMethod("GetBlock", new[] { typeof(string) }));
             LuaHandler.RegisterFunction("Setblock", ServerCore.Luahandler,
                 ServerCore.Luahandler.GetType().GetMethod("Setblock"));
+            LuaHandler.RegisterFunction("GetArr", luaCPE, luaCPE.GetType().GetMethod("GetAt"));
             // -- Variables
 
             LuaHandler["G_ServerName"] = ServerCore.ServerName;
