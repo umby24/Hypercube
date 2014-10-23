@@ -13,6 +13,7 @@ namespace Hypercube.Command {
     internal static class MapCommands {
         public static void Init(CommandHandler holder) {
             holder.AddCommand("/building", CBuilding);
+            holder.AddCommand("/createtp", CCreateTp);
             holder.AddCommand("/mapadd", CMapadd);
             holder.AddCommand("/mapfill", CMapfill);
             holder.AddCommand("/mapfills", CMapfills);
@@ -31,6 +32,49 @@ namespace Hypercube.Command {
             holder.AddCommand("/setcolors", CSetColors);
         }
 
+        #region CreateTP
+        static readonly Command CCreateTp = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SAdds a teleporter to where you are standing.<br>§SUsage: /CreateTP [name]",
+            Console = true,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+                {"player.op", new Permission { Fullname = "player.op", Group = "player", Perm = "op"}},
+            },
+
+            Handler = CreateTPHandler,
+        };
+
+        static void CreateTPHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (args.Length == 0) {
+                Chat.SendClientChat(client, "§EThis command requires 1 argument. See /cmdhelp createtp for usage.");
+                return;
+            }
+
+            client.CS.MyEntity.SetBuildmode("CreateTP");
+            Chat.SendClientChat(client, "§SBuildmode: Teleporter started.");
+            Chat.SendClientChat(client, "§SPlace two blocks to describe the teleporter.");
+            client.CS.MyEntity.BuildState = 0;
+
+            var loc = client.CS.MyEntity.GetBlockLocation(); // -- Set the buildmode variables
+            client.CS.MyEntity.ClientState.SetCoord(loc.X, loc.Y, loc.Z, 0);
+            client.CS.MyEntity.ClientState.SetString(args[0], 0);
+            client.CS.MyEntity.ClientState.SetString(client.CS.CurrentMap.CWMap.MapName, 1);
+            client.CS.MyEntity.ClientState.SetInt(client.CS.MyEntity.Rot, 0);
+            client.CS.MyEntity.ClientState.SetInt(client.CS.MyEntity.Look, 1);
+        }
+
+        #endregion
         #region Mapadd
         static readonly Command CMapadd = new Command {
             Plugin = "",

@@ -162,7 +162,6 @@ namespace Hypercube.Map {
             }
 
             _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
-            Teleporters = new TeleporterContainer(CWMap.MapName);
         }
 
         /// <summary>
@@ -245,7 +244,6 @@ namespace Hypercube.Map {
             for (sbyte i = 0; i < 127; i++) {
                 FreeIds.Push(i);
             }
-            Teleporters = new TeleporterContainer(CWMap.MapName);
         }
 
         /// <summary>
@@ -426,8 +424,6 @@ namespace Hypercube.Map {
 
             if (HCSettings.History)
                 History = new MapHistory(this);
-
-            Teleporters = new TeleporterContainer(CWMap.MapName);
         }
 
         /// <summary>

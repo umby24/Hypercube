@@ -92,6 +92,7 @@
     <Compile Include="Client\ClientSettings.cs" />
     <Compile Include="Client\NetworkClient.cs" />
     <Compile Include="Command\BuildCommands.cs" />
+    <Compile Include="Command\Buildmodes.cs" />
     <Compile Include="Command\CommandHandler.cs" />
     <Compile Include="Command\GeneralCommands.cs" />
     <Compile Include="Command\MapCommands.cs" />

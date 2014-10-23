@@ -24,6 +24,7 @@ namespace Hypercube
     // -- TODO: Allow commands from console
     // -- TODO: Create more Lua events, and extend more server functions to Lua.
     // -- TODO: Make logging system a bit better, so having things from different threads doesn't cause conflicts.
+    // -- TODO: Make PBSettingsLoader directory configurable.
     // -- BUG: Occationally, map history file is in use somewhere else (on map shutdown via console's 'end')
 
     public static class ServerCore {
@@ -98,6 +99,7 @@ namespace Hypercube
             Rankholder = new RankContainer();
             Blockholder = new BlockContainer();
             BmContainer = new BuildMode();
+            Buildmodes.Init();
 
             DefaultRank = Rankholder.GetRank(DefaultRank.Name);
 
@@ -161,6 +163,8 @@ namespace Hypercube
             foreach (var m in Maps.Values) {
                 TaskScheduler.CreateTask("Memory Conservation (" + m.CWMap.MapName + ")", new TimeSpan(0, 0, 30), m.MapMain);
                 TaskScheduler.CreateTask("Autosave (" + m.CWMap.MapName + ")", new TimeSpan(0,m.HCSettings.SaveInterval, 0), m.MapSave);
+
+                m.Teleporters = new TeleporterContainer(m.CWMap.MapName);
 
                 m.BlockThread = new Thread(m.BlockQueueLoop); // -- Block queue and physics queue get their own threads, as they can be very intensive at times.
                 m.BlockThread.Start();

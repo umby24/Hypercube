@@ -289,7 +289,11 @@ namespace Hypercube.Client {
                     return;
                 }
 
-                ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
+                if (CS.MyEntity.BuildMode.Plugin != "")
+                    ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
+                else 
+                    CS.MyEntity.BuildMode.Function(this, CS.CurrentMap, new Vector3S {X = x, Y = y, Z = z,}, mode, myBlock);
+                
             } else 
                 CS.CurrentMap.ClientChangeBlock(this, x, y, z, mode, myBlock);
             
@@ -544,12 +548,7 @@ namespace Hypercube.Client {
         /// Checks if this client is within a teleporter, or needs to be killed by a kill block.
         /// </summary>
         void CheckPosition() {
-            var myLoc = new Vector3S {
-                X = (short)(CS.MyEntity.X / 32),
-                Y = (short)(CS.MyEntity.Y / 32),
-                Z = (short)(CS.MyEntity.Z / 32),
-            };
-
+            var myLoc = CS.MyEntity.GetBlockLocation();
             var tele = CS.CurrentMap.Teleporters.FindTeleporter(myLoc);
 
             if (tele != null) {

@@ -66,10 +66,21 @@ namespace Hypercube.Core {
         {
             BuildMode = ServerCore.BmContainer.Modes.ContainsKey(mode) ? ServerCore.BmContainer.Modes[mode] : new BmStruct {Name = ""};
             ClientState.ResendBlocks(MyClient);
+            ClientState = new BuildState();
         }
 
         public EntityStub CreateStub() {
             return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look, Model);
+        }
+
+        public Vector3S GetBlockLocation() {
+            var myLoc = new Vector3S {
+                X = (short)(X / 32),
+                Y = (short)(Y / 32),
+                Z = (short)((Z - 51) / 32),
+            };
+
+            return myLoc;
         }
 
         public void PositionUpdate(short x, short y, short z) {

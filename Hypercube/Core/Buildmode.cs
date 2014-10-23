@@ -85,20 +85,47 @@ namespace Hypercube.Core {
         // -- Set functions
 
         public void SetString(string value, int index) {
+            if ((index + 1) > SItems.Count) {
+                for (var i = 0; i < (index + 1); i++)
+                    SItems.Add(null);
+            }
+
             SItems.Insert(index, value);
         }
 
         public void SetFloat(float value, int index) {
+            if ((index + 1) > FItems.Count) {
+                for (var i = 0; i < (index + 1); i++)
+                    FItems.Add(0.0f);
+            }
+
             FItems.Insert(index, value);
         }
 
         public void SetInt(int value, int index) {
-            Items.Insert(value, index);
+            if ((index + 1) > Items.Count) {
+                for (var i = 0; i < (index + 1); i++)
+                    Items.Add(0);
+            }
+
+            Items[index] = value;
+        }
+
+        public void SetCoord(Vector3S coord, int index) {
+            if ((index + 1) > CoordItems.Count) {
+                for (var i = 0; i < (index + 1); i++)
+                    CoordItems.Add(new Vector3S());
+            }
+            CoordItems.Insert(index, coord);
         }
 
         public void SetCoord(short x, short y, short z, int index) {
-            var myCoord = new Vector3S {X = x, Y = y, Z = z};
+            if ((index + 1) > CoordItems.Count) {
+                for (var i = 0; i < (index + 1); i++)
+                    CoordItems.Add(new Vector3S());
+            }
 
+            var myCoord = new Vector3S {X = x, Y = y, Z = z};
             CoordItems.Insert(index, myCoord);
         }
 

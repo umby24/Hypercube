@@ -52,7 +52,14 @@ namespace Hypercube.Core {
     public struct BmStruct {
         public string Name;
         public string Plugin;
+        /// <summary>
+        /// Only used if a build mode is built into the server.
+        /// </summary>
+        public BuildmodeInvoker Function;
     }
+
+    public delegate void BuildmodeInvoker(
+        NetworkClient client, HypercubeMap map, Vector3S location, byte mode, Block block);
 
     public struct QueueComparator : IEqualityComparer<QueueItem> {
         public bool Equals(QueueItem item1, QueueItem item2) {
