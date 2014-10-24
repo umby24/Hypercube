@@ -118,6 +118,7 @@ namespace Hypercube.Command {
             newMap.PhysicsThread.Start();
             TaskScheduler.CreateTask("Memory Conservation (" + newMap.CWMap.MapName + ")", new TimeSpan(0, 0, 30), newMap.MapMain);
             TaskScheduler.CreateTask("Autosave (" + newMap.CWMap.MapName + ")", new TimeSpan(0, newMap.HCSettings.SaveInterval, 0), newMap.MapSave);
+            newMap.Teleporters = new TeleporterContainer(newMap.CWMap.MapName);
 
             Chat.SendClientChat(client, "§SMap added successfully.");
         }

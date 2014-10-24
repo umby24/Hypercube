@@ -1,4 +1,5 @@
-﻿using Hypercube.Client;
+﻿using System;
+using Hypercube.Client;
 using Hypercube.Core;
 using Hypercube.Map;
 
@@ -8,9 +9,49 @@ namespace Hypercube.Command {
         /// Initiates and loads all internal buildmodes. 
         /// </summary>
         public static void Init() {
+            ServerCore.BmContainer.Modes.Add("Box", BoxStruct);
             ServerCore.BmContainer.Modes.Add("CreateTP", CreateTpStruct);
         }
 
+        #region Box
+
+        private static readonly BmStruct BoxStruct = new BmStruct {
+            Function = BoxHandler,
+            Name = "Box",
+            Plugin = "",
+        };
+
+        static void BoxHandler(NetworkClient client, HypercubeMap map, Vector3S location, byte mode, Block block) {
+            if (mode != 1)
+                return;
+
+            switch (client.CS.MyEntity.BuildState) {
+                case 0:
+                    client.CS.MyEntity.ClientState.SetCoord(location, 0);
+                    client.CS.MyEntity.BuildState = 1;
+                    break;
+                case 1:
+                    var coord1 = client.CS.MyEntity.ClientState.GetCoord(0);
+                    var blocks = Math.Abs(location.X - coord1.X)*Math.Abs(location.Y - coord1.Y)*
+                                 Math.Abs(location.Z - coord1.Z);
+                    var replaceBlock = client.CS.MyEntity.ClientState.GetString(0);
+
+                    if (blocks < 50000) {
+                        if (String.IsNullOrEmpty(replaceBlock))
+                            map.BuildBox(client, coord1.X, coord1.Y, coord1.Z, location.X, location.Y, location.Z, block, ServerCore.Blockholder.UnknownBlock, false, 1, true, false);
+                        else 
+                            map.BuildBox(client, coord1.X, coord1.Y, coord1.Z, location.X, location.Y, location.Z, block, ServerCore.Blockholder.GetBlock(replaceBlock), false, 1, true, false);
+                        
+                        Chat.SendClientChat(client, "§SBox created.");
+                    } else 
+                        Chat.SendClientChat(client, "§EBox too large.");
+                    
+
+                    client.CS.MyEntity.SetBuildmode("");
+                    break;
+            }
+        }
+        #endregion
         #region CreateTP
 
         private static readonly BmStruct CreateTpStruct = new BmStruct {
@@ -61,6 +102,12 @@ namespace Hypercube.Command {
                     break;
             }
         }
+        #endregion
+        #region History
+        #endregion
+        #region Line
+        #endregion
+        #region Sphere
         #endregion
     }
 }

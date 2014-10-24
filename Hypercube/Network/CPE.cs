@@ -23,9 +23,6 @@ namespace Hypercube.Network {
         public const short SelectionCuboidVersion = 1;
         public const short EnvColorsVersion = 1;
 
-        public static byte GetAt(byte[] arr, int index) {
-            return arr[index];
-        }
 
         /// <summary>
         /// Sends all server supported extensions to the client.
