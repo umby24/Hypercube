@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
 using Hypercube.Core;
 using Hypercube.Client;
 using Hypercube.Map;
@@ -20,7 +21,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/maps", CMaps);
             holder.AddCommand("/map", CMap);
             holder.AddCommand("/tp", Ctp);
-
+            holder.AddCommand("/info", CInfo);
             holder.AddCommand("/model", CModel);
         }
 
@@ -462,6 +463,32 @@ namespace Hypercube.Command {
              else
                 Chat.SendClientChat(client, "§EMap '" + args[0] + "' not found.");
                 
+        }
+        #endregion
+        #region Info
+        static readonly Command CInfo = new Command {
+            Plugin = "",
+            Group = "General",
+            Help = "§SShows some information about this server<br>§SUsage: /info",
+            AllPerms = true,
+            Console = false,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.chat", new Permission { Fullname = "player.chat", Group = "player", Perm = "chat"}},
+            },
+
+            Handler = InfoHandler,
+        };
+
+        static void InfoHandler(NetworkClient client, string[] args, string text1, string text2) {
+            Chat.SendClientChat(client, "§SServer Info:");
+            Chat.SendClientChat(client, "§SThis server runs the &8Hypercube §SSoftware, by Umby24.");
+            Chat.SendClientChat(client, "§SServer Version: " + Assembly.GetExecutingAssembly().GetName().Version + " on .NET " + Environment.Version + " (" + Environment.OSVersion + ")");
+            Chat.SendClientChat(client, "§SUptime: " + (DateTime.UtcNow - ServerCore.Uptime).ToString("hh"));
         }
         #endregion
         #region TP

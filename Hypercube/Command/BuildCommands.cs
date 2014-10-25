@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Hypercube.Client;
 using Hypercube.Core;
@@ -7,6 +8,7 @@ namespace Hypercube.Command {
     internal static class BuildCommands {
         public static void Init(CommandHandler holder) {
             holder.AddCommand("/bind", CBind);
+            holder.AddCommand("/box", CBox);
             holder.AddCommand("/cancel", CCancel);
             holder.AddCommand("/material", CMaterial);
             holder.AddCommand("/materials", CMaterials);
@@ -82,6 +84,50 @@ namespace Hypercube.Command {
                     break;
             }
         }
+        #endregion
+        #region Box
+        static readonly Command CBox = new Command {
+            Plugin = "",
+            Group = "Build",
+            Help = "§SBuilds a box (Cuboid) between two points.<br>§SUsage: /box [material to replace (optional)]",
+            Console = false,
+            AllPerms = true,
+            
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission {Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission {Fullname = "player.delete", Group = "player", Perm = "delete"}},
+            },
+
+            Handler = BoxHandler,
+        };
+
+        private static void BoxHandler(NetworkClient client, string[] args, string text1, string text2) {
+            if (!String.IsNullOrEmpty(text1)) {
+                var block = ServerCore.Blockholder.GetBlock(text1);
+
+                if (block == ServerCore.Blockholder.UnknownBlock) {
+                    Chat.SendClientChat(client, "§ECould not find a block called '" + text1 + "'.");
+                    return;
+                }
+
+                client.CS.MyEntity.ClientState.SetString(text1, 0);
+                Chat.SendClientChat(client, "§SBuildmode: Box started. Place two blocks to build a box.");
+                Chat.SendClientChat(client, "§Replacing: " + block.Name);
+                client.CS.MyEntity.SetBuildmode("Box");
+                client.CS.MyEntity.BuildState = 0;
+                return;
+            }
+
+            Chat.SendClientChat(client, "§SBuildmode: Box started. Place two blocks to build a box.");
+            client.CS.MyEntity.SetBuildmode("Box");
+            client.CS.MyEntity.BuildState = 0;
+        }
+
         #endregion
         #region Cancel
         static readonly Command CCancel = new Command {

@@ -38,6 +38,7 @@ namespace Hypercube
         /// </summary>
         public static int OnlinePlayers = 0;
         public static ConcurrentQueue<MapAction> ActionQueue;
+        public static DateTime Uptime;
         private static Thread _actionThread;
         #region Server SettingsDictionary
         public static string ServerName, Motd, WelcomeMessage, MapMain;
@@ -151,6 +152,7 @@ namespace Hypercube
         /// Starts the server.
         /// </summary>
         public static void Start() {
+            Uptime = DateTime.UtcNow;
             Nh.Start(); // -- Start up the server listening system
             Running = true; // -- Server is now classified as running (keeps all major loops running)
 

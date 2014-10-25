@@ -47,7 +47,7 @@ namespace Hypercube.Libraries {
                         }
                     }
                 }
-                Thread.Sleep(1);
+                Thread.Sleep(5);
             }
         }
     }

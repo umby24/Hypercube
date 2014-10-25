@@ -18,7 +18,7 @@ namespace Hypercube.Client {
         public ClassicWrapped.ClassicWrapped WSock;
         public TcpClient BaseSocket;
         public NetworkStream BaseStream;
-        public Thread DataRunner;
+        public Thread DataRunner, EntityThread;
         public ConcurrentQueue<IPacket> SendQueue;
 
         [NotNull] Dictionary<byte, Func<IPacket>> _packets;
@@ -53,6 +53,9 @@ namespace Hypercube.Client {
 
             DataRunner = new Thread(DataHandler);
             DataRunner.Start();
+
+            EntityThread = new Thread(ExtrasHandler);
+            EntityThread.Start();
         }
 
         /// <summary>
@@ -106,12 +109,10 @@ namespace Hypercube.Client {
             }
 
             // -- Set the user as logged in.
-            CS.LoggedIn = true;
+            
             CS.NameId = ServerCore.FreeIds.Pop();
             ServerCore.OnlinePlayers += 1;
-            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
-            ServerCore.Nh.IntLoggedClients.Add(CS.Id, this);
-            ServerCore.Nh.CreateLists();
+            
 
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapMain];
@@ -147,6 +148,10 @@ namespace Hypercube.Client {
                 CS.CurrentMap.CreateEntityList();
             }
 
+            CS.LoggedIn = true;
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.IntLoggedClients.Add(CS.Id, this);
+            ServerCore.Nh.CreateLists();
             // -- CPE stuff
             CPE.SetupExtPlayerList(this);
         }
@@ -213,6 +218,9 @@ namespace Hypercube.Client {
 
             if (DataRunner.IsAlive)
                 DataRunner.Abort();
+
+            if (EntityThread.IsAlive)
+                EntityThread.Abort();
 
             if (BaseSocket.Connected)
                 BaseSocket.Close();
@@ -677,6 +685,19 @@ namespace Hypercube.Client {
             };
         }
 
+        void ExtrasHandler() {
+            while (BaseSocket.Connected) {
+                if (!CS.LoggedIn) {
+                    Thread.Sleep(1);
+                    continue;
+                }
+
+                CheckPosition();
+                EntityPositions();
+                Thread.Sleep(1);
+            }
+        }
+
         void DataHandler() {
             while (BaseSocket.Connected) {
                 if (BaseStream == null) {
@@ -720,11 +741,6 @@ namespace Hypercube.Client {
                     ServerCore.Logger.Log("Timeout", "Player " + CS.Ip + " timed out.", LogType.Info);
                     KickPlayer("Timed out");
                     return;
-                }
-
-                if (CS.LoggedIn) {
-                    CheckPosition();
-                    EntityPositions();
                 }
 
                 Thread.Sleep(1);
