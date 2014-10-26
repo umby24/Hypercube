@@ -104,7 +104,7 @@ namespace Hypercube.Core
                     Id = 1,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp")
+                            "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp,map.viewhistory")
                 };
 
                 var opRank = new Rank("Op", "Staff", "&9", "", true, 100, "")
@@ -112,7 +112,7 @@ namespace Hypercube.Core
                     Id = 2,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,player.kick,player.mute,player.stop")
+                            "map.joinmap,player.op,player.seehidden,player.hide,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,map.viewhistorychat.readstaffchat,player.kick,player.mute,player.stop")
                 };
 
                 var ownerRank = new Rank("Owner", "Staff", "&0", "", true, 0, "")
@@ -120,7 +120,7 @@ namespace Hypercube.Core
                     Id = 3,
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            "map.addmap,map.joinmap,player.op,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.joinhiddenmap,chat.readstaffchat,map.fillmap,player.kick,player.mute,player.stop,player.ban")
+                            "map.addmap,map.joinmap,player.op,player.seehidden,player.hide,player.chat,player.build,player.delete,chat.useemotes,command.tp,command.bring,map.viewhistory,map.joinhiddenmap,chat.readstaffchat,map.fillmap,player.kick,player.mute,player.stop,player.ban")
                 };
 
                 NumberList.Add(0, guestRank);

@@ -11,6 +11,7 @@ namespace Hypercube.Command {
         public static void Init() {
             ServerCore.BmContainer.Modes.Add("Box", BoxStruct);
             ServerCore.BmContainer.Modes.Add("CreateTP", CreateTpStruct);
+            ServerCore.BmContainer.Modes.Add("History", HistoryStruct);
         }
 
         #region Box
@@ -37,13 +38,14 @@ namespace Hypercube.Command {
                     var replaceBlock = client.CS.MyEntity.ClientState.GetString(0);
 
                     if (blocks < 50000) {
-                        if (String.IsNullOrEmpty(replaceBlock))
-                            map.BuildBox(client, coord1.X, coord1.Y, coord1.Z, location.X, location.Y, location.Z, block, ServerCore.Blockholder.UnknownBlock, false, 1, true, false);
-                        else 
-                            map.BuildBox(client, coord1.X, coord1.Y, coord1.Z, location.X, location.Y, location.Z, block, ServerCore.Blockholder.GetBlock(replaceBlock), false, 1, true, false);
-                        
+                        map.BuildBox(client, coord1.X, coord1.Y, coord1.Z, location.X, location.Y, location.Z, block,
+                            String.IsNullOrEmpty(replaceBlock)
+                                ? ServerCore.Blockholder.UnknownBlock
+                                : ServerCore.Blockholder.GetBlock(replaceBlock), false, 1, true, false);
+
                         Chat.SendClientChat(client, "§SBox created.");
-                    } else 
+                    }
+                    else 
                         Chat.SendClientChat(client, "§EBox too large.");
                     
 
@@ -104,6 +106,21 @@ namespace Hypercube.Command {
         }
         #endregion
         #region History
+        private static readonly BmStruct HistoryStruct = new BmStruct {
+            Function = HistoryHandler,
+            Name = "History",
+            Plugin = "",
+        };
+
+        private static void HistoryHandler(NetworkClient client, HypercubeMap map, Vector3S location, byte mode, Block block) {
+            Chat.SendClientChat(client,
+                map.HCSettings.History
+                    ? map.History.LookupString(location.X, location.Y, location.Z)
+                    : "§EHistory is not enabled on this map.");
+
+            client.CS.MyEntity.SetBuildmode("");
+        }
+
         #endregion
         #region Line
         #endregion

@@ -61,6 +61,7 @@ namespace Hypercube.Core {
                 sw.WriteLine("map.joinmap");
                 sw.WriteLine("map.fillmap");
                 sw.WriteLine("map.joinhiddenmap");
+                sw.WriteLine("map.viewhistory");
                 sw.WriteLine("command.tp");
                 sw.WriteLine("command.bring");
                 sw.WriteLine("player.chat");
@@ -76,6 +77,7 @@ namespace Hypercube.Core {
                 sw.WriteLine("chat.readstaffchat");
                 sw.WriteLine("chat.useemotes");
                 sw.WriteLine("block.disabled");
+                
             }
 
             ServerCore.Logger.Log("PermContainer", "Permissions created", LogType.Info);

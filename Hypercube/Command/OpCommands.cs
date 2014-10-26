@@ -11,6 +11,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/addrank", CAddrank);
             holder.AddCommand("/ban", CBan);
             holder.AddCommand("/delrank", CDelrank);
+            holder.AddCommand("/lookup", CHistory);
             holder.AddCommand("/kick", CKick);
             holder.AddCommand("/mute", CMute);
             holder.AddCommand("/pinfo", CPinfo);
@@ -232,6 +233,32 @@ namespace Hypercube.Command {
 
             Chat.SendClientChat(client, "§S" + args[0] + "'s Ranks were updated.");
         }
+        #endregion
+        #region History Lookup
+        //map.viewhistory
+        static readonly Command CHistory = new Command {
+            Plugin = "",
+            Group = "Op",
+            Help = "§SLookup who changed a block.<br>§SUsage: /lookup, then place or break a block.",
+            AllPerms = true,
+            Console = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "map.viewhistory", Group = "map", Perm = "viewhistory"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.op", new Permission { Fullname = "map.viewhistory", Group = "map", Perm = "viewhistory"}},
+            },
+
+            Handler = HistoryHandler,
+        };
+
+        private static void HistoryHandler(NetworkClient client, string[] args, string text1, string text2) {
+            client.CS.MyEntity.SetBuildmode("History");
+            Chat.SendClientChat(client, "§SBuildmode: History started. Place or delete a block to see history.");
+        }
+
         #endregion
         #region Kick
         static readonly Command CKick = new Command {

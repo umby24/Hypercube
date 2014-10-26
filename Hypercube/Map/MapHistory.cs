@@ -295,8 +295,13 @@ namespace Hypercube.Map
 
             var result = "";
 
-            foreach (var e in entries)
-                result += "§S" + e.Player + " changed " + ServerCore.Blockholder.GetBlock(e.LastBlock).Name + " to " + ServerCore.Blockholder.GetBlock(e.NewBlock).Name + ".<br>";
+            foreach (var e in entries) {
+                var time = ServerCore.UnixEpoch.AddSeconds(e.Timestamp);
+
+                result += "§S" + time.ToString("yy-MM-dd hh:mm:ss tt") + "<br>";
+                result += "§S" + e.Player + " changed " + ServerCore.Blockholder.GetBlock(e.LastBlock).Name + " to " +
+                          ServerCore.Blockholder.GetBlock(e.NewBlock).Name + ".<br>";
+            }
 
             return result;
         }
