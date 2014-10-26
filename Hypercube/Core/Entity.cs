@@ -51,7 +51,7 @@ namespace Hypercube.Core {
             Look = look;
             Map = map;
             Model = "default";
-            
+            Visible = true;
             Id = ServerCore.FreeEids.Pop();
 
             BuildMaterial = ServerCore.Blockholder.GetBlock("");

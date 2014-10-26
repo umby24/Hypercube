@@ -109,10 +109,12 @@ namespace Hypercube.Client {
             }
 
             // -- Set the user as logged in.
-            
+            CS.LoggedIn = true;
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.IntLoggedClients.Add(CS.Id, this);
+            ServerCore.Nh.CreateLists();
             CS.NameId = ServerCore.FreeIds.Pop();
             ServerCore.OnlinePlayers += 1;
-            
 
             // -- Get the user logged in to the main map.
             CS.CurrentMap = ServerCore.Maps[ServerCore.MapMain];
@@ -148,10 +150,7 @@ namespace Hypercube.Client {
                 CS.CurrentMap.CreateEntityList();
             }
 
-            CS.LoggedIn = true;
-            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
-            ServerCore.Nh.IntLoggedClients.Add(CS.Id, this);
-            ServerCore.Nh.CreateLists();
+            
             // -- CPE stuff
             CPE.SetupExtPlayerList(this);
         }
@@ -687,14 +686,14 @@ namespace Hypercube.Client {
 
         void ExtrasHandler() {
             while (BaseSocket.Connected) {
-                if (!CS.LoggedIn) {
-                    Thread.Sleep(1);
+                if (!CS.LoggedIn || CS.MyEntity == null) {
+                    Thread.Sleep(10);
                     continue;
                 }
 
                 CheckPosition();
-                EntityPositions();
-                Thread.Sleep(1);
+                //EntityPositions();
+                Thread.Sleep(10);
             }
         }
 
@@ -742,6 +741,9 @@ namespace Hypercube.Client {
                     KickPlayer("Timed out");
                     return;
                 }
+
+                if (CS.LoggedIn)
+                    EntityPositions();
 
                 Thread.Sleep(1);
             }

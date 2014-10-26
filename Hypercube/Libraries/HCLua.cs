@@ -92,14 +92,14 @@ namespace Hypercube.Libraries {
         }
         #endregion
         public void RunFunction(string function, params object[] args) {
-            var luaF = LuaHandler.GetFunction(function);
-
             try {
+                var luaF = LuaHandler.GetFunction(function);
+
                 if (luaF != null && args != null)
                     luaF.Call(args);
                 else if (luaF != null)
                     luaF.Call();
-            } catch (LuaScriptException e) {
+            } catch (Exception e) {
                 ServerCore.Logger.Log("Lua", "Lua Error: " + e.Message, LogType.Error);
                 ServerCore.Logger.Log("Lua", e.StackTrace, LogType.Debug);
             }
