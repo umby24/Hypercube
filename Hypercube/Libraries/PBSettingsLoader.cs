@@ -32,6 +32,8 @@ namespace Hypercube.Libraries {
 
             if (!Directory.Exists("Settings"))
                 Directory.CreateDirectory("Settings");
+
+            
         }
 
         /// <summary>
@@ -40,11 +42,11 @@ namespace Hypercube.Libraries {
         /// </summary>
         /// <param name="settingsfile"></param>
         public void ReadSettings(Settings settingsfile) {
-            if (!File.Exists("Settings/" + settingsfile.Filename))
-                File.WriteAllText("Settings/" + settingsfile.Filename, "");
+            if (!File.Exists(settingsfile.Filename))
+                File.WriteAllText(settingsfile.Filename, "");
 
             PreLoad(settingsfile);
-            settingsfile.LastModified = File.GetLastWriteTime("Settings/" + settingsfile.Filename);
+            settingsfile.LastModified = File.GetLastWriteTime(settingsfile.Filename);
 
             var myDele = (LoadSettings)settingsfile.LoadSettings;
 
@@ -60,7 +62,7 @@ namespace Hypercube.Libraries {
             if (!settingsFile.Save)
                 return;
 
-            using (var fileWriter = new StreamWriter("Settings/" + settingsFile.Filename)) {
+            using (var fileWriter = new StreamWriter(settingsFile.Filename)) {
                 foreach (var pair in settingsFile.SettingsDictionary) {
                     if (pair.Key != "")
                         fileWriter.WriteLine("[" + pair.Key + "]");
@@ -70,7 +72,7 @@ namespace Hypercube.Libraries {
                 }
             }
 
-            settingsFile.LastModified = File.GetLastWriteTime("Settings/" + settingsFile.Filename);
+            settingsFile.LastModified = File.GetLastWriteTime(settingsFile.Filename);
         }
 
         /// <summary>
@@ -81,7 +83,7 @@ namespace Hypercube.Libraries {
             settingsFile.CurrentGroup = "";
             settingsFile.SettingsDictionary.Clear();
 
-            using (var sr = new StreamReader("Settings/" + settingsFile.Filename)) {
+            using (var sr = new StreamReader(settingsFile.Filename)) {
                 while (!sr.EndOfStream) {
                     var thisLine = sr.ReadLine();
 
@@ -158,12 +160,11 @@ namespace Hypercube.Libraries {
         /// <param name="def"></param>
         /// <returns>int</returns>
         public int ReadSetting(Settings settingsFile, string key, int def) {
-            if (!settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(key)) {
-                settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(key, def.ToString());
-                return def;
-            }
+            if (settingsFile.SettingsDictionary[settingsFile.CurrentGroup].ContainsKey(key))
+                return int.Parse(settingsFile.SettingsDictionary[settingsFile.CurrentGroup][key]);
 
-            return int.Parse(settingsFile.SettingsDictionary[settingsFile.CurrentGroup][key]);
+            settingsFile.SettingsDictionary[settingsFile.CurrentGroup].Add(key, def.ToString());
+            return def;
         }
 
         /// <summary>
@@ -183,12 +184,13 @@ namespace Hypercube.Libraries {
         /// Registers a file with the settings system
         /// </summary>
         /// <param name="filename">The file to watch, load, and save from</param>
+        /// <param name="folder">The folder that this file will be saved in.</param>
         /// <param name="save">True to make the settings loader handle saving of this file.</param>
         /// <param name="readFunction">The function that will be called when this file is loaded.</param>
         /// <returns>Associated settings class containing all settings and information</returns>
-        public Settings RegisterFile(string filename, bool save, LoadSettings readFunction) {
+        public Settings RegisterFile(string filename, string folder, bool save, LoadSettings readFunction) {
             var newSettings = new Settings {
-                Filename = filename,
+                Filename = Path.Combine(folder, filename),
                 CurrentGroup = "",
                 SettingsDictionary = new Dictionary<string, Dictionary<string, string>>(),
                 Save = save,

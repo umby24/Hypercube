@@ -17,10 +17,10 @@ namespace Hypercube.Map {
         public void LoadMap(string directory, string mapName) {
             if (!File.Exists(directory + "/Data-Layer.gz") || !File.Exists(directory + "/Config.txt"))
                 return; // -- Not a valid map.
-            File.Copy(directory + "/Config.txt", "Settings/TempD3Config.txt");
+            //File.Copy(directory + "/Config.txt", "Settings/TempD3Config.txt");
 
             // -- Load the Config data first..
-            var configfile = ServerCore.Settings.RegisterFile("TempD3Config.txt", false, LoadConfig);
+            var configfile = ServerCore.Settings.RegisterFile("TempD3Config.txt", directory, false, LoadConfig);
             ServerCore.Settings.ReadSettings(configfile);
 
             Mapsize = new Vector3S {

@@ -37,7 +37,7 @@ namespace Hypercube {
         /// Creates a new NetworkHandler Instance, and loads network settings.
         /// </summary>
         public NetworkHandler() {
-            Ns = ServerCore.Settings.RegisterFile("Network.txt", true, LoadSettings);
+            Ns = ServerCore.Settings.RegisterFile("Network.txt", "Settings/", true, LoadSettings);
             ServerCore.Settings.ReadSettings(Ns);
             CreateLists();
         }

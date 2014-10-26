@@ -16,7 +16,7 @@ namespace Hypercube.Core
             NameList = new SortedDictionary<string, Rank>(StringComparer.InvariantCultureIgnoreCase);
             RankHierarchy = new Dictionary<Rank, List<Rank>>();
 
-            Ranksfile = ServerCore.Settings.RegisterFile("Ranks.txt", true, LoadRanks);
+            Ranksfile = ServerCore.Settings.RegisterFile("Ranks.txt", "Settings/", true, LoadRanks);
             ServerCore.Settings.ReadSettings(Ranksfile);
         }
 

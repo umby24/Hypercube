@@ -10,7 +10,7 @@ namespace Hypercube.Core {
         public Settings PermFile;
         
         public PermissionContainer() {
-            PermFile = ServerCore.Settings.RegisterFile("Permissions.txt", false, LoadPermissions);
+            PermFile = ServerCore.Settings.RegisterFile("Permissions.txt", "Settings/", false, LoadPermissions);
             ServerCore.Settings.ReadSettings(PermFile);
         }
 

@@ -63,10 +63,10 @@ namespace Hypercube.Command {
             Populate();
             RegisterGroups();
 
-            AliasLoader = ServerCore.Settings.RegisterFile("Aliases.txt", false, LoadAliases);
+            AliasLoader = ServerCore.Settings.RegisterFile("Aliases.txt", "Settings/", false, LoadAliases);
             ServerCore.Settings.ReadSettings(AliasLoader);
 
-            CommandSettings = ServerCore.Settings.RegisterFile("Commands.txt", true, LoadCommands);
+            CommandSettings = ServerCore.Settings.RegisterFile("Commands.txt", "Settings/", true, LoadCommands);
             ServerCore.Settings.ReadSettings(CommandSettings);
 
             FillFile();

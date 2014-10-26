@@ -88,10 +88,10 @@ namespace Hypercube
             Settings = new PbSettingsLoader();
             TextFormats = new Text();
 
-            SysSettings = Settings.RegisterFile("System.txt", true, ReadSystemSettings);
+            SysSettings = Settings.RegisterFile("System.txt", "Settings/", true, ReadSystemSettings);
             Settings.ReadSettings(SysSettings);
 
-            Rulesfile = Settings.RegisterFile("Rules.txt", false, ReadRules);
+            Rulesfile = Settings.RegisterFile("Rules.txt", "Settings/", false, ReadRules);
             Settings.ReadSettings(Rulesfile);
 
             if (RotateLogs)

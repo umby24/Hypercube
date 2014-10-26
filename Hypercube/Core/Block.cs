@@ -14,7 +14,7 @@ namespace Hypercube.Core {
         public BlockContainer() {
             NumberList = new Block[255];
             NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
-            _blocksfile = ServerCore.Settings.RegisterFile("Blocks.txt", true, LoadBlocks);
+            _blocksfile = ServerCore.Settings.RegisterFile("Blocks.txt", "Settings/", true, LoadBlocks);
             
             UnknownBlock = new Block
                 {

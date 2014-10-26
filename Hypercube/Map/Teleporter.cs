@@ -9,7 +9,7 @@ namespace Hypercube.Map {
 
         public TeleporterContainer(string mapName) {
             _teleporters = new List<Teleporter>();
-            _porterSettings = ServerCore.Settings.RegisterFile("../Maps/" + mapName + "ports.txt", true, ReadPorters);
+            _porterSettings = ServerCore.Settings.RegisterFile(mapName + "ports.txt", "Maps/", true, ReadPorters);
             ServerCore.Settings.ReadSettings(_porterSettings);
         }
 

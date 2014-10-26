@@ -13,7 +13,7 @@ namespace Hypercube.Libraries {
         public string Divider; // -- $D
 
         public Text() {
-            TextSettings = ServerCore.Settings.RegisterFile("Colors.txt", true, ReadTextSettings);
+            TextSettings = ServerCore.Settings.RegisterFile("Colors.txt", "Settings/", true, ReadTextSettings);
             ServerCore.Settings.ReadSettings(TextSettings);
         }
 

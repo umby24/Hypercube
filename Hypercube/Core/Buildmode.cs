@@ -14,7 +14,7 @@ namespace Hypercube.Core {
         public Settings BuildModeLoader;
 
         public BuildMode() {
-            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", true, Load);
+            BuildModeLoader = ServerCore.Settings.RegisterFile("Buildmodes.txt", "Settings/", true, Load);
             ServerCore.Settings.ReadSettings(BuildModeLoader);
         }
 
