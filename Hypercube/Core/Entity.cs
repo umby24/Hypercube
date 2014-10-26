@@ -62,6 +62,16 @@ namespace Hypercube.Core {
             ClientId = (byte)Map.FreeIds.Pop();
         }
 
+        public void Kill() {
+            Chat.SendMapChat(Map, "&c" + Name + " was killed.");
+            X = (short) (Map.CWMap.SpawnX*32);
+            Y = (short)(Map.CWMap.SpawnZ * 32);
+            Z = (short)((Map.CWMap.SpawnY * 32) + 51);
+            Rot = Map.CWMap.SpawnRotation;
+            Look = Map.CWMap.SpawnLook;
+            SendOwn = true;
+        }
+
         public void SetBuildmode(string mode)
         {
             BuildMode = ServerCore.BmContainer.Modes.ContainsKey(mode) ? ServerCore.BmContainer.Modes[mode] : new BmStruct {Name = ""};
@@ -87,7 +97,6 @@ namespace Hypercube.Core {
             X = x;
             Y = y;
             Z = z;
-
         }
     }
 }

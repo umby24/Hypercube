@@ -570,7 +570,15 @@ namespace Hypercube.Client {
                 CS.MyEntity.SendOwn = true;
             }
 
-            //TODO: Kill blocks.
+            if (CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, myLoc.Z).Kills) {
+                CS.MyEntity.Kill();
+                return;
+            }
+
+            if (!CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, (short) (myLoc.Z + 1)).Kills) 
+                return;
+
+            CS.MyEntity.Kill();
         }
 
         /// <summary>
@@ -692,7 +700,6 @@ namespace Hypercube.Client {
                 }
 
                 CheckPosition();
-                //EntityPositions();
                 Thread.Sleep(10);
             }
         }
