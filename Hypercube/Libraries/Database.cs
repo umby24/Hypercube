@@ -93,6 +93,22 @@ namespace Hypercube.Libraries {
             return "";
         }
 
+        /// <summary>
+        /// Get a Player's Name from their index in the table.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetPlayerName(int id) {
+            var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Number=" + id + "");
+
+            foreach (DataRow c in dt.Rows) {
+                Console.WriteLine(c["Number"].GetType());
+                if (((long) c["Number"]) == id) return (string) c["Name"];
+            }
+
+            return "";
+        }
+
         public void BanPlayer(string name, string reason, string bannedBy) {
             name = GetPlayerName(name);
             SetDatabase(name, "PlayerDB", "Banned", 1);

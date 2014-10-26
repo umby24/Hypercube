@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Hypercube.Client;
 using Hypercube.Core;
 using Hypercube.Map;
@@ -8,10 +9,11 @@ namespace Hypercube.Command {
         /// <summary>
         /// Initiates and loads all internal buildmodes. 
         /// </summary>
-        public static void Init() {
-            ServerCore.BmContainer.Modes.Add("Box", BoxStruct);
-            ServerCore.BmContainer.Modes.Add("CreateTP", CreateTpStruct);
-            ServerCore.BmContainer.Modes.Add("History", HistoryStruct);
+        public static Dictionary<string, BmStruct> Init(Dictionary<string, BmStruct> mode) {
+            mode.Add("Box", BoxStruct);
+            mode.Add("CreateTP", CreateTpStruct);
+            mode.Add("History", HistoryStruct);
+            return mode;
         }
 
         #region Box
@@ -115,7 +117,7 @@ namespace Hypercube.Command {
         private static void HistoryHandler(NetworkClient client, HypercubeMap map, Vector3S location, byte mode, Block block) {
             Chat.SendClientChat(client,
                 map.HCSettings.History
-                    ? map.History.LookupString(location.X, location.Y, location.Z)
+                    ? map.History.LookupString(location.X, location.Z, location.Y)
                     : "§EHistory is not enabled on this map.");
 
             client.CS.MyEntity.SetBuildmode("");

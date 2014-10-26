@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Hypercube.Client;
+using Hypercube.Command;
 using Hypercube.Libraries;
 
 namespace Hypercube.Core {
@@ -29,6 +30,7 @@ namespace Hypercube.Core {
                 Modes.Add(myStruct.Name, myStruct);
             }
 
+            Modes = Buildmodes.Init(Modes);
             ServerCore.Logger.Log("Buildmode", "Buildmodes loaded.", LogType.Info);
         }
     }

@@ -52,7 +52,7 @@ namespace Hypercube.Libraries {
             LuaHandler.RegisterFunction("GetCmdAlias", ServerCore.Commandholder, ServerCore.Commandholder.GetType().GetMethod("GetAlias"));
             // -- DB functions
             LuaHandler.RegisterFunction("DBPlayerExists", ServerCore.DB, ServerCore.DB.GetType().GetMethod("ContainsPlayer"));
-            LuaHandler.RegisterFunction("DBGetPlayerName", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetPlayerName"));
+            //LuaHandler.RegisterFunction("DBGetPlayerName", ServerCore.DB, ServerCore.DB.GetType().GetMethod("GetPlayerName"));
             LuaHandler.RegisterFunction("DBBanPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("BanPlayer"));
             LuaHandler.RegisterFunction("DBUnbanPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("UnbanPlayer"));
             LuaHandler.RegisterFunction("DBStopPlayer", ServerCore.DB, ServerCore.DB.GetType().GetMethod("StopPlayer"));

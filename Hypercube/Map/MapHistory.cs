@@ -215,7 +215,7 @@ namespace Hypercube.Map
         /// <param name="y">Y Location of block</param>
         /// <param name="z">Z Location of block</param>
         /// <returns>Array of History Entries.</returns>
-        public HistoryEntry[] Lookup(short x, short y, short z)
+        public HistoryEntry[] Lookup(short x, short y, short z) //BUG: This was called during server shutdown..
         {
             if (!_thisMap.HCSettings.History)
                 return null;
@@ -291,15 +291,15 @@ namespace Hypercube.Map
             var entries = Lookup(x, y, z);
 
             if (entries == null || entries.Length == 0)
-                return "No Entries";
+                return "§ENo Entries";
 
             var result = "";
 
             foreach (var e in entries) {
                 var time = ServerCore.UnixEpoch.AddSeconds(e.Timestamp);
-
+                var pName = ServerCore.DB.GetPlayerName(e.Player);
                 result += "§S" + time.ToString("yy-MM-dd hh:mm:ss tt") + "<br>";
-                result += "§S" + e.Player + " changed " + ServerCore.Blockholder.GetBlock(e.LastBlock).Name + " to " +
+                result += "§S" + pName + " changed " + ServerCore.Blockholder.GetBlock(e.LastBlock).Name + " to " +
                           ServerCore.Blockholder.GetBlock(e.NewBlock).Name + ".<br>";
             }
 

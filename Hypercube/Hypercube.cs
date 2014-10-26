@@ -100,7 +100,6 @@ namespace Hypercube
             Rankholder = new RankContainer();
             Blockholder = new BlockContainer();
             BmContainer = new BuildMode();
-            Buildmodes.Init();
 
             DefaultRank = Rankholder.GetRank(DefaultRank.Name);
 
