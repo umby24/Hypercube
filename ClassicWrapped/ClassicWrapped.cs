@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Net.Sockets;
 
@@ -42,29 +43,11 @@ namespace ClassicWrapped
         // -- Writing functions
 
         public void WriteByte(byte send) {
-            if (_buffer != null) {
-                var tempBuff = new byte[_buffer.Length + 1];
-
-                Buffer.BlockCopy(_buffer, 0, tempBuff, 0, _buffer.Length);
-                tempBuff[_buffer.Length] = send;
-
-                _buffer = tempBuff;
-            } else {
-                _buffer = new[] { send };
-            }
+            WriteBytes(new[] { send });
         }
 
         public void WriteSByte(sbyte send) {
-            if (_buffer != null) {
-                var tempBuff = new byte[_buffer.Length + 1];
-
-                Buffer.BlockCopy(_buffer, 0, tempBuff, 0, _buffer.Length);
-                tempBuff[_buffer.Length] = (byte)send;
-
-                _buffer = tempBuff;
-            } else {
-                _buffer = new[] { (byte)send };
-            }
+            WriteBytes(new [] { (byte)send });
         }
 
         public void WriteShort(short send) {
@@ -94,48 +77,41 @@ namespace ClassicWrapped
 
         private byte[] ReadBytes(int size) {
             var myBytes = new byte[size];
-
-            var bytesRead = Stream.Read(myBytes, 0, size);
-
-            if (bytesRead == size)
-                return myBytes;
+            var offset = 0;
 
             while (true) {
-                if (bytesRead != size) {
-                    var newSize = size - bytesRead;
+                var bytesRead = Stream.Read(myBytes, offset, size);
 
-                    bytesRead = Stream.Read(myBytes, bytesRead - 1, newSize);
+                if (bytesRead == size)
+                    return myBytes;
 
-                    if (bytesRead != newSize)
-                        size = newSize;
-                    else
-                        break;
-                }
+                size -= bytesRead;
+                offset = (bytesRead - 1);
             }
-
-            return myBytes;
         }
 
         private void WriteBytes(byte[] bytes) { // -- Writes bytes to the pending send buffer
             if (_buffer == null) {
                 _buffer = bytes;
-            } else {
-                var tempLength = _buffer.Length + bytes.Length;
-                var tempBuff = new byte[tempLength];
-
-                Buffer.BlockCopy(_buffer, 0, tempBuff, 0, _buffer.Length);
-                Buffer.BlockCopy(bytes, 0, tempBuff, _buffer.Length, bytes.Length);
-
-                _buffer = tempBuff;
+                return;
             }
+
+            var tempLength = _buffer.Length + bytes.Length;
+            var tempBuff = new byte[tempLength];
+
+            Buffer.BlockCopy(_buffer, 0, tempBuff, 0, _buffer.Length);
+            Buffer.BlockCopy(bytes, 0, tempBuff, _buffer.Length, bytes.Length);
+
+            _buffer = tempBuff;
         }
 
         public void Purge() { // -- Writes the send buffer to the client
             try {
                 Stream.Write(_buffer, 0, _buffer.Length);
                 _buffer = null;
-            } catch {
-
+            }
+            catch (Exception) {
+                Stream.Close();
             }
         }
     }

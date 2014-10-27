@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -61,14 +62,17 @@ namespace Hypercube.Client {
         /// <summary>
         /// Loads the client's settings from the database.
         /// </summary>
-        public void LoadDB() {
-            CS.Id = (short)ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Number");
-            CS.Stopped = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Stopped") > 0);
-            CS.Global = (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Global") > 0);
-            CS.MuteTime = ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Time_Muted");
+        public void LoadDB(DataTable playerObj) {
+            CS.Id = Convert.ToInt16(playerObj.Rows[0]["Number"]);
+            CS.Stopped = (Convert.ToInt32(playerObj.Rows[0]["Stopped"]) > 0);
+            CS.Global = (Convert.ToInt32(playerObj.Rows[0]["Global"]) > 0);
 
-            CS.PlayerRanks = RankContainer.SplitRanks(ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "Rank"));
-            CS.RankSteps = RankContainer.SplitSteps(ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "RankStep"));
+            if (playerObj.Rows[0]["Time_Muted"].GetType() != typeof(DBNull))
+                CS.MuteTime = Convert.ToInt32(playerObj.Rows[0]["Time_Muted"]);
+
+            CS.PlayerRanks = RankContainer.SplitRanks((string)playerObj.Rows[0]["Rank"]);
+            CS.RankSteps = RankContainer.SplitSteps((string)playerObj.Rows[0]["RankStep"]);
+
             CS.FormattedName = CS.PlayerRanks[CS.PlayerRanks.Count - 1].Prefix + CS.LoginName + CS.PlayerRanks[CS.PlayerRanks.Count - 1].Suffix;
 
             foreach (var r in CS.PlayerRanks) {
@@ -77,7 +81,7 @@ namespace Hypercube.Client {
                 break;
             }
 
-            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "LoginCounter") + 1));
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (Convert.ToInt32(playerObj.Rows[0]["LoginCounter"]) + 1));
             ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
         }
 
@@ -90,13 +94,16 @@ namespace Hypercube.Client {
 
             CS.LoginName = ServerCore.DB.GetPlayerName(CS.LoginName); // -- Get their case-correct username from the DB
 
-            if ((ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB", "Banned") > 0)) { // -- Check if the player is banned
-                KickPlayer("Banned: " + ServerCore.DB.GetDatabaseString(CS.LoginName, "PlayerDB", "BanMessage"));
+            // -- Reduces number of queries to one, thus drastically speeding up login time for clients :)
+            var dbEntry = ServerCore.DB.GetDataTable("SELECT * FROM PlayerDB WHERE Name='" + CS.LoginName + "' LIMIT 1");
+
+            if ((Convert.ToInt32(dbEntry.Rows[0]["Banned"]) > 0)) { // -- Check if the player is banned
+                KickPlayer("Banned: " + (string)(dbEntry.Rows[0]["BanMessage"]));
                 ServerCore.Logger.Log("Client", "Disconnecting player " + CS.LoginName + ": Player is banned.", LogType.Info);
                 return;
             }
 
-            LoadDB(); // -- Load the user's profile
+            LoadDB(dbEntry); // -- Load the user's profile
 
             // -- Check to ensure noone with the same name is already logged in
             NetworkClient client;
@@ -138,8 +145,7 @@ namespace Hypercube.Client {
             {
                 MyClient = this,
                 Boundblock =
-                    ServerCore.Blockholder.GetBlock(ServerCore.DB.GetDatabaseInt(CS.LoginName, "PlayerDB",
-                        "BoundBlock"))
+                    ServerCore.Blockholder.GetBlock(Convert.ToInt32(dbEntry.Rows[0]["BoundBlock"]))
             };
 
             // -- Send the client the map's spawnpoint.
@@ -731,6 +737,7 @@ namespace Hypercube.Client {
 
                 try {
                     IPacket myPacket;
+
                     while (SendQueue.TryDequeue(out myPacket)) {
                         myPacket.Write(this);
                     }

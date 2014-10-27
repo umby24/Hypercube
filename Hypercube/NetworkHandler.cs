@@ -114,6 +114,7 @@ namespace Hypercube {
         /// </summary>
         /// <param name="client">The client that has disconnected.</param>
         public void HandleDisconnect(NetworkClient client) {
+            
             lock (ClientLock) {
                 Clients.Remove(client);
             }

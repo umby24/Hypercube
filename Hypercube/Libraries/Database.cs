@@ -102,9 +102,8 @@ namespace Hypercube.Libraries {
             var dt = GetDataTable("SELECT * FROM PlayerDB WHERE Number=" + id + "");
 
             foreach (DataRow c in dt.Rows) {
-                Console.WriteLine(c["Number"].GetType());
                 if (((long) c["Number"]) == id) return (string) c["Name"];
-            }
+            } 
 
             return "";
         }
