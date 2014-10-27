@@ -115,10 +115,11 @@ namespace Hypercube.Command {
                     return;
                 }
 
+                client.CS.MyEntity.SetBuildmode("Box");
                 client.CS.MyEntity.ClientState.SetString(text1, 0);
                 Chat.SendClientChat(client, "§SBuildmode: Box started. Place two blocks to build a box.");
                 Chat.SendClientChat(client, "§Replacing: " + block.Name);
-                client.CS.MyEntity.SetBuildmode("Box");
+                
                 client.CS.MyEntity.BuildState = 0;
                 return;
             }
@@ -251,8 +252,10 @@ namespace Hypercube.Command {
         };
 
         static void PlaceHandler(NetworkClient client, string[] args, string text1, string text2) {
+            var myLoc = client.CS.MyEntity.GetBlockLocation();
+
             if (args.Length == 0) {
-                client.CS.CurrentMap.ClientChangeBlock(client, (short)(client.CS.MyEntity.X / 32), (short)(client.CS.MyEntity.Y / 32), (short)((client.CS.MyEntity.Z / 32) - 2), 1, client.CS.MyEntity.Lastmaterial);
+                client.CS.CurrentMap.ClientChangeBlock(client, myLoc.X, myLoc.Y, (short)(myLoc.Z - 2), 1, client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(client, "§SBlock placed.");
             } else if (args.Length == 1) {
                 var newBlock = ServerCore.Blockholder.GetBlock(text1);
@@ -263,7 +266,7 @@ namespace Hypercube.Command {
                 }
 
                 client.CS.MyEntity.Lastmaterial = newBlock;
-                client.CS.CurrentMap.ClientChangeBlock(client, (short)(client.CS.MyEntity.X / 32), (short)(client.CS.MyEntity.Y / 32), (short)((client.CS.MyEntity.Z / 32) - 2), 1, client.CS.MyEntity.Lastmaterial);
+                client.CS.CurrentMap.ClientChangeBlock(client, myLoc.X, myLoc.Y, (short)(myLoc.Z - 2), 1, client.CS.MyEntity.Lastmaterial);
                 Chat.SendClientChat(client, "§SBlock placed.");
             }
         }

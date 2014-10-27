@@ -464,9 +464,10 @@ namespace Hypercube.Command {
         };
 
         static void SetspawnHandler(NetworkClient client, string[] args, string text1, string text2) {
-            client.CS.CurrentMap.CWMap.SpawnX = (short)(client.CS.MyEntity.X / 32);
-            client.CS.CurrentMap.CWMap.SpawnY = (short)(client.CS.MyEntity.Z / 32);
-            client.CS.CurrentMap.CWMap.SpawnZ = (short)(client.CS.MyEntity.Y / 32);
+            var blockCoord = client.CS.MyEntity.GetBlockLocation();
+            client.CS.CurrentMap.CWMap.SpawnX = blockCoord.X;
+            client.CS.CurrentMap.CWMap.SpawnY = blockCoord.Z;
+            client.CS.CurrentMap.CWMap.SpawnZ = blockCoord.Y;
             client.CS.CurrentMap.CWMap.SpawnLook = client.CS.MyEntity.Look;
             client.CS.CurrentMap.CWMap.SpawnRotation = client.CS.MyEntity.Rot;
             client.CS.CurrentMap.Save();

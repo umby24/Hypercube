@@ -209,11 +209,11 @@ namespace Hypercube.Libraries {
         /// </summary>
         public void SettingsMain() {
             foreach (var t in SettingsFiles) {
-                if (File.GetLastWriteTime("Settings/" + t.Filename) == t.LastModified) 
+                if (File.GetLastWriteTime(t.Filename) == t.LastModified) 
                     continue;
 
                 ReadSettings(t);
-                t.LastModified = File.GetLastWriteTime("Settings/" + t.Filename);
+                t.LastModified = File.GetLastWriteTime(t.Filename);
             }
             
         }

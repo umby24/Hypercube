@@ -38,6 +38,24 @@ namespace Hypercube.Core {
     }
 
     public struct Vector3S {
+        public bool Equals(Vector3S other) {
+            return X == other.X && Y == other.Y && Z == other.Z;
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) return false;
+            return obj is Vector3S && Equals((Vector3S) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                int hashCode = X.GetHashCode();
+                hashCode = (hashCode*397) ^ Y.GetHashCode();
+                hashCode = (hashCode*397) ^ Z.GetHashCode();
+                return hashCode;
+            }
+        }
+
         public short X;
         public short Y;
         public short Z;
@@ -46,6 +64,25 @@ namespace Hypercube.Core {
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public static bool operator ==(Vector3S item1, Vector3S item2) {
+            return item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z;
+        }
+
+        public static bool operator !=(Vector3S item1, Vector3S item2) {
+            return !(item1 == item2);
+        }
+    }
+
+    public struct VectorComparator : IEqualityComparer<Vector3S> {
+        public bool Equals(Vector3S item1, Vector3S item2) {
+            return item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z;
+        }
+
+        public int GetHashCode(Vector3S item) {
+            var hCode = item.X ^ item.Y ^ item.Z;
+            return hCode.GetHashCode();
         }
     }
 
@@ -63,10 +100,7 @@ namespace Hypercube.Core {
 
     public struct QueueComparator : IEqualityComparer<QueueItem> {
         public bool Equals(QueueItem item1, QueueItem item2) {
-            if (item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z)
-                return true;
-            
-            return false;
+            return item1.X == item2.X && item1.Y == item2.Y && item1.Z == item2.Z;
         }
 
         public int GetHashCode(QueueItem item) {

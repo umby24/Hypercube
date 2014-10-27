@@ -302,6 +302,11 @@ namespace Hypercube.Map {
             }
         }
         #region Map Functions
+
+        public Vector3S GetSpawnVector() {
+            return new Vector3S(CWMap.SpawnX, CWMap.SpawnZ, CWMap.SpawnY);
+        }
+
         /// <summary>
         /// Saves the map.
         /// </summary>

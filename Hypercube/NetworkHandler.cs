@@ -119,40 +119,42 @@ namespace Hypercube {
                 Clients.Remove(client);
             }
 
-            if (client.CS.LoggedIn) {
-                lock (client.CS.CurrentMap.ClientLock) {
-                    client.CS.CurrentMap.Clients.Remove(client.CS.Id);
-                    client.CS.CurrentMap.CreateClientList();
-                }
-
-                if (client.CS.MyEntity != null) {
-                    client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
-                    ServerCore.FreeEids.Push((short)client.CS.MyEntity.Id);
-                }
-
-                ServerCore.OnlinePlayers -= 1;
-                ServerCore.FreeIds.Push(client.CS.NameId);
-                LoggedClients.Remove(client.CS.LoginName);
-                IntLoggedClients.Remove(client.CS.Id);
-                CreateLists();
-
-                var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
-                
-                foreach (var c in ClientList) {
-                    if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
-                        c.SendQueue.Enqueue(remove);
-                }
-
-                ServerCore.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
-                ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
-                Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
-                client.CS.LoggedIn = false;
-            }
-
             try {
                 client.BaseSocket.Close();
             } catch (IOException) {
             }
+
+            if (!client.CS.LoggedIn) 
+                return;
+
+            client.CS.LoggedIn = false;
+
+            lock (client.CS.CurrentMap.ClientLock) {
+                client.CS.CurrentMap.Clients.Remove(client.CS.Id);
+                client.CS.CurrentMap.CreateClientList();
+            }
+
+            if (client.CS.MyEntity != null) {
+                client.CS.CurrentMap.DeleteEntity(ref client.CS.MyEntity);
+                ServerCore.FreeEids.Push((short)client.CS.MyEntity.Id);
+            }
+
+            ServerCore.OnlinePlayers -= 1;
+            ServerCore.FreeIds.Push(client.CS.NameId);
+            LoggedClients.Remove(client.CS.LoginName);
+            IntLoggedClients.Remove(client.CS.Id);
+            CreateLists();
+
+            var remove = new ExtRemovePlayerName {NameId = client.CS.NameId};
+                
+            foreach (var c in ClientList) {
+                if (c.CS.CPEExtensions.ContainsKey("ExtPlayerList"))
+                    c.SendQueue.Enqueue(remove);
+            }
+
+            ServerCore.Logger.Log("Network", "Player " + client.CS.LoginName + " has disconnected.", LogType.Info); // -- Notify of their disconnection.
+            ServerCore.Luahandler.RunFunction("E_PlayerDisconnect", client.CS.LoginName);
+            Chat.SendGlobalChat(ServerCore.TextFormats.SystemMessage + "Player " + client.CS.FormattedName + ServerCore.TextFormats.SystemMessage + " left.");
         }
 
         /// <summary>

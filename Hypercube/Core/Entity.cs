@@ -7,19 +7,18 @@ namespace Hypercube.Core {
     public class EntityStub {
         public int Id;
         public byte ClientId, Rot, Look;
-        public short X, Y, Z;
+        //public short X, Y, Z;
+        public Vector3S Location;
         public bool Looked, Changed, Visible, Spawned;
         public string Model;
         public HypercubeMap Map;
 
-        public EntityStub(int id, byte clientId, bool visible, HypercubeMap cMap, short x, short y, short z, byte rot, byte look, string model) {
+        public EntityStub(int id, byte clientId, bool visible, HypercubeMap cMap, Vector3S location, byte rot, byte look, string model) {
             Map = cMap;
             Id = id;
             ClientId = clientId;
             Visible = visible;
-            X = x;
-            Y = y;
-            Z = z;
+            Location = location;
             Rot = rot;
             Look = look;
             Looked = false;
@@ -32,7 +31,7 @@ namespace Hypercube.Core {
     public class Entity {
         public byte ClientId, Rot, Look, Heldblock;
         public bool SendOwn, Visible;
-        public short X, Y, Z;
+        public Vector3S Location;
         public int Id, BuildState;
         public string Name, Model;
         public BmStruct BuildMode;
@@ -42,11 +41,9 @@ namespace Hypercube.Core {
         public HypercubeMap Map;
         public Block Lastmaterial, Boundblock, BuildMaterial;
 
-        public Entity(HypercubeMap map, string name, short x, short y, short z, byte rot, byte look) {
+        public Entity(HypercubeMap map, string name, Vector3S location, byte rot, byte look) {
             Name = name;
-            X = x;
-            Y = y;
-            Z = z;
+            Location = location;
             Rot = rot;
             Look = look;
             Map = map;
@@ -64,9 +61,8 @@ namespace Hypercube.Core {
 
         public void Kill() {
             Chat.SendMapChat(Map, "&c" + Name + " was killed.");
-            X = (short) (Map.CWMap.SpawnX*32);
-            Y = (short)(Map.CWMap.SpawnZ * 32);
-            Z = (short)((Map.CWMap.SpawnY * 32) + 51);
+            SetBlockPosition(Map.CWMap.SpawnX, Map.CWMap.SpawnZ, Map.CWMap.SpawnY);
+
             Rot = Map.CWMap.SpawnRotation;
             Look = Map.CWMap.SpawnLook;
             SendOwn = true;
@@ -80,23 +76,29 @@ namespace Hypercube.Core {
         }
 
         public EntityStub CreateStub() {
-            return new EntityStub(Id, ClientId, Visible, Map, X, Y, Z, Rot, Look, Model);
+            return new EntityStub(Id, ClientId, Visible, Map, Location, Rot, Look, Model);
         }
 
         public Vector3S GetBlockLocation() {
             var myLoc = new Vector3S {
-                X = (short)(X / 32),
-                Y = (short)(Y / 32),
-                Z = (short)((Z - 51) / 32),
+                X = (short)(Location.X / 32),
+                Y = (short)(Location.Y / 32),
+                Z = (short)((Location.Z - 51) / 32),
             };
 
             return myLoc;
         }
 
-        public void PositionUpdate(short x, short y, short z) {
-            X = x;
-            Y = y;
-            Z = z;
+        public void SetBlockPosition(short x, short y, short z) {
+            Location.X = (short)(x * 32);
+            Location.X = (short)(y * 32);
+            Location.X = (short)((z * 32) + 51);
+        }
+
+        public void SetBlockPosition(Vector3S blockLoc) {
+            Location.X = (short)(blockLoc.X * 32);
+            Location.Y = (short)(blockLoc.Y * 32);
+            Location.Z = (short)((blockLoc.Z * 32) + 51);
         }
     }
 }

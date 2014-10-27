@@ -81,7 +81,12 @@ namespace Hypercube.Client {
                 break;
             }
 
-            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", (Convert.ToInt32(playerObj.Rows[0]["LoginCounter"]) + 1));
+            var loginCounter = 0;
+
+            if (playerObj.Rows[0]["LoginCounter"].GetType() != typeof (DBNull))
+                loginCounter = (Convert.ToInt32(playerObj.Rows[0]["LoginCounter"]) + 1);
+
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", loginCounter);
             ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
         }
 
@@ -140,12 +145,16 @@ namespace Hypercube.Client {
             Chat.SendClientChat(this, ServerCore.WelcomeMessage);
 
             // -- Create the user's entity.
-            CS.MyEntity = new Entity(CS.CurrentMap, CS.LoginName, (short)(CS.CurrentMap.CWMap.SpawnX * 32), 
-                (short)(CS.CurrentMap.CWMap.SpawnZ * 32), (short)((CS.CurrentMap.CWMap.SpawnY * 32) + 51), CS.CurrentMap.CWMap.SpawnRotation, CS.CurrentMap.CWMap.SpawnLook)
+            var sv = CS.CurrentMap.GetSpawnVector();
+            sv.X *= 32;
+            sv.Y *= 32;
+            sv.Z *= 32;
+            sv.Z += 51;
+
+            CS.MyEntity = new Entity(CS.CurrentMap, CS.LoginName, sv, CS.CurrentMap.CWMap.SpawnRotation, CS.CurrentMap.CWMap.SpawnLook)
             {
                 MyClient = this,
-                Boundblock =
-                    ServerCore.Blockholder.GetBlock(Convert.ToInt32(dbEntry.Rows[0]["BoundBlock"]))
+                Boundblock = ServerCore.Blockholder.GetBlock(Convert.ToInt32(dbEntry.Rows[0]["BoundBlock"]))
             };
 
             // -- Send the client the map's spawnpoint.
@@ -421,9 +430,7 @@ namespace Hypercube.Client {
                 newMap.CreateClientList();
             }
 
-            CS.MyEntity.X = (short)(newMap.CWMap.SpawnX * 32);
-            CS.MyEntity.Y = (short)(newMap.CWMap.SpawnZ * 32);
-            CS.MyEntity.Z = (short)((newMap.CWMap.SpawnY * 32) + 51);
+            CS.MyEntity.SetBlockPosition(CS.CurrentMap.GetSpawnVector());
             CS.MyEntity.Rot = newMap.CWMap.SpawnRotation;
             CS.MyEntity.Look = newMap.CWMap.SpawnLook;
             CS.MyEntity.Map = newMap;
@@ -489,6 +496,7 @@ namespace Hypercube.Client {
                 }
 
                 Entity p;
+
                 if (!CS.CurrentMap.Entities.TryGetValue(e.Id, out p)) {
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
@@ -527,34 +535,35 @@ namespace Hypercube.Client {
 
             foreach (var e in CS.CurrentMap.EntitysList) {
                 EntityStub p;
+
                 if (!CS.Entities.TryGetValue(e.Id, out p)) {
                     if (e.Id != CS.MyEntity.Id)
                         CS.Entities.Add(e.Id, e.CreateStub()); // -- If we do not have them yet, add them!
-                    
-                } else {
-                    var csEnt = CS.Entities[e.Id];
-
-                    if (e.X != csEnt.X || e.Y != csEnt.Y || e.Z != csEnt.Z) {
-                        csEnt.X = e.X;
-                        csEnt.Y = e.Y;
-                        csEnt.Z = e.Z;
-                        csEnt.Changed = true;
-                    }
-
-                    if (e.Rot == csEnt.Rot && e.Look == csEnt.Look) 
-                        continue;
-                    csEnt.Rot = e.Rot;
-                    csEnt.Look = e.Look;
-
-                    if (!csEnt.Changed)
-                        csEnt.Looked = true;
+                    continue;
                 }
+
+                var csEnt = CS.Entities[e.Id];
+
+                if (e.Location.X != csEnt.Location.X || e.Location.Y != csEnt.Location.Y || e.Location.Z != csEnt.Location.Z) {
+                    csEnt.Location = e.Location;
+                    csEnt.Changed = true;
+                }
+
+                if (e.Rot == csEnt.Rot && e.Look == csEnt.Look) 
+                    continue;
+
+                csEnt.Rot = e.Rot;
+                csEnt.Look = e.Look;
+
+                if (!csEnt.Changed)
+                    csEnt.Looked = true;
             }
 
-            if (CS.MyEntity.SendOwn) {
-                EFullMove(CS.MyEntity, true);
-                CS.MyEntity.SendOwn = false;
-            }
+            if (!CS.MyEntity.SendOwn) 
+                return;
+
+            EFullMove(CS.MyEntity, true);
+            CS.MyEntity.SendOwn = false;
         }
 
         /// <summary>
@@ -568,9 +577,7 @@ namespace Hypercube.Client {
                 if (tele.DestinationMap != CS.CurrentMap)
                     ChangeMap(tele.DestinationMap);
 
-                CS.MyEntity.X = (short)(tele.Dest.X * 32);
-                CS.MyEntity.Y = (short)(tele.Dest.Y * 32);
-                CS.MyEntity.Z = (short)((tele.Dest.Z * 32) + 51);
+                CS.MyEntity.SetBlockPosition(tele.Dest);
                 CS.MyEntity.Look = tele.DestLook;
                 CS.MyEntity.Rot = tele.DestRot;
                 CS.MyEntity.SendOwn = true;
@@ -596,9 +603,9 @@ namespace Hypercube.Client {
             var spawn = new SpawnPlayer
             {
                 PlayerName = name,
-                X = entity.X,
-                Y = entity.Y,
-                Z = entity.Z,
+                X = entity.Location.X,
+                Y = entity.Location.Y,
+                Z = entity.Location.Z,
                 Yaw = entity.Rot,
                 Pitch = entity.Look
             };
@@ -665,9 +672,7 @@ namespace Hypercube.Client {
         void EFullMove(Entity fullEntity, bool own = false) {
             var move = new PlayerTeleport
             {
-                X = fullEntity.X,
-                Y = fullEntity.Y,
-                Z = fullEntity.Z,
+                Location = fullEntity.Location,
                 Yaw = fullEntity.Rot,
                 Pitch = fullEntity.Look
             };

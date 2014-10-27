@@ -257,17 +257,16 @@ namespace Hypercube.Network {
     public struct PlayerTeleport : IPacket {
         public byte Id { get { return 8; } }
         public sbyte PlayerId { get; set; }
-        public short X { get; set; }
-        public short Y { get; set; }
-        public short Z { get; set; }
+        public Vector3S Location { get; set; }
+        //public short X { get; set; }
+        //public short Y { get; set; }
+        //public short Z { get; set; }
         public byte Yaw { get; set; }
         public byte Pitch { get; set; }
 
         public void Read(NetworkClient client) {
             PlayerId = client.WSock.ReadSByte();
-            X = client.WSock.ReadShort();
-            Z = client.WSock.ReadShort();
-            Y = client.WSock.ReadShort();
+            Location = new Vector3S {X = client.WSock.ReadShort(), Z = client.WSock.ReadShort(), Y = client.WSock.ReadShort()};
             Yaw = client.WSock.ReadByte();
             Pitch = client.WSock.ReadByte();
         }
@@ -275,9 +274,9 @@ namespace Hypercube.Network {
         public void Write(NetworkClient client) {
             client.WSock.WriteByte(Id);
             client.WSock.WriteSByte(PlayerId);
-            client.WSock.WriteShort(X);
-            client.WSock.WriteShort(Z);
-            client.WSock.WriteShort(Y);
+            client.WSock.WriteShort(Location.X);
+            client.WSock.WriteShort(Location.Z);
+            client.WSock.WriteShort(Location.Y);
             client.WSock.WriteByte(Yaw);
             client.WSock.WriteByte(Pitch);
             client.WSock.Purge();
@@ -290,10 +289,8 @@ namespace Hypercube.Network {
                 client.CS.MyEntity.Look = Pitch;
             }
 
-            if (X != client.CS.MyEntity.X || Y != client.CS.MyEntity.Y || Z != client.CS.MyEntity.Z) {
-                client.CS.MyEntity.X = X;
-                client.CS.MyEntity.Y = Y;
-                client.CS.MyEntity.Z = Z;
+            if (Location != client.CS.MyEntity.Location) {
+                client.CS.MyEntity.Location = Location;
             }
 
             if (!client.CS.CPEExtensions.ContainsKey("HeldBlock")) 

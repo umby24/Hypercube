@@ -90,9 +90,7 @@ namespace Hypercube.Command {
             if (client.CS.CurrentMap != tpClient.CS.CurrentMap)
                 return;
 
-            tpClient.CS.MyEntity.X = client.CS.MyEntity.X;
-            tpClient.CS.MyEntity.Y = client.CS.MyEntity.Y;
-            tpClient.CS.MyEntity.Z = client.CS.MyEntity.Z;
+            tpClient.CS.MyEntity.Location = client.CS.MyEntity.Location;
             tpClient.CS.MyEntity.Rot = client.CS.MyEntity.Rot;
             tpClient.CS.MyEntity.Look = client.CS.MyEntity.Look;
             tpClient.CS.MyEntity.SendOwn = true;
@@ -332,7 +330,7 @@ namespace Hypercube.Command {
                 onlineString += "§S" + hm.CWMap.MapName + "&f: ";
 
                 foreach(var c in hm.ClientsList)
-                    onlineString += c.CS.FormattedName + "§D";
+                    onlineString += c.CS.FormattedName + " §D ";
 
                 onlineString += "<br>";
             }
@@ -529,10 +527,8 @@ namespace Hypercube.Command {
 
             if (client.CS.CurrentMap != tpClient.CS.CurrentMap)
                 return;
-            
-            client.CS.MyEntity.X = tpClient.CS.MyEntity.X;
-            client.CS.MyEntity.Y = tpClient.CS.MyEntity.Y;
-            client.CS.MyEntity.Z = tpClient.CS.MyEntity.Z;
+
+            client.CS.MyEntity.Location = tpClient.CS.MyEntity.Location;
             client.CS.MyEntity.Rot = tpClient.CS.MyEntity.Rot;
             client.CS.MyEntity.Look = tpClient.CS.MyEntity.Look;
             client.CS.MyEntity.SendOwn = true;
