@@ -564,6 +564,7 @@ namespace Hypercube.Command {
             if (args.Length == 0) {
                 client.CS.MyEntity.Model = "default";
                 Chat.SendClientChat(client, "§SYour model has been reset.");
+                return;
             }
 
             int block;
