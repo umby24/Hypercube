@@ -581,20 +581,20 @@ namespace Hypercube.Command {
             }
 
             switch (args[0].ToLower()) {
-                case "chicken":
-                case "creeper":
                 case "croc":
                     args[0] = "crocodile";
                     goto case "crocodile";
-                case "crocodile":
-                case "pig":
-                case "printer":
-                case "sheep":
                 case "skele":
                     args[0] = "skele";
                     goto case "skeleton";
                 case "skeleton":
                 case "spider":
+                case "crocodile":
+                case "pig":
+                case "printer":
+                case "chicken":
+                case "creeper":
+                case "sheep":
                 case "zombie":
                     client.CS.MyEntity.Model = args[0].ToLower();
                     break;

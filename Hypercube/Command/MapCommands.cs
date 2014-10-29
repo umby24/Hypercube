@@ -475,6 +475,33 @@ namespace Hypercube.Command {
             Chat.SendClientChat(client, "§SSpawnpoint set.");
         }
         #endregion
+        #region Spawn
+        static readonly Command CSpawn = new Command {
+            Plugin = "",
+            Group = "Map",
+            Help = "§SChanges the spawnpoint of the map to where you are standing.",
+            Console = false,
+            AllPerms = true,
+
+            UsePermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+            },
+
+            ShowPermissions = new SortedDictionary<string, Permission> {
+                {"player.build", new Permission { Fullname = "player.build", Group = "player", Perm = "build"}},
+                {"player.delete", new Permission { Fullname = "player.delete", Group = "player", Perm = "delete"}},
+            },
+
+            Handler = SpawnHandler,
+        };
+
+        private static void SpawnHandler(NetworkClient client, string[] args, string text1, string text2) {
+            client.CS.MyEntity.SetBlockPosition(client.CS.CurrentMap.GetSpawnVector());
+            client.CS.MyEntity.SendOwn = true;
+        }
+
+        #endregion
         #region Physics
         static readonly Command CPhysics = new Command {
             Plugin = "",
