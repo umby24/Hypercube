@@ -24,6 +24,7 @@ namespace Hypercube.Command {
             holder.AddCommand("/history", CMaphistory);
             holder.AddCommand("/mapsave", CMapsave);
             holder.AddCommand("/setspawn", CSetSpawn);
+            holder.AddCommand("/spawn", CSpawn);
             holder.AddCommand("/physics", CPhysics);
 
             holder.AddCommand("/texture", CTexture);
