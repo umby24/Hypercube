@@ -52,7 +52,7 @@ namespace Hypercube
         #endregion
 
         #region Containers
-        public static PbSettingsLoader Settings;
+        public static PbSettingsLoader Setting;
         public static Settings SysSettings, Rulesfile;
         public static Database DB;
 
@@ -84,14 +84,16 @@ namespace Hypercube
         /// </summary>
         public static void Setup()
         {
-            Settings = new PbSettingsLoader();
+            Setting = new PbSettingsLoader();
             TextFormats = new Text();
 
-            SysSettings = Settings.RegisterFile("System.txt", "Settings/", true, ReadSystemSettings);
-            Settings.ReadSettings(SysSettings);
+            SysSettings = new Settings("System.txt", ReadSystemSettings);
+            Setting.RegisterFile(SysSettings);
+            SysSettings.LoadFile();
 
-            Rulesfile = Settings.RegisterFile("Rules.txt", "Settings/", false, ReadRules);
-            Settings.ReadSettings(Rulesfile);
+            Rulesfile = new Settings("Rules.txt", ReadRules, "Settings/", false);
+            Setting.RegisterFile(Rulesfile);
+            Rulesfile.LoadFile();
 
             if (RotateLogs)
                 Logger.RotateLogs();
@@ -128,10 +130,7 @@ namespace Hypercube
             Luahandler.RegisterFunctions();
             Luahandler.LoadScripts();
 
-            foreach (var i in Settings.SettingsFiles) {
-                if (i.Save)
-                    Settings.SaveSettings(i);
-            }
+            Setting.SaveAll();
 
             FillStacks();
             ActionQueue = new ConcurrentQueue<MapAction>();
@@ -158,7 +157,7 @@ namespace Hypercube
             TaskScheduler.TaskThread.Start();
 
             Hb = new Heartbeat(); // -- Register server tasks
-            TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 1), Settings.SettingsMain);
+            TaskScheduler.CreateTask("File Reloading", new TimeSpan(0, 0, 1), Setting.SettingsMain);
             TaskScheduler.CreateTask("Lua file reloading", new TimeSpan(0, 0, 1), Luahandler.Main);
 
             foreach (var m in Maps.Values) {
@@ -197,10 +196,7 @@ namespace Hypercube
 
             Nh.Stop();
 
-            foreach (var i in Settings.SettingsFiles) {
-                if (i.Save)
-                    Settings.SaveSettings(i);
-            }
+            Setting.SaveAll();
 
             foreach (var m in Maps.Values)
                 m.Shutdown();
@@ -216,23 +212,23 @@ namespace Hypercube
         /// Loads the core server settings from file.
         /// </summary>
         public static void ReadSystemSettings() {
-            ServerName = Settings.ReadSetting(SysSettings, "Name", "Hypercube Server");
-            Motd = Settings.ReadSetting(SysSettings, "MOTD", "Welcome to Hypercube!");
-            MapMain = Settings.ReadSetting(SysSettings, "MainMap", "world");
-            WelcomeMessage = Settings.ReadSetting(SysSettings, "Welcome Message", "&eWelcome to Hypercube!");
+            ServerName = SysSettings.Read("Name", "Hypercube Server");
+            Motd = SysSettings.Read("MOTD", "Welcome to Hypercube!");
+            MapMain = SysSettings.Read("MainMap", "world");
+            WelcomeMessage = SysSettings.Read("Welcome Message", "&eWelcome to Hypercube!");
 
-            RotateLogs = bool.Parse(Settings.ReadSetting(SysSettings, "RotateLogs", "true"));
-            LogOutput = bool.Parse(Settings.ReadSetting(SysSettings, "LogOutput", "true"));
-            CompressHistory = bool.Parse(Settings.ReadSetting(SysSettings, "CompressHistory", "true"));
-            LogArguments = bool.Parse(Settings.ReadSetting(SysSettings, "LogArguments", "false"));
-            ColoredConsole = bool.Parse(Settings.ReadSetting(SysSettings, "ColoredConsole", "true"));
+            RotateLogs = bool.Parse(SysSettings.Read("RotateLogs", "true"));
+            LogOutput = bool.Parse(SysSettings.Read("LogOutput", "true"));
+            CompressHistory = bool.Parse(SysSettings.Read("CompressHistory", "true"));
+            LogArguments = bool.Parse(SysSettings.Read("LogArguments", "false"));
+            ColoredConsole = bool.Parse(SysSettings.Read("ColoredConsole", "true"));
 
-            MaxBlockChanges = int.Parse(Settings.ReadSetting(SysSettings, "MaxBlocksSecond", "33000"));
-            MaxHistoryEntries = int.Parse(Settings.ReadSetting(SysSettings, "MaxHistoryEntries", "10"));
+            MaxBlockChanges = SysSettings.Read("MaxBlocksSecond", 33000);
+            MaxHistoryEntries = SysSettings.Read("MaxHistoryEntries", 10);
 
-            ClickDistance = int.Parse(Settings.ReadSetting(SysSettings, "Click Distance", "160"));
+            ClickDistance = SysSettings.Read("Click Distance", 160);
 
-            DefaultRank = new Rank(Settings.ReadSetting(SysSettings, "DefaultRank", "Guest"), "Default", "", "", false, 0, "");
+            DefaultRank = new Rank(SysSettings.Read("DefaultRank", "Guest"), "Default", "", "", false, 0, "");
 
             if (Running)
                 Logger.Log("Core", "System settings loaded.", LogType.Info);
@@ -242,20 +238,20 @@ namespace Hypercube
         /// Saves the core server settings to file
         /// </summary>
         public static void SaveSystemSettings() {
-            Settings.SaveSetting(SysSettings, "Name", ServerName);
-            Settings.SaveSetting(SysSettings, "MOTD", Motd);
-            Settings.SaveSetting(SysSettings, "MainMap", MapMain);
-            Settings.SaveSetting(SysSettings, "Welcome Message", WelcomeMessage);
-            Settings.SaveSetting(SysSettings, "RotateLogs", RotateLogs.ToString());
-            Settings.SaveSetting(SysSettings, "LogOutput", LogOutput.ToString());
-            Settings.SaveSetting(SysSettings, "CompressHistory", CompressHistory.ToString());
-            Settings.SaveSetting(SysSettings, "LogArguments", LogArguments.ToString());
-            Settings.SaveSetting(SysSettings, "ColoredConsole", ColoredConsole.ToString());
-            Settings.SaveSetting(SysSettings, "MaxBlocksSecond", MaxBlockChanges.ToString());
-            Settings.SaveSetting(SysSettings, "MaxHistoryEntries", MaxHistoryEntries.ToString());
-            Settings.SaveSetting(SysSettings, "DefaultRank", DefaultRank.Name);
-            Settings.SaveSetting(SysSettings, "Click Distance", ClickDistance.ToString());
-            Settings.SaveSettings(SysSettings);
+            SysSettings.Write("Name", ServerName);
+            SysSettings.Write("MOTD", Motd);
+            SysSettings.Write("MainMap", MapMain);
+            SysSettings.Write("Welcome Message", WelcomeMessage);
+            SysSettings.Write("RotateLogs", RotateLogs.ToString());
+            SysSettings.Write("LogOutput", LogOutput.ToString());
+            SysSettings.Write("CompressHistory", CompressHistory.ToString());
+            SysSettings.Write("LogArguments", LogArguments.ToString());
+            SysSettings.Write("ColoredConsole", ColoredConsole.ToString());
+            SysSettings.Write("MaxBlocksSecond", MaxBlockChanges.ToString());
+            SysSettings.Write("MaxHistoryEntries", MaxHistoryEntries.ToString());
+            SysSettings.Write("DefaultRank", DefaultRank.Name);
+            SysSettings.Write("Click Distance", ClickDistance.ToString());
+            SysSettings.SaveFile();
          }
 
         /// <summary>

@@ -9,38 +9,38 @@ namespace Hypercube.Map {
 
         public TeleporterContainer(string mapName) {
             _teleporters = new List<Teleporter>();
-            _porterSettings = ServerCore.Settings.RegisterFile(mapName + "ports.txt", "Maps/", true, ReadPorters);
-            ServerCore.Settings.ReadSettings(_porterSettings);
+            _porterSettings = new Settings(mapName + "ports.txt", ReadPorters, "Maps/");
+            ServerCore.Setting.RegisterFile(_porterSettings);
+            _porterSettings.LoadFile();
         }
 
         void ReadPorters() {
             foreach (var key in _porterSettings.SettingsDictionary.Keys) {
-                ServerCore.Settings.SelectGroup(_porterSettings, key);
-
+                _porterSettings.SelectGroup(key);
                 var newtp = new Teleporter {
                     Name = key,
 
                     Start = {
-                        X = (short) ServerCore.Settings.ReadSetting(_porterSettings, "StartX", 0),
-                        Y = (short) ServerCore.Settings.ReadSetting(_porterSettings, "StartY", 0),
-                        Z = (short) ServerCore.Settings.ReadSetting(_porterSettings, "StartZ", 0)
+                        X = (short) _porterSettings.Read("StartX", 0),
+                        Y = (short) _porterSettings.Read("StartY", 0),
+                        Z = (short) _porterSettings.Read("StartZ", 0)
                     },
 
                     End = {
-                        X = (short) ServerCore.Settings.ReadSetting(_porterSettings, "EndX", 0),
-                        Y = (short) ServerCore.Settings.ReadSetting(_porterSettings, "EndY", 0),
-                        Z = (short) ServerCore.Settings.ReadSetting(_porterSettings, "EndZ", 0),
+                        X = (short) _porterSettings.Read("EndX", 0),
+                        Y = (short) _porterSettings.Read("EndY", 0),
+                        Z = (short) _porterSettings.Read("EndZ", 0),
                     },
 
                     Dest = {
-                        X = (short) ServerCore.Settings.ReadSetting(_porterSettings, "DestX", 0),
-                        Y = (short) ServerCore.Settings.ReadSetting(_porterSettings, "DestY", 0),
-                        Z = (short) ServerCore.Settings.ReadSetting(_porterSettings, "DestZ", 0),
+                        X = (short) _porterSettings.Read("DestX", 0),
+                        Y = (short) _porterSettings.Read("DestY", 0),
+                        Z = (short) _porterSettings.Read("DestZ", 0),
                     },
 
-                    DestLook = (byte)ServerCore.Settings.ReadSetting(_porterSettings, "DestLook", 0),
-                    DestRot = (byte)ServerCore.Settings.ReadSetting(_porterSettings, "DestRot", 0),
-                    DestinationMap = HypercubeMap.GetMap(ServerCore.Settings.ReadSetting(_porterSettings, "DestMap", "")),
+                    DestLook = (byte)_porterSettings.Read("DestLook", 0),
+                    DestRot = (byte)_porterSettings.Read("DestRot", 0),
+                    DestinationMap = HypercubeMap.GetMap(_porterSettings.Read("DestMap", "")),
                 };
 
                 if (newtp.DestinationMap == null)
@@ -69,20 +69,20 @@ namespace Hypercube.Map {
             _teleporters.Add(newtp);
 
             // -- Save to file as well.
-            ServerCore.Settings.SelectGroup(_porterSettings, name);
-            ServerCore.Settings.SaveSetting(_porterSettings, "StartX", start.X.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "StartY", start.Y.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "StartZ", start.Z.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "EndX", end.X.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "EndY", end.Y.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "EndZ", end.Z.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestX", dest.X.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestY", dest.Y.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestZ", dest.Z.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestRot", destRot.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestLook", destLook.ToString());
-            ServerCore.Settings.SaveSetting(_porterSettings, "DestMap", destMap.CWMap.MapName);
-            ServerCore.Settings.SaveSettings(_porterSettings);
+            _porterSettings.SelectGroup(name);
+            _porterSettings.Write("StartX", start.X.ToString());
+            _porterSettings.Write("StartY", start.Y.ToString());
+            _porterSettings.Write("StartZ", start.Z.ToString());
+            _porterSettings.Write("EndX", end.X.ToString());
+            _porterSettings.Write("EndY", end.Y.ToString());
+            _porterSettings.Write("EndZ", end.Z.ToString());
+            _porterSettings.Write("DestX", dest.X.ToString());
+            _porterSettings.Write("DestY", dest.Y.ToString());
+            _porterSettings.Write("DestZ", dest.Z.ToString());
+            _porterSettings.Write("DestRot", destRot.ToString());
+            _porterSettings.Write("DestLook", destLook.ToString());
+            _porterSettings.Write("DestMap", destMap.CWMap.MapName);
+            _porterSettings.SaveFile();
         }
 
         public void DeleteTeleporter(string name) {

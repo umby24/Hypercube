@@ -63,11 +63,13 @@ namespace Hypercube.Command {
             Populate();
             RegisterGroups();
 
-            AliasLoader = ServerCore.Settings.RegisterFile("Aliases.txt", "Settings/", false, LoadAliases);
-            ServerCore.Settings.ReadSettings(AliasLoader);
+            AliasLoader = new Settings("Aliases.txt", LoadAliases, "Settings/", false);
+            ServerCore.Setting.RegisterFile(AliasLoader);
+            AliasLoader.LoadFile();
 
-            CommandSettings = ServerCore.Settings.RegisterFile("Commands.txt", "Settings/", true, LoadCommands);
-            ServerCore.Settings.ReadSettings(CommandSettings);
+            CommandSettings = new Settings("Commands.txt", LoadCommands);
+            ServerCore.Setting.RegisterFile(CommandSettings);
+            CommandSettings.LoadFile();
 
             FillFile();
         }
@@ -261,21 +263,21 @@ namespace Hypercube.Command {
         /// </summary>
         public void LoadCommands() {
             foreach (var id in CommandSettings.SettingsDictionary.Keys) {
-                ServerCore.Settings.SelectGroup(CommandSettings, id);
+                CommandSettings.SelectGroup(id);
                 Command myCmd;
 
                 if (!CommandDict.TryGetValue(id, out myCmd)) {
                     myCmd = new Command {
-                        Plugin = ServerCore.Settings.ReadSetting(CommandSettings, "Plugin", ""),
-                        Group = ServerCore.Settings.ReadSetting(CommandSettings, "Group", "General"),
-                        Help = ServerCore.Settings.ReadSetting(CommandSettings, "Help", ""),
-                        Console = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "Console", "false")),
-                        AllPerms = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "AllPerms", "false")),
+                        Plugin = CommandSettings.Read("Plugin", ""),
+                        Group = CommandSettings.Read("Group", "General"),
+                        Help = CommandSettings.Read("Help", ""),
+                        Console = bool.Parse(CommandSettings.Read("Console", "false")),
+                        AllPerms = bool.Parse(CommandSettings.Read("AllPerms", "false")),
 
-                        UsePermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "UsePerms",
+                        UsePermissions = PermissionContainer.SplitPermissions(CommandSettings.Read("UsePerms",
                             "player.chat")),
 
-                        ShowPermissions = PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "ShowPerms",
+                        ShowPermissions = PermissionContainer.SplitPermissions(CommandSettings.Read("ShowPerms",
                             "player.chat")),
                     };
 
@@ -283,16 +285,16 @@ namespace Hypercube.Command {
                     continue;
                 }
 
-                myCmd.Plugin = ServerCore.Settings.ReadSetting(CommandSettings, "Plugin", "");
-                myCmd.Group = ServerCore.Settings.ReadSetting(CommandSettings, "Group", "General");
-                myCmd.Help = ServerCore.Settings.ReadSetting(CommandSettings, "Help", "");
-                myCmd.Console = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "Console", "false"));
-                myCmd.AllPerms = bool.Parse(ServerCore.Settings.ReadSetting(CommandSettings, "AllPerms", "false"));
+                myCmd.Plugin = CommandSettings.Read("Plugin", "");
+                myCmd.Group = CommandSettings.Read("Group", "General");
+                myCmd.Help = CommandSettings.Read("Help", "");
+                myCmd.Console = bool.Parse(CommandSettings.Read("Console", "false"));
+                myCmd.AllPerms = bool.Parse(CommandSettings.Read("AllPerms", "false"));
                 myCmd.UsePermissions =
-                    PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "UsePerms",
+                    PermissionContainer.SplitPermissions(CommandSettings.Read("UsePerms",
                         "player.chat"));
                 myCmd.ShowPermissions =
-                    PermissionContainer.SplitPermissions(ServerCore.Settings.ReadSetting(CommandSettings, "ShowPerms",
+                    PermissionContainer.SplitPermissions(CommandSettings.Read("ShowPerms",
                         "player.chat"));
 
                 CommandDict[id] = myCmd;
@@ -319,19 +321,19 @@ namespace Hypercube.Command {
         /// <param name="cmdTrig">The 'command' used to trigger this command. ex. /rules</param>
         /// <param name="cmd">The command class for this command.</param>
         public void UpdateCommand(string cmdTrig, Command cmd) {
-            ServerCore.Settings.SelectGroup(CommandSettings, cmdTrig);
+            CommandSettings.SelectGroup(cmdTrig);
 
-            ServerCore.Settings.SaveSetting(CommandSettings, "Plugin", cmd.Plugin);
-            ServerCore.Settings.SaveSetting(CommandSettings, "Group", cmd.Group);
-            ServerCore.Settings.SaveSetting(CommandSettings, "Help", cmd.Help);
-            ServerCore.Settings.SaveSetting(CommandSettings, "Console", cmd.Console.ToString());
-            ServerCore.Settings.SaveSetting(CommandSettings, "AllPerms", cmd.AllPerms.ToString());
-            ServerCore.Settings.SaveSetting(CommandSettings, "UsePerms",
+            CommandSettings.Write("Plugin", cmd.Plugin);
+            CommandSettings.Write("Group", cmd.Group);
+            CommandSettings.Write("Help", cmd.Help);
+            CommandSettings.Write("Console", cmd.Console.ToString());
+            CommandSettings.Write("AllPerms", cmd.AllPerms.ToString());
+            CommandSettings.Write("UsePerms",
                 PermissionContainer.PermissionsToString(cmd.UsePermissions));
-            ServerCore.Settings.SaveSetting(CommandSettings, "ShowPerms",
+            CommandSettings.Write("ShowPerms",
             PermissionContainer.PermissionsToString(cmd.ShowPermissions));
 
-            ServerCore.Settings.SaveSettings(CommandSettings);
+            CommandSettings.SaveFile();
         }
         #endregion
     }

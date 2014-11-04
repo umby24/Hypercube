@@ -20,26 +20,26 @@ namespace Hypercube.Map {
             //File.Copy(directory + "/Config.txt", "Settings/TempD3Config.txt");
 
             // -- Load the Config data first..
-            var configfile = ServerCore.Settings.RegisterFile("TempD3Config.txt", directory, false, LoadConfig);
-            ServerCore.Settings.ReadSettings(configfile);
+            var configfile = new Settings("TempD3Config.txt", LoadConfig, directory, false);
+            configfile.LoadFile();
 
             Mapsize = new Vector3S {
-                X = (short) ServerCore.Settings.ReadSetting(configfile, "Size_X", 128),
-                Y = (short) ServerCore.Settings.ReadSetting(configfile, "Size_Y", 128),
-                Z = (short) ServerCore.Settings.ReadSetting(configfile, "Size_Z", 128)
+                X = (short) configfile.Read("Size_X", 128),
+                Y = (short) configfile.Read("Size_Y", 128),
+                Z = (short) configfile.Read("Size_Z", 128)
             };
 
             Spawn = new Vector3S {
-                X = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_X", "1.0")),
-                Y = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_Y", "1.0")),
-                Z = (short) float.Parse(ServerCore.Settings.ReadSetting(configfile, "Spawn_Z", "1.0"))
+                X = (short) float.Parse(configfile.Read("Spawn_X", "1.0")),
+                Y = (short) float.Parse(configfile.Read("Spawn_Y", "1.0")),
+                Z = (short) float.Parse(configfile.Read("Spawn_Z", "1.0"))
             };
 
-            SpawnRot = (byte)ServerCore.Settings.ReadSetting(configfile, "Spawn_Rot", 0);
-            SpawnLook = (byte)ServerCore.Settings.ReadSetting(configfile, "Spawn_Look", 0);
+            SpawnRot = (byte)configfile.Read("Spawn_Rot", 0);
+            SpawnLook = (byte)configfile.Read("Spawn_Look", 0);
 
-            Motd = ServerCore.Settings.ReadSetting(configfile, "MOTD_Override", "");
-            PhysicsStopped = Convert.ToBoolean(ServerCore.Settings.ReadSetting(configfile, "Physic_Stopped", 0));
+            Motd = configfile.Read("MOTD_Override", "");
+            PhysicsStopped = Convert.ToBoolean(configfile.Read("Physic_Stopped", 0));
 
             // -- Load the block data
             GZip.DecompressFile(directory + "/Data-Layer.gz");

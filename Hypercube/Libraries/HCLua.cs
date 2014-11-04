@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using Hypercube.Map;
 using Hypercube.Network;
 using NLua;
@@ -91,6 +92,7 @@ namespace Hypercube.Libraries {
             
         }
         #endregion
+        [HandleProcessCorruptedStateExceptions] 
         public void RunFunction(string function, params object[] args) {
             try {
                 var luaF = LuaHandler.GetFunction(function);

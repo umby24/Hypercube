@@ -37,8 +37,9 @@ namespace Hypercube {
         /// Creates a new NetworkHandler Instance, and loads network settings.
         /// </summary>
         public NetworkHandler() {
-            Ns = ServerCore.Settings.RegisterFile("Network.txt", "Settings/", true, LoadSettings);
-            ServerCore.Settings.ReadSettings(Ns);
+            Ns = new Settings("Network.txt", LoadSettings);
+            ServerCore.Setting.RegisterFile(Ns);
+            Ns.LoadFile();
             CreateLists();
         }
 
@@ -53,11 +54,11 @@ namespace Hypercube {
         /// Loads network settings from file (port, max players, ect.)
         /// </summary>
         void LoadSettings() {
-            Port = int.Parse(ServerCore.Settings.ReadSetting(Ns, "Port", "25565"));
-            MaxPlayers = int.Parse(ServerCore.Settings.ReadSetting(Ns, "MaxPlayers", "128"));
-            VerifyNames = bool.Parse(ServerCore.Settings.ReadSetting(Ns, "VerifyNames", "true"));
-            Public = bool.Parse(ServerCore.Settings.ReadSetting(Ns, "Public", "true"));
-            MaxPerIp = int.Parse(ServerCore.Settings.ReadSetting(Ns, "MaxPerIP", "5"));
+            Port = int.Parse(Ns.Read("Port", "25565"));
+            MaxPlayers = int.Parse(Ns.Read("MaxPlayers", "128"));
+            VerifyNames = bool.Parse(Ns.Read("VerifyNames", "true"));
+            Public = bool.Parse(Ns.Read("Public", "true"));
+            MaxPerIp = int.Parse(Ns.Read("MaxPerIP", "5"));
 
             ServerCore.Logger.Log("Network", "Network settings loaded.", LogType.Info);
         }
@@ -66,10 +67,10 @@ namespace Hypercube {
         /// Saves network settings to file.
         /// </summary>
         public void SaveSettings() {
-            ServerCore.Settings.SaveSetting(Ns, "Port", Port.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "MaxPlayers", MaxPlayers.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "VerifyNames", VerifyNames.ToString());
-            ServerCore.Settings.SaveSetting(Ns, "Public", Public.ToString());
+            Ns.Write("Port", Port.ToString());
+            Ns.Write("MaxPlayers", MaxPlayers.ToString());
+            Ns.Write("VerifyNames", VerifyNames.ToString());
+            Ns.Write("Public", Public.ToString());
         }
 
         /// <summary>

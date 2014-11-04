@@ -258,9 +258,6 @@ namespace Hypercube.Network {
         public byte Id { get { return 8; } }
         public sbyte PlayerId { get; set; }
         public Vector3S Location { get; set; }
-        //public short X { get; set; }
-        //public short Y { get; set; }
-        //public short Z { get; set; }
         public byte Yaw { get; set; }
         public byte Pitch { get; set; }
 
@@ -284,6 +281,9 @@ namespace Hypercube.Network {
         }
 
         public void Handle(NetworkClient client) {
+            if (client.CS.MyEntity == null)
+                return;
+
             if (Yaw != client.CS.MyEntity.Rot || Pitch != client.CS.MyEntity.Look) {
                 client.CS.MyEntity.Rot = Yaw;
                 client.CS.MyEntity.Look = Pitch;

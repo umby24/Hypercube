@@ -16,8 +16,9 @@ namespace Hypercube.Core
             NameList = new SortedDictionary<string, Rank>(StringComparer.InvariantCultureIgnoreCase);
             RankHierarchy = new Dictionary<Rank, List<Rank>>();
 
-            Ranksfile = ServerCore.Settings.RegisterFile("Ranks.txt", "Settings/", true, LoadRanks);
-            ServerCore.Settings.ReadSettings(Ranksfile);
+            Ranksfile = new Settings("Ranks.txt", LoadRanks);
+            ServerCore.Setting.RegisterFile(Ranksfile);
+            Ranksfile.LoadFile();
         }
 
         /// <summary>
@@ -68,21 +69,21 @@ namespace Hypercube.Core
             NumberList.Clear();
 
             foreach (var id in Ranksfile.SettingsDictionary.Keys) {
-                ServerCore.Settings.SelectGroup(Ranksfile, id);
+                Ranksfile.SelectGroup(id);
 
                 var newRank = new Rank
                 {
                     Id = int.Parse(id),
-                    Name = ServerCore.Settings.ReadSetting(Ranksfile, "Name", "DEFAULT"),
-                    Prefix = ServerCore.Settings.ReadSetting(Ranksfile, "Prefix", ""),
-                    Suffix = ServerCore.Settings.ReadSetting(Ranksfile, "Suffix", ""),
-                    NextRank = ServerCore.Settings.ReadSetting(Ranksfile, "NextRank", ""),
-                    Group = ServerCore.Settings.ReadSetting(Ranksfile, "Group", "Default"),
-                    PointsInRank = ServerCore.Settings.ReadSetting(Ranksfile, "Points", 5),
-                    Op = bool.Parse(ServerCore.Settings.ReadSetting(Ranksfile, "IsOp", "false")),
+                    Name = Ranksfile.Read("Name", "DEFAULT"),
+                    Prefix = Ranksfile.Read("Prefix", ""),
+                    Suffix = Ranksfile.Read("Suffix", ""),
+                    NextRank = Ranksfile.Read("NextRank", ""),
+                    Group = Ranksfile.Read("Group", "Default"),
+                    PointsInRank = Ranksfile.Read("Points", 5),
+                    Op = bool.Parse(Ranksfile.Read("IsOp", "false")),
                     Permissions =
                         PermissionContainer.SplitPermissions(
-                            ServerCore.Settings.ReadSetting(Ranksfile, "Perms",
+                            Ranksfile.Read("Perms",
                                 "map.joinmap,player.chat,player.build,player.delete,chat.useemotes,command.tp"))
                 };
 
@@ -149,18 +150,18 @@ namespace Hypercube.Core
             Ranksfile.SettingsDictionary.Clear();
 
             foreach (var r in NumberList.Values) {
-                ServerCore.Settings.SelectGroup(Ranksfile, r.Id.ToString());
-                ServerCore.Settings.SaveSetting(Ranksfile, "Name", r.Name);
-                ServerCore.Settings.SaveSetting(Ranksfile, "Prefix", r.Prefix);
-                ServerCore.Settings.SaveSetting(Ranksfile, "Suffix", r.Suffix);
-                ServerCore.Settings.SaveSetting(Ranksfile, "NextRank", r.NextRank);
-                ServerCore.Settings.SaveSetting(Ranksfile, "Group", r.Group);
-                ServerCore.Settings.SaveSetting(Ranksfile, "Points", r.PointsInRank.ToString());
-                ServerCore.Settings.SaveSetting(Ranksfile, "IsOp", r.Op.ToString());
-                ServerCore.Settings.SaveSetting(Ranksfile, "Perms", PermissionContainer.PermissionsToString(r.Permissions));
+                Ranksfile.SelectGroup(r.Id.ToString());
+                Ranksfile.Write("Name", r.Name);
+                Ranksfile.Write("Prefix", r.Prefix);
+                Ranksfile.Write("Suffix", r.Suffix);
+                Ranksfile.Write("NextRank", r.NextRank);
+                Ranksfile.Write("Group", r.Group);
+                Ranksfile.Write("Points", r.PointsInRank.ToString());
+                Ranksfile.Write("IsOp", r.Op.ToString());
+                Ranksfile.Write("Perms", PermissionContainer.PermissionsToString(r.Permissions));
             }
 
-            ServerCore.Settings.SaveSettings(Ranksfile);
+            Ranksfile.SaveFile();
         }
 
         /// <summary>
