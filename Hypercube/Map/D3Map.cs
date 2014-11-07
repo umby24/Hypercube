@@ -17,7 +17,6 @@ namespace Hypercube.Map {
         public void LoadMap(string directory, string mapName) {
             if (!File.Exists(directory + "/Data-Layer.gz") || !File.Exists(directory + "/Config.txt"))
                 return; // -- Not a valid map.
-            //File.Copy(directory + "/Config.txt", "Settings/TempD3Config.txt");
 
             // -- Load the Config data first..
             var configfile = new Settings("TempD3Config.txt", LoadConfig, directory, false);
@@ -56,7 +55,7 @@ namespace Hypercube.Map {
             }
 
             Blockdata = new byte[Mapsize.X * Mapsize.Y * Mapsize.Z];
-
+            // -- Converts block data from the D3 array format to the ClassicWorld array format.
             for (var x = 0; x < Mapsize.X; x++) {
                 for (var y = 0; y < Mapsize.Y; y++) {
                     for (var z = 0; z < Mapsize.Z; z++) 
@@ -81,7 +80,6 @@ namespace Hypercube.Map {
             cwMap.BlockData = null;
             GC.Collect();
             // -- Conversion Complete.
-            File.Delete("Settings/TempD3Config.txt");
         }
 
         /// <summary>

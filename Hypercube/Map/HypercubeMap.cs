@@ -14,7 +14,7 @@ using Hypercube.Network;
 
 namespace Hypercube.Map {
     /// <summary>
-    /// ServerCore metadata structure for ServerCore maps. This plugs into ClassicWorld.net to load and save ServerCore-specific settings.
+    /// ServerCore metadata structure for Hypercube maps. This plugs into ClassicWorld.net to load and save Hypercube-specific settings.
     /// </summary>
     public struct HypercubeMetadata : IMetadataStructure {
         public string BuildPerms;
@@ -157,9 +157,9 @@ namespace Hypercube.Map {
             Save(Path);
             History = new MapHistory(this);
 
-            for (sbyte i = 0; i < 127; i++) {
+            for (sbyte i = 0; i < 127; i++) 
                 FreeIds.Push(i);
-            }
+            
 
             _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
         }
@@ -169,61 +169,7 @@ namespace Hypercube.Map {
         /// </summary>
         /// <param name="filename">File to load.</param>
         public HypercubeMap(string filename) {
-            Path = filename;
-
-            CWMap = new Classicworld(filename);
-            HCSettings = new HypercubeMetadata();
-            CWMap.MetadataParsers.Add("Hypercube", HCSettings);
-            CWMap.Load();
-
-            _physicsBitmask = new byte[(CWMap.BlockData.Length / 8) + 1];
-
-            HCSettings = (HypercubeMetadata)CWMap.MetadataParsers["Hypercube"];
-
-            if (HCSettings.BuildPerms == null) {
-                Buildperms.Add("player.build", ServerCore.Permholder.GetPermission("player.build"));
-            } else
-                Buildperms = PermissionContainer.SplitPermissions(HCSettings.BuildPerms);
-            
-
-            if (HCSettings.ShowPerms == null) {
-                Showperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
-            } else 
-                Showperms = PermissionContainer.SplitPermissions(HCSettings.ShowPerms);
-            
-
-            if (HCSettings.JoinPerms == null) {
-                Joinperms.Add("map.joinmap", ServerCore.Permholder.GetPermission("map.joinmap"));
-
-                HCSettings.Building = true;
-                HCSettings.Physics = true;
-                HCSettings.History = true;
-            } else
-                Joinperms = PermissionContainer.SplitPermissions(HCSettings.JoinPerms);
-
-            if (HCSettings.SaveInterval == 0)
-                HCSettings.SaveInterval = 10;
-
-            CPESettings = (CPEMetadata)CWMap.MetadataParsers["CPE"];
-
-            if (CPESettings.CustomBlocksFallback == null) {
-                CPESettings.CustomBlocksLevel = CPE.CustomBlocksSupportLevel;
-                CPESettings.CustomBlocksVersion = CPE.CustomBlocksVersion;
-                CPESettings.CustomBlocksFallback = new byte[256];
-
-                for (var i = 50; i < 66; i++)
-                    CPESettings.CustomBlocksFallback[i] = (byte)ServerCore.Blockholder.GetBlock(i).CPEReplace;
-
-                CWMap.MetadataParsers["CPE"] = CPESettings;
-            }
-
-            if (CPESettings.EnvMapAppearanceVersion != CPE.EnvMapAppearanceVersion) {
-                CPESettings.TextureUrl = "";
-                CPESettings.EdgeBlock = 8;
-                CPESettings.SideBlock = 7;
-                CPESettings.SideLevel = (short)(CWMap.SizeY / 2);
-                CPESettings.EnvMapAppearanceVersion = CPE.EnvMapAppearanceVersion;
-            }
+            Load(filename);
 
             Lastclient = DateTime.UtcNow;
             Clients = new Dictionary<short, NetworkClient>();
@@ -241,9 +187,8 @@ namespace Hypercube.Map {
             if (HCSettings.History)
                 History = new MapHistory(this);
 
-            for (sbyte i = 0; i < 127; i++) {
+            for (sbyte i = 0; i < 127; i++) 
                 FreeIds.Push(i);
-            }
         }
 
         /// <summary>
@@ -278,10 +223,16 @@ namespace Hypercube.Map {
             }
         }
 
+        /// <summary>
+        /// Returns a map by its given name. Null if not found.
+        /// </summary>
+        /// <param name="name">Name of the map object to fetch</param>
+        /// <returns>Map with the given name, null if not found.</returns>
         public static HypercubeMap GetMap(string name) {
             HypercubeMap temp;
             return !ServerCore.Maps.TryGetValue(name, out temp) ? null : temp;
         }
+
         /// <summary>
         /// Handle queued block changes from build modes.
         /// </summary>
@@ -303,6 +254,10 @@ namespace Hypercube.Map {
         }
         #region Map Functions
 
+        /// <summary>
+        /// Returns the map spawn position as a vector.
+        /// </summary>
+        /// <returns>Returns the map spawn position as a vector.</returns>
         public Vector3S GetSpawnVector() {
             return new Vector3S(CWMap.SpawnX, CWMap.SpawnZ, CWMap.SpawnY);
         }
@@ -569,7 +524,11 @@ namespace Hypercube.Map {
                 Lastclient = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Performs an auto-save of the map, if it is loaded.
+        /// </summary>
         public void MapSave() {
+            if (!Loaded) return;
             Save();
             ServerCore.Logger.Log("Map", "Map saved. (" + CWMap.MapName + ")", LogType.Info);
         }
@@ -588,6 +547,10 @@ namespace Hypercube.Map {
             }
         }
 
+        /// <summary>
+        /// Resends CPE map plugins to all connected clients
+        /// These plugins include envcolors and envmapapperance
+        /// </summary>
         public void ResendCPE() {
             lock (ClientLock) {
                 foreach (var c in Clients.Values) 
@@ -595,6 +558,11 @@ namespace Hypercube.Map {
             }
         }
 
+        //TODO: Create a cache system for map sending to cut down on cpu time.
+        /// <summary>
+        /// Prepares and sends the map to a client.
+        /// </summary>
+        /// <param name="client"></param>
         public void Send(NetworkClient client) {
             if (!Loaded)
                 Load();
@@ -604,14 +572,14 @@ namespace Hypercube.Map {
             else
                 client.SendHandshake(HCSettings.Motd);
 
-            var temp = new byte[(CWMap.SizeX * CWMap.SizeY * CWMap.SizeZ) + 4];
-            var lenBytes = BitConverter.GetBytes(temp.Length - 4);
+            var temp = new byte[(CWMap.SizeX * CWMap.SizeY * CWMap.SizeZ) + 4]; // -- Map size, + 4 for the size int.
+            var lenBytes = BitConverter.GetBytes(temp.Length - 4); // -- Gets the length (in bytes) of the map, as an int.
             var offset = 4;
-            Array.Reverse(lenBytes);
+            Array.Reverse(lenBytes); // -- Convert it to big-endian
 
-            Buffer.BlockCopy(lenBytes, 0, temp, 0, 4);
+            Buffer.BlockCopy(lenBytes, 0, temp, 0, 4); // -- Copy the length into the block array.
 
-            for (var i = 0; i < CWMap.BlockData.Length - 1; i++) {
+            for (var i = 0; i < CWMap.BlockData.Length - 1; i++) { // -- Get every block, check for CPE replacement, and add it to the array.
                 var thisBlock = ServerCore.Blockholder.GetBlock(CWMap.BlockData[i]);
 
                 if (thisBlock.CPELevel > client.CS.CustomBlocksLevel)
@@ -622,15 +590,14 @@ namespace Hypercube.Map {
                 offset += 1;
             }
 
-            temp = GZip.Compress(temp);
+            temp = GZip.Compress(temp); // -- GZip the map
 
             var init = new LevelInit();
             client.SendQueue.Enqueue(init);
-            //init.Write(Client);
 
             offset = 0;
 
-            while (offset != temp.Length) {
+            while (offset != temp.Length) { // -- Write the map chunks
                 if (temp.Length - offset > 1024) {
                     var send = new byte[1024];
                     Buffer.BlockCopy(temp, offset, send, 0, 1024);
@@ -642,10 +609,9 @@ namespace Hypercube.Map {
                         Percent = (byte) (((float) offset/temp.Length)*100)
                     };
                     client.SendQueue.Enqueue(chunk);
-                    //Chunk.Write(Client);
 
                     offset += 1024;
-                } else {
+                } else { // -- Final Chunk, needs to be padded.
                     var send = new byte[1024];
                     Buffer.BlockCopy(temp, offset, send, 0, temp.Length - offset);
 

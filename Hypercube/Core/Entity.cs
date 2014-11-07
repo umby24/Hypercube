@@ -7,7 +7,6 @@ namespace Hypercube.Core {
     public class EntityStub {
         public int Id;
         public byte ClientId, Rot, Look;
-        //public short X, Y, Z;
         public Vector3S Location;
         public bool Looked, Changed, Visible, Spawned;
         public string Model;
