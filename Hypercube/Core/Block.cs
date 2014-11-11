@@ -16,6 +16,7 @@ namespace Hypercube.Core {
             NameList = new SortedDictionary<string, Block>(StringComparer.InvariantCultureIgnoreCase);
             _blocksfile = new Settings("Blocks.txt", LoadBlocks);
             ServerCore.Setting.RegisterFile(_blocksfile);
+            
 
             UnknownBlock = new Block
                 {
@@ -28,6 +29,7 @@ namespace Hypercube.Core {
                     Special = true,
                 };
 
+            _blocksfile.LoadFile();
             _blocksfile.SaveFile();
         }
 

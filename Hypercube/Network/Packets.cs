@@ -289,9 +289,9 @@ namespace Hypercube.Network {
                 client.CS.MyEntity.Look = Pitch;
             }
 
-            if (Location != client.CS.MyEntity.Location) {
+            if (Location != client.CS.MyEntity.Location) 
                 client.CS.MyEntity.Location = Location;
-            }
+            
 
             if (!client.CS.CPEExtensions.ContainsKey("HeldBlock")) 
                 return;
@@ -866,6 +866,7 @@ namespace Hypercube.Network {
 
         }
     }
+
     public struct HackControl : IPacket {
         public byte Id { get { return 32; } }
         public byte Flying { get; set; }
@@ -889,6 +890,37 @@ namespace Hypercube.Network {
                 client.WSock.WriteShort(JumpHeight);
                 client.WSock.Purge();
             
+        }
+
+        public void Handle(NetworkClient client) {
+
+        }
+    }
+
+    public struct ExtAddEntity2 : IPacket {
+        public byte Id { get { return 33; } }
+        public byte EntityId { get; set; }
+        public string InGameName { get; set; }
+        public string SkinName { get; set; }
+        public Vector3S Spawn { get; set; }
+        public byte SpawnYaw { get; set; }
+        public byte SpawnPitch { get; set; }
+
+        public void Read(NetworkClient client) {
+
+        }
+
+        public void Write(NetworkClient client) {
+            client.WSock.WriteByte(Id);
+            client.WSock.WriteByte(EntityId);
+            client.WSock.WriteString(InGameName);
+            client.WSock.WriteString(SkinName);
+            client.WSock.WriteShort(Spawn.X);
+            client.WSock.WriteShort(Spawn.Z);
+            client.WSock.WriteShort(Spawn.Y);
+            client.WSock.WriteByte(SpawnYaw);
+            client.WSock.WriteByte(SpawnPitch);
+            client.WSock.Purge();
         }
 
         public void Handle(NetworkClient client) {

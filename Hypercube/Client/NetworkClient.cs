@@ -31,7 +31,8 @@ namespace Hypercube.Client {
         /// <param name="baseSock"></param>
         /// <param name="ip"></param>
         public NetworkClient(TcpClient baseSock, string ip) {
-
+            // -- Creates an object for holding all of the settings for this client.
+            // -- This is to declutter the main client class of tons of variables.
             CS = new ClientSettings
             {
                 LastActive = DateTime.UtcNow,
@@ -44,18 +45,18 @@ namespace Hypercube.Client {
                 Ip = ip
             };
 
-            BaseSocket = baseSock;
+            BaseSocket = baseSock; // -- Sets up the socket
             BaseStream = BaseSocket.GetStream();
 
             WSock = new ClassicWrapped.ClassicWrapped {Stream = BaseStream};
 
-            SendQueue = new ConcurrentQueue<IPacket>();
-            Populate();
+            SendQueue = new ConcurrentQueue<IPacket>(); // -- Send queue for outgoing packets.
+            Populate(); // -- Populates reconizable client -> server packets.
 
-            DataRunner = new Thread(DataHandler);
+            DataRunner = new Thread(DataHandler); // -- Thread for handling incoming data, sending data from the send queue, and updating entity positions.
             DataRunner.Start();
 
-            EntityThread = new Thread(ExtrasHandler);
+            EntityThread = new Thread(ExtrasHandler); // -- Thread for checking position for teleporters and kill blocks.
             EntityThread.Start();
         }
 
@@ -64,18 +65,19 @@ namespace Hypercube.Client {
         /// </summary>
         public void LoadDB(DataTable playerObj) {
             CS.Id = Convert.ToInt16(playerObj.Rows[0]["Number"]);
-            CS.Stopped = (Convert.ToInt32(playerObj.Rows[0]["Stopped"]) > 0);
-            CS.Global = (Convert.ToInt32(playerObj.Rows[0]["Global"]) > 0);
+            CS.Stopped = (Convert.ToInt32(playerObj.Rows[0]["Stopped"]) > 0); // -- If stopped, player cannot build.
+            CS.Global = (Convert.ToInt32(playerObj.Rows[0]["Global"]) > 0); // -- Global chat or map only chat.
 
             if (playerObj.Rows[0]["Time_Muted"].GetType() != typeof(DBNull))
                 CS.MuteTime = Convert.ToInt32(playerObj.Rows[0]["Time_Muted"]);
 
-            CS.PlayerRanks = RankContainer.SplitRanks((string)playerObj.Rows[0]["Rank"]);
-            CS.RankSteps = RankContainer.SplitSteps((string)playerObj.Rows[0]["RankStep"]);
+            CS.PlayerRanks = RankContainer.SplitRanks((string)playerObj.Rows[0]["Rank"]); // -- The ranks the player has
+            CS.RankSteps = RankContainer.SplitSteps((string)playerObj.Rows[0]["RankStep"]); // -- The rank of each rank. (confusing huh?)
 
+            // -- Players name with color codes.
             CS.FormattedName = CS.PlayerRanks[CS.PlayerRanks.Count - 1].Prefix + CS.LoginName + CS.PlayerRanks[CS.PlayerRanks.Count - 1].Suffix;
 
-            foreach (var r in CS.PlayerRanks) {
+            foreach (var r in CS.PlayerRanks) { // -- Determines if the player is op or not.
                 if (!r.Op) continue;
                 CS.Op = true;
                 break;
@@ -86,8 +88,8 @@ namespace Hypercube.Client {
             if (playerObj.Rows[0]["LoginCounter"].GetType() != typeof (DBNull))
                 loginCounter = (Convert.ToInt32(playerObj.Rows[0]["LoginCounter"]) + 1);
 
-            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", loginCounter);
-            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip);
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "LoginCounter", loginCounter); // -- Increase the login counter for the client
+            ServerCore.DB.SetDatabase(CS.LoginName, "PlayerDB", "IP", CS.Ip); // -- Update the IP for this user.
         }
 
         /// <summary>
@@ -122,10 +124,10 @@ namespace Hypercube.Client {
 
             // -- Set the user as logged in.
             CS.LoggedIn = true;
-            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this);
+            ServerCore.Nh.LoggedClients.Add(CS.LoginName, this); // -- Add them to the list of tracked fully-logged clients
             ServerCore.Nh.IntLoggedClients.Add(CS.Id, this);
             ServerCore.Nh.CreateLists();
-            CS.NameId = ServerCore.FreeIds.Pop();
+            CS.NameId = ServerCore.FreeIds.Pop(); // -- Assign the player a nameid for ExtPlayerList
             ServerCore.OnlinePlayers += 1;
 
             // -- Get the user logged in to the main map.
@@ -164,7 +166,6 @@ namespace Hypercube.Client {
                 CS.CurrentMap.Entities.Add(CS.MyEntity.Id, CS.MyEntity); // -- Add the entity to the map so that their location will be updated.
                 CS.CurrentMap.CreateEntityList();
             }
-
             
             // -- CPE stuff
             CPE.SetupExtPlayerList(this);
@@ -221,6 +222,7 @@ namespace Hypercube.Client {
 
         /// <summary>
         /// Blocking kick function that also performs all disconnection functions on the client before returning.
+        /// Other players are simply told the client left.
         /// </summary>
         /// <param name="reason">The reason for the player being kicked.</param>
         public void KickNow(string reason) {
@@ -285,9 +287,9 @@ namespace Hypercube.Client {
         /// <param name="mode">Breaking, or placing.</param>
         /// <param name="block">The block being placed</param>
         public void HandleBlockChange(short x, short y, short z, byte mode, byte block) {
-            if (CS.Stopped) {
+            if (CS.Stopped) { // -- Check if the player is disabled from building 
                 Chat.SendClientChat(this, "§EYou are stopped, you cannot build.");
-                CS.CurrentMap.SendBlock(this, x, y, z, CS.CurrentMap.GetBlock(x, y, z));
+                CS.CurrentMap.SendBlock(this, x, y, z, CS.CurrentMap.GetBlock(x, y, z)); // -- Resend the block they changed.
                 return;
             }
 
@@ -299,10 +301,10 @@ namespace Hypercube.Client {
             if (myBlock == CS.MyEntity.Boundblock && CS.MyEntity.BuildMaterial.Name != "Unknown") // -- If there is a bound block, change the material.
                 myBlock = CS.MyEntity.BuildMaterial;
 
-            CS.MyEntity.Lastmaterial = myBlock;
+            CS.MyEntity.Lastmaterial = myBlock; // -- Track the last placed material (can give legacy clients a kind of heldblock, and used for /place.)
 
-            if (CS.MyEntity.BuildMode.Name != "") {
-                CS.MyEntity.ClientState.AddBlock(x, y, z);
+            if (CS.MyEntity.BuildMode.Name != "") { // -- Buildmode handling
+                CS.MyEntity.ClientState.AddBlock(x, y, z); // -- Add modified blocks to buildmode resend buffer
 
                 if (!ServerCore.BmContainer.Modes.ContainsValue(CS.MyEntity.BuildMode)) {
                     Chat.SendClientChat(this, "§EBuild mode '" + CS.MyEntity.BuildMode + "' not found.");
@@ -311,12 +313,12 @@ namespace Hypercube.Client {
                     return;
                 }
 
-                if (CS.MyEntity.BuildMode.Plugin != "")
+                if (CS.MyEntity.BuildMode.Plugin != "") // -- Runs lua or internal function for this buildmode.
                     ServerCore.Luahandler.RunFunction(CS.MyEntity.BuildMode.Plugin, this, CS.CurrentMap, x, y, z, mode, myBlock.Id);
                 else 
                     CS.MyEntity.BuildMode.Function(this, CS.CurrentMap, new Vector3S {X = x, Y = y, Z = z,}, mode, myBlock);
                 
-            } else 
+            } else // -- If no buildmode and not stopped, go to the map handler.
                 CS.CurrentMap.ClientChangeBlock(this, x, y, z, mode, myBlock);
             
         }
@@ -326,19 +328,20 @@ namespace Hypercube.Client {
         /// </summary>
         /// <param name="steps">Number of blocks to redo</param>
         public void Redo(int steps) {
-            if (CS.UndoObjects.Count == 0)
+            if (CS.UndoObjects.Count == 0) // -- If the user has nothing in their undo queue, they can't redo nothing!
                 return;
 
-            if (steps > (CS.UndoObjects.Count - CS.CurrentIndex))
-                steps = (CS.UndoObjects.Count - CS.CurrentIndex);
+            if (steps > (CS.UndoObjects.Count - CS.CurrentIndex)) // -- If the user wants to redo more than they have in their redo/undo queue..
+                steps = (CS.UndoObjects.Count - CS.CurrentIndex); // -- Set the steps to be exactly the number they have left in their undo/redo queue.
 
-            if (CS.CurrentIndex == CS.UndoObjects.Count - 1)
-                return;
+            if (CS.CurrentIndex == CS.UndoObjects.Count - 1) // -- If we're currently on the latest object in the queue...
+                return; // -- Then we can't redo anymore, return.
 
-            if (CS.CurrentIndex == -1)
+            if (CS.CurrentIndex == -1) // -- Makes sure we arn't at a negative index (happens sometimes with repeated undos and redos)
                 CS.CurrentIndex = 0;
 
-            for (var i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++) {
+            for (var i = CS.CurrentIndex; i < (CS.CurrentIndex + steps); i++) { // -- Iterates through each block in the range the client wants to redo
+                // -- Creates and queues the redone block to be sent to clients, processed by the map, physics, ect.
                 var item = new BlockQueueItem {
                     Last = CS.CurrentMap.GetBlock(CS.UndoObjects[i].X, CS.UndoObjects[i].Y, CS.UndoObjects[i].Z),
                     Map = CS.CurrentMap,
@@ -354,7 +357,7 @@ namespace Hypercube.Client {
 
                 HypercubeMap.ActionQueue.Enqueue(item);
             }
-            CS.CurrentIndex += (steps - 1);
+            CS.CurrentIndex += (steps - 1); // -- Update the users current position in the undo system.
         }
 
         /// <summary>
@@ -396,41 +399,42 @@ namespace Hypercube.Client {
         /// </summary>
         /// <param name="newMap">The map to send the client to.</param>
         public void ChangeMap(HypercubeMap newMap) {
-            if (newMap.FreeIds.Count == 0) {
+            if (newMap.FreeIds.Count == 0) { // -- No more free entity ids (1-127) on the map.
                 Chat.SendClientChat(this, "§EYou cannot join this map (It is full).");
                 return;
             }
 
-            if (!HasAllPermissions(newMap.Joinperms.Values.ToList())) {
-                if (!HasAllPermissions(newMap.Showperms.Values.ToList())) {
+            if (!HasAllPermissions(newMap.Joinperms.Values.ToList())) { // -- Check the users permissions
+                if (!HasAllPermissions(newMap.Showperms.Values.ToList())) { // -- If they can't see the map, act like it doesn't exist.
                     Chat.SendClientChat(this, "§EMap '" + newMap.CWMap.MapName + "' not found.");
                     return;
                 }
 
-                Chat.SendClientChat(this, "§EYou do not have permission to join this map.");
+                Chat.SendClientChat(this, "§EYou do not have permission to join this map."); // -- If they can see it but they still dont have permission, tell them.
                 return;
             }
 
+            // -- Notify clients of the map change.
             Chat.SendMapChat(newMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".", 0, true);
             Chat.SendMapChat(CS.CurrentMap, "§SPlayer " + CS.FormattedName + " §Schanged to map &f" + newMap.CWMap.MapName + ".");
             ServerCore.Luahandler.RunFunction("E_MapChange", this, CS.CurrentMap, newMap);
 
-            lock (CS.CurrentMap.ClientLock) {
+            lock (CS.CurrentMap.ClientLock) { // -- Update the map client list..
                 CS.CurrentMap.Clients.Remove(CS.Id);
                 CS.CurrentMap.CreateClientList();
             }
 
-            CS.CurrentMap.DeleteEntity(ref CS.MyEntity);
+            CS.CurrentMap.DeleteEntity(ref CS.MyEntity); // -- Update the entity..
             CS.CurrentMap = newMap;
 
-            newMap.Send(this);
+            newMap.Send(this); // -- Send the map to the client
 
-            lock (newMap.ClientLock) {
+            lock (newMap.ClientLock) { // -- Add the client's entity to the new map
                 newMap.Clients.Add(CS.Id, this);
                 newMap.CreateClientList();
             }
 
-            CS.MyEntity.SetBlockPosition(CS.CurrentMap.GetSpawnVector());
+            CS.MyEntity.SetBlockPosition(CS.CurrentMap.GetSpawnVector()); // -- Spawn the entity at the spawn..
             CS.MyEntity.Rot = newMap.CWMap.SpawnRotation;
             CS.MyEntity.Look = newMap.CWMap.SpawnLook;
             CS.MyEntity.Map = newMap;
@@ -443,7 +447,7 @@ namespace Hypercube.Client {
                 newMap.CreateEntityList();
             }
 
-            CPE.UpdateExtPlayerList(this);
+            CPE.UpdateExtPlayerList(this); // -- Update CPE listings as needed.
         }
 
         /// <summary>
@@ -478,17 +482,17 @@ namespace Hypercube.Client {
         /// Updates entity positions on this client.
         /// </summary>
         void EntityPositions() {
-            var delete = new List<int>();
+            var delete = new List<int>(); // -- List of entities to remove from our personal list of visible entities.
 
-            foreach (var e in CS.Entities.Values) {
-                if (e.Map != CS.CurrentMap) {
+            foreach (var e in CS.Entities.Values) { // -- Loop through our whole list of tracked entities and process them for updating.
+                if (e.Map != CS.CurrentMap) { // -- If they're no longer on the same map as us
                     // -- Delete the entity.
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
                     continue;
                 }
 
-                if (e.Id == CS.MyEntity.Id) {
+                if (e.Id == CS.MyEntity.Id) { // -- If somehow you ended up with your own entity on the list
                     // -- Delete yourself
                     EDelete((sbyte)e.ClientId);
                     delete.Add(e.Id);
@@ -497,14 +501,14 @@ namespace Hypercube.Client {
 
                 Entity p;
 
-                if (!CS.CurrentMap.Entities.TryGetValue(e.Id, out p)) {
-                    EDelete((sbyte)e.ClientId);
+                if (!CS.CurrentMap.Entities.TryGetValue(e.Id, out p)) { // -- If we can't find this entity on the same map we're on
+                    EDelete((sbyte)e.ClientId); // -- Delete the entity.
                     delete.Add(e.Id);
                     continue;
                 }
 
-                if (!e.Visible) {
-                    EDelete((sbyte)e.ClientId);
+                if (!e.Visible) { // -- If the entity is not visible.
+                    EDelete((sbyte)e.ClientId); // -- Delete the entity.
                     delete.Add(e.Id);
                 }
 
@@ -523,9 +527,9 @@ namespace Hypercube.Client {
                     e.Changed = false;
                 }
 
-                if (p.Model == e.Model) 
-                    continue;
-
+                if (p.Model == e.Model) // -- If the entity still has the same model (CPE Changemodel)
+                    continue; // -- Continue
+                // -- Else, update it!
                 e.Model = p.Model;
                 EModelChange(e.ClientId, e.Model);
             }
@@ -533,7 +537,7 @@ namespace Hypercube.Client {
             foreach (var i in delete) 
                 CS.Entities.Remove(i); // -- If anyone needs to be removed, remove them. (Avoids collection modification)
 
-            foreach (var e in CS.CurrentMap.EntitysList) {
+            foreach (var e in CS.CurrentMap.EntitysList) { // -- Check the entity list of our map for location updates and new entities.
                 EntityStub p;
 
                 if (!CS.Entities.TryGetValue(e.Id, out p)) {
@@ -542,8 +546,8 @@ namespace Hypercube.Client {
                     continue;
                 }
 
-                var csEnt = CS.Entities[e.Id];
-
+                var csEnt = CS.Entities[e.Id]; // -- If we do have them..
+                // -- Check their location and update if needed
                 if (e.Location.X != csEnt.Location.X || e.Location.Y != csEnt.Location.Y || e.Location.Z != csEnt.Location.Z) {
                     csEnt.Location = e.Location;
                     csEnt.Changed = true;
@@ -559,7 +563,7 @@ namespace Hypercube.Client {
                     csEnt.Looked = true;
             }
 
-            if (!CS.MyEntity.SendOwn) 
+            if (!CS.MyEntity.SendOwn) // -- If we need to send our own entity to ourself (we've been teleported somewhere, or just spawned)
                 return;
 
             EFullMove(CS.MyEntity, true);
@@ -570,28 +574,40 @@ namespace Hypercube.Client {
         /// Checks if this client is within a teleporter, or needs to be killed by a kill block.
         /// </summary>
         void CheckPosition() {
-            var myLoc = CS.MyEntity.GetBlockLocation();
-            var tele = CS.CurrentMap.Teleporters.FindTeleporter(myLoc);
+            var myLoc = CS.MyEntity.GetBlockLocation(); // -- Gets our location in block coords
+            var tele = CS.CurrentMap.Teleporters.FindTeleporter(myLoc); // -- Attempts to find a teleporter at our location
 
-            if (tele != null) {
-                if (tele.DestinationMap != CS.CurrentMap)
-                    ChangeMap(tele.DestinationMap);
+            if (tele != null) { // -- If we found a teleporter at our location
+                if (tele.DestinationMap != CS.CurrentMap) // -- If the teleporter is on a different map
+                    ChangeMap(tele.DestinationMap); // -- Change maps
 
-                CS.MyEntity.SetBlockPosition(tele.Dest);
+                CS.MyEntity.SetBlockPosition(tele.Dest); // -- Then update our location to the destination of the teleporter.
                 CS.MyEntity.Look = tele.DestLook;
                 CS.MyEntity.Rot = tele.DestRot;
                 CS.MyEntity.SendOwn = true;
             }
 
-            if (CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, myLoc.Z).Kills) {
-                CS.MyEntity.Kill();
+            if (CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, myLoc.Z).Kills) { // -- If the block at our location kills
+                CS.MyEntity.Kill(); // -- THen we should die
                 return;
             }
 
-            if (!CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, (short) (myLoc.Z + 1)).Kills) 
+            if (!CS.CurrentMap.GetBlock(myLoc.X, myLoc.Y, (short) (myLoc.Z + 1)).Kills) // -- Or if the block one in front of us kills
                 return;
 
-            CS.MyEntity.Kill();
+            CS.MyEntity.Kill(); // -- Then we should die also.
+        }
+
+        /// <summary>
+        /// Despawns all entities from the client and forces them to be re-added on the next entity update
+        /// Used primarily by map resends.
+        /// </summary>
+        public void DespawnAll() {
+            foreach (var kv in CS.Entities) {
+                EDelete((sbyte)kv.Value.ClientId);
+            }
+
+            CS.Entities.Clear();
         }
 
         /// <summary>
@@ -600,6 +616,13 @@ namespace Hypercube.Client {
         /// <param name="name"></param>
         /// <param name="entity"></param>
         void ESpawn(string name, EntityStub entity) {
+            int extVer;
+
+            if (CS.CPEExtensions.TryGetValue("ExtPlayerList", out extVer) && extVer == 2) {
+                CPESpawn(name, entity);
+                return;
+            }
+
             var spawn = new SpawnPlayer
             {
                 PlayerName = name,
@@ -617,6 +640,37 @@ namespace Hypercube.Client {
             
             SendQueue.Enqueue(spawn);
 
+            if (!CS.CPEExtensions.TryGetValue("ChangeModel", out extVer) || entity.Model == "default")
+                return;
+
+            var modelPack = new ChangeModel {
+                EntityId = entity.ClientId,
+                ModelName = entity.Model,
+            };
+
+            SendQueue.Enqueue(modelPack);
+        }
+
+        /// <summary>
+        /// Sends a ExtAddEntity2 packet instead of a SpawnPlayer packet, for clients supporting ExtPlayerList v2.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="entity"></param>
+        void CPESpawn(string name, EntityStub entity) {
+            var spawn2 = new ExtAddEntity2 {
+                EntityId = entity.ClientId,
+                InGameName = name,
+                SkinName = name,
+                Spawn = entity.Location,
+                SpawnPitch = entity.Look,
+                SpawnYaw = entity.Rot,
+            };
+
+            if (entity.Id == CS.MyEntity.Id)
+                spawn2.EntityId = 255;
+
+            SendQueue.Enqueue(spawn2);
+
             int extVer;
 
             if (!CS.CPEExtensions.TryGetValue("ChangeModel", out extVer) || entity.Model == "default")
@@ -630,6 +684,11 @@ namespace Hypercube.Client {
             SendQueue.Enqueue(modelPack);
         }
 
+        /// <summary>
+        /// Updates the CPE model of an entity.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
         void EModelChange(byte id, string model) {
             int extVer;
 
@@ -703,6 +762,9 @@ namespace Hypercube.Client {
             };
         }
 
+        /// <summary>
+        /// Handles checking of positions for teleporters and kill blocks.
+        /// </summary>
         void ExtrasHandler() {
             while (BaseSocket.Connected) {
                 if (!CS.LoggedIn || CS.MyEntity == null) {
@@ -715,27 +777,30 @@ namespace Hypercube.Client {
             }
         }
 
+        /// <summary>
+        /// Handles incoming/outgoing packets and entity positions.
+        /// </summary>
         void DataHandler() {
-            while (BaseSocket.Connected) {
-                if (BaseStream == null) {
+            while (BaseSocket.Connected) { // -- While the client is connected.
+                if (BaseStream == null) { // -- If the stream got disconnected..
                     ServerCore.Nh.HandleDisconnect(this);
                     return;
                 }
 
-                if (BaseStream.DataAvailable) {
-                    var opCode = WSock.ReadByte();
+                if (BaseStream.DataAvailable) { // -- If we have data ready to be read
+                    var opCode = WSock.ReadByte(); // -- Read the packet ID
 
                     Func<IPacket> packet;
 
-                    if (!_packets.TryGetValue(opCode, out packet)) {
+                    if (!_packets.TryGetValue(opCode, out packet)) { // -- Try to get the packet
                         KickPlayer("Invalid packet received.");
                         ServerCore.Logger.Log("Client", "Invalid packet received: " + opCode, LogType.Warning);
                         return;
                     }
 
-                    CS.LastActive = DateTime.UtcNow;
+                    CS.LastActive = DateTime.UtcNow; // -- Set the clients active time.
 
-                    var incoming = packet();
+                    var incoming = packet(); // -- Read and handle the incoming packet.
                     incoming.Read(this);
                     incoming.Handle(this);
                 }
@@ -743,7 +808,7 @@ namespace Hypercube.Client {
                 try {
                     IPacket myPacket;
 
-                    while (SendQueue.TryDequeue(out myPacket)) {
+                    while (SendQueue.TryDequeue(out myPacket)) { // -- Handle our send queue.
                         myPacket.Write(this);
                     }
                 }
@@ -752,17 +817,17 @@ namespace Hypercube.Client {
                     break;
                 }
 
-                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) {
-                    var myPing = new Ping();
+                if ((DateTime.UtcNow - CS.LastActive).Seconds > 5 && (DateTime.UtcNow - CS.LastActive).Seconds < 10) { // -- Check to see if the client has timed out.
+                    var myPing = new Ping(); // -- If they've been inavtive for 6-9 seconds, ping them for an update.
                     myPing.Write(this);
-                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) {
+                } else if ((DateTime.UtcNow - CS.LastActive).Seconds > 10) { // -- If they've been inactive for 10 seconds, consider them disconnected.
                     ServerCore.Logger.Log("Timeout", "Player " + CS.Ip + " timed out.", LogType.Info);
                     KickPlayer("Timed out");
                     return;
                 }
 
-                if (CS.LoggedIn)
-                    EntityPositions();
+                if (CS.LoggedIn) // -- If the client is logged in
+                    EntityPositions(); // -- Handle entity positions
 
                 Thread.Sleep(1);
             }

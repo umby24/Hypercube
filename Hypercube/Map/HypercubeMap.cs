@@ -541,8 +541,8 @@ namespace Hypercube.Map {
 
             lock (ClientLock) {
                 foreach (var c in Clients.Values) {
+                    c.DespawnAll();
                     Send(c);
-                    c.CS.Entities.Clear();
                 }
             }
         }

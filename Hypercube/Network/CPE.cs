@@ -13,7 +13,7 @@ namespace Hypercube.Network {
         public const short HeldBlockVersion = 1;
         public const short ClickDistanceVersion = 1;
         public const short ChangeModelVersion = 1;
-        public const short ExtPlayerListVersion = 1;
+        public const short ExtPlayerListVersion = 2;
         public const short EnvWeatherTypeVersion = 1;
         public const short EnvMapAppearanceVersion = 1;
         public const short MessageTypesVersion = 1;
