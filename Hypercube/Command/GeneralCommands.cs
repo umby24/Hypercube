@@ -582,14 +582,14 @@ namespace Hypercube.Command {
 
             switch (args[0].ToLower()) {
                 case "croc":
-                    args[0] = "crocodile";
-                    goto case "crocodile";
                 case "skele":
                     args[0] = "skele";
                     goto case "skeleton";
                 case "skeleton":
                 case "spider":
                 case "crocodile":
+                    args[0] = "croc";
+                    goto case "pig";
                 case "pig":
                 case "printer":
                 case "chicken":
